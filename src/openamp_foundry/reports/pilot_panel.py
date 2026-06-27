@@ -29,20 +29,26 @@ _DISCLAIMER = (
 
 def _row(c: dict) -> dict:
     scores = c.get("scores", {})
+
+    def _f(key: str, fallback: float = 0.0) -> float:
+        # Accept values from a nested scores dict OR directly on the row (CSV round-trip).
+        v = scores.get(key, c.get(key, fallback))
+        return float(v) if v is not None else fallback
+
     return {
         "pilot_rank": c.get("pilot_rank", ""),
         "candidate_id": c.get("candidate_id", ""),
         "sequence": c.get("sequence", ""),
         "length": len(c.get("sequence", "")),
         "seed": c.get("seed", ""),
-        "ensemble": round(scores.get("ensemble", 0.0), 4),
-        "activity": round(scores.get("activity", 0.0), 4),
-        "boman_activity": round(scores.get("boman_activity", 0.0), 4),
-        "disagreement": round(scores.get("disagreement", 0.0), 4),
-        "safety": round(scores.get("safety", 0.0), 4),
-        "synthesis": round(scores.get("synthesis", 0.0), 4),
-        "novelty": round(scores.get("novelty", 0.0), 4),
-        "pilot_priority": round(c.get("pilot_priority", 0.0), 4),
+        "ensemble": round(_f("ensemble"), 4),
+        "activity": round(_f("activity"), 4),
+        "boman_activity": round(_f("boman_activity"), 4),
+        "disagreement": round(_f("disagreement"), 4),
+        "safety": round(_f("safety"), 4),
+        "synthesis": round(_f("synthesis"), 4),
+        "novelty": round(_f("novelty"), 4),
+        "pilot_priority": round(_f("pilot_priority"), 4),
     }
 
 

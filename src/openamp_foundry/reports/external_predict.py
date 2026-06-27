@@ -161,10 +161,9 @@ def write_confident_panel(
     from openamp_foundry.reports.pilot_panel import write_pilot_csv, write_pilot_markdown
 
     keep_set = set(keep_ids)
-    confident = [c for c in panel if c.get("candidate_id") in keep_set]
+    confident = [dict(c) for c in panel if c.get("candidate_id") in keep_set]
 
     for rank, c in enumerate(confident, start=1):
-        c = dict(c)
         c["pilot_rank"] = rank
 
     base = Path(out_path)
