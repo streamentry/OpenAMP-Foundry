@@ -93,6 +93,36 @@ def build_parser() -> argparse.ArgumentParser:
         help="RNG seed for reproducibility (default: 2024)",
     )
 
+    pilot = sub.add_parser(
+        "pilot-panel",
+        help=(
+            "Select a first-synthesis-wave pilot panel from a ranked JSONL file. "
+            "Picks n candidates (default 20) maximising ensemble score, minimising scorer "
+            "disagreement, and ensuring at least one representative per seed template."
+        ),
+    )
+    pilot.add_argument(
+        "--ranked",
+        required=True,
+        help="Ranked JSONL file (output of the 'rank' command).",
+    )
+    pilot.add_argument(
+        "--n",
+        type=int,
+        default=20,
+        help="Panel size (default: 20).",
+    )
+    pilot.add_argument(
+        "--out-csv",
+        required=True,
+        help="Output CSV path (synthesis-ready format).",
+    )
+    pilot.add_argument(
+        "--out-md",
+        required=False,
+        help="Optional output path for human-readable markdown panel.",
+    )
+
     batch_pack = sub.add_parser(
         "batch-pack",
         help=(
@@ -154,6 +184,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "generate-batch":
         return _run_generate_batch(args)
 
+    if args.command == "pilot-panel":
+        return _run_pilot_panel(args)
+
     if args.command == "batch-pack":
         return _run_batch_pack(args)
 
@@ -205,6 +238,54 @@ def _run_bench(args: argparse.Namespace) -> int:
         return 0
 
     return 2
+
+
+def _run_pilot_panel(args: argparse.Namespace) -> int:
+    import json as _json
+    from datetime import datetime, timezone
+
+    from openamp_foundry.reports.pilot_panel import write_pilot_csv, write_pilot_markdown
+    from openamp_foundry.selection.pilot import select_pilot_panel
+
+    ranked_path = Path(args.ranked)
+    if not ranked_path.exists():
+        print(_json.dumps({"status": "error", "message": f"File not found: {args.ranked}"}))
+        return 1
+
+    candidates = []
+    with open(ranked_path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                row = _json.loads(line)
+                if row.get("selected"):
+                    candidates.append(row)
+
+    panel = select_pilot_panel(candidates, n=args.n)
+    generated_at = datetime.now(timezone.utc).isoformat()
+
+    write_pilot_csv(panel, args.out_csv)
+    if args.out_md:
+        write_pilot_markdown(panel, args.out_md, generated_at=generated_at)
+
+    seeds = sorted({c.get("seed", "") for c in panel})
+    n_consensus = sum(
+        1 for c in panel if c.get("scores", {}).get("disagreement", 1.0) < 0.20
+    )
+    print(_json.dumps({
+        "status": "ok",
+        "n_nominees": len(candidates),
+        "n_panel": len(panel),
+        "seeds_represented": seeds,
+        "n_dual_scorer_consensus": n_consensus,
+        "out_csv": args.out_csv,
+        "out_md": args.out_md,
+        "disclaimer": (
+            "No antimicrobial activity has been demonstrated. "
+            "Human expert review required before synthesis."
+        ),
+    }, indent=2))
+    return 0
 
 
 def _run_batch_pack(args: argparse.Namespace) -> int:

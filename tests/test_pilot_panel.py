@@ -1,0 +1,234 @@
+"""Tests for pilot panel selection and report formatting."""
+from __future__ import annotations
+
+import csv
+import json
+
+import pytest
+
+from openamp_foundry.selection.pilot import _pilot_priority, _seed_from_source, select_pilot_panel
+from openamp_foundry.reports.pilot_panel import write_pilot_csv, write_pilot_markdown
+
+
+def _make(
+    cid: str,
+    seq: str = "KWKLFKKIGAVLKVL",
+    seed: str = "SEED-001",
+    ensemble: float = 0.70,
+    activity: float = 0.72,
+    boman: float = 0.65,
+    disagreement: float | None = None,
+    safety: float = 0.90,
+    synthesis: float = 0.80,
+    novelty: float = 0.20,
+) -> dict:
+    if disagreement is None:
+        disagreement = round(abs(activity - boman), 4)
+    return {
+        "candidate_id": cid,
+        "sequence": seq,
+        "source": f"template_mutation_from_{seed}",
+        "selected": True,
+        "scores": {
+            "ensemble": ensemble,
+            "activity": activity,
+            "boman_activity": boman,
+            "disagreement": disagreement,
+            "safety": safety,
+            "synthesis": synthesis,
+            "novelty": novelty,
+        },
+        "features": {"length": len(seq)},
+        "nearest_reference": None,
+        "selection_reason": [],
+        "known_failure_modes": [],
+    }
+
+
+FIVE_SEEDS = [
+    _make("C1", seed="SEED-001", ensemble=0.80, disagreement=0.05),
+    _make("C2", seed="SEED-002", ensemble=0.75, disagreement=0.10),
+    _make("C3", seed="SEED-003", ensemble=0.70, disagreement=0.15),
+    _make("C4", seed="SEED-004", ensemble=0.68, disagreement=0.20),
+    _make("C5", seed="SEED-005", ensemble=0.65, disagreement=0.25),
+]
+
+EXTRA_SEED1 = [
+    _make("C6", seed="SEED-001", ensemble=0.60, disagreement=0.05),
+    _make("C7", seed="SEED-001", ensemble=0.55, disagreement=0.08),
+]
+
+
+class TestSeedFromSource:
+    def test_standard_prefix(self):
+        assert _seed_from_source("template_mutation_from_SEED-003") == "SEED-003"
+
+    def test_no_prefix_returns_source_as_is(self):
+        assert _seed_from_source("SEED-001") == "SEED-001"
+
+    def test_empty_string(self):
+        assert _seed_from_source("") == ""
+
+
+class TestPilotPriority:
+    def test_higher_ensemble_higher_priority(self):
+        p1 = _pilot_priority({"ensemble": 0.80, "disagreement": 0.10})
+        p2 = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10})
+        assert p1 > p2
+
+    def test_lower_disagreement_higher_priority(self):
+        p1 = _pilot_priority({"ensemble": 0.70, "disagreement": 0.05})
+        p2 = _pilot_priority({"ensemble": 0.70, "disagreement": 0.30})
+        assert p1 > p2
+
+    def test_missing_disagreement_defaults_to_0_5(self):
+        p = _pilot_priority({"ensemble": 0.70})
+        assert p == pytest.approx(0.70 - 0.3 * 0.5, abs=1e-6)
+
+
+class TestSelectPilotPanel:
+    def test_empty_input_returns_empty(self):
+        assert select_pilot_panel([]) == []
+
+    def test_panel_size_capped_at_n(self):
+        big = [_make(f"C{i}", seed=f"SEED-{i:03d}") for i in range(50)]
+        panel = select_pilot_panel(big, n=20)
+        assert len(panel) == 20
+
+    def test_panel_size_when_fewer_candidates_than_n(self):
+        panel = select_pilot_panel(FIVE_SEEDS, n=20)
+        assert len(panel) == 5
+
+    def test_each_seed_represented_at_most_once_in_first_pass(self):
+        candidates = FIVE_SEEDS + EXTRA_SEED1
+        panel = select_pilot_panel(candidates, n=5)
+        seeds = [c["seed"] for c in panel]
+        # Each of SEED-001..005 appears once in a 5-slot panel
+        assert len(set(seeds)) == 5
+
+    def test_extra_slots_filled_from_remainder(self):
+        candidates = FIVE_SEEDS + EXTRA_SEED1
+        panel = select_pilot_panel(candidates, n=7)
+        assert len(panel) == 7
+        # SEED-001 should appear twice (C1 and one of C6/C7)
+        seed_counts = {}
+        for c in panel:
+            seed_counts[c["seed"]] = seed_counts.get(c["seed"], 0) + 1
+        assert seed_counts["SEED-001"] == 3  # C1, C6, C7 all in when n=7
+
+    def test_panel_sorted_by_priority_descending(self):
+        candidates = FIVE_SEEDS + EXTRA_SEED1
+        panel = select_pilot_panel(candidates, n=7)
+        priorities = [c["pilot_priority"] for c in panel]
+        assert priorities == sorted(priorities, reverse=True)
+
+    def test_pilot_rank_assigned(self):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        ranks = [c["pilot_rank"] for c in panel]
+        assert ranks == list(range(1, 6))
+
+    def test_seed_field_added(self):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        for c in panel:
+            assert "seed" in c
+            assert c["seed"].startswith("SEED-")
+
+    def test_best_per_seed_selected_first(self):
+        # C1 (ensemble=0.80) should beat C6 (0.60) for SEED-001 slot
+        candidates = EXTRA_SEED1 + FIVE_SEEDS  # order shouldn't matter
+        panel = select_pilot_panel(candidates, n=5)
+        seed1_entries = [c for c in panel if c["seed"] == "SEED-001"]
+        assert len(seed1_entries) == 1
+        assert seed1_entries[0]["candidate_id"] == "C1"
+
+    def test_high_disagreement_penalised(self):
+        low_disagree = _make("LOW", seed="SEED-X", ensemble=0.72, disagreement=0.02)
+        high_disagree = _make("HIGH", seed="SEED-Y", ensemble=0.75, disagreement=0.50)
+        panel = select_pilot_panel([low_disagree, high_disagree], n=2)
+        assert panel[0]["candidate_id"] == "LOW"
+
+    def test_n_equals_1(self):
+        panel = select_pilot_panel(FIVE_SEEDS, n=1)
+        assert len(panel) == 1
+        assert panel[0]["pilot_rank"] == 1
+
+
+class TestWritePilotCsv:
+    def test_creates_file(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.csv"
+        write_pilot_csv(panel, out)
+        assert out.exists()
+
+    def test_correct_columns(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.csv"
+        write_pilot_csv(panel, out)
+        with open(out, newline="") as f:
+            reader = csv.DictReader(f)
+            fields = reader.fieldnames
+        expected = {"pilot_rank", "candidate_id", "sequence", "length", "seed",
+                    "ensemble", "activity", "boman_activity", "disagreement",
+                    "safety", "synthesis", "novelty", "pilot_priority"}
+        assert set(fields) == expected
+
+    def test_row_count_matches_panel(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.csv"
+        write_pilot_csv(panel, out)
+        with open(out, newline="") as f:
+            rows = list(csv.DictReader(f))
+        assert len(rows) == 5
+
+    def test_length_column_is_sequence_length(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.csv"
+        write_pilot_csv(panel, out)
+        with open(out, newline="") as f:
+            for row in csv.DictReader(f):
+                assert int(row["length"]) == len(row["sequence"])
+
+
+class TestWritePilotMarkdown:
+    def test_creates_file(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.md"
+        write_pilot_markdown(panel, out)
+        assert out.exists()
+
+    def test_contains_disclaimer(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.md"
+        write_pilot_markdown(panel, out)
+        content = out.read_text()
+        assert "Disclaimer" in content
+        assert "demonstrated" in content
+
+    def test_contains_all_candidate_ids(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.md"
+        write_pilot_markdown(panel, out)
+        content = out.read_text()
+        for c in panel:
+            assert c["candidate_id"] in content
+
+    def test_contains_next_steps(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.md"
+        write_pilot_markdown(panel, out)
+        content = out.read_text()
+        assert "Next steps" in content
+        assert "MIC" in content
+
+    def test_contains_reproducibility_block(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.md"
+        write_pilot_markdown(panel, out)
+        content = out.read_text()
+        assert "make pilot" in content
+
+    def test_generated_at_included_when_provided(self, tmp_path):
+        panel = select_pilot_panel(FIVE_SEEDS, n=5)
+        out = tmp_path / "pilot.md"
+        write_pilot_markdown(panel, out, generated_at="2026-06-27T00:00:00Z")
+        assert "2026-06-27" in out.read_text()

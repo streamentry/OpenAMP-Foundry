@@ -1,4 +1,4 @@
-.PHONY: demo test lint clean bench-leakage bench-baseline bench-hidden-active generate phase3
+.PHONY: demo test lint clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -60,6 +60,13 @@ phase3: generate
 		--ranked outputs/phase3_ranked.jsonl \
 		--out-json outputs/phase3_batch_pack.json \
 		--out-md outputs/phase3_batch_pack.md
+
+pilot: phase3
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli pilot-panel \
+		--ranked outputs/phase3_ranked.jsonl \
+		--n 20 \
+		--out-csv outputs/pilot_panel.csv \
+		--out-md outputs/pilot_panel.md
 
 clean:
 	rm -rf outputs/*.jsonl outputs/*.md outputs/*.json outputs/evidence outputs/phase3_evidence .pytest_cache .ruff_cache
