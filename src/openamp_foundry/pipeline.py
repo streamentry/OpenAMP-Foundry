@@ -11,6 +11,7 @@ from openamp_foundry.data.loaders import is_valid_sequence, load_candidates_csv
 from openamp_foundry.evidence.certificate import build_certificate
 from openamp_foundry.features.physchem import compute_features
 from openamp_foundry.scoring.activity import activity_likeness_score
+from openamp_foundry.scoring.boman import boman_activity_score, model_disagreement
 from openamp_foundry.scoring.ensemble import ensemble_score, known_failure_modes, selection_reasons
 from openamp_foundry.scoring.novelty import novelty_score
 from openamp_foundry.scoring.safety import safety_score
@@ -51,11 +52,14 @@ def score_candidates(
         safe = safety_score(features) if valid else 0.0
         synth = synthesis_feasibility_score(features, valid_sequence=valid)
         nov, nearest = novelty_score(candidate.sequence, references)
+        boman_act = boman_activity_score(candidate.sequence) if valid else 0.0
         raw_scores = {
             "activity": act,
             "safety": safe,
             "synthesis": synth,
             "novelty": nov,
+            "boman_activity": boman_act,
+            "disagreement": model_disagreement(act, boman_act),
         }
         raw_scores["ensemble"] = ensemble_score(raw_scores, weights)
         item = ScoredCandidate(

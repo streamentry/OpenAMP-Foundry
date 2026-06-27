@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Lab Result",
+  "description": "Machine-readable lab assay result for a computational candidate. Required for active-learning loop ingestion.",
+  "type": "object",
+  "required": [
+    "result_id",
+    "candidate_id",
+    "assay_type",
+    "organism_or_cell_line",
+    "result_value",
+    "result_unit",
+    "positive_control_passed",
+    "negative_control_passed",
+    "assay_date",
+    "replicate_count",
+    "performed_by_lab",
+    "computational_candidate_certificate_hash",
+    "disclaimer"
+  ],
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "description": "Unique identifier for this assay result (e.g. UUID)"
+    },
+    "candidate_id": {
+      "type": "string",
+      "description": "ID from the evidence certificate of the tested candidate"
+    },
+    "assay_type": {
+      "type": "string",
+      "enum": [
+        "MIC",
+        "MBC",
+        "hemolysis_RBC",
+        "cytotoxicity_mammalian",
+        "membrane_disruption",
+        "time_kill",
+        "biofilm_inhibition",
+        "other"
+      ],
+      "description": "Type of assay performed"
+    },
+    "organism_or_cell_line": {
+      "type": "string",
+      "description": "Organism tested (e.g. 'E. coli ATCC 25922') or cell line (e.g. 'hRBC') with strain/lot details"
+    },
+    "result_value": {
+      "type": ["number", "null"],
+      "description": "Numeric result (e.g. MIC in µg/mL, or % hemolysis). Null if qualitative only."
+    },
+    "result_unit": {
+      "type": "string",
+      "description": "Unit of result_value (e.g. 'µg/mL', '%', 'log10_CFU/mL')"
+    },
+    "result_qualitative": {
+      "type": ["string", "null"],
+      "enum": ["active", "inactive", "partial", "toxic", "inconclusive", null],
+      "description": "Qualitative interpretation, if applicable"
+    },
+    "positive_control_passed": {
+      "type": "boolean",
+      "description": "Whether the positive control gave the expected result"
+    },
+    "negative_control_passed": {
+      "type": "boolean",
+      "description": "Whether the negative control gave the expected result"
+    },
+    "positive_control_id": {
+      "type": ["string", "null"],
+      "description": "Identity of the positive control used (e.g. 'ciprofloxacin 0.25 µg/mL')"
+    },
+    "negative_control_id": {
+      "type": ["string", "null"],
+      "description": "Identity of the negative control used (e.g. 'PBS', 'vehicle')"
+    },
+    "assay_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date assay was performed (ISO 8601 format)"
+    },
+    "replicate_count": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of independent replicates"
+    },
+    "performed_by_lab": {
+      "type": "string",
+      "description": "Name of lab or CRO that performed the assay (not individual researchers)"
+    },
+    "raw_data_sha256": {
+      "type": ["string", "null"],
+      "description": "SHA-256 hash of the raw assay data file, if available"
+    },
+    "computational_candidate_certificate_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the evidence certificate JSON for this candidate at time of selection"
+    },
+    "notes": {
+      "type": ["string", "null"],
+      "description": "Optional assay notes, deviations from protocol, or caveats"
+    },
+    "disclaimer": {
+      "type": "string",
+      "description": "Must state that this is an experimental result on a computationally nominated candidate and does not constitute a drug or clinical claim"
+    }
+  },
+  "additionalProperties": false
+}

@@ -243,6 +243,65 @@ def synthesis_feasibility_report(selected: list[dict[str, Any]]) -> dict[str, An
 
 
 # ---------------------------------------------------------------------------
+# 5. Scorer consensus (Boman index vs. activity-likeness disagreement)
+# ---------------------------------------------------------------------------
+
+def scorer_consensus_report(selected: list[dict[str, Any]]) -> dict[str, Any]:
+    """Summarise dual-scorer consensus across selected candidates.
+
+    Disagreement = |activity_likeness − boman_activity|.
+    Low disagreement (< 0.20): both independent scorers agree → more robust nomination.
+    High disagreement (≥ 0.30): scorers diverge → extra scrutiny recommended.
+    """
+    per_candidate = []
+    for r in selected:
+        scores = r.get("scores", {})
+        act = scores.get("activity")
+        boman_act = scores.get("boman_activity")
+        disagreement = scores.get("disagreement")
+        if act is None or boman_act is None:
+            continue
+        per_candidate.append({
+            "candidate_id": r["candidate_id"],
+            "activity_likeness": act,
+            "boman_activity": boman_act,
+            "disagreement": disagreement,
+            "consensus_label": (
+                "high_consensus" if (disagreement is not None and disagreement < 0.20)
+                else "uncertain" if (disagreement is not None and disagreement >= 0.30)
+                else "moderate"
+            ),
+        })
+
+    per_candidate.sort(key=lambda x: x.get("disagreement") or 1.0)
+
+    n_high_consensus = sum(1 for c in per_candidate if c["consensus_label"] == "high_consensus")
+    n_uncertain = sum(1 for c in per_candidate if c["consensus_label"] == "uncertain")
+    n_moderate = sum(1 for c in per_candidate if c["consensus_label"] == "moderate")
+
+    disagreements = [c["disagreement"] for c in per_candidate if c["disagreement"] is not None]
+    mean_disagreement = sum(disagreements) / len(disagreements) if disagreements else 0.0
+
+    return {
+        "report_type": "scorer_consensus",
+        "disclaimer": (
+            "Model disagreement is a computational uncertainty proxy only. "
+            "It is NOT a biological activity or safety measure. "
+            "High consensus means two independent heuristics agree; "
+            "it does not increase the probability of lab activity. "
+            "The lab is the judge."
+        ),
+        "n_selected": len(selected),
+        "n_scored_with_boman": len(per_candidate),
+        "n_high_consensus_lt_0_20": n_high_consensus,
+        "n_moderate_0_20_to_0_30": n_moderate,
+        "n_uncertain_ge_0_30": n_uncertain,
+        "mean_disagreement": round(mean_disagreement, 4),
+        "candidates": per_candidate,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Full batch pack
 # ---------------------------------------------------------------------------
 
@@ -261,12 +320,13 @@ def generate_batch_pack(
     novelty = novelty_report(sel)
     toxicity = toxicity_hemolysis_risk_report(sel)
     synthesis = synthesis_feasibility_report(sel)
+    consensus = scorer_consensus_report(sel)
 
     ensemble_scores = [r["scores"]["ensemble"] for r in sel]
     mean_ensemble = sum(ensemble_scores) / len(ensemble_scores) if ensemble_scores else 0.0
 
     return {
-        "batch_pack_version": "1.0",
+        "batch_pack_version": "1.1",
         "disclaimer": (
             "All reports in this batch pack are based on computational heuristics. "
             "No biological activity has been demonstrated. "
@@ -282,11 +342,15 @@ def generate_batch_pack(
             "mean_novelty": novelty["mean_novelty"],
             "mean_safety": toxicity["mean_safety_score"],
             "mean_synthesis": synthesis["mean_synthesis_score"],
+            "n_high_consensus": consensus["n_high_consensus_lt_0_20"],
+            "n_uncertain_disagreement": consensus["n_uncertain_ge_0_30"],
+            "mean_scorer_disagreement": consensus["mean_disagreement"],
         },
         "diversity_clustering": diversity,
         "novelty_report": novelty,
         "toxicity_hemolysis_risk": toxicity,
         "synthesis_feasibility": synthesis,
+        "scorer_consensus": consensus,
     }
 
 
@@ -300,6 +364,7 @@ def write_batch_pack_markdown(pack: dict[str, Any], path: str | Path) -> None:
     nov = pack["novelty_report"]
     tox = pack["toxicity_hemolysis_risk"]
     syn = pack["synthesis_feasibility"]
+    con = pack.get("scorer_consensus", {})
 
     lines = [
         "# OpenAMP Foundry — Phase 3 Batch Pack",
@@ -320,6 +385,9 @@ def write_batch_pack_markdown(pack: dict[str, Any], path: str | Path) -> None:
         f"| Mean novelty | {s['mean_novelty']:.4f} |",
         f"| Mean safety | {s['mean_safety']:.4f} |",
         f"| Mean synthesis feasibility | {s['mean_synthesis']:.4f} |",
+        f"| High scorer consensus (disagreement <0.20) | {s.get('n_high_consensus', 'N/A')} |",
+        f"| Uncertain (disagreement ≥0.30) | {s.get('n_uncertain_disagreement', 'N/A')} |",
+        f"| Mean scorer disagreement | {s.get('mean_scorer_disagreement', 0.0):.4f} |",
         "",
         "---",
         "",
@@ -420,6 +488,32 @@ def write_batch_pack_markdown(pack: dict[str, Any], path: str | Path) -> None:
             f"| {c['candidate_id']} | {c['synthesis_score']:.4f} | "
             f"{c['length']} | {cys} | {pro} | {repeat} |"
         )
+
+    if con:
+        lines += [
+            "",
+            "---",
+            "",
+            "## 5. Scorer Consensus Report",
+            "",
+            f"> {con.get('disclaimer', '')}",
+            "",
+            f"- High consensus (disagreement <0.20): {con.get('n_high_consensus_lt_0_20', 'N/A')} candidates",
+            f"- Moderate disagreement (0.20–0.30): {con.get('n_moderate_0_20_to_0_30', 'N/A')} candidates",
+            f"- Uncertain (disagreement ≥0.30): {con.get('n_uncertain_ge_0_30', 'N/A')} candidates",
+            f"- Mean disagreement: {con.get('mean_disagreement', 0.0):.4f}",
+            "",
+            "Candidates sorted by disagreement (lowest = strongest dual-scorer consensus):",
+            "",
+            "| Candidate | Activity | Boman Activity | Disagreement | Consensus |",
+            "|-----------|----------|----------------|--------------|-----------|",
+        ]
+        for c in con.get("candidates", [])[:20]:
+            lines.append(
+                f"| {c['candidate_id']} | {c['activity_likeness']:.4f} | "
+                f"{c['boman_activity']:.4f} | {c.get('disagreement', 0.0):.4f} | "
+                f"{c['consensus_label']} |"
+            )
 
     lines += [
         "",

@@ -3,6 +3,8 @@ from __future__ import annotations
 import math
 from collections import Counter
 
+from openamp_foundry.scoring.boman import boman_index, gravy_score
+
 HYDROPHOBIC = set("AILMFWVY")
 POSITIVE = set("KRH")
 NEGATIVE = set("DE")
@@ -88,5 +90,7 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
         "proline_fraction": round(pro_fraction, 4),
         "longest_repeat_run": repeat_run,
         "hydrophobic_moment": mu_h,
+        "boman_index": boman_index(sequence),
+        "gravy": gravy_score(sequence),
         "residue_counts": dict(sorted(counts.items())),
     }

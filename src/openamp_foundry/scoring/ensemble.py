@@ -17,6 +17,10 @@ def selection_reasons(scores: dict[str, float]) -> list[str]:
         reasons.append("Likely feasible under simple synthesis constraints")
     if scores["novelty"] >= 0.25:
         reasons.append("Not an exact or near-exact duplicate of demo references")
+    boman_act = scores.get("boman_activity")
+    disagreement = scores.get("disagreement")
+    if boman_act is not None and boman_act >= 0.60 and (disagreement is None or disagreement <= 0.20):
+        reasons.append("Independent Boman index scorer agrees: high interaction potential (low disagreement)")
     if not reasons:
         reasons.append("Selected only by ensemble rank; requires skeptical review")
     return reasons
@@ -33,4 +37,11 @@ def known_failure_modes(scores: dict[str, float]) -> list[str]:
         failures.append("Candidate has elevated pre-lab safety-risk proxy.")
     if scores["synthesis"] < 0.75:
         failures.append("Candidate may be harder to synthesize or handle.")
+    disagreement = scores.get("disagreement")
+    if disagreement is not None and disagreement >= 0.30:
+        failures.append(
+            f"High scorer disagreement ({disagreement:.2f}): "
+            "Boman index and physicochemical activity scores diverge. "
+            "Extra scrutiny recommended before nomination."
+        )
     return failures

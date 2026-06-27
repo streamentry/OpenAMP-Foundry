@@ -50,7 +50,7 @@ generate:
 phase3: generate
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli rank \
 		--candidates examples/sequences/phase3_pool.csv \
-		--references examples/sequences/amp_seeds.csv \
+		--references examples/known_reference/amp_curated_references.csv \
 		--out outputs/phase3_ranked.jsonl \
 		--report outputs/phase3_report.md \
 		--cert-dir outputs/phase3_evidence \

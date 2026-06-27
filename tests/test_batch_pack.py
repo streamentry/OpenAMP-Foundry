@@ -17,6 +17,7 @@ from openamp_foundry.reports.batch_pack import (
     diversity_clustering_report,
     generate_batch_pack,
     novelty_report,
+    scorer_consensus_report,
     synthesis_feasibility_report,
     toxicity_hemolysis_risk_report,
     write_batch_pack_markdown,
@@ -31,6 +32,8 @@ def _make_candidate(
     safety: float = 0.9,
     synthesis: float = 0.8,
     novelty: float = 0.2,
+    boman_activity: float = 0.65,
+    disagreement: float | None = None,
     nearest_reference: str | None = "SEED-001",
 ) -> dict:
     features = {
@@ -44,6 +47,8 @@ def _make_candidate(
         "aromatic_fraction": 0.1,
         "hydrophobic_moment": 0.3,
     }
+    if disagreement is None:
+        disagreement = round(abs(activity - boman_activity), 4)
     ensemble = 0.35 * activity + 0.30 * safety + 0.20 * synthesis + 0.15 * novelty
     return {
         "candidate_id": candidate_id,
@@ -56,6 +61,8 @@ def _make_candidate(
             "synthesis": synthesis,
             "novelty": novelty,
             "ensemble": ensemble,
+            "boman_activity": boman_activity,
+            "disagreement": disagreement,
         },
         "features": features,
         "nearest_reference": nearest_reference,
@@ -241,6 +248,77 @@ class TestSynthesisFeasibilityReport:
             assert "length" in c
 
 
+class TestScorerConsensusReport:
+    def test_report_type_field(self):
+        report = scorer_consensus_report(SELECTED_CANDIDATES)
+        assert report["report_type"] == "scorer_consensus"
+
+    def test_n_selected_correct(self):
+        report = scorer_consensus_report(SELECTED_CANDIDATES)
+        assert report["n_selected"] == len(SELECTED_CANDIDATES)
+
+    def test_all_candidates_included_when_boman_present(self):
+        report = scorer_consensus_report(SELECTED_CANDIDATES)
+        assert report["n_scored_with_boman"] == len(SELECTED_CANDIDATES)
+
+    def test_empty_candidates_handled(self):
+        report = scorer_consensus_report([])
+        assert report["n_selected"] == 0
+        assert report["n_scored_with_boman"] == 0
+
+    def test_high_consensus_counted(self):
+        # activity=0.7, boman_activity=0.7 → disagreement=0.0 → high_consensus
+        candidates = [_make_candidate("C1", "KWKLFKKIGAVLKVL", activity=0.7, boman_activity=0.7)]
+        report = scorer_consensus_report(candidates)
+        assert report["n_high_consensus_lt_0_20"] == 1
+        assert report["n_uncertain_ge_0_30"] == 0
+
+    def test_uncertain_counted(self):
+        # activity=0.9, boman_activity=0.4 → disagreement=0.5 → uncertain
+        candidates = [_make_candidate("C1", "KWKLFKKIGAVLKVL", activity=0.9, boman_activity=0.4)]
+        report = scorer_consensus_report(candidates)
+        assert report["n_uncertain_ge_0_30"] == 1
+        assert report["n_high_consensus_lt_0_20"] == 0
+
+    def test_consensus_labels_correct(self):
+        candidates = [
+            _make_candidate("C1", "KWKLFKKIGAVLKVL", activity=0.7, boman_activity=0.7),
+            _make_candidate("C2", "RRWQWRMKKLG", activity=0.9, boman_activity=0.4),
+        ]
+        report = scorer_consensus_report(candidates)
+        by_id = {c["candidate_id"]: c["consensus_label"] for c in report["candidates"]}
+        assert by_id["C1"] == "high_consensus"
+        assert by_id["C2"] == "uncertain"
+
+    def test_sorted_by_disagreement_ascending(self):
+        report = scorer_consensus_report(SELECTED_CANDIDATES)
+        diffs = [c["disagreement"] for c in report["candidates"]]
+        assert diffs == sorted(diffs)
+
+    def test_mean_disagreement_in_range(self):
+        report = scorer_consensus_report(SELECTED_CANDIDATES)
+        assert 0.0 <= report["mean_disagreement"] <= 1.0
+
+    def test_has_disclaimer(self):
+        report = scorer_consensus_report(SELECTED_CANDIDATES)
+        assert "disclaimer" in report
+        assert "lab" in report["disclaimer"].lower()
+
+    def test_no_boman_scores_gracefully_handled(self):
+        # Candidates without boman_activity should be skipped
+        candidates = [
+            {
+                "candidate_id": "NOBOMAN",
+                "sequence": "KWKLFKK",
+                "scores": {"activity": 0.7, "safety": 0.9, "synthesis": 0.8, "novelty": 0.2, "ensemble": 0.75},
+                "features": {},
+                "selected": True,
+            }
+        ]
+        report = scorer_consensus_report(candidates)
+        assert report["n_scored_with_boman"] == 0
+
+
 class TestGenerateBatchPack:
     def test_all_required_top_level_keys_present(self, ranked_jsonl):
         pack = generate_batch_pack(ranked_jsonl)
@@ -249,6 +327,7 @@ class TestGenerateBatchPack:
         assert "novelty_report" in pack
         assert "toxicity_hemolysis_risk" in pack
         assert "synthesis_feasibility" in pack
+        assert "scorer_consensus" in pack
         assert "disclaimer" in pack
 
     def test_summary_n_selected_matches_selected_rows(self, ranked_jsonl):
@@ -288,6 +367,7 @@ class TestWriteBatchPackMarkdown:
         assert "Novelty Report" in content
         assert "Toxicity" in content
         assert "Synthesis Feasibility" in content
+        assert "Scorer Consensus" in content
 
     def test_markdown_contains_disclaimer(self, ranked_jsonl, tmp_path):
         pack = generate_batch_pack(ranked_jsonl)

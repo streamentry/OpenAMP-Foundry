@@ -25,7 +25,15 @@
         "safety": {"type": "number", "minimum": 0, "maximum": 1},
         "synthesis": {"type": "number", "minimum": 0, "maximum": 1},
         "novelty": {"type": "number", "minimum": 0, "maximum": 1},
-        "ensemble": {"type": "number", "minimum": 0, "maximum": 1}
+        "ensemble": {"type": "number", "minimum": 0, "maximum": 1},
+        "boman_activity": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Boman index (2003) normalized to [0,1]. Independent second activity scorer."
+        },
+        "disagreement": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Absolute difference between activity_likeness and boman_activity. High values indicate scoring uncertainty."
+        }
       }
     },
     "references_checked": {"type": "array", "items": {"type": "string"}},
