@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Candidate Evidence Certificate",
+  "type": "object",
+  "required": [
+    "candidate_id",
+    "sequence",
+    "features",
+    "scores",
+    "selection_reason",
+    "known_failure_modes",
+    "recommended_next_steps",
+    "generated_at",
+    "pipeline_version"
+  ],
+  "properties": {
+    "candidate_id": {"type": "string"},
+    "sequence": {"type": "string"},
+    "features": {"type": "object"},
+    "scores": {
+      "type": "object",
+      "required": ["activity", "safety", "synthesis", "novelty", "ensemble"],
+      "properties": {
+        "activity": {"type": "number", "minimum": 0, "maximum": 1},
+        "safety": {"type": "number", "minimum": 0, "maximum": 1},
+        "synthesis": {"type": "number", "minimum": 0, "maximum": 1},
+        "novelty": {"type": "number", "minimum": 0, "maximum": 1},
+        "ensemble": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "references_checked": {"type": "array", "items": {"type": "string"}},
+    "selection_reason": {"type": "array", "items": {"type": "string"}},
+    "known_failure_modes": {"type": "array", "items": {"type": "string"}},
+    "recommended_next_steps": {"type": "array", "items": {"type": "string"}},
+    "generated_at": {"type": "string"},
+    "pipeline_version": {"type": "string"},
+    "config_hash": {"type": "string"}
+  }
+}

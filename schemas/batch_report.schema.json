@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Batch Report",
+  "type": "object",
+  "required": ["pipeline_version", "candidate_count", "selected_count", "generated_at"],
+  "properties": {
+    "pipeline_version": {"type": "string"},
+    "candidate_count": {"type": "integer", "minimum": 0},
+    "selected_count": {"type": "integer", "minimum": 0},
+    "generated_at": {"type": "string"}
+  }
+}

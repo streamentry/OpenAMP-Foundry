@@ -1,0 +1,21 @@
+pipeline_version: "0.1.0"
+
+filters:
+  min_length: 8
+  max_length: 35
+  allowed_amino_acids: "ACDEFGHIKLMNPQRSTVWY"
+
+weights:
+  activity: 0.40
+  safety: 0.25
+  synthesis: 0.15
+  novelty: 0.20
+
+selection:
+  top_n: 100
+  min_novelty: 0.20
+  max_safety_risk: 0.70
+
+notes:
+  - "These weights are transparent baseline heuristics, not validated biological predictors."
+  - "Do not change weights after inspecting held-out benchmark results unless you create a new holdout set."

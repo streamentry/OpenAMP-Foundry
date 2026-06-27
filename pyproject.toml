@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openamp-foundry"
+version = "0.1.0"
+description = "Verification-first dry-lab starter pipeline for antimicrobial peptide candidate triage."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [{name = "OpenAMP Foundry Contributors"}]
+dependencies = [
+  "PyYAML>=6.0",
+  "jsonschema>=4.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.4"
+]
+
+[project.scripts]
+openamp-foundry = "openamp_foundry.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

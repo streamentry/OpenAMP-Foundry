@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Run Manifest",
+  "type": "object",
+  "required": ["run_id", "pipeline_version", "config_hash", "inputs", "outputs"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "pipeline_version": {"type": "string"},
+    "config_hash": {"type": "string"},
+    "inputs": {"type": "array", "items": {"type": "string"}},
+    "outputs": {"type": "array", "items": {"type": "string"}}
+  }
+}

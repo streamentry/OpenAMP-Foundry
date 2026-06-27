@@ -1,0 +1,161 @@
+# -----------------------------------------------------------------------------
+# OpenAMP Foundry .gitignore
+# Keep source, schemas, configs, docs, tests, and tiny demo fixtures in git.
+# Exclude local environments, caches, generated outputs, large datasets,
+# model weights, candidate batches, and potentially sensitive lab/vendor files.
+# -----------------------------------------------------------------------------
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Build / packaging artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+pip-wheel-metadata/
+site/
+
+# Dependency / tool lock scratch files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# OS / editor noise
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Logs
+logs/
+*.log
+*.out
+*.err
+
+# Generated pipeline outputs
+outputs/*
+!outputs/.gitkeep
+reports/*
+!reports/.gitkeep
+runs/*
+!runs/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
+
+# Candidate batches and generated evidence artifacts
+# Keep only documentation and tiny examples under examples/.
+candidates/*
+!candidates/.gitkeep
+batches/*
+!batches/.gitkeep
+evidence/*
+!evidence/.gitkeep
+
+# Large or licensed datasets: use fetch scripts and local cache instead.
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/external/*
+!data/external/.gitkeep
+*.fasta
+*.faa
+*.fa
+*.fastq
+*.fq
+*.sdf
+*.mol2
+*.pdb
+*.cif
+*.mmcif
+*.csv.gz
+*.tsv.gz
+*.jsonl.gz
+*.parquet
+*.sqlite
+*.sqlite3
+*.db
+
+# Model weights / embeddings / checkpoints
+models/*
+!models/README.md
+!models/.gitkeep
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.h5
+*.pkl
+*.pickle
+*.joblib
+*.npy
+*.npz
+embeddings/
+
+# Local lab / CRO / vendor files should not be committed by default.
+# Add sanitized public summaries manually when approved.
+lab_results/*
+!lab_results/.gitkeep
+cro_quotes/*
+!cro_quotes/.gitkeep
+vendor_docs/*
+!vendor_docs/.gitkeep
+
+# Safety-sensitive unscreened candidate lists are intentionally excluded.
+unscreened_candidates/*
+!unscreened_candidates/.gitkeep
+high_risk_review/*
+!high_risk_review/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+*.tmp
