@@ -1,0 +1,12 @@
+id,sequence,source
+NOV-DUP-001,KWKLFKKIGAVLKVL,novelty_pressure
+NOV-DUP-002,KWKLFKKIGAVLKFL,novelty_pressure
+NOV-DUP-003,KWKLFKRIGAVLKVL,novelty_pressure
+NOV-NEW-001,RRLKKVLGAVLKVLK,novelty_pressure
+NOV-NEW-002,WKWLKKIRGKLLKV,novelty_pressure
+NOV-NEW-003,FLKHFKIKAVLKRLK,novelty_pressure
+NOV-NEG-001,AAAAAAAAAAAA,novelty_pressure
+NOV-NEG-002,DEDEDEDEDEDE,novelty_pressure
+NOV-NEG-003,GGGGGGGGGGGG,novelty_pressure
+NOV-NEG-004,EEEEEEEEEEEE,novelty_pressure
+NOV-NEG-005,SSSSSSSSSSSS,novelty_pressure

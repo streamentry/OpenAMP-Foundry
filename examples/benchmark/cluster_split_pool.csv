@@ -1,0 +1,14 @@
+id,sequence,source
+CS-POS-001,KWKLFKKIGAVLKFL,cluster_split
+CS-POS-002,KWKLFKRIGAVLKVL,cluster_split
+CS-POS-003,GLFDIVKKVVGALGAL,cluster_split
+CS-NEG-001,AAAAAAAAAAAA,cluster_split
+CS-NEG-002,DEDEDEDEDEDE,cluster_split
+CS-NEG-003,GGGGGGGGGGGG,cluster_split
+CS-NEG-004,EEEEEEEEEEEE,cluster_split
+CS-NEG-005,SSSSSSSSSSSS,cluster_split
+CS-NEG-006,PPPPPPPPPPPP,cluster_split
+CS-NEG-007,TTTTTTTTTTTT,cluster_split
+CS-NEG-008,NNNNNNNNNNNN,cluster_split
+CS-NEG-009,QQQQQQQQQQQQ,cluster_split
+CS-NEG-010,LLLLLLLLLLL,cluster_split

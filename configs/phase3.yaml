@@ -1,0 +1,31 @@
+pipeline_version: "0.1.0"
+
+# Phase 3 exploration config.
+# Used for scoring and selecting candidates produced by the template-mutation generator.
+# These candidates are 1–3 mutations from known AMP-like seeds, so min_novelty is set
+# lower than the benchmark config (pipeline.yaml), which is appropriate for neighborhood
+# search around known templates.
+# All other filters (length, safety, synthesis) remain strict.
+
+filters:
+  min_length: 8
+  max_length: 35
+  allowed_amino_acids: "ACDEFGHIKLMNPQRSTVWY"
+
+weights:
+  activity: 0.35
+  safety: 0.30
+  synthesis: 0.20
+  novelty: 0.15
+
+selection:
+  top_n: 100
+  min_novelty: 0.05
+  max_safety_risk: 0.40
+
+notes:
+  - "Phase 3 exploration config. Weights differ from pipeline.yaml to prioritize safety."
+  - "min_novelty=0.05 allows near-seed variants (1-3 mutation radius) through the filter."
+  - "max_safety_risk=0.40 is stricter than pipeline.yaml (0.70) — only safe candidates selected."
+  - "These weights are transparent baseline heuristics, not validated biological predictors."
+  - "Locked before Phase 3 generation run per docs/SELECTION_RULE.md."

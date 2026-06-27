@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 
-import pytest
 
 from openamp_foundry.cli import main
 
@@ -45,7 +44,6 @@ def test_validate_command_success(tmp_path):
         "--out", out,
         "--cert-dir", certs,
     ])
-    import os
     cert_files = list((tmp_path / "certs").glob("*.json"))
     assert cert_files, "No certificates were generated"
     ret = main([

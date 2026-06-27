@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -159,6 +158,9 @@ def run_ranking_pipeline(
 
     if report_path:
         write_report(report_path, ranked, selected)
+        batch_report = build_batch_report(ranked, selected, generated_at)
+        report_json = Path(report_path).with_suffix(".json")
+        write_json(report_json, batch_report)
 
     output_paths = [str(out_path)]
     if report_path:
@@ -183,6 +185,41 @@ def run_ranking_pipeline(
         write_json(manifest_out, manifest)
 
     return ranked
+
+
+def build_batch_report(
+    ranked: list[ScoredCandidate],
+    selected: list[ScoredCandidate],
+    generated_at: str,
+) -> dict[str, Any]:
+    """Build a machine-readable batch report validatable against batch_report.schema.json."""
+    selected_ids = {item.candidate.candidate_id for item in selected}
+    return {
+        "pipeline_version": __version__,
+        "candidate_count": len(ranked),
+        "selected_count": len(selected),
+        "generated_at": generated_at,
+        "disclaimer": (
+            "All scores are transparent baseline heuristics. "
+            "They are not validated biological predictors. "
+            "No antimicrobial activity has been demonstrated."
+        ),
+        "score_averages": {
+            "activity": round(
+                sum(s.scores["activity"] for s in ranked) / len(ranked), 4
+            ) if ranked else 0.0,
+            "safety": round(
+                sum(s.scores["safety"] for s in ranked) / len(ranked), 4
+            ) if ranked else 0.0,
+            "novelty": round(
+                sum(s.scores["novelty"] for s in ranked) / len(ranked), 4
+            ) if ranked else 0.0,
+            "ensemble": round(
+                sum(s.scores["ensemble"] for s in ranked) / len(ranked), 4
+            ) if ranked else 0.0,
+        },
+        "selected_ids": sorted(selected_ids),
+    }
 
 
 def write_report(

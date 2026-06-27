@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
-import pytest
 
 from openamp_foundry.pipeline import _passes_length_filter, run_ranking_pipeline, score_candidates
 

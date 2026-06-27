@@ -2,11 +2,22 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "OpenAMP Batch Report",
   "type": "object",
-  "required": ["pipeline_version", "candidate_count", "selected_count", "generated_at"],
+  "required": ["pipeline_version", "candidate_count", "selected_count", "generated_at", "disclaimer"],
   "properties": {
     "pipeline_version": {"type": "string"},
     "candidate_count": {"type": "integer", "minimum": 0},
     "selected_count": {"type": "integer", "minimum": 0},
-    "generated_at": {"type": "string"}
+    "generated_at": {"type": "string"},
+    "disclaimer": {"type": "string"},
+    "score_averages": {
+      "type": "object",
+      "properties": {
+        "activity": {"type": "number", "minimum": 0, "maximum": 1},
+        "safety": {"type": "number", "minimum": 0, "maximum": 1},
+        "novelty": {"type": "number", "minimum": 0, "maximum": 1},
+        "ensemble": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "selected_ids": {"type": "array", "items": {"type": "string"}}
   }
 }

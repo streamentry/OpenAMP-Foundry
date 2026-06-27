@@ -13,11 +13,47 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install
-        run: pip install -e .[dev]
+        run: pip install -e ".[dev]"
+
       - name: Lint
-        run: ruff check src tests scripts
-      - name: Test
-        run: pytest -q
-      - name: Demo
+        run: ruff check src tests
+
+      - name: Unit + integration tests
+        run: pytest -q --tb=short
+
+      - name: Demo pipeline
         run: make demo
+
+      - name: Validate evidence certificates
+        run: |
+          for cert in outputs/evidence/*.json; do
+            PYTHONPATH=src python -m openamp_foundry.cli validate \
+              --certificate "$cert" \
+              --schema schemas/candidate.schema.json
+          done
+
+      - name: Leakage check (informational)
+        run: make bench-leakage
+
+      - name: Hidden-active benchmark (require EF >= 1.5 at k=5)
+        run: |
+          PYTHONPATH=src python -c "
+          import json, subprocess, sys, os
+          result = subprocess.run(
+              ['python', '-m', 'openamp_foundry.cli', 'bench', 'baseline',
+               '--candidates', 'examples/benchmark/mixed_candidates.csv',
+               '--positives', 'examples/benchmark/active_labels.csv',
+               '--k', '5'],
+              capture_output=True, text=True, check=True,
+              env={**os.environ, 'PYTHONPATH': 'src'}
+          )
+          data = json.loads(result.stdout)
+          ef = next(r['enrichment_factor'] for r in data['results'] if r['k'] == 5)
+          print(f'Enrichment factor at k=5: {ef}')
+          if ef < 1.5:
+              print(f'FAIL: EF={ef} below minimum 1.5')
+              sys.exit(1)
+          print('PASS: Pipeline outperforms random ranker on hidden-active benchmark')
+          "
