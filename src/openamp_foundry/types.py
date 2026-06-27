@@ -20,3 +20,4 @@ class ScoredCandidate:
     nearest_reference: dict[str, Any] | None = None
     selection_reason: list[str] = field(default_factory=list)
     known_failure_modes: list[str] = field(default_factory=list)
+    valid: bool = True
