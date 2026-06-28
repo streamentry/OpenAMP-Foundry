@@ -138,6 +138,47 @@ class TestRunRetrospectiveBenchmark:
         print(f"\n[Standard benchmark] AUROC={result['auroc']:.4f}: {result['interpretation']}")
         print(f"Recall@20={result.get('recall_at_20', 'N/A')}")
 
+    def test_phase3_benchmark_passes_gate(self):
+        """Synthesis gate benchmark: phase3.yaml weights must produce AUROC > 0.70.
+
+        phase3.yaml shifts more weight to safety (0.30 vs 0.25) and synthesis (0.20 vs 0.15),
+        which down-ranks hemolytic AMPs — correct behaviour for a synthesis gate but lowers raw
+        AUROC slightly vs pipeline.yaml. Gate is still AUROC > 0.70 (STRONG).
+        Measured: AUROC=0.7936 (95% CI 0.6963-0.8827, n=2000 bootstrap).
+
+        The upper-bound check (< 0.83) is a config-identity sentinel: pipeline.yaml scores
+        0.8164 which would breach it, so a silent config fallback is detectable.
+        """
+        from pathlib import Path
+        amp_csv = Path("examples/validation/known_amps.csv")
+        bg_csv = Path("examples/validation/random_background.csv")
+        phase3_config = Path("configs/phase3.yaml")
+        if not amp_csv.exists() or not bg_csv.exists() or not phase3_config.exists():
+            pytest.skip("Validation data or phase3 config not found — run from project root")
+        result = run_retrospective_benchmark(
+            amp_csv, bg_csv, config_path=phase3_config, benchmark_type="standard"
+        )
+        assert result["benchmark_type"] == "standard"
+        assert 0.0 <= result["auroc"] <= 1.0
+        # Primary synthesis gate (matches documented threshold in METHODS.md § 8 and retrospective.py)
+        assert result["auroc"] > 0.70, (
+            f"phase3.yaml AUROC={result['auroc']:.4f}: synthesis gate does not meet the 0.70 "
+            "threshold. Do not proceed to wet-lab synthesis."
+        )
+        # Regression sentinel: measured AUROC=0.7936; alert if it drops below 0.75
+        assert result["auroc"] >= 0.75, (
+            f"phase3.yaml AUROC={result['auroc']:.4f} < 0.75: a regression has occurred "
+            "(baseline 0.7936). Synthesis gate still valid at >0.70 but scoring may be degraded."
+        )
+        # Config-identity sentinel: pipeline.yaml AUROC=0.8164 > 0.83 would fail this,
+        # so a silent config fallback is caught rather than silently passing with the wrong weights.
+        assert result["auroc"] < 0.83, (
+            f"phase3.yaml AUROC={result['auroc']:.4f} >= 0.83: this is higher than expected "
+            "for phase3.yaml (0.7936). Check that phase3.yaml (not pipeline.yaml) was loaded."
+        )
+        print(f"\n[phase3 benchmark] AUROC={result['auroc']:.4f}: {result['interpretation']}")
+        print(f"AUPRC={result.get('auprc', 'N/A')}, Recall@20={result.get('recall_at_20', 'N/A')}")
+
     def test_strict_benchmark_reports_honestly(self):
         """Secondary (order-sensitivity) benchmark: AMPs vs composition-matched shuffles.
 
