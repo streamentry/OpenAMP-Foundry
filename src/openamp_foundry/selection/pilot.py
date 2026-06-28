@@ -14,17 +14,36 @@ def _seed_from_source(source: str) -> str:
 
 
 def _pilot_priority(scores: dict) -> float:
-    """Higher is better: reward ensemble, stability, and novelty; penalise disagreement.
+    """Higher is better: reward ensemble, stability, novelty, selectivity; penalise disagreement.
 
-    Within a seed family, higher-novelty variants are preferred as tiebreakers.
-    Novelty is weighted lightly (0.05) so the ensemble score remains dominant.
+    Formula:
+        ensemble − 0.30×disagreement + 0.05×serum_stability + 0.05×novelty
+                 + 0.05×selectivity_proxy
+
+    Weights are intentionally equal for the three bonus terms (0.05 each) so no single
+    physicochemical axis dominates over the ensemble activity prediction. The ensemble
+    score remains the dominant term.
+
+    selectivity_proxy [0,1]: likelihood of selective bacterial killing without mammalian
+    cytotoxicity (Dathe & Wieprecht 1999 BBA). Weighted the same as stability and novelty
+    so low-selectivity candidates (e.g. temporin-like, high GRAVY) are gently demoted
+    relative to equivalently-scored but more selective peptides. The maximum range of the
+    selectivity term is 0.05, which breaks ties within families without overriding ensemble.
+
     A candidate with novelty=0.467 (SEED-005 max) gains at most +0.023.
+    A candidate with selectivity_proxy=0.30 (SEED-004 temporin) gets +0.015 instead of
+    +0.05 maximum — a relative demerrit of 0.035 vs a fully selective peptide.
     """
     ensemble = scores.get("ensemble", 0.0)
     disagreement = scores.get("disagreement", 0.5)
     stability = scores.get("serum_stability", 0.5)
     novelty = scores.get("novelty", 0.0)
-    return round(ensemble - 0.3 * disagreement + 0.05 * stability + 0.05 * novelty, 6)
+    selectivity = scores.get("selectivity_proxy", 1.0)
+    return round(
+        ensemble - 0.3 * disagreement + 0.05 * stability + 0.05 * novelty
+        + 0.05 * selectivity,
+        6,
+    )
 
 
 def _is_diverse_vs_panel(

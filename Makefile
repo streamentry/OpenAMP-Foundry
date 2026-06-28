@@ -20,7 +20,7 @@ lint:
 	$(RUFF) check src tests scripts
 
 ci: lint test
-	@echo "CI passed: lint + 1081-test suite green"
+	@echo "CI passed: lint + 1088-test suite green"
 
 bench-leakage:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench leakage \

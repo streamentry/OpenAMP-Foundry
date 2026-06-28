@@ -17,6 +17,7 @@ _CSV_FIELDS = [
     "synthesis",
     "novelty",
     "serum_stability",
+    "selectivity_proxy",
     "pilot_priority",
 ]
 
@@ -50,6 +51,7 @@ def _row(c: dict) -> dict:
         "synthesis": round(_f("synthesis"), 4),
         "novelty": round(_f("novelty"), 4),
         "serum_stability": round(_f("serum_stability"), 4),
+        "selectivity_proxy": round(_f("selectivity_proxy", 1.0), 4),
         "pilot_priority": round(_f("pilot_priority"), 4),
     }
 
@@ -88,14 +90,14 @@ def write_pilot_markdown(panel: list[dict], path: str | Path, generated_at: str 
         "",
         "## Selection method",
         "",
-        "Priority score = `ensemble − 0.3 × disagreement + 0.05 × serum_stability`  ",
+        "Priority score = `ensemble − 0.3 × disagreement + 0.05 × serum_stability + 0.05 × novelty + 0.05 × selectivity_proxy`  ",
         "Rules: one representative per seed (highest priority), then remaining slots filled by priority rank.",
-        "Serum stability acts as a light tiebreaker — favours candidates with fewer interior K/R cleavage sites.",
+        "Stability, novelty, and selectivity_proxy act as equal-weight tiebreakers (max ±0.05 each) — ensemble remains the dominant term.",
         "",
         "## Candidates",
         "",
-        "| # | ID | Sequence | Len | Seed | Ensemble | Activity | Boman | Disagree | Safety | Synth | SerumStab |",
-        "|--:|---|---|--:|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| # | ID | Sequence | Len | Seed | Ensemble | Activity | Boman | Disagree | Safety | Synth | SerumStab | Sel.Px |",
+        "|--:|---|---|--:|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
 
     for c in panel:
@@ -103,7 +105,8 @@ def write_pilot_markdown(panel: list[dict], path: str | Path, generated_at: str 
         lines.append(
             f"| {r['pilot_rank']} | {r['candidate_id']} | `{r['sequence']}` | {r['length']} "
             f"| {r['seed']} | {r['ensemble']} | {r['activity']} | {r['boman_activity']} "
-            f"| {r['disagreement']} | {r['safety']} | {r['synthesis']} | {r['serum_stability']} |"
+            f"| {r['disagreement']} | {r['safety']} | {r['synthesis']} | {r['serum_stability']} "
+            f"| {r['selectivity_proxy']} |"
         )
 
     lines += [

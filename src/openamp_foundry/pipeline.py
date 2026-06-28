@@ -63,6 +63,10 @@ def score_candidates(
             "boman_activity": boman_act,
             "disagreement": model_disagreement(act, boman_act),
             "serum_stability": stability,
+            # selectivity_proxy: heuristic likelihood of selective bacterial killing without
+            # mammalian cytotoxicity. Computed from net charge and GRAVY in compute_features().
+            # Stored in scores (not just features) so pilot_priority can use it for ranking.
+            "selectivity_proxy": features.get("selectivity_proxy", 1.0),
         }
         raw_scores["ensemble"] = ensemble_score(raw_scores, weights)
         item = ScoredCandidate(
