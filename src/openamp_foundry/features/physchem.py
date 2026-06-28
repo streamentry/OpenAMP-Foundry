@@ -13,6 +13,11 @@ CYS = "C"
 # Trypsin cleaves after K or R; chymotrypsin after F, W, Y (interior sites only)
 TRYPSIN_SITES = set("KR")
 CHYMOTRYPSIN_SITES = set("FWY")  # identical to AROMATIC — kept separate for semantic clarity
+# Human neutrophil elastase (HNE) primary P1 substrates: Ala > Val > Ser
+# Reference: Bieth (1986) Bull Eur Physiopathol Respir; Doherty et al. (1991) Biochemistry
+ELASTASE_SITES = {"A", "V", "S"}
+# Hydrophobic residues that drive aggregation in synthetic peptides: Val, Ile, Leu, Met, Phe, Trp
+AGG_HYDROPHOBIC = set("VILMFW")
 
 # Eisenberg consensus hydrophobicity scale (normalized, 0-centred removed, shifted to 0..1 range)
 # Source: Eisenberg et al. (1984) J Mol Biol. Used for hydrophobic moment only.
@@ -181,6 +186,52 @@ def selectivity_proxy(charge: float, gravy: float) -> float:
     return round(0.6 * charge_sel + 0.4 * gravy_sel, 4)
 
 
+def aggregation_propensity(sequence: str) -> float:
+    """Heuristic aggregation propensity for short synthetic peptides [0, 1].
+
+    Two-component model:
+    1. Hydrophobic run length: consecutive residues from {V,I,L,M,F,W} ≥ 4 drive
+       self-association during SPPS, solubilisation, and assay buffers.
+       Risk onset at run ≥ 4 (same threshold as QC HYDROPHOBIC_RUN_RE flag; same
+       residue set AGG_HYDROPHOBIC). Ramp: 0.0 at run=4 → 1.0 at run ≥ 8.
+    2. Beta-branched residue density (Val, Ile, Thr) > 20% promotes β-strand over
+       α-helix and intermolecular β-sheet aggregation in concentrated solutions.
+
+    Limitation: Ala-rich sequences score 0.0 despite documented on-resin aggregation
+    issues (Sarin et al. 1984; Tam et al. 1988). Ala aggregation arises from apolar
+    solvation collapse rather than the hydrophobic-run / β-branched mechanisms here.
+
+    References:
+    - Quittot et al. (2017) Protein Sci 26:720-735 (hydrophobic run aggregation)
+    - Wurth et al. (2006) J Mol Biol 355:524-536 (Val/Ile beta-strand aggregation)
+
+    Returns 0.0 (no risk) to 1.0 (severe aggregation risk).
+    """
+    if not sequence:
+        return 0.0
+    n = len(sequence)
+
+    # Component 1: longest hydrophobic run across full sequence (mirrors QC regex)
+    max_run = 0
+    current_run = 0
+    for aa in sequence:
+        if aa in AGG_HYDROPHOBIC:
+            current_run += 1
+            max_run = max(max_run, current_run)
+        else:
+            current_run = 0
+    # Ramp: 0.0 at run < 4, 0.20 at run=4, …, 1.0 at run ≥ 8
+    run_risk = min(1.0, max(0.0, (max_run - 3) / 5.0))
+
+    # Component 2: beta-branched residue density (Val, Ile, Thr)
+    beta_branched = {"V", "I", "T"}
+    beta_density = sum(1 for aa in sequence if aa in beta_branched) / n
+    # Risk onset at >20%, full risk at >50%
+    beta_risk = min(1.0, max(0.0, (beta_density - 0.20) / 0.30)) if beta_density > 0.20 else 0.0
+
+    return round(0.7 * run_risk + 0.3 * beta_risk, 4)
+
+
 def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     counts = Counter(sequence)
     length = len(sequence)
@@ -194,13 +245,16 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     mu_h = hydrophobic_moment(sequence)
     n_trypsin = interior_protease_sites(sequence, TRYPSIN_SITES)
     n_chymotrypsin = interior_protease_sites(sequence, CHYMOTRYPSIN_SITES)
+    n_elastase = interior_protease_sites(sequence, ELASTASE_SITES)
     # site density: interior cleavage sites per residue (0 = stable, 1 = all residues cleave)
     trypsin_density = round(n_trypsin / length if length else 0.0, 4)
     chymotrypsin_density = round(n_chymotrypsin / length if length else 0.0, 4)
+    elastase_density = round(n_elastase / length if length else 0.0, 4)
     charge_ph74 = net_charge_at_ph74(sequence)
     helix_pa = helix_propensity_score(sequence)
     gravy = gravy_score(sequence)
     sel_proxy = selectivity_proxy(charge_ph74, gravy)
+    agg = aggregation_propensity(sequence)
     return {
         "length": length,
         "net_charge_proxy": charge,
@@ -218,9 +272,12 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
         "boman_index": boman_index(sequence),
         "gravy": gravy,
         "selectivity_proxy": sel_proxy,
+        "aggregation_propensity": agg,
         "residue_counts": dict(sorted(counts.items())),
         "trypsin_site_density": trypsin_density,
         "chymotrypsin_site_density": chymotrypsin_density,
+        "elastase_site_density": elastase_density,
         "interior_trypsin_sites": n_trypsin,
         "interior_chymotrypsin_sites": n_chymotrypsin,
+        "interior_elastase_sites": n_elastase,
     }
