@@ -14,7 +14,8 @@ Recommended tools (free, no registration required as of 2024):
   - AMPScanner v2: https://www.dveltri.com/ascan/v2/ascan.html
   - dbAMP 2.0:    https://awi.cuhk.edu.cn/dbAMP/predict.php
   - AntiCP 2.0:   https://webs.iiitd.edu.in/raghava/anticp2/
-  - Macrel:       https://macrel.readthedocs.io/ (command-line, pip install macrel)
+  - Macrel:       https://big-data-biology.org/software/macrel (web server preferred;
+                  v1.6.0 local CLI has a known ONNX scoring bug — see tool entry below)
 """
 from __future__ import annotations
 
@@ -59,18 +60,24 @@ _TOOLS = [
         ),
     },
     {
-        "name": "Macrel (command-line)",
+        "name": "Macrel (web server preferred)",
         "url": "https://macrel.readthedocs.io/",
         "method": "Random Forest on 22 physicochemical + 8 predicted structural features; trained on DRAMP + UniProt",
         "input": (
-            "pip install macrel; "
-            "macrel peptides -f pilot_panel.fasta --output macrel_out/ --log-file macrel.log"
+            "Submit FASTA to the Macrel web server at https://big-data-biology.org/software/macrel "
+            "OR use the command-line: pip install macrel; "
+            "macrel peptides -f pilot_panel.fasta --output macrel_out/ --log-file macrel.log --keep-negatives"
         ),
-        "positive_label": "AMP",
+        "positive_label": "AMP (is_AMP = True in output)",
         "note": (
-            "Command-line tool — requires Python ≥ 3.7 and pip install. "
-            "Trained on DRAMP v2 (2019 version); reports AMP probability + hemolytic probability. "
-            "The hemolytic probability provides an independent selectivity estimate."
+            "IMPORTANT — Known issue with Macrel v1.6.0 local install: the ONNX model "
+            "outputs log-softmax scores (always ≤ 0; observed ~−0.8 to −0.05 on canonical AMPs) "
+            "rather than probabilities in [0, 1], but the code compares against threshold 0.5. "
+            "This causes ALL sequences to be classified as NAMP locally, including canonical AMPs "
+            "like magainin-2 and LL-37 (verified 2026-06-28). "
+            "Use the official Macrel web server (https://big-data-biology.org/software/macrel) "
+            "for reliable predictions. "
+            "Trained on DRAMP v2 (2019 metagenome AMPs); also reports hemolytic probability."
         ),
     },
 ]

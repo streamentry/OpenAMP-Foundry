@@ -7,6 +7,11 @@
 **Config hash:** 79006c5f18f594c40564f27aea947bb581a5fde73f055789cecbb535489603da  
 **Branch:** feat/phase4-lab-bridge  
 
+> **⚠ Historical record:** This report documents the pipeline as of 2026-06-27 (5 seed families,
+> 89 candidates, pre-PRs #61–76). The pipeline has since been extended to 7 scaffold families
+> and 100 synthesis candidates. For the current synthesis pool see `outputs/pilot_panel.md`,
+> `outputs/synthesis_readiness_report.md`, and `outputs/presynth_qc_report.md`.
+
 ---
 
 ## Abstract
