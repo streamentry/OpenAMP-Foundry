@@ -1011,7 +1011,7 @@ def _run_gold_standard(args: argparse.Namespace) -> int:
         "",
         "This calibration uses the same scoring model as candidate nomination. It is not",
         "independent validation — it confirms internal consistency, not external predictive power.",
-        "The AUROC benchmark (AUROC=0.8047 on 43 literature AMPs vs 44 background peptides) is",
+        "The AUROC benchmark (AUROC=0.8420 on 43 literature AMPs vs 44 background peptides) is",
         "the appropriate independent validation.",
     ]
 
