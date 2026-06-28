@@ -8,6 +8,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from openamp_foundry.features.physchem import aggregation_propensity as _agg_propensity
 from openamp_foundry.features.physchem import net_charge_at_ph74 as _charge_at_ph74
 from openamp_foundry.features.physchem import selectivity_proxy as _sel_proxy
 from openamp_foundry.scoring.boman import gravy_score as _gravy
@@ -108,7 +109,8 @@ class SynthQC:
     methionine_count: int = 0
     has_oxidation_risk: bool = False      # C or M present
     hydrophobic_run: str = ""             # longest hydrophobic run (empty = none)
-    aggregation_risk: bool = False        # run ≥ 4 hydrophobic AA
+    aggregation_risk: bool = False        # run ≥ 4 hydrophobic AA (boolean gate)
+    aggregation_propensity_score: float = 0.0  # continuous [0,1] from physchem.aggregation_propensity()
 
     # Proteolytic vulnerabilities
     trypsin_sites: list[int] = field(default_factory=list)   # positions (0-based)
@@ -161,6 +163,7 @@ class SynthQC:
             "methionine_count": self.methionine_count,
             "oxidation_risk": self.has_oxidation_risk,
             "aggregation_risk": self.aggregation_risk,
+            "aggregation_propensity_score": self.aggregation_propensity_score,
             "hydrophobic_run": self.hydrophobic_run,
             "trypsin_sites": self.trypsin_sites,
             "chymotrypsin_sites": self.chymotrypsin_sites,
@@ -205,6 +208,9 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     if runs:
         qc.hydrophobic_run = max(runs, key=len)
         qc.aggregation_risk = True
+    # Continuous aggregation score (two-component: run length + beta-branched density).
+    # Provides gradient information beyond the binary aggregation_risk flag.
+    qc.aggregation_propensity_score = _agg_propensity(seq)
 
     # Proteolytic sites (interior only — terminal K/R are typical, less risky).
     # _TRYPSIN_RE already requires a following character via (?=.), so the

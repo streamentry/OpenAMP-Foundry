@@ -193,7 +193,7 @@ def aggregation_propensity(sequence: str) -> float:
     1. Hydrophobic run length: consecutive residues from {V,I,L,M,F,W} ≥ 4 drive
        self-association during SPPS, solubilisation, and assay buffers.
        Risk onset at run ≥ 4 (same threshold as QC HYDROPHOBIC_RUN_RE flag; same
-       residue set AGG_HYDROPHOBIC). Ramp: 0.0 at run=4 → 1.0 at run ≥ 8.
+       residue set AGG_HYDROPHOBIC). Ramp: 0.0 at run < 4, 0.20 at run=4, 1.0 at run ≥ 8.
     2. Beta-branched residue density (Val, Ile, Thr) > 20% promotes β-strand over
        α-helix and intermolecular β-sheet aggregation in concentrated solutions.
 

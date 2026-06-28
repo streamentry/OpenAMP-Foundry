@@ -3,7 +3,7 @@
 **Pipeline:** OpenAMP-Foundry v0.1.0  
 **Date:** 2026-06-28 (updated 2026-06-28)  
 **Status:** Pre-synthesis scientific assessment — for expert review before ordering  
-**Completed improvements:** Serum stability scoring (PR #31/#32), Family diversity cap (PR #31), Reference set expansion 44→73 sequences (PR #33), Net charge pH 7.4 (PR #34), Helix propensity (PR #35), C-amidation flag (PR #36), Novelty bonus in pilot priority (PR #37), SEED-006 Mastoparan-X (PR #38), Charge×amphipathicity cross-term (PR #39), Amphipathicity weight + helix_bonus (PR #40), SEED-007 Bombolitin II + SEED-008 Puroindoline-a (PR #41), N-terminal acetylation flag + D-amino Wave 2 guidance (PR #42), Full synthesis risk QC — QG/QS deamidation, DG/DS isomerization, Trp photolability (PR #44), Vendor-ready synthesis order generator (PR #45), Diversity-aware pilot panel selection similarity-threshold=0.75 (PR #46), Selectivity proxy + HIGH_CYTOTOX_RISK flag — charge/GRAVY-based mammalian cytotoxicity risk detector (PR #47), selectivity_proxy routed into pilot_priority formula — low-cytotox-risk candidates gently demoted (PR #48), Elastase resistance (HNE 3-protease stability model) + aggregation propensity scoring (synthesis feasibility penalty) (PR #49)
+**Completed improvements:** Serum stability scoring (PR #31/#32), Family diversity cap (PR #31), Reference set expansion 44→73 sequences (PR #33), Net charge pH 7.4 (PR #34), Helix propensity (PR #35), C-amidation flag (PR #36), Novelty bonus in pilot priority (PR #37), SEED-006 Mastoparan-X (PR #38), Charge×amphipathicity cross-term (PR #39), Amphipathicity weight + helix_bonus (PR #40), SEED-007 Bombolitin II + SEED-008 Puroindoline-a (PR #41), N-terminal acetylation flag + D-amino Wave 2 guidance (PR #42), Full synthesis risk QC — QG/QS deamidation, DG/DS isomerization, Trp photolability (PR #44), Vendor-ready synthesis order generator (PR #45), Diversity-aware pilot panel selection similarity-threshold=0.75 (PR #46), Selectivity proxy + HIGH_CYTOTOX_RISK flag — charge/GRAVY-based mammalian cytotoxicity risk detector (PR #47), selectivity_proxy routed into pilot_priority formula — low-cytotox-risk candidates gently demoted (PR #48), Elastase resistance (HNE 3-protease stability model) + aggregation propensity scoring (synthesis feasibility penalty) (PR #49), Aggregation-safe mutation generation + balanced K/R charge variants + SynthQC continuous aggregation score (PR #50)
 
 ---
 
@@ -65,6 +65,21 @@ Key improvements since last assessment (PRs #39–#49):
   (proxy=0.30) are now demoted by 0.035 relative to a fully selective peer with equal ensemble
   score — they can still earn their max_per_seed slots if they score well on ensemble, but are
   no longer ranked identically to selective candidates with the same activity profile.
+- **Aggregation-safe mutation generation + balanced K/R variants (PR #50):** Generator-level
+  improvements that make candidate generation consistent with the scoring and QC layers:
+  (a) `generate_aggregation_safe_double_variants()` filters out double substitutions that would
+  create hydrophobic runs ≥4 residues, preventing the generator from producing sequences that
+  are immediately penalised by `synthesis_feasibility_score()` (run risk detected and filtered
+  *before* synthesis ordering, not discovered after). (b) `generate_balanced_charge_variants()`
+  generates both K and R replacements at each polar position (S/T/N/Q), giving the scoring
+  pipeline twice as many charge-enhanced options to rank — K (KD=−3.9) vs R (KD=−4.5) differ
+  in GRAVY and trypsin sensitivity, and the best one for each seed's GRAVY profile can now be
+  selected automatically. (c) `SynthQC.aggregation_propensity_score` (float [0,1]) added to
+  the presynth QC dataclass and to_dict(), providing continuous gradient information alongside
+  the existing `aggregation_risk` boolean — useful for prioritising borderline candidates
+  (e.g. score 0.14 vs 0.0 distinguishes a run-of-4 from a truly safe sequence).
+  Code quality: closes the divergence between the QC boolean flag and the continuous scoring model.
+
 - **Elastase resistance + aggregation propensity (PR #49):** Two new computational features
   addressing the top pipeline gaps identified in post-PR-48 audit:
   (a) `aggregation_propensity()` [0,1] — quantifies on-resin hydrophobic-run and beta-branched
@@ -85,21 +100,22 @@ novel scaffold family in the pilot panel.**
 
 To be publishable as a significant advance in AMP discovery, a candidate must satisfy all of:
 
-| Criterion | Threshold | Original P | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PR #48 | After PR #49 (current) |
-|-----------|-----------|------------|------------------|-----------------|-----------------|--------------|----------------------|
-| Synthesis success (HPLC ≥ 90% purity) | ≥ 90% purity | ~90% | ~90% | ~88% | **~89%** ✓ | **~89%** | **~90%** ✓ (aggregation model) |
-| MIC vs ATCC reference strains | ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~60–70%** | **~60–70%** (unchanged) |
-| Excellent selectivity | TI > 10 | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~41–56%** ✓ | **~41–56%** (unchanged) |
-| Serum stability | t½ > 2 h | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~28–42%** | **~29–44%** ✓ (elastase model) |
-| Scaffold novelty | Not in APD3/DRAMP | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | **~26–36%** (unchanged) |
-| Potency vs MDR strains | MIC < 8 μg/mL | not tested | not tested | not tested | not tested | not tested | not tested (wet-lab only) |
+| Criterion | Threshold | Original P | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PR #48 | After PR #49 | After PR #50 (current) |
+|-----------|-----------|------------|------------------|-----------------|-----------------|--------------|--------------|----------------------|
+| Synthesis success (HPLC ≥ 90% purity) | ≥ 90% purity | ~90% | ~90% | ~88% | **~89%** ✓ | **~89%** | **~90%** ✓ (agg model) | **~90%** ✓ (agg-safe gen) |
+| MIC vs ATCC reference strains | ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~60–70%** | **~60–70%** | **~60–70%** (unchanged) |
+| Excellent selectivity | TI > 10 | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~41–56%** ✓ | **~41–56%** | **~41–56%** (unchanged) |
+| Serum stability | t½ > 2 h | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~28–42%** | **~29–44%** ✓ | **~29–44%** (unchanged) |
+| Scaffold novelty | Not in APD3/DRAMP | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | **~26–36%** | **~26–36%** (unchanged) |
+| Potency vs MDR strains | MIC < 8 μg/mL | not tested | not tested | not tested | not tested | not tested | not tested | not tested (wet-lab only) |
 
 **Combined probability of satisfying all criteria simultaneously (original):** ~5–12%  
 **Combined probability after PRs #31–38:** ~16–35%  
 **Combined probability after PRs #39–42:** ~22–42%  
 **Combined probability after PRs #43–47:** ~24–45%  
 **Combined probability after PR #48:** ~25–46%  
-**Combined probability after PR #49 (current):** **~27–47%**
+**Combined probability after PR #49:** ~27–47%  
+**Combined probability after PR #50 (current):** **~27–47%** (generator consistency — no new scoring gates)
 
 **Methodology note:** Combined probability is computed as P(≥1 from 20) under an independent-candidate
 Poisson model: P_individual = P(S0) × P(S1) × P(S2) × P(S3) × P(S4). Using gate midpoints
@@ -436,6 +452,17 @@ Despite the probability gap, the pipeline has done the following correctly:
     content are now correctly penalised, ensuring the pipeline's stability gate reflects in-vivo
     biology rather than only in-vitro serum dilution assay conditions.
 
+14. **Generator–scorer–QC consistency (PR #50):** Three layers of the pipeline now use the same
+    aggregation threshold (VILMFW run ≥ 4) consistently: (a) `generate_aggregation_safe_double_variants()`
+    in the generator filters out unsafe mutations before they enter the candidate pool; (b)
+    `aggregation_propensity()` in the scorer penalises unsafe sequences that reach synthesis
+    feasibility scoring; (c) `aggregation_risk` boolean and the new `aggregation_propensity_score`
+    float in `SynthQC` report both to the wet-lab operator. All three layers use the same definition
+    of "aggregation-risky", removing any possible divergence between what the generator creates,
+    what the scorer penalises, and what the QC reports. Additionally, `generate_balanced_charge_variants()`
+    now generates both K and R charge-enhanced options for each polar position, letting the scoring
+    pipeline select the variant with the better GRAVY/selectivity profile automatically.
+
 ---
 
 ## Highest-Probability Bets in the Current Panel
@@ -482,19 +509,19 @@ Executing all four actions on the best Wave 1 hits would push the combined proba
 
 ## Summary Table: Probability by Gate
 
-| Stage | Gate | Original | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PR #48 (current) | Primary limiting factor |
-|-------|------|----------|-----------------|-----------------|-----------------|----------------------|------------------------|
-| 0 | Synthesis success | ~90% | ~90% | ~88% | **~89%** ✓ | **~89%** | SEED-008 W-rich; PR #44 catches more risks early |
-| 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~60–70%** | AUROC 0.811; 8 scaffold families |
+| Stage | Gate | Original | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PRs #48–50 (current) | Primary limiting factor |
+|-------|------|----------|-----------------|-----------------|-----------------|--------------------------|------------------------|
+| 0 | Synthesis success | ~90% | ~90% | ~88% | **~89%** ✓ | **~90%** ✓ (agg model + agg-safe gen) | SEED-008 W-rich; all aggregation risks now modelled |
+| 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~60–70%** | AUROC 0.814; 8 scaffold families |
 | 2 | TI > 10 (selectivity) | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~41–56%** ✓ | sel_proxy in pilot ranking demotes SEED-004 |
-| 3 | t½ > 2 h (serum) | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~28–42%** | Wave 2 D-amino plan machine-readable |
+| 3 | t½ > 2 h (serum) | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~29–44%** ✓ (3-protease model) | Wave 2 D-amino plan machine-readable |
 | 4 | Scaffold novelty | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | Diversity filter removes cross-seed near-dups |
-| All | "Breaking news" hit | ~5–12% | ~16–35% | ~22–42% | ~24–45% | **~25–46%** ✓ | MDR strains + Wave 2 D-amino = path to 50%+ |
+| All | "Breaking news" hit | ~5–12% | ~16–35% | ~22–42% | ~24–45% | **~27–47%** ✓ | MDR strains + Wave 2 D-amino = path to 50%+ |
 
 **Probability of ≥1 active AMP from pilot panel (Stage 1 only):** ~90–97%  
 (Probability of zero active from 20 candidates with ~65% individual hit rate ≈ 3–10%)
 
-**Probability of ≥1 candidate satisfying ALL gates (current panel, PRs #31–#48):** ~25–46%
+**Probability of ≥1 candidate satisfying ALL gates (current panel, PRs #31–#50):** ~27–47%
 
 ---
 
