@@ -243,7 +243,8 @@ Fmoc SPPS with acetonitrile/water gradient; verify MALDI-TOF pre-assay.
 Updated from ~55–65% due to addition of proven scaffold families.
 
 Basis:
-- Pipeline AUROC = 0.8164 (bootstrap CI₉₅: 0.71–0.89) vs composition-matched UniProt decoys
+- Pipeline AUROC = 0.8164 (95% CI: 0.72–0.90) vs composition-matched UniProt decoys
+- Pipeline AUPRC = 0.8556 (+0.36 above random baseline 0.50; PR curve emphasises precision at selection operating point)
 - Recall@20 = 43% on internal benchmark (positives recovered in top 20 ranked candidates)
 - SEED-003 family (up to 4/20): RRWQWRMKKLG is curated known AMP → variants ~65–75% hit rate
 - SEED-007 family (up to 4/20): Bombolitin II (*Bombus pennsylvanicus* bumblebee venom) with

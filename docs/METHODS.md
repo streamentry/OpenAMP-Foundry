@@ -321,10 +321,13 @@ benchmark set using the full ensemble scorer). Benchmarked after PRs #48–54; t
 improvements in those PRs moved AUROC from 0.7926 → 0.8138 → 0.8164. Bootstrap 95% CI
 computed via Wilcoxon-Mann-Whitney (n=2000 iterations; CI reported in `validate-scoring` output).
 
-**AUPRC (v0.5.x):** Area Under Precision-Recall Curve is now computed alongside AUROC and
-reported by `make validate-scoring`. AUPRC is preferable to AUROC for class-imbalanced
-datasets because it emphasises precision at the operating point actually used for candidate
-selection. Random baseline = dataset prevalence (0.50 for the balanced demo set).
+**AUPRC (v0.5.x):** `0.8556` (+0.3556 above the random baseline of 0.50). Area Under
+Precision-Recall Curve is computed alongside AUROC and reported by `make validate-scoring`.
+AUPRC is preferable to AUROC for class-imbalanced datasets because it emphasises precision
+at the operating point actually used for candidate selection. Random baseline = dataset
+prevalence (0.50 for the balanced demo set). Implemented with pessimistic tie-breaking
+(negatives sort first on tied scores) to match sklearn `average_precision_score` convention
+and avoid inflation to 1.0 for constant-score classifiers.
 
 **To reproduce:** `make validate-scoring` (runs `cli validate-scoring` on
 `examples/validation/known_amps.csv` vs `examples/validation/random_background.csv`)
