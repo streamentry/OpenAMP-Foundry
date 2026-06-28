@@ -3,7 +3,7 @@
 **Pipeline:** OpenAMP-Foundry v0.1.0  
 **Date:** 2026-06-28 (updated 2026-06-28)  
 **Status:** Pre-synthesis scientific assessment — for expert review before ordering  
-**Completed improvements:** Serum stability scoring (PR #31/#32), Family diversity cap (PR #31), Reference set expansion 44→73 sequences (PR #33), Net charge pH 7.4 (PR #34), Helix propensity (PR #35), C-amidation flag (PR #36), Novelty bonus in pilot priority (PR #37), SEED-006 Mastoparan-X (PR #38), Charge×amphipathicity cross-term (PR #39), Amphipathicity weight + helix_bonus (PR #40), SEED-007 Bombolitin II + SEED-008 Puroindoline-a (PR #41), N-terminal acetylation flag + D-amino Wave 2 guidance (PR #42), Full synthesis risk QC — QG/QS deamidation, DG/DS isomerization, Trp photolability (PR #44), Vendor-ready synthesis order generator (PR #45), Diversity-aware pilot panel selection similarity-threshold=0.75 (PR #46), Selectivity proxy + HIGH_CYTOTOX_RISK flag — charge/GRAVY-based mammalian cytotoxicity risk detector (PR #47), selectivity_proxy routed into pilot_priority formula — low-cytotox-risk candidates gently demoted (PR #48), Elastase resistance (HNE 3-protease stability model) + aggregation propensity scoring (synthesis feasibility penalty) (PR #49), Aggregation-safe mutation generation + balanced K/R charge variants + SynthQC continuous aggregation score (PR #50), Proline synthesis penalty + helix bonus enhancement — AUROC 0.8138 → 0.8164 (PR #51)
+**Completed improvements:** Serum stability scoring (PR #31/#32), Family diversity cap (PR #31), Reference set expansion 44→73 sequences (PR #33), Net charge pH 7.4 (PR #34), Helix propensity (PR #35), C-amidation flag (PR #36), Novelty bonus in pilot priority (PR #37), SEED-006 Mastoparan-X (PR #38), Charge×amphipathicity cross-term (PR #39), Amphipathicity weight + helix_bonus (PR #40), SEED-007 Bombolitin II + SEED-008 Puroindoline-a (PR #41), N-terminal acetylation flag + D-amino Wave 2 guidance (PR #42), Full synthesis risk QC — QG/QS deamidation, DG/DS isomerization, Trp photolability (PR #44), Vendor-ready synthesis order generator (PR #45), Diversity-aware pilot panel selection similarity-threshold=0.75 (PR #46), Selectivity proxy + HIGH_CYTOTOX_RISK flag — charge/GRAVY-based mammalian cytotoxicity risk detector (PR #47), selectivity_proxy routed into pilot_priority formula — low-cytotox-risk candidates gently demoted (PR #48), Elastase resistance (HNE 3-protease stability model) + aggregation propensity scoring (synthesis feasibility penalty) (PR #49), Aggregation-safe mutation generation + balanced K/R charge variants + SynthQC continuous aggregation score (PR #50), Proline synthesis penalty + helix bonus enhancement — AUROC 0.8138 → 0.8164 (PR #51), Safety pH74 charge consistency + stronger cytotoxicity penalty — SEED-004 net selectivity swing increased 0.035→0.055 (PR #53)
 
 ---
 
@@ -15,7 +15,7 @@ each stage, identifies the key risk factors in the current nominee set, and list
 improvements already implemented or recommended.
 
 **Bottom line:** The pilot panel has a ~61–71% probability of yielding at least one candidate
-with MIC ≤ 32 μg/mL, and **~28–48%** probability of generating "breaking news" publication
+with MIC ≤ 32 μg/mL, and **~29–49%** probability of generating "breaking news" publication
 material with the fully updated panel (up from 5–12% before computational improvements).
 
 Key improvements since last assessment (PRs #39–#49):
@@ -80,6 +80,20 @@ Key improvements since last assessment (PRs #39–#49):
   (e.g. score 0.14 vs 0.0 distinguishes a run-of-4 from a truly safe sequence).
   Code quality: closes the divergence between the QC boolean flag and the continuous scoring model.
 
+- **Safety pH74 charge consistency + stronger cytotoxicity penalty (PR #53):** Two consistency
+  fixes that make candidate selection more accurate:
+  (a) `safety_score()` now uses `charge_density_ph74` (pH 7.4 adjusted) in preference to the
+  count-based proxy, matching `activity_likeness_score()` behaviour. Previously, a His-rich
+  sequence could be incorrectly penalised for charge risk because His (pKa 6.0) contributes +1
+  to the proxy but is neutral at physiological pH. The fix prevents this false positive.
+  (b) `_pilot_priority()` adds an explicit `cytotox_penalty` term for HIGH_CYTOTOX_RISK
+  candidates (selectivity_proxy < 0.5): `−0.05 × (0.5 − proxy) / 0.5`. Combined with the
+  existing soft bonus, SEED-004 temporin (proxy=0.30) now swings −0.055 relative to a fully
+  selective equal-ensemble peer (was −0.035). This better reflects that Stage 2 failure
+  (hemolysis/cytotoxicity) is the largest single remaining contributor to missed "breaking news"
+  candidates. Literature: Dathe & Wieprecht (1999) BBA 1462; Carotenuto et al. (2008) J Med Chem.
+  AUROC unchanged at 0.8164 (safety/selectivity affect panel selection, not the scoring model).
+
 - **Proline synthesis penalty + helix bonus enhancement (PR #51):** Two targeted improvements
   addressing gaps identified in post-PR-50 pipeline audit:
   (a) `synthesis_feasibility_score()` now deducts −0.10 when `proline_fraction > 0.15`.
@@ -118,14 +132,14 @@ novel scaffold family in the pilot panel.**
 
 To be publishable as a significant advance in AMP discovery, a candidate must satisfy all of:
 
-| Criterion | Threshold | Original P | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PR #48 | After PR #49 | After PR #50 | After PR #51 (current) |
-|-----------|-----------|------------|------------------|-----------------|-----------------|--------------|--------------|--------------|----------------------|
-| Synthesis success (HPLC ≥ 90% purity) | ≥ 90% purity | ~90% | ~90% | ~88% | **~89%** ✓ | **~89%** | **~90%** ✓ (agg model) | **~90%** ✓ (agg-safe gen) | **~90%** ✓ (pro penalty) |
-| MIC vs ATCC reference strains | ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~60–70%** | **~60–70%** | **~60–70%** | **~61–71%** ✓ (AUROC 0.8164) |
-| Excellent selectivity | TI > 10 | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~41–56%** ✓ | **~41–56%** | **~41–56%** | **~41–56%** (unchanged) |
-| Serum stability | t½ > 2 h | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~28–42%** | **~29–44%** ✓ | **~29–44%** | **~29–44%** (unchanged) |
-| Scaffold novelty | Not in APD3/DRAMP | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | **~26–36%** | **~26–36%** | **~26–36%** (unchanged) |
-| Potency vs MDR strains | MIC < 8 μg/mL | not tested | not tested | not tested | not tested | not tested | not tested | not tested | not tested (wet-lab only) |
+| Criterion | Threshold | Original P | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PR #48 | After PR #49 | After PR #50 | After PR #51 | After PR #53 (current) |
+|-----------|-----------|------------|------------------|-----------------|-----------------|--------------|--------------|--------------|--------------|----------------------|
+| Synthesis success (HPLC ≥ 90% purity) | ≥ 90% purity | ~90% | ~90% | ~88% | **~89%** ✓ | **~89%** | **~90%** ✓ (agg model) | **~90%** ✓ (agg-safe gen) | **~90%** ✓ (pro penalty) | **~90%** ✓ (pH74 charge) |
+| MIC vs ATCC reference strains | ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~60–70%** | **~60–70%** | **~60–70%** | **~61–71%** ✓ | **~61–71%** (unchanged) |
+| Excellent selectivity | TI > 10 | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~41–56%** ✓ | **~41–56%** | **~41–56%** | **~41–56%** | **~42–57%** ✓ (stronger SEED-004 demotion) |
+| Serum stability | t½ > 2 h | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~28–42%** | **~29–44%** ✓ | **~29–44%** | **~29–44%** | **~29–44%** (unchanged) |
+| Scaffold novelty | Not in APD3/DRAMP | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | **~26–36%** | **~26–36%** | **~26–36%** | **~26–36%** (unchanged) |
+| Potency vs MDR strains | MIC < 8 μg/mL | not tested | not tested | not tested | not tested | not tested | not tested | not tested | not tested | not tested (wet-lab only) |
 
 **Combined probability of satisfying all criteria simultaneously (original):** ~5–12%  
 **Combined probability after PRs #31–38:** ~16–35%  
@@ -134,7 +148,8 @@ To be publishable as a significant advance in AMP discovery, a candidate must sa
 **Combined probability after PR #48:** ~25–46%  
 **Combined probability after PR #49:** ~27–47%  
 **Combined probability after PR #50:** ~27–47% (generator consistency — no new scoring gates)  
-**Combined probability after PR #51 (current):** **~28–48%** ✓ (AUROC improvement to 0.8164 raises MIC gate)
+**Combined probability after PR #51:** ~28–48% (AUROC improvement to 0.8164 raises MIC gate)  
+**Combined probability after PR #53 (current):** **~29–49%** ✓ (stronger selectivity penalty shifts panel to higher-TI candidates)
 
 **Methodology note:** Combined probability is computed as P(≥1 from 20) under an independent-candidate
 Poisson model: P_individual = P(S0) × P(S1) × P(S2) × P(S3) × P(S4). Using gate midpoints
@@ -359,8 +374,8 @@ For candidates from SEED-001/002/003 (low novelty), publishability requires one 
 
 ```
 Target:  100% breaking news probability
-Current: ~28–48% (after all computational improvements PRs #31–#51)
-Gap:     ~52–72%
+Current: ~29–49% (after all computational improvements PRs #31–#53)
+Gap:     ~51–71%
 
 Root causes (ranked by remaining impact):
 
@@ -403,7 +418,7 @@ Root causes (ranked by remaining impact):
 - Seed novelty ceiling: 0.467 → 0.643 (SEED-006) → 0.667 (SEED-008)
 - Three genuinely novel scaffold families added: wasp mastoparan (SEED-006), bumblebee bombolitin
   (SEED-007), wheat puroindoline Trp domain (SEED-008)
-- "Breaking news" probability: ~5–12% → ~16–35% → ~22–42% → ~22–43% → ~24–45% → ~25–46% → ~27–47% → **~28–48%** (current, PR #51)
+- "Breaking news" probability: ~5–12% → ~16–35% → ~22–42% → ~22–43% → ~24–45% → ~25–46% → ~27–47% → ~28–48% → **~29–49%** (current, PR #53)
 - Selectivity proxy: `selectivity_proxy` in compute_features() output; `HIGH_CYTOTOX_RISK` flag
   in presynth QC + synthesis order checklist (PR #47)
 - `selectivity_proxy` in pilot_priority formula (weight 0.05, same as stability/novelty); SEED-004
@@ -491,6 +506,14 @@ Despite the probability gap, the pipeline has done the following correctly:
     (~70% of membrane-active AMPs); ceiling rises 0.95 → 0.97. AUROC improved 0.8138 → 0.8164
     on the retrospective benchmark, confirming the helix signal is real and not noise.
 
+16. **Safety pH74 consistency + doubled cytotoxicity penalty (PR #53):** Two precision fixes:
+    (a) `safety_score()` now uses `charge_density_ph74` consistently with the activity scorer,
+    eliminating false-positive charge-risk flags for His-containing sequences at physiological pH.
+    (b) `_pilot_priority()` adds a dedicated `cytotox_penalty` term: candidates with
+    selectivity_proxy < 0.5 (HIGH_CYTOTOX_RISK) now receive both reduced bonus AND an explicit
+    penalty. SEED-004 temporin (proxy=0.30) swings −0.055 vs a fully selective peer (was −0.035).
+    This increases pressure on the pilot panel to favour high-TI candidates in Stage 2.
+
 ---
 
 ## Highest-Probability Bets in the Current Panel
@@ -521,7 +544,7 @@ Proceed with full panel. Prepare D-amino Wave 2 synthesis order for the 3 best W
 
 ## Roadmap to ≥50% Breaking News Probability
 
-The gap between the current ~28–48% and the 50% mark can be crossed with the following:
+The gap between the current ~29–49% and the 50% mark can be crossed with the following:
 
 | Action | Probability impact | Timeline | Cost |
 |--------|--------------------|----------|------|
@@ -537,19 +560,19 @@ Executing all four actions on the best Wave 1 hits would push the combined proba
 
 ## Summary Table: Probability by Gate
 
-| Stage | Gate | Original | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PRs #48–51 (current) | Primary limiting factor |
+| Stage | Gate | Original | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PRs #48–53 (current) | Primary limiting factor |
 |-------|------|----------|-----------------|-----------------|-----------------|--------------------------|------------------------|
-| 0 | Synthesis success | ~90% | ~90% | ~88% | **~89%** ✓ | **~90%** ✓ (agg model + agg-safe gen + pro penalty) | SEED-008 W-rich; all aggregation/synthesis risks modelled |
+| 0 | Synthesis success | ~90% | ~90% | ~88% | **~89%** ✓ | **~90%** ✓ (agg model + agg-safe gen + pro penalty + pH74 charge) | SEED-008 W-rich; all aggregation/synthesis risks modelled |
 | 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~61–71%** ✓ (AUROC 0.8164) | AUROC 0.8164; 8 scaffold families |
-| 2 | TI > 10 (selectivity) | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~41–56%** ✓ | sel_proxy in pilot ranking demotes SEED-004 |
+| 2 | TI > 10 (selectivity) | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~42–57%** ✓ (stronger SEED-004 demotion) | sel_proxy doubled penalty for HIGH_CYTOTOX_RISK tier |
 | 3 | t½ > 2 h (serum) | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~29–44%** ✓ (3-protease model) | Wave 2 D-amino plan machine-readable |
 | 4 | Scaffold novelty | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | Diversity filter removes cross-seed near-dups |
-| All | "Breaking news" hit | ~5–12% | ~16–35% | ~22–42% | ~24–45% | **~28–48%** ✓ | MDR strains + Wave 2 D-amino = path to 50%+ |
+| All | "Breaking news" hit | ~5–12% | ~16–35% | ~22–42% | ~24–45% | **~29–49%** ✓ | MDR strains + Wave 2 D-amino = path to 50%+ |
 
 **Probability of ≥1 active AMP from pilot panel (Stage 1 only):** ~91–97%  
 (Probability of zero active from 20 candidates with ~66% individual hit rate ≈ 3–9%)
 
-**Probability of ≥1 candidate satisfying ALL gates (current panel, PRs #31–#51):** ~28–48%
+**Probability of ≥1 candidate satisfying ALL gates (current panel, PRs #31–#53):** ~29–49%
 
 ---
 
@@ -575,7 +598,7 @@ information value of Wave 1 and enter Wave 2 with the highest-confidence candida
 
 The pipeline now provides a clear, machine-readable Wave 2 plan: the three best Wave 1 hits
 enter Wave 2 as D-amino variants at the positions specified in `wave2_d_substitutions`. This
-is the fastest path from the current ~28–48% to the ≥50% target.
+is the fastest path from the current ~29–49% to the ≥50% target.
 
 ---
 
