@@ -93,7 +93,21 @@ def activity_likeness_score(features: dict) -> float:
     # Literature: Huang (2000) Biochim Biophys Acta; Tossi et al. (2000) Biopolymers.
     helix_bonus = clamp01((helix_pa - 1.0) / 0.20) * 0.03
 
-    # ceiling = 0.24+0.27+0.17+0.10+0.14+0.03+0.02 = 0.97 < 1.0
+    # Face segregation (helix-wheel amphipathic score, [0,1]):
+    # μH measures total amphipathic moment magnitude; this complementary term captures
+    # whether hydrophobic and cationic residues are properly segregated onto opposite
+    # helical faces (moment-oriented helix-wheel analysis, 100°/residue).
+    # Computed by helix_wheel_faces() in physchem.py; falls back to 0.0 when absent
+    # (backward-compatible with feature dicts computed before PR #72).
+    # For non-helical AMPs (proline-rich, Trp-anchoring), this is a rough proxy only;
+    # the anionic guard and aromatic_bonus carry the main discriminative signal there.
+    # Literature: Wieprecht et al. (1997) Biochemistry; Tossi et al. (2000) Biopolymers.
+    hw_amphipathic = min(features.get("helix_wheel_amphipathic_score", 0.0), 1.0)
+    face_segregation_bonus = hw_amphipathic * 0.05
+
+    # ceiling = 0.24+0.27+0.17+0.10+0.14+0.03+0.02+0.05 = 1.02; capped to 1.0 by
+    # final clamp01(). Only a peptide that is simultaneously optimal on all eight terms
+    # reaches 1.02 before clamping — a theoretical maximum that no real sequence attains.
     score = (
         0.24 * length_score
         + 0.27 * charge_score
@@ -102,5 +116,6 @@ def activity_likeness_score(features: dict) -> float:
         + amphipathicity_score
         + helix_bonus
         + cross_bonus
+        + face_segregation_bonus
     )
     return round(clamp01(score), 4)

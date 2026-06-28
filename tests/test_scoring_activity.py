@@ -1,17 +1,20 @@
 """Tests for scoring/activity.py — activity_likeness_score and clamp01.
 
 activity_likeness_score combines:
-  - length_score  (weight 0.24): 1 - min(|length - 18| / 25, 1.0)
-  - charge_score  (weight 0.27): clamp01((charge_density + 0.05) / 0.55)
-  - hydro_score   (weight 0.17): 1 - min(|hf - 0.45| / 0.45, 1.0)
-  - aromatic_bonus (max 0.10): min(weighted_aromatic / 0.20, 1.0) * 0.10
+  - length_score        (weight 0.24): 1 - min(|length - 18| / 25, 1.0)
+  - charge_score        (weight 0.27): clamp01((charge_density + 0.05) / 0.55)
+  - hydro_score         (weight 0.17): 1 - min(|hf - 0.45| / 0.45, 1.0)
+  - aromatic_bonus      (max 0.10):   min(weighted_aromatic / 0.20, 1.0) * 0.10
       where weighted_aromatic = trp_fraction * 1.5 + non_trp_aromatic
       (Trp weighted 1.5× vs Phe/Tyr; Wimley-White interfacial insertion mechanism)
-  - amphipathicity (max 0.14): clamp01(mu_h / 0.8) * 0.14
-  - helix_bonus   (max 0.03): clamp01((helix_pa - 1.0) / 0.20) * 0.03
-  - cross_bonus   (max 0.02): clamp01(charge_density * mu_h / 0.15) * 0.02
+  - amphipathicity      (max 0.14):   clamp01(mu_h / 0.8) * 0.14
+  - helix_bonus         (max 0.03):   clamp01((helix_pa - 1.0) / 0.20) * 0.03
+  - cross_bonus         (max 0.02):   clamp01(charge_density * mu_h / 0.15) * 0.02
+  - face_segregation    (max 0.05):   helix_wheel_amphipathic_score * 0.05
+      (moment-oriented helix-wheel face analysis; 0.0 when key absent — backward-compatible)
 
-Total max = 0.24+0.27+0.17+0.10+0.14+0.03+0.02 = 0.97. Result is clamped to [0, 1] and rounded to 4 dp.
+Pre-clamp ceiling = 0.24+0.27+0.17+0.10+0.14+0.03+0.02+0.05 = 1.02.
+Without face_segregation (key absent) ceiling = 0.97. Final clamp01() bounds output to [0, 1].
 """
 from __future__ import annotations
 
@@ -484,14 +487,85 @@ class TestHelixBonusWeight:
         s_half_helix = activity_likeness_score({**base, "helix_propensity": 1.10})
         assert abs((s_half_helix - s_no_helix) - 0.015) < 0.001
 
-    def test_score_ceiling_is_0_97(self):
-        # All components at maximum: ceiling = 0.24+0.27+0.17+0.10+0.14+0.03+0.02 = 0.97
-        all_max = {
+    def test_score_ceiling_without_hw_is_0_97(self):
+        # Without helix_wheel_amphipathic_score key: face_segregation_bonus=0;
+        # ceiling = 0.24+0.27+0.17+0.10+0.14+0.03+0.02 = 0.97
+        all_max_no_hw = {
             "length": 18, "charge_density": 0.50, "hydrophobic_fraction": 0.45,
             "aromatic_fraction": 0.20, "hydrophobic_moment": 0.80,
             "helix_propensity": 1.20,
         }
-        assert activity_likeness_score(all_max) == 0.97
+        assert activity_likeness_score(all_max_no_hw) == 0.97
+
+    def test_score_ceiling_with_hw_clamped_to_1(self):
+        # With helix_wheel_amphipathic_score=1.0: pre-clamp ceiling = 0.97 + 0.05 = 1.02;
+        # final clamp01() reduces output to 1.0
+        all_max_with_hw = {
+            "length": 18, "charge_density": 0.50, "hydrophobic_fraction": 0.45,
+            "aromatic_fraction": 0.20, "hydrophobic_moment": 0.80,
+            "helix_propensity": 1.20, "helix_wheel_amphipathic_score": 1.0,
+        }
+        assert activity_likeness_score(all_max_with_hw) == 1.0
+
+
+class TestFaceSegregationBonus:
+    """Tests for helix_wheel_amphipathic_score bonus (face segregation, weight 0.05)."""
+
+    def _base_feat(self) -> dict:
+        return {
+            "length": 18, "charge_density_ph74": 0.30, "hydrophobic_fraction": 0.45,
+            "aromatic_fraction": 0.0, "hydrophobic_moment": 0.40,
+        }
+
+    def test_key_absent_gives_zero_bonus(self):
+        # When helix_wheel_amphipathic_score is not in features, bonus = 0.0 (backward-compat)
+        feat = self._base_feat()
+        assert "helix_wheel_amphipathic_score" not in feat
+        score_without = activity_likeness_score(feat)
+        feat_with_zero = {**feat, "helix_wheel_amphipathic_score": 0.0}
+        assert activity_likeness_score(feat_with_zero) == score_without
+
+    def test_max_bonus_is_0_05(self):
+        # hw_amphipathic=1.0 → bonus = 1.0 * 0.05 = 0.05
+        feat_low = self._base_feat()
+        feat_high = {**feat_low, "helix_wheel_amphipathic_score": 1.0}
+        delta = activity_likeness_score(feat_high) - activity_likeness_score(feat_low)
+        assert abs(delta - 0.05) < 0.001
+
+    def test_bonus_scales_linearly_with_hw_score(self):
+        # At hw_score=0.5, bonus should be 0.025; at hw_score=1.0, bonus=0.05
+        base = self._base_feat()
+        s_zero = activity_likeness_score({**base, "helix_wheel_amphipathic_score": 0.0})
+        s_half = activity_likeness_score({**base, "helix_wheel_amphipathic_score": 0.5})
+        s_full = activity_likeness_score({**base, "helix_wheel_amphipathic_score": 1.0})
+        assert abs((s_half - s_zero) - 0.025) < 0.001
+        assert abs((s_full - s_zero) - 0.050) < 0.001
+
+    def test_high_hw_score_improves_score_for_known_amp(self):
+        # Magainin-2 features: adding measured hw_amphipathic_score should improve score
+        # Magainin-2 is a textbook amphipathic helix with high face contrast → hw_score > 0.40
+        from openamp_foundry.features.physchem import compute_features
+        feats = compute_features("GIGKFLHSAKKFGKAFVGEIMNS")
+        hw = feats.get("helix_wheel_amphipathic_score", 0.0)
+        assert hw > 0.40, (
+            f"Magainin-2 helix_wheel_amphipathic_score={hw:.4f} should be > 0.40 for a "
+            "textbook amphipathic helix — face_contrast / 2.0 should be substantial"
+        )
+        score_with = activity_likeness_score(feats)
+        feats_no_hw = {k: v for k, v in feats.items() if k != "helix_wheel_amphipathic_score"}
+        score_without = activity_likeness_score(feats_no_hw)
+        assert score_with > score_without, (
+            "Adding helix_wheel_amphipathic_score should increase Magainin-2 score"
+        )
+
+    def test_anionic_peptide_still_returns_zero(self):
+        # Anionic guard takes priority over face_segregation_bonus
+        feat = {
+            "length": 18, "charge_density_ph74": -0.10, "hydrophobic_fraction": 0.45,
+            "aromatic_fraction": 0.0, "hydrophobic_moment": 0.60,
+            "helix_wheel_amphipathic_score": 1.0,
+        }
+        assert activity_likeness_score(feat) == 0.0
 
 
 class TestKnownAMPs:

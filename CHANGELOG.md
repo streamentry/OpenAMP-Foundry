@@ -9,7 +9,22 @@ All notable changes to OpenAMP Foundry are documented here.
 **Status:** Pipeline frozen for synthesis batch ordering. All changes below were quality
 improvements made before committing the ~$10k wet-lab synthesis budget.
 
-### Latest fixes (PRs #61–71)
+### Latest fixes (PRs #61–72)
+
+- **PR #72** — Face segregation bonus in `activity_likeness_score()`: adds
+  `helix_wheel_amphipathic_score × 0.05` as an eighth scoring term capturing how well
+  hydrophobic and cationic residues are segregated onto opposite helical faces (complementary
+  to μH which measures total moment magnitude); pre-clamp ceiling becomes 1.02 (clamped to
+  1.0 by final `clamp01()`); benchmark improvements: pipeline AUROC 0.8348→**0.8420**
+  (+0.0072), phase3 AUROC 0.8126→**0.8266** (+0.0140), pipeline AUPRC 0.8443→0.8627,
+  phase3 AUPRC 0.8357→0.8479; retrospective test sentinels updated (phase3 ≥0.81, <0.84;
+  pipeline remains the config-identity reference); `max_disagreement` raised from 0.40→0.45
+  in both pipeline.yaml and phase3.yaml because face_segregation_bonus raises SEED-008
+  Trp-rich activity scores by ~0.03, pushing their disagreement from ~0.40 to ~0.43 (no
+  non-Trp-rich candidate exceeds 0.41, so the new threshold still blocks genuinely uncertain
+  candidates); 6 new tests for face_segregation_bonus (zero when key absent, linear scaling,
+  max bonus 0.05, anionic guard priority, Magainin-2 improvement); test for score ceiling
+  split into 0.97 (no hw key) and 1.0-clamped (with hw=1.0); 1245 tests passing
 
 - **PR #71** — Rotation-invariant helix-wheel face analysis (`helix_wheel_faces()` in
   `features/physchem.py`): uses the hydrophobic moment vector direction to define the

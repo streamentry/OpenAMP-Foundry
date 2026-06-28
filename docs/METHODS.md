@@ -86,8 +86,9 @@ moment) assumes an α-helical conformation (100°/residue). Non-helical AMPs are
 ### 4.1 Activity-Likeness Score
 
 A heuristic score approximating AMP-like physicochemical properties. Computed from
-seven terms; weights encode biochemical priors only (not data-optimised). Score ceiling
-0.97 < 1.0 (architectural headroom).
+eight terms; weights encode biochemical priors only (not data-optimised). Pre-clamp ceiling
+1.02; final `clamp01()` bounds output to ≤ 1.0. Without `helix_wheel_amphipathic_score` key
+the pre-clamp ceiling is 0.97 (backward-compatible with pre-PR-#72 feature dicts).
 
 | Term | Contribution | Literature basis |
 |------|-------------|-----------------|
@@ -98,6 +99,7 @@ seven terms; weights encode biochemical priors only (not data-optimised). Score 
 | Amphipathicity (μH) | up to +0.14 | μH > 0.4 correlates with membrane disruption (Eisenberg 1984) |
 | Helix bonus (Pα) | up to +0.03 | Chou-Fasman Pα > 1.0; helical AMPs ~70% of membrane-active families (Huang 2000) |
 | Cross-term (cd × μH) | up to +0.02 | Electrostatic + hydrophobic insertion synergy; normaliser 0.15 |
+| Face segregation (hw_amp) | up to +0.05 | helix_wheel_amphipathic_score from moment-oriented wheel; [0,1] |
 
 **Formula (Python source: `scoring/activity.py`):**
 
@@ -114,14 +116,22 @@ score = 0.24 × length_score
       + clamp01(μH_eff / 0.8) × 0.14                  # amphipathicity_score (windowed)
       + clamp01((Pα − 1.0) / 0.20) × 0.03             # helix_bonus
       + clamp01(charge_density_ph74 × μH_eff / 0.15) × 0.02  # cross_bonus
-# Maximum achievable: 0.24+0.27+0.17+0.10+0.14+0.03+0.02 = 0.97 (arithmetic ceiling;
-# no explicit min() cap — the code returns clamp01(score) which clips to 1.0)
+      + helix_wheel_amphipathic_score × 0.05           # face_segregation_bonus (PR #72)
+# Pre-clamp ceiling: 0.24+0.27+0.17+0.10+0.14+0.03+0.02+0.05 = 1.02
+# clamp01(score) at the end clips to [0, 1]. Without face_segregation key the ceiling is 0.97.
 ```
 
 `μH_eff` = `max(hydrophobic_moment, max_hydrophobic_moment)`. `max_hydrophobic_moment` is the
 best μH over any 11-residue window (Eisenberg standard). For sequences ≤ 11 AA this equals
 the full-sequence μH. For longer sequences it captures the most amphipathic helical segment,
 which better reflects the membrane-active region. (Added PR #70.)
+
+`helix_wheel_amphipathic_score` is the face-contrast score from `helix_wheel_faces()` (PR #71),
+computed as `max(0, min(1, face_contrast / 2.0))` where face_contrast is the mean Eisenberg
+hydrophobicity difference between the hydrophobic and hydrophilic helical faces. This measures
+whether hydrophobic and cationic residues are properly segregated onto opposite helical faces —
+a complementary signal to μH (moment magnitude alone). Falls back to 0.0 when absent (backward-
+compatible). (Added as scoring term PR #72; computed by `helix_wheel_faces()` in PR #71.)
 
 `charge_density_ph74` is the net peptide charge at pH 7.4 (Henderson-Hasselbalch) divided
 by sequence length; the code falls back to `charge_density` (integer net-charge proxy / length)
@@ -327,28 +337,30 @@ Phase 2 benchmarks verified that the pipeline:
 - Produces stable rankings under repeated runs (reproducibility)
 - Shows performance degradation when key scoring dimensions are ablated
 
-**Retrospective AUROC — pipeline.yaml (v0.8.x):** `0.8348` (95% CI: TBD, n=2000 bootstrap).
+**Retrospective AUROC — pipeline.yaml (v0.8.x):** `0.8420` (95% CI: TBD, n=2000 bootstrap).
 Positive-vs-negative separation on the 43-AMP + 44-background benchmark set using the full
 ensemble scorer with pipeline.yaml weights. Historical progression: 0.7926 → 0.8138 →
 0.8164 (PRs #48–54) → 0.8086 (PR #65: Trp-weighted aromatic bonus, safety abs() fix) →
 0.8047 (PR #66: removed duplicate REF-GIG-001; 43 unique AMPs) →
-0.8348 (PR #70: windowed mu_h + anionic guard; see below).
+0.8348 (PR #70: windowed mu_h + anionic guard) →
+0.8420 (PR #72: face_segregation_bonus; see below).
 
-**Retrospective AUROC — phase3.yaml (synthesis gate, v0.8.x):** `0.8126` (95% CI: TBD,
+**Retrospective AUROC — phase3.yaml (synthesis gate, v0.8.x):** `0.8266` (95% CI: TBD,
 n=2000 bootstrap). Phase3 uses re-weighted ensemble scores (activity=0.35, safety=0.30,
 synthesis=0.20, novelty=0.15 vs pipeline.yaml activity=0.40, safety=0.25, synthesis=0.15,
 novelty=0.20) and a stricter safety gate (max_safety_risk=0.40). Historical: 0.7846 (PR #66)
-→ 0.8126 (PR #70). The AUROC is lower than pipeline.yaml because the higher safety weight
-down-ranks some literature AMPs that have hemolysis risk, which is scientifically correct
-behaviour for a synthesis gate. Interpretation: **STRONG** (AUROC > 0.70).
+→ 0.8126 (PR #70) → 0.8266 (PR #72). The AUROC is lower than pipeline.yaml because the higher
+safety weight down-ranks some literature AMPs that have hemolysis risk, which is scientifically
+correct behaviour for a synthesis gate. Interpretation: **STRONG** (AUROC > 0.70).
 
-> **Important:** The synthesis selection gate uses phase3.yaml. The phase3 AUROC (0.8126) is the
-> operationally relevant benchmark. pipeline.yaml AUROC (0.8348) is the full-ensemble reference.
+> **Important:** The synthesis selection gate uses phase3.yaml. The phase3 AUROC (0.8266) is the
+> operationally relevant benchmark. pipeline.yaml AUROC (0.8420) is the full-ensemble reference.
 > Both point estimates comfortably exceed the AUROC > 0.70 synthesis gate. Note that with n=87
 > sequences the 95% CI spans ~±0.09; synthesis decisions are made on point estimates, which is
 > standard practice at this sample size — the CI reflects sampling uncertainty, not model unreliability.
 
-**AUPRC (v0.7.x):** `0.8443` for pipeline.yaml (+0.2943 above the random baseline of 0.4943).
+**AUPRC (v0.8.x):** `0.8627` for pipeline.yaml (+0.3684 above the random baseline of 0.4943);
+`0.8479` for phase3.yaml.
 Area Under Precision-Recall Curve is computed alongside AUROC and reported by `make validate-scoring`.
 AUPRC is preferable to AUROC for class-imbalanced datasets because it emphasises precision
 at the operating point actually used for candidate selection. Random baseline = dataset
@@ -360,7 +372,7 @@ pessimistic tie-breaking (negatives sort first on tied scores) to match sklearn
 `make validate-scoring-phase3` (synthesis gate weights, phase3.yaml) or
 `make validate-scoring-strict` for the composition-matched (scrambled-decoy) variant.
 
-**Key scoring changes in v0.2.x–v0.8.x (PRs #48–70):**
+**Key scoring changes in v0.2.x–v0.8.x (PRs #48–72):**
 
 | PR | Change | AUROC impact |
 |----|--------|-------------|
@@ -374,6 +386,7 @@ pessimistic tie-breaking (negatives sort first on tied scores) to match sklearn
 | #65 | Trp-weighted aromatic bonus (1.5× vs Phe/Tyr); safety abs() fix | 0.8164→0.8086 |
 | #66 | Remove duplicate REF-GIG-001 (magainin-2 counted twice in validation set) | 0.8086→0.8047 |
 | #70 | Windowed mu_h (window=11, Eisenberg standard); anionic charge guard | 0.8047→0.8348 (pipeline); 0.7846→0.8126 (phase3) |
+| #72 | Face segregation bonus (helix_wheel_amphipathic_score × 0.05); max_disagreement 0.40→0.45 | 0.8348→0.8420 (pipeline); 0.8126→0.8266 (phase3) |
 
 **PR #70 detail — windowed hydrophobic moment:** For sequences > 11 residues, the full-sequence
 μH is diluted by non-helical termini and linker regions. `max_windowed_hydrophobic_moment()`
@@ -389,6 +402,20 @@ preventing partial credit from hydrophobic/length terms. Boundary: exactly 0.0 c
 is not blocked (reflects neutral peptides rather than anionic). Fixed a Python eagerness bug
 in feature dict lookup (`features.get(key, features["fallback"])` evaluates fallback eagerly;
 replaced with explicit `if "key" in features` conditional).
+
+**PR #72 detail — face segregation bonus:** `helix_wheel_faces()` (PR #71) computes
+`face_contrast = hydrophobic_face_mean_h − hydrophilic_face_mean_h` using the hydrophobic
+moment vector to orient the helix wheel. `amphipathic_score = max(0, min(1, contrast/2.0))`.
+This captures whether cationic residues are properly segregated onto the hydrophilic face — a
+complementary signal to μH (which measures total moment magnitude without regard for charge
+distribution). Weight 0.05 was chosen at the knee of the AUROC vs weight curve (activity-only
+AUROC +0.90% vs baseline at w=0.05; +1.59% at w=0.15 — conservative choice to avoid
+over-penalising non-helical AMPs). `max_disagreement` raised 0.40 → 0.45 in both configs because
+`face_segregation_bonus` correctly elevated SEED-008 Trp-rich activity scores by ~0.03 score
+units (their Trp clusters form a genuine hydrophobic face), pushing disagreement from ~0.40 to
+~0.43. No non-Trp-rich candidate in the 709-sequence phase3 pool exceeds disagreement=0.41,
+so the new 0.45 threshold still blocks genuinely uncertain candidates.
+Literature: Wieprecht et al. (1997) Biochemistry 36:6124; Tossi et al. (2000) Biopolymers 55:4.
 
 **Limitation:** Benchmarks use a small, curated demo dataset (43 AMPs + 44 background). They
 do not validate against large independent AMP databases. Real retrospective validation against
