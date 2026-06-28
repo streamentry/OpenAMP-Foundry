@@ -542,3 +542,146 @@ class TestWave2Guidance:
         assert qc.n_acetylation_recommended is True
         assert len(qc.n_acetylation_reason) > 0
         assert "acetylat" in qc.n_acetylation_reason.lower()
+
+
+# ---------------------------------------------------------------------------
+# Deamidation hotspot completeness (QG, QS additions to NG, NS)
+# ---------------------------------------------------------------------------
+
+class TestDeamidationCompleteness:
+    def test_ng_detected(self):
+        qc = check_sequence("d_ng", "AANGAA")
+        assert any("N" in s and "G" in s for s in qc.deamidation_sites)
+
+    def test_ns_detected(self):
+        qc = check_sequence("d_ns", "AANSKK")
+        assert any("N" in s and "S" in s for s in qc.deamidation_sites)
+
+    def test_qg_detected(self):
+        qc = check_sequence("d_qg", "AAQGAA")
+        assert any("Q" in s and "G" in s for s in qc.deamidation_sites), \
+            "QG Gln deamidation hotspot should be detected"
+
+    def test_qs_detected(self):
+        qc = check_sequence("d_qs", "AAQSAA")
+        assert any("Q" in s and "S" in s for s in qc.deamidation_sites), \
+            "QS Gln deamidation hotspot should be detected"
+
+    def test_deamidation_flag_present_for_qg(self):
+        qc = check_sequence("d_qg_flag", "AAQGAA")
+        assert any("DEAMIDATION_RISK" in f for f in qc.flags)
+
+    def test_no_deamidation_for_clean_sequence(self):
+        qc = check_sequence("d_clean", "KWKLFKKIGAVLKVL")
+        assert qc.deamidation_sites == []
+
+    def test_site_label_format_is_residue_position_neighbor(self):
+        # "AAQGAA" → Q at position 3 (1-based), followed by G → label "Q3G"
+        qc = check_sequence("d_label", "AAQGAA")
+        assert "Q3G" in qc.deamidation_sites
+
+    def test_to_dict_contains_deamidation_sites(self):
+        qc = check_sequence("d_dict", "AAQGAA")
+        d = qc.to_dict()
+        assert "deamidation_sites" in d
+        assert len(d["deamidation_sites"]) > 0
+
+
+# ---------------------------------------------------------------------------
+# Aspartate isomerization detection (DG, DS motifs)
+# ---------------------------------------------------------------------------
+
+class TestAspartateIsomerization:
+    def test_dg_detected(self):
+        qc = check_sequence("iso_dg", "AADGAA")
+        assert any("D" in s and "G" in s for s in qc.isomerization_sites), \
+            "DG aspartate isomerization hotspot should be detected"
+
+    def test_ds_detected(self):
+        qc = check_sequence("iso_ds", "AADSAA")
+        assert any("D" in s and "S" in s for s in qc.isomerization_sites), \
+            "DS aspartate isomerization hotspot should be detected"
+
+    def test_isomerization_flag_present_for_dg(self):
+        qc = check_sequence("iso_flag", "AADGAA")
+        assert any("ISOMERIZATION_RISK" in f for f in qc.flags)
+
+    def test_no_isomerization_for_da_motif(self):
+        # DA is not a hotspot — only DG and DS
+        qc = check_sequence("iso_da", "AADAAA")
+        assert qc.isomerization_sites == []
+
+    def test_no_isomerization_for_clean_sequence(self):
+        qc = check_sequence("iso_clean", "KWKLFKKIGAVLKVL")
+        assert qc.isomerization_sites == []
+
+    def test_site_label_format(self):
+        # "AADGAA" → D at position 3 (1-based), followed by G → label "D3G"
+        qc = check_sequence("iso_label", "AADGAA")
+        assert "D3G" in qc.isomerization_sites
+
+    def test_to_dict_contains_isomerization_sites(self):
+        qc = check_sequence("iso_dict", "AADGAA")
+        d = qc.to_dict()
+        assert "isomerization_sites" in d
+        assert len(d["isomerization_sites"]) > 0
+
+
+# ---------------------------------------------------------------------------
+# Tryptophan photolability (≥3 Trp residues)
+# ---------------------------------------------------------------------------
+
+class TestTrpPhotolability:
+    def test_three_trp_triggers_flag(self):
+        # SEED-008 parent: FPVTWRWWKWWKG → 5 Trp
+        qc = check_sequence("trp_seed8", "FPVTWRWWKWWKG")
+        assert qc.tryptophan_count == 5
+        assert qc.trp_photolability_risk is True
+
+    def test_two_trp_no_flag(self):
+        # 2 Trp → below threshold
+        qc = check_sequence("trp_two", "AAWWAA")
+        assert qc.tryptophan_count == 2
+        assert qc.trp_photolability_risk is False
+
+    def test_exactly_three_trp_triggers_flag(self):
+        qc = check_sequence("trp_three", "AAAWWWAA")
+        assert qc.tryptophan_count == 3
+        assert qc.trp_photolability_risk is True
+
+    def test_no_trp_no_flag(self):
+        # KRLFKKIGSALKFL — no W residues
+        qc = check_sequence("trp_zero", "KRLFKKIGSALKFL")
+        assert qc.tryptophan_count == 0
+        assert qc.trp_photolability_risk is False
+
+    def test_trp_flag_appears_in_flags_list(self):
+        qc = check_sequence("trp_flag", "FPVTWRWWKWWKG")
+        assert any("TRP_PHOTOLABILITY" in f for f in qc.flags)
+
+    def test_trp_flag_mentions_amber_vials(self):
+        qc = check_sequence("trp_amber", "FPVTWRWWKWWKG")
+        trp_flags = [f for f in qc.flags if "TRP_PHOTOLABILITY" in f]
+        assert len(trp_flags) == 1
+        assert "amber" in trp_flags[0].lower()
+
+    def test_trp_photolability_does_not_affect_synthesis_difficulty(self):
+        # TRP_PHOTOLABILITY is a storage/guidance flag (appended after difficulty is set).
+        # WWWKKK: 3 Trp (photolability risk), 3 Lys (charge ≈ +2.8 → no LOW_CHARGE flag),
+        # no hydrophobic run ≥4, ≤2 trypsin sites (K at pos 3,4 interior; K5 is C-terminal)
+        # → zero synthesis-risk flags → synthesis_difficulty stays "LOW"
+        qc = check_sequence("trp_diff", "WWWKKK")
+        assert qc.trp_photolability_risk is True
+        assert qc.synthesis_difficulty == "LOW"
+
+    def test_formulation_note_mentions_amber_vials_for_trp_rich(self):
+        qc = check_sequence("trp_form", "FPVTWRWWKWWKG")
+        assert "amber" in qc.formulation_note.lower() or "foil" in qc.formulation_note.lower()
+
+    def test_to_dict_contains_trp_fields(self):
+        qc = check_sequence("trp_dict", "FPVTWRWWKWWKG")
+        d = qc.to_dict()
+        assert "tryptophan_count" in d
+        assert "trp_photolability_risk" in d
+        assert d["tryptophan_count"] == 5
+        assert d["trp_photolability_risk"] is True

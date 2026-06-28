@@ -66,7 +66,9 @@ before ordering. The report flags:
 | `TRYPSIN_SITES×N` (N > 2) | Serum degradation < 2h | Use serum-free media for initial MIC; add protease inhibitors if needed |
 | `WAVE2_D_AMINO` | Wave 2 D-amino acid sites identified | See `wave2_d_substitutions` field — substitute D-Lys or D-Arg at listed positions in Wave 2 synthesis to extend serum t½ by 3–10× |
 | `N_ACETYLATION_RECOMMENDED` | N-terminal aminopeptidase exposure | **Request "N-terminal acetylation (Ac-)"** in synthesis order — zero cost, blocks aminopeptidase entry |
-| `DEAMIDATION_RISK` | N→D conversion at pH > 7.5 | Use pH 7.0 buffer; avoid long storage at room temp |
+| `DEAMIDATION_RISK` | Asn/Gln (N/Q) → Asp/Glu conversion via succinimide at pH > 7.5 (NG, NS, QG, QS motifs) | Use pH 5–6 lyophilization buffer; reconstitute in pH 7.0 just before assay; avoid >24h storage at room temperature |
+| `ISOMERIZATION_RISK` | Asp (D) → β-Asp backbone rearrangement (DG, DS motifs); changes peptide geometry | Store lyophilized at −20°C; verify HPLC purity after reconstitution to detect β-Asp peaks (~+14 min retention shift) |
+| `TRP_PHOTOLABILITY (N Trp)` | Trp photooxidizes to kynurenine under ambient/UV light (≥3 Trp residues) | Store in amber or foil-wrapped vials; handle under red/dim light; use aliquots; complete assay within 2h of thaw. Check A280 before and after assay for degradation. |
 | `LOW_CHARGE` | Reduced membrane affinity | Lower expected potency; may need higher test concentrations |
 | `LONG_PEPTIDE (>30aa)` | SPPS yield risk | Expect lower crude purity; order extra crude for purification |
 | `C_AMIDATION_RECOMMENDED` | C-terminal COOH reduces charge and serum stability | **Request "C-terminal amide (CONH₂)"** in synthesis order form — adds ~+0.7 charge, improves stability at zero extra cost |

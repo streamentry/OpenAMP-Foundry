@@ -15,8 +15,15 @@ _TRYPSIN_RE = re.compile(r"[KR](?!P)(?=.)")
 # Chymotrypsin cleaves after F, Y, W (except when followed by P).
 _CHYMOTRYPSIN_RE = re.compile(r"[FYW](?!P)(?=.)")
 
-# Asparagine deamidation hotspots: N followed by G or S.
-_DEAMIDATION_RE = re.compile(r"N[GS]")
+# Asparagine/Glutamine deamidation hotspots: N or Q followed by G or S.
+# NG/NS: classic Asn deamidation via succinimide (t½ 1–30 days at pH 7.4).
+# QG/QS: Gln deamidation is slower but well-documented (Geiger & Clarke 1987).
+_DEAMIDATION_RE = re.compile(r"[NQ][GS]")
+
+# Aspartate isomerization hotspots: D followed by G or S (β-Asp via succinimide).
+# DG and DS motifs form β-aspartyl peptides, changing backbone geometry.
+# Literature: Geiger & Clarke (1987) J Biol Chem; Tyler-Cross & Schirch (1991).
+_ISOMERIZATION_RE = re.compile(r"D[GS]")
 
 # Hydrophobic runs of ≥4 consecutive VILMFW residues → aggregation risk.
 _HYDROPHOBIC_RUN_RE = re.compile(r"[VILMFW]{4,}")
@@ -102,7 +109,12 @@ class SynthQC:
     # Proteolytic vulnerabilities
     trypsin_sites: list[int] = field(default_factory=list)   # positions (0-based)
     chymotrypsin_sites: list[int] = field(default_factory=list)
-    deamidation_sites: list[str] = field(default_factory=list)  # e.g. ["N3G", "N7S"]
+    deamidation_sites: list[str] = field(default_factory=list)  # e.g. ["N3G", "Q5S"]
+    isomerization_sites: list[str] = field(default_factory=list)  # e.g. ["D2G", "D9S"]
+
+    # Tryptophan photolability
+    tryptophan_count: int = 0
+    trp_photolability_risk: bool = False   # ≥ 3 Trp → photooxidation risk under assay lighting
 
     # Concentration / formulation
     has_uv_chromophore: bool = False   # W/Y/F → can use A280 for conc.
@@ -144,6 +156,9 @@ class SynthQC:
             "trypsin_sites": self.trypsin_sites,
             "chymotrypsin_sites": self.chymotrypsin_sites,
             "deamidation_sites": self.deamidation_sites,
+            "isomerization_sites": self.isomerization_sites,
+            "tryptophan_count": self.tryptophan_count,
+            "trp_photolability_risk": self.trp_photolability_risk,
             "has_uv_chromophore": self.has_uv_chromophore,
             "formulation_note": self.formulation_note,
             "mu_h": self.mu_h,
@@ -186,10 +201,23 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     # provides a defence-in-depth backstop.
     qc.trypsin_sites = [m.start() for m in _TRYPSIN_RE.finditer(seq) if m.start() < len(seq) - 1]
     qc.chymotrypsin_sites = [m.start() for m in _CHYMOTRYPSIN_RE.finditer(seq) if m.start() < len(seq) - 1]
+    # Deamidation: N/Q followed by G or S (succinimide mechanism; Geiger & Clarke 1987).
     qc.deamidation_sites = [
         f"{m.group()[0]}{m.start() + 1}{m.group()[1]}"
         for m in _DEAMIDATION_RE.finditer(seq)
     ]
+    # Aspartate isomerization: D followed by G or S (β-Asp backbone rearrangement).
+    qc.isomerization_sites = [
+        f"{m.group()[0]}{m.start() + 1}{m.group()[1]}"
+        for m in _ISOMERIZATION_RE.finditer(seq)
+    ]
+
+    # Tryptophan photolability: ≥3 Trp residues → UV-sensitive under assay lighting.
+    # Trp photooxidizes to kynurenine (λmax 370 nm) and N-formylkynurenine under UV/visible
+    # fluorescent light. Peptides with ≥3 Trp lose >20% activity within 4h under standard
+    # lab lighting. Literature: Agon et al. (2006) Anal Biochem.
+    qc.tryptophan_count = seq.count("W")
+    qc.trp_photolability_risk = qc.tryptophan_count >= 3
 
     # UV chromophore for concentration determination
     qc.has_uv_chromophore = _has_uv_chromophore(seq)
@@ -199,9 +227,13 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
         # Simplified ε280 (M-1 cm-1): W=5500, Y=1490, disulfide bond=125 (ignored here)
         eps280 = w_count * 5500 + y_count * 1490
         if eps280 > 0:
+            photo_note = (
+                " KEEP AMBER VIALS OR FOIL-WRAPPED — Trp photooxidizes under lab lighting."
+                if qc.trp_photolability_risk else ""
+            )
             qc.formulation_note = (
                 f"Use A280 for concentration (ε={eps280} M⁻¹cm⁻¹). "
-                "Dissolve in 10 mM phosphate pH 7.0; store at −80°C."
+                f"Dissolve in 10 mM phosphate pH 7.0; store at −80°C.{photo_note}"
             )
         else:
             qc.formulation_note = (
@@ -284,7 +316,9 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     if len(qc.trypsin_sites) > 2:
         qc.flags.append(f"TRYPSIN_SITES×{len(qc.trypsin_sites)}: low serum stability expected (<2h)")
     if qc.deamidation_sites:
-        qc.flags.append(f"DEAMIDATION_RISK: {', '.join(qc.deamidation_sites)} — avoid >pH 7.5 storage")
+        qc.flags.append(f"DEAMIDATION_RISK: {', '.join(qc.deamidation_sites)} — avoid >pH 7.5 storage; use pH 5–6 lyophilization buffer")
+    if qc.isomerization_sites:
+        qc.flags.append(f"ISOMERIZATION_RISK: {', '.join(qc.isomerization_sites)} — Asp→β-Asp rearrangement at neutral pH; store lyophilized at −20°C")
     if qc.charge_ph74 < 2.0:
         qc.flags.append(f"LOW_CHARGE (pH7.4={qc.charge_ph74:.1f}): reduced membrane affinity")
     if qc.c_amidation_recommended:
@@ -306,7 +340,12 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     else:
         qc.synthesis_difficulty = "HIGH"
 
-    # Append guidance flags after difficulty is computed (zero synthesis cost).
+    # Append storage/guidance flags after difficulty is computed (zero synthesis cost).
+    if qc.trp_photolability_risk:
+        qc.flags.append(
+            f"TRP_PHOTOLABILITY ({qc.tryptophan_count} Trp): store in amber vials; "
+            "handle under red/dim light; assay within 2h of thaw (Agon et al. 2006)"
+        )
     if qc.n_acetylation_recommended:
         qc.flags.append(
             "N_ACETYLATION_RECOMMENDED: specify 'Ac-' (N-terminal acetyl) in synthesis order "
