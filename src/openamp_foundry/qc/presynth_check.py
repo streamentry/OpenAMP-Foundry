@@ -8,6 +8,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from openamp_foundry.features.physchem import net_charge_at_ph74 as _charge_at_ph74
+from openamp_foundry.features.physchem import selectivity_proxy as _sel_proxy
+from openamp_foundry.scoring.boman import gravy_score as _gravy
+
 
 # Trypsin cleaves after K or R (except when followed by P).
 _TRYPSIN_RE = re.compile(r"[KR](?!P)(?=.)")
@@ -124,6 +128,11 @@ class SynthQC:
     mu_h: float = 0.0
     hemolysis_start_conc: str = ""     # suggested starting concentration for hemolysis assay
 
+    # Mammalian cytotoxicity risk (selectivity proxy < 0.5).
+    # Default 0.0 = maximally conservative (assume cytotoxic until check_sequence() fills this).
+    selectivity_proxy: float = 0.0
+    cytotox_risk: bool = False
+
     # C-terminal modification
     c_amidation_recommended: bool = False   # request NH₂ C-terminus instead of COOH
     c_amidation_reason: str = ""
@@ -163,6 +172,8 @@ class SynthQC:
             "formulation_note": self.formulation_note,
             "mu_h": self.mu_h,
             "hemolysis_start_conc": self.hemolysis_start_conc,
+            "selectivity_proxy": self.selectivity_proxy,
+            "cytotox_risk": self.cytotox_risk,
             "c_amidation_recommended": self.c_amidation_recommended,
             "c_amidation_reason": self.c_amidation_reason,
             "n_acetylation_recommended": self.n_acetylation_recommended,
@@ -254,6 +265,17 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     else:
         qc.hemolysis_start_conc = f"Start at MIC; μH={mu_h:.2f} low risk"
 
+    # Selectivity proxy (cytotoxicity risk).
+    # Uses the same net_charge_at_ph74 model as compute_features() to guarantee that the
+    # selectivity_proxy value here matches the one stored in the candidate feature dict
+    # (side-chain only: K, R, H at pH 7.4 with pKa 6.5; D, E). The presynth_check
+    # _net_charge_at_ph() model includes terminal groups/Cys/Tyr, which produces a
+    # systematic offset (~0.2) and would cause divergent cytotox verdicts for the same
+    # sequence when comparing feature dicts to QC reports.
+    # Literature: Dathe & Wieprecht (1999) BBA; Shai (2002) BBA; Chen et al. (2005) JBC.
+    qc.selectivity_proxy = _sel_proxy(_charge_at_ph74(seq), _gravy(seq))
+    qc.cytotox_risk = qc.selectivity_proxy < 0.5
+
     # C-terminal amidation recommendation.
     # ~70% of natural helical AMPs are C-terminally amidated. Amidation:
     #   (i)  adds ~+0.5 to +1.0 net charge (replaces -COOH with -CONH₂)
@@ -340,7 +362,15 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     else:
         qc.synthesis_difficulty = "HIGH"
 
-    # Append storage/guidance flags after difficulty is computed (zero synthesis cost).
+    # Append informational flags after difficulty is computed (zero synthesis cost).
+    if qc.cytotox_risk:
+        qc.flags.append(
+            f"HIGH_CYTOTOX_RISK (selectivity_proxy={qc.selectivity_proxy:.2f}): "
+            "charge or GRAVY outside selective window — include mammalian cell viability "
+            "assay (e.g. HC50 vs RBC, MTS vs HEK293) alongside MIC; "
+            "reduce initial test concentration if cytotoxicity observed "
+            "(Dathe & Wieprecht 1999 BBA; Shai 2002 BBA)"
+        )
     if qc.trp_photolability_risk:
         qc.flags.append(
             f"TRP_PHOTOLABILITY ({qc.tryptophan_count} Trp): store in amber vials; "

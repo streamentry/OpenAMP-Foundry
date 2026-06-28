@@ -138,6 +138,49 @@ def interior_protease_sites(sequence: str, cleavage_set: set[str]) -> int:
     return sum(1 for aa in sequence[:-1] if aa in cleavage_set)
 
 
+def selectivity_proxy(charge: float, gravy: float) -> float:
+    """Heuristic selectivity proxy [0, 1]: likelihood of selective bacterial killing
+    without mammalian cytotoxicity.
+
+    Based on Dathe & Wieprecht (1999) Biochim Biophys Acta 1462:71-87 (GRAVY/cytotox
+    correlation) and Shai (2002) Biochim Biophys Acta 1462:55-70 (charge selectivity).
+
+    Selectivity optimum: net charge +2 to +7, GRAVY ≤ 0.5.
+
+    - Charge < +2: insufficient electrostatic attraction to anionic bacterial membranes
+      (phosphatidylglycerol, cardiolipin) → reduced bacterial killing, not cytotoxic.
+    - Charge > +8: non-specific disruption of zwitterionic mammalian membranes
+      (phosphatidylcholine) → cytotoxicity risk.
+    - GRAVY > 0.5: hydrophobic-driven non-specific membrane disruption →
+      cytotoxicity risk (Dathe & Wieprecht 1999; Chen et al. 2005 J Biol Chem).
+    - GRAVY > 1.0: severe cytotoxicity, likely haemolytic.
+
+    Args:
+        charge: Net charge at pH 7.4 (float).
+        gravy: Grand Average of hYdropathicity (GRAVY) score.
+
+    Returns:
+        Selectivity proxy in [0.0, 1.0]. Values below 0.5 indicate high cytotoxicity risk.
+    """
+    # Charge selectivity component (weight 0.6)
+    if charge <= 2.0:
+        charge_sel = max(0.0, charge / 2.0)
+    elif charge <= 7.0:
+        charge_sel = 1.0
+    else:
+        charge_sel = max(0.0, 1.0 - (charge - 7.0) / 5.0)
+
+    # GRAVY hydrophobicity selectivity component (weight 0.4)
+    if gravy <= 0.5:
+        gravy_sel = 1.0
+    elif gravy <= 1.0:
+        gravy_sel = max(0.0, 1.0 - (gravy - 0.5) / 0.5)
+    else:
+        gravy_sel = 0.0
+
+    return round(0.6 * charge_sel + 0.4 * gravy_sel, 4)
+
+
 def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     counts = Counter(sequence)
     length = len(sequence)
@@ -156,6 +199,8 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     chymotrypsin_density = round(n_chymotrypsin / length if length else 0.0, 4)
     charge_ph74 = net_charge_at_ph74(sequence)
     helix_pa = helix_propensity_score(sequence)
+    gravy = gravy_score(sequence)
+    sel_proxy = selectivity_proxy(charge_ph74, gravy)
     return {
         "length": length,
         "net_charge_proxy": charge,
@@ -171,7 +216,8 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
         "hydrophobic_moment": mu_h,
         "helix_propensity": helix_pa,
         "boman_index": boman_index(sequence),
-        "gravy": gravy_score(sequence),
+        "gravy": gravy,
+        "selectivity_proxy": sel_proxy,
         "residue_counts": dict(sorted(counts.items())),
         "trypsin_site_density": trypsin_density,
         "chymotrypsin_site_density": chymotrypsin_density,

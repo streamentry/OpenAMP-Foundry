@@ -31,6 +31,7 @@ _HANDLING_MAP = {
     "TRP_PHOTOLABILITY": "Amber vials; red/dim light only",
     "LOW_CHARGE": "Higher test concentrations may be needed",
     "LONG_PEPTIDE": "Discuss yield with vendor; order extra crude",
+    "HIGH_CYTOTOX_RISK": "Include mammalian cytotox assay (HC50/MTS); reduce MIC conc if cytotox",
 }
 
 
