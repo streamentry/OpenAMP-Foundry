@@ -346,7 +346,11 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     if qc.cysteine_count > 0:
         qc.flags.append(f"CYSTEINE×{qc.cysteine_count}: disulfide/oxidation risk — store under N₂")
     if qc.methionine_count > 0:
-        qc.flags.append(f"MET×{qc.methionine_count}: oxidation risk — store at −80°C, check purity pre-assay")
+        qc.flags.append(
+            f"MET×{qc.methionine_count}: oxidation risk — store at −80°C under inert atmosphere; "
+            "request Nle (norleucine) substitution for oxidation-resistant synthesis; "
+            "mandatory HPLC purity check at receipt"
+        )
     if qc.aggregation_risk:
         qc.flags.append(f"HYDROPHOBIC_RUN ({qc.hydrophobic_run}): aggregation risk — check solubility at 1 mM")
     if len(qc.trypsin_sites) > 2:
