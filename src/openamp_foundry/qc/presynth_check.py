@@ -124,6 +124,10 @@ class SynthQC:
     mu_h: float = 0.0
     hemolysis_start_conc: str = ""     # suggested starting concentration for hemolysis assay
 
+    # Mammalian cytotoxicity risk (selectivity proxy < 0.5)
+    selectivity_proxy: float = 1.0
+    cytotox_risk: bool = False
+
     # C-terminal modification
     c_amidation_recommended: bool = False   # request NH₂ C-terminus instead of COOH
     c_amidation_reason: str = ""
@@ -163,6 +167,8 @@ class SynthQC:
             "formulation_note": self.formulation_note,
             "mu_h": self.mu_h,
             "hemolysis_start_conc": self.hemolysis_start_conc,
+            "selectivity_proxy": self.selectivity_proxy,
+            "cytotox_risk": self.cytotox_risk,
             "c_amidation_recommended": self.c_amidation_recommended,
             "c_amidation_reason": self.c_amidation_reason,
             "n_acetylation_recommended": self.n_acetylation_recommended,
@@ -254,6 +260,15 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     else:
         qc.hemolysis_start_conc = f"Start at MIC; μH={mu_h:.2f} low risk"
 
+    # Selectivity proxy (cytotoxicity risk).
+    # Computed from net charge and GRAVY to detect sequences likely to fail mammalian
+    # cytotoxicity assays. Flagged when proxy < 0.5 (high charge OR high hydrophobicity).
+    # Literature: Dathe & Wieprecht (1999) BBA; Shai (2002) BBA; Chen et al. (2005) JBC.
+    from openamp_foundry.features.physchem import selectivity_proxy as _sel_proxy
+    from openamp_foundry.scoring.boman import gravy_score as _gravy
+    qc.selectivity_proxy = _sel_proxy(qc.charge_ph74, _gravy(seq))
+    qc.cytotox_risk = qc.selectivity_proxy < 0.5
+
     # C-terminal amidation recommendation.
     # ~70% of natural helical AMPs are C-terminally amidated. Amidation:
     #   (i)  adds ~+0.5 to +1.0 net charge (replaces -COOH with -CONH₂)
@@ -340,7 +355,15 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     else:
         qc.synthesis_difficulty = "HIGH"
 
-    # Append storage/guidance flags after difficulty is computed (zero synthesis cost).
+    # Append informational flags after difficulty is computed (zero synthesis cost).
+    if qc.cytotox_risk:
+        qc.flags.append(
+            f"HIGH_CYTOTOX_RISK (selectivity_proxy={qc.selectivity_proxy:.2f}): "
+            "charge or GRAVY outside selective window — include mammalian cell viability "
+            "assay (e.g. HC50 vs RBC, MTS vs HEK293) alongside MIC; "
+            "reduce initial test concentration if cytotoxicity observed "
+            "(Dathe & Wieprecht 1999 BBA; Shai 2002 BBA)"
+        )
     if qc.trp_photolability_risk:
         qc.flags.append(
             f"TRP_PHOTOLABILITY ({qc.tryptophan_count} Trp): store in amber vials; "

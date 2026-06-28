@@ -4,8 +4,6 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-import pytest
-
 from openamp_foundry.qc.order_generator import (
     _extract_handling,
     generate_synthesis_order,
