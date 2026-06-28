@@ -213,6 +213,37 @@ class TestToxicityHemolysisRiskReport:
         assert "risk_thresholds" in report
         assert "hydrophobic_fraction_high" in report["risk_thresholds"]
 
+    def test_high_charge_density_flagged(self):
+        cand = [_make_candidate("HIGH-CHG", "KKKKKKKKK")]
+        cand[0]["features"]["charge_density"] = 0.70
+        report = toxicity_hemolysis_risk_report(cand)
+        assert "high_charge_density" in report["candidates"][0]["risk_flags"]
+
+    def test_high_cysteine_fraction_flagged(self):
+        cand = [_make_candidate("HIGH-CYS", "CCCCCKKKK")]
+        cand[0]["features"]["cysteine_fraction"] = 0.55
+        report = toxicity_hemolysis_risk_report(cand)
+        assert "high_cysteine_fraction" in report["candidates"][0]["risk_flags"]
+
+    def test_long_repeat_run_flagged(self):
+        cand = [_make_candidate("REPEAT", "KKKKKKRRL")]
+        cand[0]["features"]["longest_repeat_run"] = 6
+        report = toxicity_hemolysis_risk_report(cand)
+        assert "long_repeat_run" in report["candidates"][0]["risk_flags"]
+
+    def test_length_exceeds_35aa_flagged(self):
+        long_seq = "KWKLFKKIGAVLKVLKWKLFKKIGAVLKVLKWKLFK"  # 36 AA (> 35 threshold)
+        cand = [_make_candidate("LONG", long_seq)]
+        report = toxicity_hemolysis_risk_report(cand)
+        assert "length_exceeds_35aa" in report["candidates"][0]["risk_flags"]
+
+    def test_n_with_risk_flags_counts_correctly(self):
+        clean = _make_candidate("CLEAN", "KWKLFKKIGAVLKVL")
+        risky = _make_candidate("RISKY", "LLLLLLLLLLL")
+        risky["features"]["hydrophobic_fraction"] = 0.90
+        report = toxicity_hemolysis_risk_report([clean, risky])
+        assert report["n_with_risk_flags"] == 1
+
 
 class TestSynthesisFeasibilityReport:
     def test_report_type_field(self):
@@ -382,3 +413,19 @@ class TestWriteBatchPackMarkdown:
         write_batch_pack_markdown(pack, md_path)
         content = md_path.read_text()
         assert "Human Review" in content or "human expert" in content.lower()
+
+    def test_markdown_truncates_clusters_beyond_20(self, tmp_path):
+        _CANONICAL = list("ACDEFGHIKLMNPQRSTVWY")
+        rows = []
+        for i, aa in enumerate(_CANONICAL):
+            rows.append(_make_candidate(f"CAND-{i:03d}", aa * 10, novelty=0.5 + i * 0.001))
+        rows.append(_make_candidate("CAND-020", "KWKLFKKIGAVLKVLKWKLFK", novelty=0.6))
+        jsonl_path = tmp_path / "big.jsonl"
+        with open(jsonl_path, "w") as f:
+            for r in rows:
+                f.write(json.dumps(r) + "\n")
+        pack = generate_batch_pack(jsonl_path)
+        md_path = tmp_path / "big.md"
+        write_batch_pack_markdown(pack, md_path)
+        content = md_path.read_text()
+        assert "more clusters" in content

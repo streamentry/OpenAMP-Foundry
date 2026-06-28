@@ -5,16 +5,19 @@ Verifies that:
   - Invalid lab results are rejected with useful errors
   - summarise_lab_results produces correct aggregates
   - candidate_result_map groups correctly
+  - load_lab_results_dir loads all valid files, skips invalid, returns sorted
 """
 from __future__ import annotations
 
 import json
+import warnings
 
 import pytest
 
 from openamp_foundry.data.lab_results import (
     candidate_result_map,
     load_lab_result,
+    load_lab_results_dir,
     summarise_lab_results,
 )
 
@@ -172,3 +175,71 @@ class TestCandidateResultMap:
 
     def test_empty_results_gives_empty_map(self):
         assert candidate_result_map([]) == {}
+
+
+class TestLoadLabResultsDir:
+    def test_empty_directory_returns_empty_list(self, tmp_path):
+        results = load_lab_results_dir(tmp_path)
+        assert results == []
+
+    def test_loads_all_valid_files(self, results_dir):
+        results = load_lab_results_dir(results_dir)
+        assert len(results) == 3
+
+    def test_sorted_by_assay_date(self, tmp_path):
+        date_map = {0: "2026-07-03", 1: "2026-07-01", 2: "2026-07-02"}
+        for i in range(3):
+            result = _valid_result(
+                result_id=f"RES-{i:03d}",
+                candidate_id=f"CAND-{i:03d}",
+                assay_date=date_map[i],
+            )
+            (tmp_path / f"RES-{i:03d}.json").write_text(json.dumps(result))
+        results = load_lab_results_dir(tmp_path)
+        dates = [r["assay_date"] for r in results]
+        assert dates == sorted(dates)
+        assert dates[0] == "2026-07-01"
+
+    def test_sorted_by_result_id_within_same_date(self, tmp_path):
+        for i in [3, 1, 2]:
+            result = _valid_result(
+                result_id=f"RES-{i:03d}",
+                candidate_id=f"CAND-{i:03d}",
+                assay_date="2026-07-10",
+            )
+            (tmp_path / f"RES-{i:03d}.json").write_text(json.dumps(result))
+        results = load_lab_results_dir(tmp_path)
+        ids = [r["result_id"] for r in results]
+        assert ids == sorted(ids)
+
+    def test_skips_invalid_json_file_with_warning(self, tmp_path):
+        valid = _valid_result(result_id="GOOD-001", candidate_id="CAND-A", assay_date="2026-07-01")
+        (tmp_path / "good.json").write_text(json.dumps(valid))
+        (tmp_path / "bad.json").write_text("this is not valid json {{{")
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            results = load_lab_results_dir(tmp_path)
+        assert len(results) == 1
+        assert results[0]["result_id"] == "GOOD-001"
+        assert any("bad.json" in str(w.message) or "Skipped" in str(w.message) for w in caught)
+
+    def test_skips_schema_invalid_file_with_warning(self, tmp_path):
+        valid = _valid_result(result_id="GOOD-001", candidate_id="CAND-A", assay_date="2026-07-01")
+        invalid = _valid_result()
+        del invalid["candidate_id"]
+        (tmp_path / "good.json").write_text(json.dumps(valid))
+        (tmp_path / "invalid_schema.json").write_text(json.dumps(invalid))
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            results = load_lab_results_dir(tmp_path)
+        assert len(results) == 1
+        assert results[0]["result_id"] == "GOOD-001"
+        assert any("Skipped" in str(w.message) for w in caught)
+
+    def test_non_json_files_ignored(self, tmp_path):
+        valid = _valid_result(result_id="R001", candidate_id="C001", assay_date="2026-07-01")
+        (tmp_path / "result.json").write_text(json.dumps(valid))
+        (tmp_path / "notes.txt").write_text("not a json file")
+        (tmp_path / "data.csv").write_text("col1,col2\n1,2")
+        results = load_lab_results_dir(tmp_path)
+        assert len(results) == 1
