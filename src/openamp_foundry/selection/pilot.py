@@ -14,10 +14,15 @@ def _seed_from_source(source: str) -> str:
 
 
 def _pilot_priority(scores: dict) -> float:
-    """Higher is better: reward ensemble score, penalise scorer disagreement."""
+    """Higher is better: reward ensemble, reward serum stability, penalise disagreement.
+
+    Serum stability is weighted lightly (0.05) so it acts as a tiebreaker without
+    overriding the ensemble score.  A candidate with stability=1.0 gains at most +0.05.
+    """
     ensemble = scores.get("ensemble", 0.0)
     disagreement = scores.get("disagreement", 0.5)
-    return round(ensemble - 0.3 * disagreement, 6)
+    stability = scores.get("serum_stability", 0.5)
+    return round(ensemble - 0.3 * disagreement + 0.05 * stability, 6)
 
 
 def select_pilot_panel(

@@ -15,6 +15,7 @@ from openamp_foundry.scoring.boman import boman_activity_score, model_disagreeme
 from openamp_foundry.scoring.ensemble import ensemble_score, known_failure_modes, selection_reasons
 from openamp_foundry.scoring.novelty import novelty_score
 from openamp_foundry.scoring.safety import safety_score
+from openamp_foundry.scoring.stability import serum_stability_score
 from openamp_foundry.scoring.synthesis import synthesis_feasibility_score
 from openamp_foundry.selection.diversity import greedy_diverse_select
 from openamp_foundry.selection.pareto import rank_candidates
@@ -53,6 +54,7 @@ def score_candidates(
         synth = synthesis_feasibility_score(features, valid_sequence=valid)
         nov, nearest = novelty_score(candidate.sequence, references)
         boman_act = boman_activity_score(candidate.sequence) if valid else 0.0
+        stability = serum_stability_score(features) if valid else 0.0
         raw_scores = {
             "activity": act,
             "safety": safe,
@@ -60,6 +62,7 @@ def score_candidates(
             "novelty": nov,
             "boman_activity": boman_act,
             "disagreement": model_disagreement(act, boman_act),
+            "serum_stability": stability,
         }
         raw_scores["ensemble"] = ensemble_score(raw_scores, weights)
         item = ScoredCandidate(

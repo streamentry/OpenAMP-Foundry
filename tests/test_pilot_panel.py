@@ -81,8 +81,14 @@ class TestPilotPriority:
         assert p1 > p2
 
     def test_missing_disagreement_defaults_to_0_5(self):
+        # stability defaults to 0.5 when absent; disagreement defaults to 0.5
         p = _pilot_priority({"ensemble": 0.70})
-        assert p == pytest.approx(0.70 - 0.3 * 0.5, abs=1e-6)
+        assert p == pytest.approx(0.70 - 0.3 * 0.5 + 0.05 * 0.5, abs=1e-6)
+
+    def test_higher_stability_higher_priority(self):
+        p1 = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10, "serum_stability": 1.0})
+        p2 = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10, "serum_stability": 0.0})
+        assert p1 > p2
 
 
 class TestSelectPilotPanel:
@@ -212,7 +218,7 @@ class TestWritePilotCsv:
             fields = reader.fieldnames
         expected = {"pilot_rank", "candidate_id", "sequence", "length", "seed",
                     "ensemble", "activity", "boman_activity", "disagreement",
-                    "safety", "synthesis", "novelty", "pilot_priority"}
+                    "safety", "synthesis", "novelty", "serum_stability", "pilot_priority"}
         assert set(fields) == expected
 
     def test_row_count_matches_panel(self, tmp_path):

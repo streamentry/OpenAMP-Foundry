@@ -16,6 +16,7 @@ _CSV_FIELDS = [
     "safety",
     "synthesis",
     "novelty",
+    "serum_stability",
     "pilot_priority",
 ]
 
@@ -48,6 +49,7 @@ def _row(c: dict) -> dict:
         "safety": round(_f("safety"), 4),
         "synthesis": round(_f("synthesis"), 4),
         "novelty": round(_f("novelty"), 4),
+        "serum_stability": round(_f("serum_stability"), 4),
         "pilot_priority": round(_f("pilot_priority"), 4),
     }
 
@@ -86,13 +88,14 @@ def write_pilot_markdown(panel: list[dict], path: str | Path, generated_at: str 
         "",
         "## Selection method",
         "",
-        "Priority score = `ensemble − 0.3 × disagreement`  ",
+        "Priority score = `ensemble − 0.3 × disagreement + 0.05 × serum_stability`  ",
         "Rules: one representative per seed (highest priority), then remaining slots filled by priority rank.",
+        "Serum stability acts as a light tiebreaker — favours candidates with fewer interior K/R cleavage sites.",
         "",
         "## Candidates",
         "",
-        "| # | ID | Sequence | Len | Seed | Ensemble | Activity | Boman | Disagree | Safety | Synth |",
-        "|--:|---|---|--:|---|---:|---:|---:|---:|---:|---:|",
+        "| # | ID | Sequence | Len | Seed | Ensemble | Activity | Boman | Disagree | Safety | Synth | SerumStab |",
+        "|--:|---|---|--:|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
 
     for c in panel:
@@ -100,7 +103,7 @@ def write_pilot_markdown(panel: list[dict], path: str | Path, generated_at: str 
         lines.append(
             f"| {r['pilot_rank']} | {r['candidate_id']} | `{r['sequence']}` | {r['length']} "
             f"| {r['seed']} | {r['ensemble']} | {r['activity']} | {r['boman_activity']} "
-            f"| {r['disagreement']} | {r['safety']} | {r['synthesis']} |"
+            f"| {r['disagreement']} | {r['safety']} | {r['synthesis']} | {r['serum_stability']} |"
         )
 
     lines += [
