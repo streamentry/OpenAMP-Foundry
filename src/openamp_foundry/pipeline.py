@@ -123,6 +123,7 @@ def run_ranking_pipeline(
     selection_cfg = config.get("selection", {})
     min_novelty = float(selection_cfg.get("min_novelty", 0.0))
     max_safety_risk = float(selection_cfg.get("max_safety_risk", 1.0))
+    max_disagreement = float(selection_cfg.get("max_disagreement", 1.0))
 
     ranked = rank_candidates(scored)
     top_n = int(selection_cfg.get("top_n", len(ranked)))
@@ -132,6 +133,7 @@ def run_ranking_pipeline(
         if getattr(item, "valid", True)
         and item.scores["novelty"] >= min_novelty
         and item.scores["safety"] >= (1.0 - max_safety_risk)
+        and item.scores["disagreement"] <= max_disagreement
     ]
     selected = greedy_diverse_select(eligible, top_n=top_n)
 

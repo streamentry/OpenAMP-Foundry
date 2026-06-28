@@ -15,6 +15,7 @@ selection:
   top_n: 100
   min_novelty: 0.20
   max_safety_risk: 0.70
+  max_disagreement: 0.40
 
 notes:
   - "These weights are transparent baseline heuristics, not validated biological predictors."

@@ -22,6 +22,7 @@ selection:
   top_n: 100
   min_novelty: 0.05
   max_safety_risk: 0.40
+  max_disagreement: 0.30
 
 notes:
   - "Phase 3 exploration config. Weights differ from pipeline.yaml to prioritize safety."
