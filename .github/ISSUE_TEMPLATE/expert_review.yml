@@ -1,0 +1,212 @@
+name: Expert / Collaborator Review
+description: Template for a domain expert or wet-lab collaborator to review the computational candidate package before synthesis.
+title: "[Expert Review] <Lab / Collaborator name> — Wave <N>"
+labels: ["expert-review", "pre-synthesis"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Purpose:** This template captures a structured domain-expert review of the OpenAMP Foundry
+        computational candidate package. Complete this before ordering any peptide synthesis.
+        All fields marked * are required before a synthesis order may be placed.
+
+  - type: input
+    id: reviewer_name
+    attributes:
+      label: "Reviewer name *"
+      description: Full name of the reviewing expert (not shared publicly without consent)
+    validations:
+      required: true
+
+  - type: input
+    id: reviewer_affiliation
+    attributes:
+      label: "Reviewer affiliation *"
+      description: Institution or organisation
+    validations:
+      required: true
+
+  - type: input
+    id: reviewer_expertise
+    attributes:
+      label: "Area of expertise *"
+      placeholder: "e.g. peptide chemistry, clinical microbiology, pharmacology"
+    validations:
+      required: true
+
+  - type: input
+    id: review_date
+    attributes:
+      label: "Review date *"
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true
+
+  - type: input
+    id: pipeline_version
+    attributes:
+      label: "Pipeline version / git SHA reviewed"
+      placeholder: "e.g. v0.5.3 / abc1234"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: "---\n## Section 1 — Sequence-Level Review"
+
+  - type: dropdown
+    id: seq_review_verdict
+    attributes:
+      label: "Overall sequence quality verdict *"
+      options:
+        - "APPROVE — no concerns"
+        - "APPROVE WITH CAVEATS — see notes"
+        - "REVISE — specific sequences need changes"
+        - "BLOCK — do not synthesise until issues resolved"
+    validations:
+      required: true
+
+  - type: textarea
+    id: seq_concerns
+    attributes:
+      label: "Sequence-level concerns"
+      description: "Flag specific candidates by ID. Note cysteine bridges, aggregation risk, difficult couplings, or other synthesis issues."
+      placeholder: |
+        CAND-003: high cysteine content — recommend pseudoproline dipeptide at position 4-5
+        CAND-007: proline at position 2 may require Fmoc-Pro special handling
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: "---\n## Section 2 — Target Organism and Assay Plan"
+
+  - type: textarea
+    id: target_organisms
+    attributes:
+      label: "Proposed target organisms / strains *"
+      description: "List organisms, ATCC/NCTC strain numbers, and rationale."
+      placeholder: |
+        - E. coli ATCC 25922 (Gram-negative reference)
+        - S. aureus ATCC 29213 (Gram-positive reference)
+        - Rationale: ESKAPE-adjacent; standard EUCAST breakpoints available
+    validations:
+      required: true
+
+  - type: textarea
+    id: assay_plan
+    attributes:
+      label: "Proposed primary assay(s) *"
+      placeholder: |
+        1. MIC by broth microdilution (EUCAST protocol)
+        2. Hemolysis assay against hRBC at MIC, 2× MIC, 4× MIC
+        3. Mammalian cytotoxicity (HEK293 at 24 h) for candidates with selectivity_proxy < 0.6
+    validations:
+      required: true
+
+  - type: dropdown
+    id: assay_plan_verdict
+    attributes:
+      label: "Assay plan verdict *"
+      options:
+        - "APPROVE — plan is sufficient for Wave 1"
+        - "APPROVE WITH ADDITIONS — see notes"
+        - "REVISE — plan is inadequate"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "---\n## Section 3 — Safety and Dual-Use Check"
+
+  - type: dropdown
+    id: safety_verdict
+    attributes:
+      label: "Safety review verdict *"
+      options:
+        - "APPROVE — no dual-use or safety concerns"
+        - "FLAG — specific concern identified (describe below)"
+        - "BLOCK — safety concern must be resolved first"
+    validations:
+      required: true
+
+  - type: textarea
+    id: safety_notes
+    attributes:
+      label: "Safety / dual-use notes"
+      description: "Note any pathogen-enhancement risk, extreme toxicity signals, or regulatory considerations."
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: "---\n## Section 4 — Computational Score Assessment"
+
+  - type: dropdown
+    id: score_trust
+    attributes:
+      label: "How much do you trust the computational scores for this candidate set?"
+      options:
+        - "High — scores are consistent with domain intuition"
+        - "Medium — scores are plausible but unverified"
+        - "Low — scores disagree with domain intuition (explain below)"
+    validations:
+      required: false
+
+  - type: textarea
+    id: score_comments
+    attributes:
+      label: "Comments on specific scores"
+      description: "E.g. 'activity score seems too high for CAND-012 given the low charge'; 'serum stability estimate seems optimistic for CAND-005 which lacks D-amino acids'"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: "---\n## Section 5 — Synthesis Prioritisation"
+
+  - type: textarea
+    id: synthesis_priority
+    attributes:
+      label: "Recommended synthesis priority order"
+      description: "List candidate IDs in recommended synthesis order. Omit any you recommend against."
+      placeholder: |
+        TIER 1 (synthesise first): CAND-002, CAND-008, CAND-015
+        TIER 2 (synthesise if Tier 1 shows activity): CAND-001, CAND-006
+        DO NOT SYNTHESISE: CAND-004 (HIGH_CYTOTOX_RISK, selectivity_proxy 0.32)
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: "---\n## Section 6 — Overall Recommendation"
+
+  - type: dropdown
+    id: overall_verdict
+    attributes:
+      label: "Overall go / no-go recommendation *"
+      options:
+        - "GO — proceed to synthesis with the selected candidates"
+        - "GO WITH CONDITIONS — resolve flagged items first"
+        - "NO-GO — do not synthesise; major revision required"
+    validations:
+      required: true
+
+  - type: textarea
+    id: overall_notes
+    attributes:
+      label: "Additional comments for the PI"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: attestation
+    attributes:
+      label: "Reviewer attestation *"
+      options:
+        - label: "I have reviewed the candidate evidence certificates and pilot panel report."
+          required: true
+        - label: "I confirm the candidates do not pose an unacceptable dual-use or safety risk."
+          required: true
+        - label: "I understand these are computational nominations only and no biological activity has been confirmed."
+          required: true

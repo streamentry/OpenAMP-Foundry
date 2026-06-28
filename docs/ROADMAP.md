@@ -53,12 +53,28 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - Safety score uses pH-7.4 charge consistently with activity scorer
 - C-terminal amidation and N-terminal acetylation recommendations in QC
 - Wave 2 D-amino guidance in synthesis order
-- DISCOVERY_PREDICTION.md — quantified discovery probability model (~29–49%)
+- DISCOVERY_PREDICTION.md — quantified discovery probability model (internal: ~29–49% pre-correlation-correction; calibrated: ~15–30% accounting for near-seed correlation)
+- External Calibration section added (2026-06-28): acknowledges competitor landscape, corrects effective independence assumption, identifies path to higher confidence
 
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
-- independently reviewed assay batch;
-- lab results ingested;
+- independently reviewed assay batch (expert_review.yml GitHub issue template);
+- lab results ingested via `schemas/lab_result.schema.json`;
 - negative results archived where safe;
 - active-learning batch 2 (D-amino variants, MDR strain panel);
 - public reproducibility report.
+
+## Beyond v1.0 — What is still needed for a major breakthrough
+
+The following are not implemented in this pipeline. Each is a known gap flagged in external
+review (2026-06-28). Progress on these would materially raise breakthrough probability.
+
+| Gap | Why it matters | Effort estimate |
+|-----|----------------|-----------------|
+| Large-scale benchmark (≥ 500 AMPs vs composition-matched decoys, cluster-split) | Current AUROC 0.8164 measured on 44+44 demo set; may not generalise | Medium |
+| External predictor ensemble adapters (AMPScanner, AntiCP2, AMPlify, Macrel) | Independent second opinions on activity; required for scientific credibility | Medium |
+| True novelty check against APD3, DRAMP v3.0, dbAMP, UniProt | Current novelty scored against 45-sequence seed set only; may overestimate novelty | Small–Medium |
+| AUPRC alongside AUROC | Better metric for class-imbalanced AMP datasets | Small |
+| Wet-lab result integration (active-learning round 2) | Required to move from 15–30% to 50%+ credible probability | Requires wet-lab |
+| Pre-registration of assay protocol before synthesis | Strengthens causal inference; reduces reporting bias | Small |
+| Public benchmark paper (replicable, cluster-split, open datasets) | Sets community standard; enables external validation | Large |

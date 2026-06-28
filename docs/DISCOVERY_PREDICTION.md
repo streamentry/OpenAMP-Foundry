@@ -17,6 +17,8 @@ improvements already implemented or recommended.
 **Bottom line:** The pilot panel has a ~61–71% probability of yielding at least one candidate
 with MIC ≤ 32 μg/mL, and **~29–49%** probability of generating "breaking news" publication
 material with the fully updated panel (up from 5–12% before computational improvements).
+*External calibration: accounting for near-seed candidate correlation, the honest corrected
+estimate is ~15–30%. See the **External Calibration** section at the end of this document.*
 
 Key improvements since last assessment (PRs #39–#49):
 - **Charge×amphipathicity cross-term (PR #39):** Scoring now rewards simultaneous high charge AND
@@ -573,6 +575,102 @@ Executing all four actions on the best Wave 1 hits would push the combined proba
 (Probability of zero active from 20 candidates with ~66% individual hit rate ≈ 3–9%)
 
 **Probability of ≥1 candidate satisfying ALL gates (current panel, PRs #31–#53):** ~29–49%
+
+---
+
+## External Calibration — Honest Second Opinion
+
+An independent expert review (2026-06-28) identified the following risks that are **not
+captured in the internal probability model above**:
+
+### 1. Candidate Correlation (Most Important Risk)
+
+The internal model treats each of the 20 pilot candidates as approximately independent draws.
+**They are not independent.** All candidates are near-seed variants from 8 template sequences.
+If a seed family fails (e.g., wrong mechanism, assay incompatibility, mammalian toxicity at
+the seed level), most variants from that seed fail together. The effective number of independent
+experiments is closer to the number of distinct scaffold families (8) than the number of
+candidates (20).
+
+**Correlation-corrected estimate for the breaking-news gate:**
+
+The internal model's per-stage probabilities, multiplied across all 5 gates, give a per-candidate
+all-gates pass rate of approximately 1.6–3.1%. With 20 assumed-independent candidates, the
+pipeline estimates P(≥1 breaking-news hit) = 1 − (1 − p)^20 ≈ 29–49%.
+
+If the effective number of independent experiments is ~8 scaffold families (not 20), using
+the **same per-scaffold all-gates rate of 1.6–3.1%**:
+
+```
+P(≥1 from 8 at 1.6%) = 1 − (0.984)^8 ≈ 12%
+P(≥1 from 8 at 2.4%) = 1 − (0.976)^8 ≈ 17%
+P(≥1 from 8 at 3.1%) = 1 − (0.969)^8 ≈ 22%
+```
+
+**Calibrated estimate: ~12–22% (rounded to 15–30% to account for model uncertainty)**
+
+| Outcome | Internal model (n=20 independent) | Calibrated estimate (n≈8 effective) |
+|---------|-----------------------------------|--------------------------------------|
+| ≥1 candidate with MIC + acceptable selectivity ("breaking news") | ~29–49% | ~15–30% |
+| Publishable result (novel AMP + external replication) | not modeled | ~5–15% |
+| Major breakthrough (new AMP family, widely replicated) | not modeled | ~1–5% |
+
+The MIC-only probability (Stage 1) is harder to correct without a formal per-scaffold Stage 1
+rate; it is left as a qualitative adjustment toward the lower end of the 61–71% range.
+
+The corrected estimate is more conservative because:
+
+### 2. Benchmark Limitations
+
+The AUROC 0.8164 is measured on a small 44+44 demo dataset, not validated against the full
+APD3 (> 3,000 AMPs), DRAMP v3.0 (> 19,000 entries), or ESCAPE benchmark (> 80,000 peptides
+from 27 repositories). This may overestimate discriminative power.
+
+Required to strengthen confidence:
+- Cluster-split evaluation on APD3-scale data (≥ 500 AMPs vs composition-matched background)
+- AUPRC alongside AUROC (better for class-imbalanced datasets)
+- External predictor comparison (AMPScanner, AntiCP2, AMPlify, Macrel)
+
+### 3. Novelty Verification
+
+The 45-sequence reference set used for novelty scoring does not represent the full landscape
+of known AMPs. Real-world novelty check required against:
+- APD3 (Antimicrobial Peptide Database v3): > 3,000 natural AMPs
+- DRAMP v3.0 (Data Repository of Antimicrobial Peptides): > 19,000 entries
+- dbAMP: > 4,000 validated AMPs
+- UniProt antimicrobial sequences
+
+Until this is done, novelty scores of 0.4–0.7 may be overestimates.
+
+### 4. Competitive Landscape
+
+The field is advancing rapidly. Relevant recent work:
+- **AMPGAN v3 (arXiv 2606.17127, June 2026):** Agentic AMP generation with actual in-vitro
+  validation — 5 candidates tested, 2 active against Gram-positive strains, best MIC 8 μg/mL.
+  *(Confirm arXiv ID before citing externally — sourced from external reviewer notes.)*
+- **ESCAPE benchmark (arXiv 2511.04814, 2025):** Standardized multi-label AMP classification
+  benchmark integrating > 80,000 peptides from 27 repositories; sets a new bar for what
+  constitutes a rigorous AMP discriminative benchmark.
+
+The current pipeline is **differentiated** by its verification-first philosophy, reproducibility,
+evidence certificates, and pre-registration — not (yet) by benchmark scale or wet-lab results.
+
+### 5. Path to Meaningful Probability Uplift
+
+Based on the external review, the following would meaningfully improve the odds:
+
+| Action | Expected impact | When |
+|--------|----------------|------|
+| Run validate-scoring against APD3-scale dataset | +confidence in AUROC | Before wet-lab order |
+| Add ≥2 external predictor adapters (AMPScanner-like) | +scientific credibility | Before wet-lab order |
+| True novelty check (APD3, DRAMP, dbAMP) | ±probability (may revise up or down) | Before wet-lab order |
+| Wave 1 wet-lab data | +20–35 pp if >0 hits confirmed | After wet-lab |
+| Wave 2 D-amino variants on best hits | +8–12 pp | After Wave 1 |
+
+**Honest pre-synthesis summary:** This pipeline is a **well-engineered dry-lab verification
+scaffold** with strong evidence hygiene, but with wet-lab hit probability in the **15–30%**
+range (not 29–49%) when accounting for candidate correlation and benchmark limitations. The
+path to 50%+ requires wet-lab data integration.
 
 ---
 
