@@ -39,7 +39,7 @@ _PKA = {
     "C_term": 3.1,
     "K": 10.5,
     "R": 12.5,
-    "H": 6.0,
+    "H": 6.5,   # Bjellqvist et al. 1993 peptide context value (matches physchem.py)
     "D": 3.9,
     "E": 4.1,
     "C": 8.3,

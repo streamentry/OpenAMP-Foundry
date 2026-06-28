@@ -4,6 +4,14 @@ import warnings
 
 
 def ensemble_score(scores: dict[str, float], weights: dict[str, float]) -> float:
+    """Compute weighted sum of component scores, normalised to [0, 1].
+
+    Weights are passed in at runtime from the pipeline config file.
+    Default weights (configs/pipeline.yaml):
+        activity=0.40, safety=0.25, synthesis=0.15, novelty=0.20
+    Phase-3 weights (configs/phase3.yaml):
+        activity=0.35, safety=0.30, synthesis=0.20, novelty=0.15
+    """
     missing = [name for name in weights if name not in scores]
     if missing:
         warnings.warn(

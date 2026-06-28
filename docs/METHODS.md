@@ -181,8 +181,10 @@ signals that sum to a `risk` variable; `score = 1.0 − clamp(risk, 0, 1)`.
 | High cysteine content | cysteine_fraction > 0.25 | +0.20 | Disulfide-mediated aggregation |
 | Long repeat run | longest_repeat_run ≥ 6 | +0.15 | On-resin aggregation |
 
-`charge_density_ph74` (preferred) falls back to `abs(charge_density)` for callers
-predating the pH-7.4 charge model.
+`charge_density_ph74` (signed) is used directly — anionic sequences (charge_density_ph74 < 0)
+receive a safety score of 1.0 (no hemolysis concern) because negatively charged peptides are
+electrostatically repelled from anionic bacterial membranes. The `abs()` fallback was removed
+in PR #65 to avoid incorrectly penalising anionic peptides as "hemolytic".
 
 **Critical limitation:** This score has never been calibrated against experimental
 hemolysis or cytotoxicity measurements. It is a physics-based proxy only. Lab hemolysis
