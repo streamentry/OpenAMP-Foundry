@@ -81,7 +81,7 @@ review (2026-06-28). Progress on these would materially raise breakthrough proba
 | Gap | Why it matters | Effort estimate |
 |-----|----------------|-----------------|
 | Large-scale benchmark (≥ 500 AMPs vs composition-matched decoys, cluster-split) | Current AUROC 0.8420 measured on 43+44 demo set (n=87, CI₉₅: 0.76–0.91); may not generalise | Medium |
-| External predictor ensemble adapters (AMPScanner, AntiCP2, AMPlify, Macrel) | Independent second opinions on activity; required for scientific credibility | Medium |
+| External predictor ensemble adapters (CAMPR4, AMPScanner, dbAMP, AntiCP2, Macrel) | Independent second opinions on activity; required for scientific credibility. Manual web-submission checklist at `outputs/external_predict_checklist.md`. Macrel v1.6.0 CLI ONNX bug documented PR #77 — all sequences (incl. canonical AMPs magainin-2, LL-37) misclassified as NAMP; use web server at big-data-biology.org/software/macrel. AMPlify omitted: GPU/ONNX env incompatible with current deps | Medium (checklist generated; web submissions pending) |
 | True novelty check against APD3, DRAMP v3.0, dbAMP, UniProt | Current novelty scored against 45-sequence seed set only; may overestimate novelty | Small–Medium |
 | ~~AUPRC alongside AUROC~~ | ~~Better metric for class-imbalanced AMP datasets~~ | **Done** (PR #58; updated PR #72) — pipeline AUPRC = 0.8627 |
 | Wet-lab result integration (active-learning round 2) | Required to move from 15–30% to 50%+ credible probability | Requires wet-lab |
