@@ -7,6 +7,7 @@ import pytest
 
 from openamp_foundry.benchmark.retrospective import (
     _auc_wilcoxon,
+    _bootstrap_auroc_ci,
     _recall_at_k,
     run_retrospective_benchmark,
 )
@@ -53,6 +54,22 @@ class TestRecallAtK:
 
     def test_no_positives_returns_zero(self):
         assert _recall_at_k([0, 0, 0], k=2) == pytest.approx(0.0)
+
+
+class TestBootstrapAurocCi:
+    def test_empty_pos_returns_chance(self):
+        result = _bootstrap_auroc_ci([], [0.9, 0.5, 0.1])
+        assert result["mean"] == pytest.approx(0.5)
+        assert result["ci_lo"] == pytest.approx(0.5)
+        assert result["ci_hi"] == pytest.approx(0.5)
+        assert result["n_bootstrap"] == 0
+
+    def test_empty_neg_returns_chance(self):
+        result = _bootstrap_auroc_ci([0.9, 0.5, 0.1], [])
+        assert result["mean"] == pytest.approx(0.5)
+        assert result["ci_lo"] == pytest.approx(0.5)
+        assert result["ci_hi"] == pytest.approx(0.5)
+        assert result["n_bootstrap"] == 0
 
 
 class TestRunRetrospectiveBenchmark:

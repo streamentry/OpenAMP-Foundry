@@ -128,3 +128,10 @@ class TestBenchmarkSummary:
         result = benchmark_summary(ITEMS, POSITIVES, ks=[2])
         assert result["n_candidates"] == 5
         assert result["n_positives"] == 2
+
+
+class TestEnrichmentFactorEdgeCases:
+    def test_enrichment_factor_returns_zero_when_k_is_zero(self):
+        # k=0 → random_recall_at_k(n, n_pos, 0) == 0.0 → guard branch returns 0.0
+        ef = enrichment_factor(ITEMS, POSITIVES, k=0)
+        assert ef == 0.0

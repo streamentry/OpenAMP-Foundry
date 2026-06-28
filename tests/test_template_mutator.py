@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from openamp_foundry.generators.template_mutator import (
     _conservative_substitutes,
+    generate_aggregation_safe_double_variants,
     generate_all_variants,
     generate_candidate_pool,
     generate_charge_enhanced_variants,
@@ -56,6 +57,11 @@ class TestConservativeSubstitutes:
             subs = _conservative_substitutes(aa)
             cross = [s for s in subs if s in charged]
             assert not cross, f"Hydrophobic AA {aa!r} has charged subs: {cross}"
+
+    def test_unknown_aa_returns_empty_list(self):
+        # AA not in any conservative group → guard at line 51 returns []
+        assert _conservative_substitutes("X") == []
+        assert _conservative_substitutes("B") == []
 
 
 class TestSingleSubstitutionVariants:
@@ -125,6 +131,16 @@ class TestDoubleSubstitutionVariants:
         v1 = generate_double_substitution_variants(SEED, n_samples=10, seed=1)
         v2 = generate_double_substitution_variants(SEED, n_samples=10, seed=2)
         assert v1 != v2, "Different rng seeds should produce different variants"
+
+    def test_single_aa_sequence_returns_empty(self):
+        # < 2 substitutable positions → early-return guard in generate_double_substitution_variants
+        assert generate_double_substitution_variants("K") == []
+
+
+class TestAggregationSafeDoubleVariants:
+    def test_single_aa_sequence_returns_empty(self):
+        # < 2 substitutable positions → early-return guard in generate_aggregation_safe_double_variants
+        assert generate_aggregation_safe_double_variants("K") == []
 
 
 class TestChargeEnhancedVariants:

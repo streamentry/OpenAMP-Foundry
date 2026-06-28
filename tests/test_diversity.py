@@ -288,3 +288,27 @@ class TestFamilyStructuralWarnings:
         warnings = family_structural_warnings(members, min_family_size=3)
         for w in warnings:
             assert "SEED-005" in w["message"]
+
+
+class TestClusterPanelAlreadyAssignedSkip:
+    """Cover diversity.py:73 — inner-loop skip when j already has a cluster."""
+
+    def _make_candidates(self, id_seq_pairs):
+        return [{"candidate_id": cid, "sequence": seq} for cid, seq in id_seq_pairs]
+
+    def test_already_assigned_cluster_member_is_skipped_in_inner_loop(self):
+        # Arrange: 4 sequences where seq_0 is similar to seq_1 AND seq_3 (not seq_2).
+        # When outer i=0 runs, inner assigns seq_1 and seq_3 to cluster_0.
+        # When outer i=2 runs (seq_2 gets a new cluster), inner j=3 already has
+        # cluster_0 → continue (line 73).  Verified: 3 clusters [0,0,1,0].
+        candidates = self._make_candidates([
+            ("A", "KWKLFKKIG"),   # similar to B and D
+            ("B", "KWKLFKKIA"),   # similar to A (1 diff/9) — assigned to cluster 0 by i=0
+            ("C", "RWRLFRKKG"),   # different from A (4 diffs/9)
+            ("D", "KWKLFKKIF"),   # similar to A (1 diff/9) — assigned to cluster 0 by i=0
+        ])
+        clustered = cluster_panel(candidates, similarity_threshold=0.85)
+        cluster_ids = [c["cluster_id"] for c in clustered]
+        assert cluster_ids[0] == cluster_ids[1], "A and B should be in the same cluster"
+        assert cluster_ids[0] == cluster_ids[3], "A and D should be in the same cluster"
+        assert cluster_ids[2] != cluster_ids[0], "C should be in a different cluster"

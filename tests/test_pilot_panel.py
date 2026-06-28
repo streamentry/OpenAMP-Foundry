@@ -504,3 +504,38 @@ class TestWritePilotMarkdown:
         assert "selectivity_proxy" in content
         assert "novelty" in content
         assert "serum_stability" in content
+
+
+class TestPilotPhase3FillFromRemainder:
+    """Cover pilot.py:173 — Phase 3 append when max_per_seed cap creates overflow.
+
+    max_per_seed=1 with 2 seeds means Phase 1 fills 2 slots.  The third
+    slot can only be filled from the per-seed overflow remainder (Phase 3).
+    """
+
+    def _c(self, cid, seed, seq, priority):
+        return {
+            "candidate_id": cid,
+            "sequence": seq,
+            "source": f"template_mutation_from_{seed}",
+            "scores": {
+                "ensemble": priority, "activity": priority, "boman_activity": 0.65,
+                "disagreement": 0.05, "safety": 0.9, "synthesis": 0.8, "novelty": 0.9,
+            },
+            "features": {"length": len(seq)},
+        }
+
+    def test_overflow_candidates_fill_remaining_slots(self):
+        # 2 seeds (S1, S2), max_per_seed=1, n=3:
+        # Phase 1 fills A1 (best S1) and B1 (best S2) → 2 selected.
+        # C1 (S1 second-best) is in cap-overflow remainder.
+        # Phase 3 appends C1 → line 173 reached, len(result) == 3.
+        candidates = [
+            self._c("A1", "S1", "KWKLFKKIG", 0.9),
+            self._c("B1", "S2", "RWRLFRRKG", 0.8),
+            self._c("C1", "S1", "KWKLKKILG", 0.7),
+        ]
+        result = select_pilot_panel(candidates, n=3, max_per_seed=1, similarity_threshold=None)
+        assert len(result) == 3
+        ids = {r["candidate_id"] for r in result}
+        assert "C1" in ids, "Phase 3 overflow candidate must be selected"
