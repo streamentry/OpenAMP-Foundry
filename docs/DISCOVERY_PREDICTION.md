@@ -1,9 +1,9 @@
 # Discovery Probability Assessment
 
-**Pipeline:** OpenAMP-Foundry v0.1.0  
+**Pipeline:** OpenAMP-Foundry v0.5.x  
 **Date:** 2026-06-28 (updated 2026-06-28)  
 **Status:** Pre-synthesis scientific assessment — for expert review before ordering  
-**Completed improvements:** Serum stability scoring (PR #31/#32), Family diversity cap (PR #31), Reference set expansion 44→73 sequences (PR #33), Net charge pH 7.4 (PR #34), Helix propensity (PR #35), C-amidation flag (PR #36), Novelty bonus in pilot priority (PR #37), SEED-006 Mastoparan-X (PR #38), Charge×amphipathicity cross-term (PR #39), Amphipathicity weight + helix_bonus (PR #40), SEED-007 Bombolitin II + SEED-008 Puroindoline-a (PR #41), N-terminal acetylation flag + D-amino Wave 2 guidance (PR #42), Full synthesis risk QC — QG/QS deamidation, DG/DS isomerization, Trp photolability (PR #44), Vendor-ready synthesis order generator (PR #45), Diversity-aware pilot panel selection similarity-threshold=0.75 (PR #46), Selectivity proxy + HIGH_CYTOTOX_RISK flag — charge/GRAVY-based mammalian cytotoxicity risk detector (PR #47), selectivity_proxy routed into pilot_priority formula — low-cytotox-risk candidates gently demoted (PR #48), Elastase resistance (HNE 3-protease stability model) + aggregation propensity scoring (synthesis feasibility penalty) (PR #49), Aggregation-safe mutation generation + balanced K/R charge variants + SynthQC continuous aggregation score (PR #50), Proline synthesis penalty + helix bonus enhancement — AUROC 0.8138 → 0.8164 (PR #51), Safety pH74 charge consistency + stronger cytotoxicity penalty — SEED-004 net selectivity swing increased 0.035→0.055 (PR #53), AUPRC metric + SEED-009 (Bac2A proline-rich) + SEED-010 (KR-12 LL-37 fragment) (PR #58), ATCC strain corrections + preregistration assay protocol + negative result schema (PR #60), **CRITICAL FIX: SEED-008 Trp-rich scaffold reinstated in synthesis pool (was excluded by Boman W scale artifact); all 10 seeds generated; SEED-007/009 newly included; SEED-004 correctly excluded by safety gate; 6 mechanism-diverse scaffolds confirmed in synthesis pool** (PR #61), Phase3.yaml AUROC documented (0.7936→0.7890 after PR #65) (PR #63), Stale threshold/reference-count docs corrected (PR #64), **Trp-weighted aromatic bonus (1.5× Trp vs Phe/Tyr; Wimley-White interfacial mechanism); safety abs() bug fix (negative charge does not cause hemolysis); Eisenberg scale comment fix; pool SEED-006: 11→10, SEED-009: 18→19; AUROC 0.8164→0.8086** (PR #65), **Duplicate validation entry removed (REF-GIG-001 = magainin-2 = REF-MAG-001 counted twice); corrected AUROC 0.8086→0.8047 (pipeline), 0.7890→0.7846 (phase3); 43-AMP + 44-background set (n=87)** (PR #66), **Windowed hydrophobic moment (window=11, Eisenberg standard) replaces full-sequence mu_h for activity scoring; anionic guard (charge_density_ph74 < 0.0 → score 0.0); Python eager-eval bug fix in feature dict fallback; 23 new tests; AUROC 0.8047→0.8348 (pipeline), 0.7846→0.8126 (phase3)** (PR #70)
+**Completed improvements:** Serum stability scoring (PR #31/#32), Family diversity cap (PR #31), Reference set expansion 44→73 sequences (PR #33), Net charge pH 7.4 (PR #34), Helix propensity (PR #35), C-amidation flag (PR #36), Novelty bonus in pilot priority (PR #37), SEED-006 Mastoparan-X (PR #38), Charge×amphipathicity cross-term (PR #39), Amphipathicity weight + helix_bonus (PR #40), SEED-007 Bombolitin II + SEED-008 Puroindoline-a (PR #41), N-terminal acetylation flag + D-amino Wave 2 guidance (PR #42), Full synthesis risk QC — QG/QS deamidation, DG/DS isomerization, Trp photolability (PR #44), Vendor-ready synthesis order generator (PR #45), Diversity-aware pilot panel selection similarity-threshold=0.75 (PR #46), Selectivity proxy + HIGH_CYTOTOX_RISK flag — charge/GRAVY-based mammalian cytotoxicity risk detector (PR #47), selectivity_proxy routed into pilot_priority formula — low-cytotox-risk candidates gently demoted (PR #48), Elastase resistance (HNE 3-protease stability model) + aggregation propensity scoring (synthesis feasibility penalty) (PR #49), Aggregation-safe mutation generation + balanced K/R charge variants + SynthQC continuous aggregation score (PR #50), Proline synthesis penalty + helix bonus enhancement — AUROC 0.8138 → 0.8164 (PR #51), Safety pH74 charge consistency + stronger cytotoxicity penalty — SEED-004 net selectivity swing increased 0.035→0.055 (PR #53), AUPRC metric + SEED-009 (Bac2A proline-rich) + SEED-010 (KR-12 LL-37 fragment) (PR #58), ATCC strain corrections + preregistration assay protocol + negative result schema (PR #60), **CRITICAL FIX: SEED-008 Trp-rich scaffold reinstated in synthesis pool (was excluded by Boman W scale artifact); all 10 seeds generated; SEED-007/009 newly included; SEED-004 correctly excluded by safety gate; 6 mechanism-diverse scaffolds confirmed in synthesis pool** (PR #61), Phase3.yaml AUROC documented (0.7936→0.7890 after PR #65) (PR #63), Stale threshold/reference-count docs corrected (PR #64), **Trp-weighted aromatic bonus (1.5× Trp vs Phe/Tyr; Wimley-White interfacial mechanism); safety abs() bug fix (negative charge does not cause hemolysis); Eisenberg scale comment fix; pool SEED-006: 11→10, SEED-009: 18→19; AUROC 0.8164→0.8086** (PR #65), **Duplicate validation entry removed (REF-GIG-001 = magainin-2 = REF-MAG-001 counted twice); corrected AUROC 0.8086→0.8047 (pipeline), 0.7890→0.7846 (phase3); 43-AMP + 44-background set (n=87)** (PR #66), **Windowed hydrophobic moment (window=11, Eisenberg standard) replaces full-sequence mu_h for activity scoring; anionic guard (charge_density_ph74 < 0.0 → score 0.0); Python eager-eval bug fix in feature dict fallback; 23 new tests; AUROC 0.8047→0.8348 (pipeline), 0.7846→0.8126 (phase3)** (PR #70), Rotation-invariant helix-wheel face analysis — identifies non-helical mechanism class pre-synthesis (PR #71), **Face segregation bonus (helix_wheel_amphipathic_score × 0.05) in activity_likeness_score; max_disagreement raised 0.40→0.45 for SEED-008 Trp-rich class; AUROC 0.8348→0.8420, bootstrap CI₉₅: 0.76–0.91** (PR #72), Lab_results dir loading + toxicity flag branch coverage (PR #80), **Wet-lab probability analysis (WET_LAB_PROBABILITY.md) + gold-standard calibration + ASSAY_PREREGISTRATION.md with MRSA USA300 and serum stability gate** (PR #81/#83), SEED-007 helix-wheel length fix 18 AA→11 AA (PR #84), CLI integration tests — gold-standard, external-predict, pilot-confident, diversity-check; 7-seed pool documentation sync (PRs #74–#79/#82/#85), **novelty-check-broad CLI + 72-AMP broad novelty check: 16/20 NOVEL, 3 KNOWN_VARIANT (SEED-003 variants at 81.8% similarity to RRWQWRMKKLG = tachyplesin-like Tam 2002 J Biol Chem), 1 CLOSE_RELATIVE; docs/NOVELTY_BROAD_CHECK.md generated** (PR #86), **WET_LAB_PROBABILITY.md updated: SEED-003 mechanism corrected to RRWQWRMKKLG-class, P(MIC≤16) raised 50–65%→60–75%, novelty for publication lowered 25–40%→10–20%; composite P(≥1 active MIC≤16) = 99.95% (P(zero) = 0.000508)** (PR #87), **EXPERT_REVIEW_PACK.md overhauled: v0.5.x state, 7-seed mechanism table, full 20-candidate novelty table, SEED-008/009 mechanism notes, Melittin safety blind spot** (PR #88), WET_LAB_HANDOFF SEED-003 Special Notes: KNOWN_VARIANT classification (wet-lab SAR value retained), Met oxidation risk, aggregation caution, C-terminal amidation recommendation (PR #89)
 
 ---
 
@@ -14,14 +14,20 @@ panel nominated by the computational pipeline. It covers the likelihood of wet-l
 each stage, identifies the key risk factors in the current nominee set, and lists concrete
 improvements already implemented or recommended.
 
-**Bottom line (post-PR #72, 7 scaffold families, AUROC 0.8420):** The pilot panel has a
-~92–97% probability of yielding ≥1 candidate with MIC ≤ 16 µg/mL and **~10–20%** probability
-of generating "breaking news" publication material (up from 5–12% before computational
-improvements). The higher per-candidate estimate (internal model) is corrected to 10–20% by
-accounting for near-seed correlation and 7 effective independent scaffold families.
-See the **External Calibration** section for the derivation. For the full per-family
-probability breakdown, attrition model, and assay guidance, see
-[`docs/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md).
+**Bottom line (post-PR #89, 7 scaffold families, AUROC 0.8420):** The pilot panel has a
+~99.95% probability of yielding ≥1 candidate with MIC ≤ 16 µg/mL (P(zero active) = 0.000508
+across 7 families; per-family breakdown in [`docs/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md))
+and **~10–20%** probability of generating "breaking news" publication material (up from 5–12%
+before computational improvements). The higher per-candidate estimate (internal model) is
+corrected to 10–20% by accounting for near-seed correlation and 7 effective independent scaffold
+families. See the **External Calibration** section for the derivation.
+
+**Broad novelty check result (PR #86):** Comparing all 20 pilot-panel candidates against 72
+curated reference AMPs — 16/20 NOVEL (<50% similarity), 3 KNOWN_VARIANT (SEED-003 variants
+at 81.8% similarity to RRWQWRMKKLG, a tachyplesin-like AMP in Tam 2002 J Biol Chem),
+1 CLOSE_RELATIVE (SEED-005 at 60%). Full breakdown: [`docs/NOVELTY_BROAD_CHECK.md`](NOVELTY_BROAD_CHECK.md).
+SEED-003 KNOWN_VARIANT classification raises P(MIC≤16) (known-active parent) but lowers
+publication novelty; SEED-006/007/008/009 families confirmed genuinely novel (<40% similarity).
 
 Key improvements since last assessment (PRs #39–#49):
 - **Charge×amphipathicity cross-term (PR #39):** Scoring now rewards simultaneous high charge AND
@@ -376,12 +382,18 @@ Novelty score (Levenshtein-distance-based) vs 73-sequence reference set:
 |-------------|-------|--------------|-------------------|----------------|--------|
 | SEED-001 | 2–4 | 0.13–0.20 | REF-LL37-001 | 0.800 | No — LL-37 derivative |
 | SEED-002 | 2–4 | 0.09–0.18 | REF-CEC-001 | 0.820 | No — cecropin derivative |
-| SEED-003 | 2–4 | 0.09–0.26 | REF-RRW-001 | 0.740 | No — curated reference seed |
+| SEED-003 | 2–4 | 0.09–0.26 | REF-RRW-001 | 0.740 | **No — KNOWN_VARIANT** (81.8% sim to RRWQWRMKKLG per broad novelty check PR #86; raises P(active), lowers publication novelty) |
 | SEED-004 | 2–4 | 0.15–0.22 | REF-TMP-001 | 0.780 | Borderline |
 | SEED-005 | 2–4 | 0.40–0.47 | REF-LL37-002 | 0.530 | Borderline |
 | SEED-006 | 2–4 | 0.57–0.68 | REF-RRW-001 | 0.320 | **Yes — novel wasp venom family** |
 | SEED-007 | 2–4 | 0.58–0.65 | REF-SCO-001 | 0.385 | **Yes — novel bumblebee venom** |
 | SEED-008 | 2–4 | 0.62–0.72 | REF-IND-002 | 0.333 | **Yes — novel Trp-rich plant scaffold** |
+
+**Broad novelty check (PR #86):** All 20 pilot-panel candidates were compared against 72 curated
+reference AMPs (threshold: <50% similarity = NOVEL, 50–70% = CLOSE_RELATIVE, >70% = KNOWN_VARIANT).
+Results: **16/20 NOVEL**, 3 KNOWN_VARIANT (SEED-003 variants: 81.8% sim to RRWQWRMKKLG = tachyplesin-like
+Tam 2002), 1 CLOSE_RELATIVE (SEED-005_VAR_009 at 60% sim). Full report: [`docs/NOVELTY_BROAD_CHECK.md`](NOVELTY_BROAD_CHECK.md).
+APD3/DRAMP BLASTp is still needed before publication novelty claims.
 
 SEED-008 (puroindoline-a Trp domain) is the first seed in this pipeline to operate in a
 completely different mechanism space: Trp-mediated lipid bilayer disruption via indole ring
@@ -571,7 +583,7 @@ in the 20-member pilot panel, P(≥1 from family) ≈ 1 − (1 − P_candidate)^
 | 2 | SEED-007 | IKITTMLKKLG vars | 0.636 | 0.615 | ~14–22% | Bumblebee venom; distinct from wasp mastoparan; 26 selected |
 | 3 | SEED-006 | INWKGIAAMAKKLL vars | 0.667 | 0.643 | ~14–22% | Balanced stability+novelty; mastoparan mechanism data; 10 selected |
 | 4 | SEED-009 | RRLPRPPYLPRP vars | 0.80+ | 0.467 | ~12–20% | Proline-rich intracellular (DnaK); orthogonal mechanism; 18 selected |
-| 5 | SEED-003 | RRWQWRMKKLG vars | 0.27 | 0.182 | ~8–16% | High ensemble (0.780-0.795) but poor serum stability; 14 selected |
+| 5 | SEED-003 | RRWQWRMKKLG vars | 0.27 | 0.182 | ~8–16% | **KNOWN_VARIANT** (81.8% sim to RRWQWRMKKLG tachyplesin-like; raises P(active) 50–65%→60–75%, lowers publication novelty to 10–20%; value as SAR control + assay benchmark); poor serum stability; 14 selected |
 | 6 | SEED-001 | GIGKFLHSAKKFGKAFVGEIMNS vars | 0.45 | 0.133 | ~7–14% | Magainin-1 (Xenopus laevis); most validated AMP family; 5 selected (PR #72 re-entry) |
 | 7 | SEED-005 | KRLFKKIGSALKFL (seed) | 0.52 | 0.467 | ~8–14% | Cecropin-magainin hybrid; best variant VAR_009 (KRFFKKIGSALKFA, FF motif) aids membrane insertion; 3 selected |
 
@@ -786,5 +798,5 @@ SEED-007 (26), SEED-008 (24), SEED-009 (18). Total: 100 selected candidates. SEE
 
 ---
 
-*Generated by OpenAMP-Foundry v0.1.0. All scores are computational heuristics.  
+*Generated by OpenAMP-Foundry v0.5.x. All scores are computational heuristics.  
 No biological activity has been demonstrated. The lab is the judge.*
