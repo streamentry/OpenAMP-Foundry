@@ -67,6 +67,7 @@ before ordering. The report flags:
 | `DEAMIDATION_RISK` | N→D conversion at pH > 7.5 | Use pH 7.0 buffer; avoid long storage at room temp |
 | `LOW_CHARGE` | Reduced membrane affinity | Lower expected potency; may need higher test concentrations |
 | `LONG_PEPTIDE (>30aa)` | SPPS yield risk | Expect lower crude purity; order extra crude for purification |
+| `C_AMIDATION_RECOMMENDED` | C-terminal COOH reduces charge and serum stability | **Request "C-terminal amide (CONH₂)"** in synthesis order form — adds ~+0.7 charge, improves stability at zero extra cost |
 
 ### Synthesis Difficulty Rating
 
@@ -82,7 +83,24 @@ before ordering. The report flags:
 
 ### Initial Screen (MIC Assay)
 
-- **Organism priority:** *E. coli* ATCC 25922 (Gram-negative standard), *S. aureus* ATCC 29213 (Gram-positive standard)
+**Reference strain panel (Wave 1 minimum):**
+
+| Organism | ATCC strain | Gram | Rationale |
+|----------|-------------|------|-----------|
+| *E. coli* | ATCC 25922 | − | Gram-negative standard; reference for all AMP comparisons |
+| *S. aureus* | ATCC 29213 | + | Gram-positive standard; reference for all AMP comparisons |
+
+**MDR expansion (Wave 1 recommended — adds publication significance):**
+
+| Organism | Strain | Resistance phenotype | Why include |
+|----------|--------|----------------------|-------------|
+| *S. aureus* | USA300 | MRSA (methicillin-resistant) | Clinically prevalent; any hit is immediately publishable |
+| *E. coli* | ST131 (ATCC BAA-2469) | MDR (CTX-M ESBL) | Most prevalent MDR Gram-negative globally |
+| *K. pneumoniae* | ATCC BAA-1705 | KPC (carbapenem-resistant) | Highest-priority WHO critical pathogen |
+
+Including MDR strains adds only ~3× material cost but increases publication impact substantially.
+Any candidate with MIC ≤ 8 μg/mL against MRSA or KPC-KP qualifies as clinically significant.
+
 - **Growth medium:** MHB (Mueller-Hinton Broth), cation-adjusted
 - **Inoculum:** ~5×10⁵ CFU/mL (CLSI standard)
 - **Concentration range:** 1–128 μg/mL (2-fold serial dilutions)
@@ -103,6 +121,34 @@ recommended starting concentration based on the computed hydrophobic moment (μH
 
 Use human red blood cells (hRBCs) at 0.5% in PBS. Incubate 1h at 37°C. Read at A540.
 Hemolysis > 10% at MIC is a fail.
+
+---
+
+## SEED-006 (Mastoparan-X) Special Notes
+
+SEED-006 variants are derived from **Mastoparan-X** (INWKGIAAMAKKLL, Yoshida *et al.* 1990),
+a wasp (*Vespa xanthoptera*) venom calmodulin-binding helical peptide. This is structurally
+distinct from the other 5 seeds (magainin-like, cecropin-like, tachyplesin-like). 
+
+**Mechanism:** Mastoparan-X inserts into bacterial membranes via a predominantly
+**hydrophobic helix insertion** mechanism rather than electrostatic carpet disruption.
+It also activates G-proteins and has calmodulin-binding properties.
+
+**Expected activity profile:**
+- Gram-positive coverage likely > Gram-negative (small outer membrane)
+- May show cooperative ("all-or-nothing") dose-response curves
+- Hemolytic risk: moderate (assay at MIC/3 per QC guidance)
+
+**Synthesis guidance:**
+- No Cys, no Met → standard Fmoc SPPS, standard storage
+- **C-terminal amidation strongly recommended**: SEED-006_VAR_xxx candidates end in LL (hydrophobic),
+  neutral C-terminus. Request `CONH₂` to add +0.7 charge and improve serum stability
+- SEED-006 variants have 2–3 interior Lys → serum t½ estimated ~2–4 h
+
+**Assay interpretation:**
+- If SEED-006 variants are active but SEED-001–005 are not: supports calmodulin-binding mechanism;
+  consider calmodulin competition assay to confirm novel mechanism
+- High publication value if MIC < 4 μg/mL against MRSA (see MDR panel above)
 
 ---
 

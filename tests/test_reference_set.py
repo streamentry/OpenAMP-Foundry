@@ -8,8 +8,6 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-import pytest
-
 REF_CSV = Path("examples/known_reference/amp_curated_references.csv")
 CANONICAL_AA = set("ACDEFGHIKLMNPQRSTVWY")
 MIN_LEN = 6
