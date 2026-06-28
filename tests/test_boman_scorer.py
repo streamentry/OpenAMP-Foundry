@@ -6,6 +6,8 @@ is accurate and not just self-consistent.
 """
 from __future__ import annotations
 
+import math
+
 import pytest
 
 from openamp_foundry.scoring.boman import (
@@ -71,6 +73,11 @@ class TestBomanIndex:
         # "KB" → K(2.465) + B(0.0) → mean 1.2325
         assert boman_index("KB") == pytest.approx(1.2325, abs=1e-4)
 
+    def test_all_non_canonical_returns_zero(self):
+        # Every residue maps to 0.0 via .get(aa, 0.0) → mean = 0.0
+        assert boman_index("XXX") == pytest.approx(0.0, abs=1e-4)
+        assert boman_index("BBBBB") == pytest.approx(0.0, abs=1e-4)
+
 
 class TestBomanActivityScore:
     def test_returns_between_zero_and_one(self):
@@ -103,6 +110,15 @@ class TestBomanActivityScore:
     def test_rounding(self):
         score = boman_activity_score("KWK")
         assert score == round(score, 4)
+
+    def test_tanh_formula_pinned_against_scorer(self):
+        # Pin the formula 0.5*(1+tanh(bi/2)) against the actual scorer output.
+        # K → boman_index = 2.465 (verified in TestBomanIndex::test_single_lysine)
+        # expected = 0.5 * (1 + tanh(2.465/2)) ≈ 0.9845
+        # If the divisor in the scorer were changed from 2.0 to 3.0 this test fails.
+        k_bi = boman_index("K")
+        expected = round(0.5 * (1.0 + math.tanh(k_bi / 2.0)), 4)
+        assert boman_activity_score("K") == pytest.approx(expected, abs=1e-4)
 
 
 class TestGravyScore:

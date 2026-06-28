@@ -1,5 +1,4 @@
 """Tests for src/openamp_foundry/analysis/diversity.py"""
-import pytest
 from openamp_foundry.analysis.diversity import (
     cluster_panel,
     diversity_stats,

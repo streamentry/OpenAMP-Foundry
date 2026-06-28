@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
-
+from openamp_foundry.config import load_config
 from openamp_foundry.pipeline import _passes_length_filter, run_ranking_pipeline, score_candidates
 
 
@@ -127,3 +128,32 @@ def test_novelty_filter_excludes_near_duplicates(tmp_path):
     # But should still be scored and appear in output
     assert len(rows) == 1
     assert rows[0]["scores"]["novelty"] == 0.0
+
+
+def test_phase3_config_has_stricter_safety_filter_than_pipeline():
+    """phase3.yaml max_safety_risk=0.40 (safety>=0.60) vs pipeline.yaml 0.70 (safety>=0.30).
+
+    A candidate with safety=0.50 passes pipeline.yaml but is blocked by phase3.yaml.
+    """
+    repo_root = Path(__file__).parents[1]
+    pipeline_cfg = load_config(repo_root / "configs" / "pipeline.yaml")
+    phase3_cfg = load_config(repo_root / "configs" / "phase3.yaml")
+
+    pipeline_min_safety = 1.0 - float(pipeline_cfg["selection"]["max_safety_risk"])
+    phase3_min_safety = 1.0 - float(phase3_cfg["selection"]["max_safety_risk"])
+
+    # Phase3 must be stricter
+    assert phase3_min_safety > pipeline_min_safety
+
+    # Verify the expected concrete thresholds (max_safety_risk 0.70 → 0.30, 0.40 → 0.60)
+    assert abs(pipeline_min_safety - 0.30) < 0.01, (
+        f"pipeline.yaml min_safety expected ~0.30, got {pipeline_min_safety}"
+    )
+    assert abs(phase3_min_safety - 0.60) < 0.01, (
+        f"phase3.yaml min_safety expected ~0.60, got {phase3_min_safety}"
+    )
+
+    # A candidate with safety=0.50 straddles the two configs
+    candidate_safety = 0.50
+    assert candidate_safety >= pipeline_min_safety, "Should pass pipeline filter"
+    assert candidate_safety < phase3_min_safety, "Should fail phase3 filter"
