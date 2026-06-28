@@ -208,6 +208,44 @@ in assay, this internal disagreement is the predicted explanation — report it 
 
 ---
 
+## SEED-003 (Cationic Trp Helix) Special Notes
+
+SEED-003 variants are derived from **RRWQWRMKKLG** (11 AA), a tachyplesin-like
+Trp/Arg-rich cationic peptide (Tam et al. 2002 J Biol Chem).
+
+**Broad novelty classification (PR #86):** SEED-003_VAR_017 (RRWNWRMKKMG) and
+SEED-003_VAR_012 (RKWQYRMKKLG) are classified **KNOWN_VARIANT** — 81.8% similar to
+RRWQWRMKKLG. This has two implications:
+
+1. **Elevated P(activity):** The parent AMP RRWQWRMKKLG is a known-active antimicrobial
+   peptide. P(MIC ≤ 16 µg/mL) for SEED-003 variants is estimated 60–75% (higher than the
+   general 40–55% base rate for computationally nominated AMPs).
+
+2. **Limited novelty for publication:** Confirming activity in SEED-003 variants would
+   validate the assay platform and pipeline calibration, but would not constitute a novel AMP
+   discovery for publication purposes. Primary wet-lab value is as semi-known positive controls
+   supplementing SEED-001_VAR_064 (the designated positive control).
+
+**Mechanism:** Short Arg/Trp-rich cationic helix; membrane disruption via Trp indole ring
+stacking and cationic electrostatic recruitment. Both scorers agree (disagreement 0.23–0.26).
+
+**Serum stability:** Model scores 0.377 (below threshold). For 11 AA sequences, model is
+calibrated above this length; actual stability may be higher. Run serum stability assay and
+do not exclude on model score alone.
+
+**Synthesis guidance:**
+- RRWNWRMKKMG contains Met (M) at position 10 → oxidation risk. Request oxidation-resistant
+  variant or accept Nle (norleucine) substitution as synthesis equivalent.
+- Standard Fmoc SPPS; no Cys.
+- **C-terminal amidation recommended** (`CONH₂`).
+
+**Assay interpretation:**
+- Activity expected based on parent AMP precedent; treat as second positive control.
+- If inactive: check aggregation (Trp can cause aggregation in aqueous buffers at >200 µM);
+  retry with 0.01% BSA to prevent tube binding.
+
+---
+
 ## Serum Stability Model Limitations (SEED-001, SEED-003, SEED-005, SEED-008, SEED-009)
 
 The `serum_stability_score()` function is calibrated for medium-length cationic helices (~18–30 AA).
