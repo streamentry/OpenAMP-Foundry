@@ -182,3 +182,16 @@ class TestComputeFeatures:
         seq = "ACDEFGHIKLMNPQRSTVWY"
         feat = compute_features(seq)
         assert feat["length"] == 20
+
+    def test_compute_features_supplies_synthesis_feasibility_keys(self):
+        # synthesis_feasibility_score() does direct dict access (no .get()) on three keys.
+        # This test pins the contract so a refactor that removes any key fails loudly here
+        # rather than crashing mid-pipeline during candidate scoring.
+        from openamp_foundry.scoring.synthesis import synthesis_feasibility_score
+        feat = compute_features("KWKLFKKIGAVLKVL")
+        assert "length" in feat
+        assert "longest_repeat_run" in feat
+        assert "cysteine_fraction" in feat
+        # Also verify the function runs without KeyError — the real integration check.
+        score = synthesis_feasibility_score(feat, valid_sequence=True)
+        assert 0.0 <= score <= 1.0

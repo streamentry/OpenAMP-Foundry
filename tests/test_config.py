@@ -53,6 +53,31 @@ class TestLoadConfig:
         assert "max_disagreement" in sel
         assert 0.0 <= sel["max_disagreement"] <= 1.0
 
+    def test_phase3_config_selection_present(self):
+        phase3 = Path(__file__).parents[1] / "configs" / "phase3.yaml"
+        result = load_config(phase3)
+        sel = result["selection"]
+        assert "top_n" in sel
+        assert "min_novelty" in sel
+        assert "max_safety_risk" in sel
+        assert 0.0 < sel["max_safety_risk"] <= 1.0
+        assert "max_disagreement" in sel
+        assert 0.0 <= sel["max_disagreement"] <= 1.0
+
+    def test_phase3_config_weights_are_positive(self):
+        phase3 = Path(__file__).parents[1] / "configs" / "phase3.yaml"
+        result = load_config(phase3)
+        for name, w in result["weights"].items():
+            assert w > 0, f"phase3.yaml weight '{name}' must be positive, got {w}"
+
+    def test_phase3_config_filters_present(self):
+        phase3 = Path(__file__).parents[1] / "configs" / "phase3.yaml"
+        result = load_config(phase3)
+        filters = result["filters"]
+        assert "min_length" in filters
+        assert "max_length" in filters
+        assert filters["min_length"] < filters["max_length"]
+
     def test_string_path_accepted(self):
         with tempfile.TemporaryDirectory() as d:
             cfg_path = Path(d) / "config.yaml"
