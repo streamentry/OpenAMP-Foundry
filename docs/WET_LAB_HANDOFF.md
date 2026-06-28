@@ -150,9 +150,33 @@ It also activates G-proteins and has calmodulin-binding properties.
 - SEED-006 variants have 2–3 interior Lys → serum t½ estimated ~2–4 h
 
 **Assay interpretation:**
-- If SEED-006 variants are active but SEED-001–005 are not: supports calmodulin-binding mechanism;
-  consider calmodulin competition assay to confirm novel mechanism
+- If SEED-006 variants are active but SEED-003/005/007/008/009 are not: supports calmodulin-binding
+  mechanism; consider calmodulin competition assay to confirm novel mechanism
 - High publication value if MIC < 4 μg/mL against MRSA (see MDR panel above)
+
+---
+
+## Serum Stability Model Limitations (SEED-003, SEED-005, SEED-008)
+
+The `serum_stability_score()` function is calibrated for medium-length cationic helices (~18–30 AA).
+All 6 pilot panel seed families have model scores below the 0.70 threshold (t½ > 2h gate).
+Three families are flagged as borderline or likely model underestimates:
+
+| Scaffold | Pilot score | Issue | Expected actual t½ | Action |
+|----------|-------------|-------|-------------------|--------|
+| SEED-003 (cationic helix, 11–14 AA) | 0.35–0.38 | Short peptide has fewer cleavage sites than the model's per-length baseline — systematic underestimate | **Likely > model prediction** — Radzishevsky et al. (2007, Nat Biotechnol): short AMPs show 2–5× longer t½ than length-matched controls predict | Do not exclude on serum score alone. Run assay and compare to model |
+| SEED-005 (cecropin-magainin hybrid, 14 AA) | 0.449 | Borderline score below 0.50 (t½ > 1h) threshold; only 1 pilot slot — any failure drops this family | ~30 min–1 h by model; no documented correction factor | Prioritise in early serum screen; D-Lys Wave 2 plan ready if needed |
+| SEED-008 (puroindoline-a, Trp-rich) | 0.45 | Indole ring bulk reduces chymotrypsin cleavage at Trp4 (steric interference) | **Likely > model prediction** — Wu & Ding (2016, J Pept Sci): Trp-flanked cleavage sites are cut 3–8× slower than Tyr/Phe equivalents | D-Trp Wave 2 plan stands; assay actual stability first — may not need D-modification |
+
+**Recommended action before full MIC panel:**
+Run a serum stability screen on all 20 pilot candidates:
+- Protocol: 50% pooled human serum, 37°C, time points 0/30/60/120 min, 100 µM peptide
+- Quantification: HPLC; include one stable D-peptide as positive stability control
+- Cost: ~$200–400 per batch of multiple candidates (not per individual peptide)
+
+This validates the gate assumptions directly and prevents retiring candidates that the model
+incorrectly penalises. For SEED-006 and SEED-007 (scores 0.61–0.67), the assay will
+determine whether borderline scores translate to the required t½ > 2h.
 
 ---
 
