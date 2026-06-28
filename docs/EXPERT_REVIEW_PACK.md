@@ -175,6 +175,23 @@ not a claim that they are inactive.
 | SEED-008 (Trp-rich) | 4 | Indole ring stacking; not helical | Genuine (✓ NOVEL) | Moderate (13 AA model edge) | ~70–82% | Novel mechanism; high disagreement |
 | SEED-009 (Pro-rich) | 4 | Ribosome exit + DnaK | Genuine (✓ NOVEL) | **Best** (Pro-X bonds resist protease) | ~60–75% | Novel; run RPMI parallel |
 
+**SEED-007 reviewer note:** Bombolitin-II (*Megabombus pennsylvanicus* venom) is the
+**largest selected family** (26 variants, 4 pilot slots). All 4 pilot candidates are NOVEL
+and occupy ranks 3, 4, 5, and 8 in the panel, making SEED-007 the family with the most
+top-10 placements. SEED-007_VAR_009 (ensemble 0.849) is the primary bombolitin breakthrough
+candidate. **Critical synthesis note:** all 4 pilot variants contain Met at position 6 —
+request Nle (norleucine) substitution or argon atmosphere storage; HPLC purity mandatory at
+receipt. Serum stability model scores (0.636–0.662) are the best raw scores among all NOVEL
+pilot families (tied with SEED-006). If SEED-007 variants are active, compare MIC to parent
+Bombolitin-II (IKFTTMLKKLG) — any single-substitution improvement is a direct SAR finding.
+
+**SEED-005 reviewer note:** Cecropin-magainin hybrid (KRLFKKIGSALKFL, 14 AA). Only 1 pilot
+slot (rank 19); classified CLOSE_RELATIVE (60% similarity to a reference AMP). This family
+is the **lowest-priority NOVEL candidate** in the pilot panel — if synthesis budget must be
+reduced, SEED-005 may be deferred while retaining SEED-006/007/008/009. If included, note
+the lowest safety score in the panel (0.845); hemolysis assay at MIC/3 is mandatory, and
+if HC₅₀ < 10× MIC the family should be deprioritised for Wave 2.
+
 **SEED-008 reviewer note:** Disagreement is highest in panel (0.41–0.44) because the Boman index
 penalises Trp (hydrophobic), while the activity scorer rewards it (Trp-weighted aromatic bonus).
 For Trp-rich AMPs acting via indole ring insertion into the membrane, `activity_likeness` is the
@@ -259,6 +276,7 @@ The expert reviewer must be aware of these limitations:
 | SEED-008 high disagreement (0.41–0.44) | Boman index penalises Trp; activity_likeness more appropriate for Trp-rich sequences |
 | Serum stability model calibrated for 18–30 AA | SEED-003 (11 AA) and SEED-008 (13 AA) scores may underestimate actual stability |
 | Pro-rich serum stability not in model | SEED-009 model scores (0.572) expected to underestimate actual stability; Pro-X bond resistance is mechanistic |
+| SEED-007 Met oxidation (all 4 pilot variants) | Met at position 6 in all SEED-007 pilot sequences; oxidised Met loses amphipathicity; Nle substitution or argon storage required |
 | Novelty vs. 45 seeds only (pipeline) | Broad check vs 72-AMP DB done (PR #86); APD3 BLASTp still recommended before publication |
 | Conservative generation only | Near-seed variants; genuinely novel families not explored by de novo generation |
 | No structural prediction | No secondary structure, membrane interaction, or 3D modeling |

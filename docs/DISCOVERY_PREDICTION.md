@@ -803,6 +803,11 @@ No biological activity has been demonstrated. The lab is the judge.*
 
 ---
 
+**Tracking note (post-PR #101):** EXPERT_REVIEW_PACK.md: SEED-007 and SEED-005 reviewer notes
+added (parallel to SEED-008/009 notes already present); SEED-007 Met oxidation risk row added
+to Pipeline Limitations table. All 7 families now have equal depth in both the wet-lab handoff
+and the expert review pack.
+
 **Tracking note (post-PR #100):** WET_LAB_HANDOFF.md completed with dedicated special notes
 sections for all 7 seed families: SEED-007 (bombolitin-II, 4 pilot candidates, all NOVEL,
 best serum stability 0.636–0.662, primary breakthrough candidate VAR_009 at ensemble 0.849),

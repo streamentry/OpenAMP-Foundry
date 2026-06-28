@@ -85,6 +85,7 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - Discovery prediction tracked through PRs #92–#95 in DISCOVERY_PREDICTION.md (PR #96)
 - WET_LAB_HANDOFF.md: version tag corrected, PROLINE_RICH_INTRACELLULAR QC flag table row, `amphipathic_score`/`charge_ph74` score reference table rows added (PR #97)
 - EXPERT_REVIEW_PACK.md: note added on new CSV columns for within-family prioritization (PR #98)
+- EXPERT_REVIEW_PACK.md: SEED-007 reviewer note (Met oxidation, bombolitin origin, SAR framing, top-10 slots) and SEED-005 reviewer note (lowest priority, safety margin) added; SEED-007 Met oxidation row in Pipeline Limitations table (PR #101)
 - WET_LAB_HANDOFF.md completed with dedicated special notes for all 7 seed families: SEED-007 (bombolitin-II, 4 pilot slots, all NOVEL, best serum stability, Met oxidation guidance, breakthrough-candidate framing), SEED-005 (cecropin-magainin hybrid, safety/serum risk note), SEED-008 (puroindoline-a, Trp aggregation handling, aromatic-mechanism CD interpretation), SEED-009 (Bac2A proline-rich, Pro coupling guidance, RPMI-parallel assay note restated as standalone); Serum Stability section header updated to "All 7 Seeds" with SEED-006 and SEED-007 table rows added; DISCOVERY_PREDICTION.md tracking updated (PR #100)
 
 ## v1.0 — Validated dry-lab-to-wet-lab loop
