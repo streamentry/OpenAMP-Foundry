@@ -104,6 +104,7 @@ class TestOxidationRisk:
         qc = check_sequence("s", "KRLMKKIGSAIKFL")
         met_flags = [f for f in qc.flags if "MET" in f]
         assert len(met_flags) == 1
+        assert "Nle" in met_flags[0], "Met flag must recommend Nle substitution (regression guard for PR #102)"
 
 
 # ---------------------------------------------------------------------------

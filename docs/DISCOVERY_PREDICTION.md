@@ -803,6 +803,18 @@ No biological activity has been demonstrated. The lab is the judge.*
 
 ---
 
+**Tracking note (post-PR #103):** ASSAY_PREREGISTRATION.md: serum stability model limitations
+block extended to cover all 5 affected families — SEED-003 (pre-existing, 11 AA length edge),
+SEED-007 (added: Met/Nle substitution + 11 AA length edge), SEED-008 (pre-existing, Trp steric,
+13 AA length edge), SEED-009 (pre-existing, Pro-bond protease resistance), SEED-005 (added:
+safety gate, hemolysis at MIC/3 mandatory, exclude from Wave 2 if HC₅₀ < 10× MIC). All
+actionable limitations are now pre-registered before synthesis.
+
+**Tracking note (post-PR #102):** presynth_check.py: Met oxidation flag upgraded — now explicitly
+recommends Nle (norleucine) substitution for oxidation-resistant synthesis, inert-atmosphere
+storage, and mandatory HPLC purity check at receipt. Actionable guidance surfaces at QC report
+level for all SEED-007 pilot variants (Met×1 at position 6 in all 4 sequences).
+
 **Tracking note (post-PR #101):** EXPERT_REVIEW_PACK.md: SEED-007 and SEED-005 reviewer notes
 added (parallel to SEED-008/009 notes already present); SEED-007 Met oxidation risk row added
 to Pipeline Limitations table. All 7 families now have equal depth in both the wet-lab handoff
