@@ -134,6 +134,8 @@ Full pilot panel table with provenance: `outputs/pilot_panel.md`
 
 **Columns:** Ensemble = weighted activity/safety/synthesis/novelty composite. Disagr = |activity − boman_activity| (lower = model consensus). Serum = model-estimated serum stability. Category = broad novelty classification vs 72-AMP curated database.
 
+**Additional columns in `outputs/pilot_panel.csv`:** `amphipathic_score` (helix-wheel face segregation score — high for helical AMPs like SEED-006/007, low for non-helical SEED-008/009 by design) and `charge_ph74` (net charge at pH 7.4 via Henderson-Hasselbalch — use for within-family prioritization: among candidates with similar ensemble scores, prefer higher `amphipathic_score` for helical scaffolds, and charge ≥ +3 for SEED-009 intracellular variants).
+
 ---
 
 ## 4. Gold-Standard Calibration
