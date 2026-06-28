@@ -391,6 +391,170 @@ class TestDiversityCheck:
         assert "SEED-009_VAR_033" in text
         assert "SEED-007_VAR_009" in text
 
+    def test_diversity_check_family_structural_warning(self, tmp_path):
+        # Three variants from the same seed, all with ≥4 interior trypsin sites → TRYPSIN_STABILITY family warning
+        panel = tmp_path / "fam_panel.csv"
+        panel.write_text(
+            PANEL_CSV_HEADER
+            + "1,SEED-001_VAR_001,KWKLFKKIGAVLKVL,15,SEED-001,0.75,0.70,0.60,0.10,0.90,0.85,0.70,0.60,1.0,0.80\n"
+            + "2,SEED-001_VAR_002,KWKLFKRIGAVLKVL,15,SEED-001,0.74,0.70,0.60,0.10,0.90,0.85,0.70,0.60,1.0,0.79\n"
+            + "3,SEED-001_VAR_003,KWKLFRRIGAVLKVL,15,SEED-001,0.73,0.70,0.60,0.10,0.90,0.85,0.70,0.60,1.0,0.78\n",
+            encoding="utf-8",
+        )
+        out = tmp_path / "diversity.md"
+        rc = main(["diversity-check", "--panel-csv", str(panel), "--out", str(out)])
+        assert rc == 0
+        text = out.read_text(encoding="utf-8")
+        assert "Family-Level Structural" in text
+
+    def test_diversity_check_redundancy_and_optimal_diff_sections(self, tmp_path):
+        # Two candidates nearly identical (sim=0.889>0.60) → same cluster.
+        # Lower pilot_rank wins in minimal but lower ensemble wins in optimal.
+        # This triggers both the redundancy warning section (n_redundant>0)
+        # and the optimal-cluster-representatives section (optimal_ids != minimal_ids).
+        panel = tmp_path / "similar_panel.csv"
+        panel.write_text(
+            PANEL_CSV_HEADER
+            + "1,CAND-A,KWKLFKKIG,9,SEED-001,0.70,0.60,0.55,0.10,0.90,0.85,0.70,0.60,1.0,0.80\n"
+            + "2,CAND-B,KWKLFKKIA,9,SEED-001,0.90,0.75,0.60,0.10,0.90,0.85,0.70,0.60,1.0,0.82\n",
+            encoding="utf-8",
+        )
+        out = tmp_path / "diversity.md"
+        rc = main(["diversity-check", "--panel-csv", str(panel), "--out", str(out)])
+        assert rc == 0
+        text = out.read_text(encoding="utf-8")
+        # Redundancy section appears when n_redundant > 0
+        assert "Redundancy Warning" in text or "redundant" in text.lower()
+        # Optimal section appears when optimal picks differ from minimal
+        assert "Optimal Cluster" in text
+
+
+def _write_ranked_jsonl(tmp_path, n: int = 3) -> str:
+    """Minimal ranked JSONL with n selected candidates from distinct seeds."""
+    rows = []
+    for i in range(n):
+        seed = f"SEED-00{i + 1}"
+        rows.append({
+            "candidate_id": f"{seed}_VAR_001",
+            "sequence": f"KWKLFK{'A' * i}LG",
+            "source": f"template_mutation_from_{seed}",
+            "selected": True,
+            "valid": True,
+            "scores": {
+                "ensemble": round(0.80 - i * 0.05, 3),
+                "activity": 0.70,
+                "safety": 0.90,
+                "synthesis": 0.85,
+                "novelty": 0.70,
+                "disagreement": 0.10,
+                "serum_stability": 0.60,
+                "boman_activity": 0.60,
+                "selectivity_proxy": 1.0,
+            },
+            "features": {},
+            "selection_reason": [],
+            "known_failure_modes": [],
+            "nearest_reference": {
+                "candidate_id": "REF-001",
+                "sequence": "KWKLFK",
+                "similarity": 0.5,
+                "source": "demo",
+            },
+        })
+    p = tmp_path / "ranked.jsonl"
+    p.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    return str(p)
+
+
+def test_pilot_panel_ranked_file_not_found_returns_error(tmp_path, capsys):
+    rc = main([
+        "pilot-panel",
+        "--ranked", str(tmp_path / "nonexistent.jsonl"),
+        "--out-csv", str(tmp_path / "panel.csv"),
+    ])
+    assert rc == 1
+    data = json.loads(capsys.readouterr().out)
+    assert data["status"] == "error"
+    assert "not found" in data["message"]
+
+
+def test_pilot_panel_blank_lines_skipped_and_output_produced(tmp_path, capsys):
+    ranked = _write_ranked_jsonl(tmp_path)
+    # Prepend/append blank lines to trigger the blank-line-skip branch
+    from pathlib import Path as _Path
+    content = _Path(ranked).read_text(encoding="utf-8")
+    _Path(ranked).write_text("\n" + content + "\n\n", encoding="utf-8")
+
+    out_csv = str(tmp_path / "panel.csv")
+    out_md = str(tmp_path / "panel.md")
+    rc = main(["pilot-panel", "--ranked", ranked, "--out-csv", out_csv, "--out-md", out_md, "--n", "2"])
+    assert rc == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data["status"] == "ok"
+    assert data["n_panel"] == 2
+    assert "No antimicrobial activity" in data["disclaimer"]
+    assert (tmp_path / "panel.md").exists()
+
+
+def test_generate_batch_missing_seeds_file_returns_error(tmp_path, capsys):
+    rc = main([
+        "generate-batch",
+        "--seeds", str(tmp_path / "nonexistent.csv"),
+        "--out", str(tmp_path / "pool.csv"),
+    ])
+    assert rc == 1
+    data = json.loads(capsys.readouterr().out)
+    assert data["status"] == "error"
+    assert "Seeds file not found" in data["message"]
+
+
+def test_generate_batch_creates_candidate_pool(tmp_path, capsys):
+    seeds = tmp_path / "seeds.csv"
+    seeds.write_text(
+        "id,sequence,source\nSEED-001,GIGKFLHSAGKFGKAFVGEIMKS,test\n",
+        encoding="utf-8",
+    )
+    out = str(tmp_path / "pool.csv")
+    rc = main([
+        "generate-batch",
+        "--seeds", str(seeds),
+        "--out", out,
+        "--n-double", "3",
+        "--n-charge", "2",
+    ])
+    assert rc == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data["status"] == "ok"
+    assert data["n_seeds"] == 1
+    assert data["n_candidates_generated"] > 0
+    import csv as _csv
+    with open(out, encoding="utf-8") as fh:
+        rows = list(_csv.DictReader(fh))
+    assert len(rows) == data["n_candidates_generated"]
+
+
+def test_batch_pack_creates_json_output(tmp_path, capsys):
+    ranked = str(tmp_path / "ranked.jsonl")
+    main([
+        "rank",
+        "--candidates", "examples/sequences/demo_candidates.csv",
+        "--references", "examples/known_reference/demo_known_amps.csv",
+        "--out", ranked,
+    ])
+    capsys.readouterr()  # discard rank stdout
+
+    out_json = str(tmp_path / "batch.json")
+    out_md = str(tmp_path / "batch.md")
+    rc = main(["batch-pack", "--ranked", ranked, "--out-json", out_json, "--out-md", out_md])
+    assert rc == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data["status"] == "ok"
+    assert "n_selected" in data
+    with open(out_json, encoding="utf-8") as fh:
+        pack = json.loads(fh.read())
+    assert "summary" in pack
+    assert (tmp_path / "batch.md").exists()
+
 
 class TestNoveltyCheckBroad:
     def test_novelty_check_broad_returns_zero(self, tmp_path, capsys):
@@ -478,3 +642,86 @@ class TestNoveltyCheckBroad:
         data = json.loads(captured.out)
         assert data["status"] == "error"
         assert "threshold-close" in data["message"]
+
+    def test_novelty_check_broad_empty_panel_csv_returns_error(self, tmp_path, capsys):
+        empty_panel = tmp_path / "empty.csv"
+        empty_panel.write_text(PANEL_CSV_HEADER, encoding="utf-8")  # header only, no rows
+        rc = main([
+            "novelty-check-broad",
+            "--panel-csv", str(empty_panel),
+            "--out", str(tmp_path / "out.md"),
+        ])
+        assert rc == 1
+        data = json.loads(capsys.readouterr().out)
+        assert data["status"] == "error"
+        assert "empty" in data["message"]
+
+    def test_novelty_check_broad_missing_references_csv_returns_error(self, tmp_path, capsys):
+        panel_csv = _write_panel(tmp_path)
+        rc = main([
+            "novelty-check-broad",
+            "--panel-csv", panel_csv,
+            "--references-csv", str(tmp_path / "nonexistent_refs.csv"),
+            "--out", str(tmp_path / "out.md"),
+        ])
+        assert rc == 1
+        data = json.loads(capsys.readouterr().out)
+        assert data["status"] == "error"
+        assert "not found" in data["message"]
+
+    def test_novelty_check_broad_empty_references_csv_returns_error(self, tmp_path, capsys):
+        panel_csv = _write_panel(tmp_path)
+        refs = tmp_path / "refs.csv"
+        refs.write_text("id,sequence,family,reference\n", encoding="utf-8")  # header only
+        rc = main([
+            "novelty-check-broad",
+            "--panel-csv", panel_csv,
+            "--references-csv", str(refs),
+            "--out", str(tmp_path / "out.md"),
+        ])
+        assert rc == 1
+        data = json.loads(capsys.readouterr().out)
+        assert data["status"] == "error"
+        assert "no valid sequences" in data["message"]
+
+    def test_novelty_check_broad_empty_sequence_row_is_skipped(self, tmp_path, capsys):
+        panel = tmp_path / "panel.csv"
+        panel.write_text(
+            PANEL_CSV_HEADER
+            + PANEL_CSV_ROW1
+            + "3,EMPTY-001,,0,SEED-009,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0\n",
+            encoding="utf-8",
+        )
+        rc = main([
+            "novelty-check-broad",
+            "--panel-csv", str(panel),
+            "--out", str(tmp_path / "out.md"),
+        ])
+        assert rc == 0
+        data = json.loads(capsys.readouterr().out)
+        # Only the row with a sequence is scored; the empty row is skipped
+        assert data["n_candidates"] == 1
+
+    def test_novelty_check_broad_close_relative_classification_and_report(self, tmp_path, capsys):
+        # Reference ~66.7% similar to SEED-009_VAR_033 (RRLPRPGYMPRP): 4 substitutions
+        # sim = 1 - 4/12 = 0.667 → CLOSE_RELATIVE (0.50 ≤ sim < 0.70)
+        ref_csv = tmp_path / "refs.csv"
+        ref_csv.write_text(
+            "id,sequence,family,reference\n"
+            "REF-CLOSE,RRLPAAGYMAAP,test_family,test_ref\n",
+            encoding="utf-8",
+        )
+        panel_csv = _write_panel(tmp_path, two_rows=False)  # SEED-009_VAR_033 only
+        rc = main([
+            "novelty-check-broad",
+            "--panel-csv", panel_csv,
+            "--references-csv", str(ref_csv),
+            "--out", str(tmp_path / "out.md"),
+        ])
+        assert rc == 0
+        data = json.loads(capsys.readouterr().out)
+        assert data["status"] == "ok"
+        assert data["n_close_relative"] == 1
+        assert data["n_novel"] == 0
+        report = (tmp_path / "out.md").read_text(encoding="utf-8")
+        assert "CLOSE_RELATIVE" in report
