@@ -1,8 +1,36 @@
-.PHONY: demo test lint ci clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad
+.PHONY: help demo test lint ci clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
 RUFF    := $(shell [ -f .venv/bin/ruff ] && echo .venv/bin/ruff || echo ruff)
+
+help:
+	@echo "OpenAMP Foundry — wet-lab pipeline targets"
+	@echo ""
+	@echo "  make demo               Rank demo candidates, produce report + evidence certs"
+	@echo "  make phase3             Generate + rank Phase 3 pool (89 nominees)"
+	@echo "  make pilot              Select 20-candidate pilot panel from Phase 3 pool"
+	@echo "  make external-predict   Export pilot panel FASTA + external-predictor checklist"
+	@echo "  make pilot-confident    Filter panel by external predictor IDs  KEEP=ID1,ID2,..."
+	@echo "  make presynth-qc        Synthesis feasibility QC on confident panel"
+	@echo "  make gold-standard      Gold-standard probability calibration report"
+	@echo "  make diversity          Within-panel diversity report"
+	@echo "  make synthesis-order    Vendor-ready synthesis order CSV + checklist"
+	@echo "  make novelty-broad      Compare pilot panel against 72-AMP curated reference set"
+	@echo ""
+	@echo "  make validate-scoring         AUROC on 43 AMP + 44 background (pipeline config)"
+	@echo "  make validate-scoring-phase3  AUROC with phase3.yaml config"
+	@echo "  make validate-scoring-strict  AUROC with scrambled-decoy strict benchmark"
+	@echo "  make bench-leakage            Check for near-duplicates between candidates and refs"
+	@echo "  make bench-baseline           Hidden-positive recovery benchmark (demo set)"
+	@echo "  make bench-hidden-active      Hidden-positive recovery on mixed benchmark set"
+	@echo ""
+	@echo "  make test               Run full test suite (1287 tests, ≥80% coverage)"
+	@echo "  make coverage           Test suite with per-module coverage report"
+	@echo "  make lint               Ruff lint check on src/ tests/ scripts/"
+	@echo "  make typecheck          mypy type check on src/"
+	@echo "  make ci                 lint + test (CI gate)"
+	@echo "  make clean              Remove outputs/ (except CSV pilot panel)"
 
 demo:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli rank \

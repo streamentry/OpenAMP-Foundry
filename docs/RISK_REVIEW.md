@@ -39,7 +39,7 @@ OpenAMP Foundry pipeline. It covers:
 | Extreme charge density | **FILTERED** | Poly-cationic sequences excluded by safety scorer (charge_density_ph74 > 0.55 triggers risk increment); uses pH-7.4 charge for accuracy |
 | Predicted mammalian cytotoxicity | **FILTERED + DOWN-RANKED** | Selectivity proxy (charge/GRAVY ratio) flags HIGH_CYTOTOX_RISK candidates (proxy < 0.5); cytotox_penalty doubly demotes them in pilot panel selection |
 | Long repeat runs (degenerate composition) | **FILTERED** | Sequences with repeat_run ≥ 6 penalised; few reach selection threshold |
-| High proline content | **REPORTED** | proline_fraction > 15% incurs synthesis penalty (−0.10); flagged in expert review for pseudoproline dipeptide use |
+| High proline content | **REPORTED** | proline_fraction > 15% incurs synthesis penalty (−0.10); flagged in expert review for pseudoproline dipeptide use; ≥25% Pro triggers `PROLINE_RICH_INTRACELLULAR` flag recommending RPMI-1640 parallel assay (Krizsan et al. 2014 Angew Chem Int Ed 53:12236) — all four SEED-009 pilot variants are flagged |
 | Cysteines (disulfide bridges) | **REPORTED** | Flagged in synthesis feasibility report; reviewer must assess |
 | Sequences resembling known toxins | **NOT ASSESSED** | Computational toxin screening is out of scope for this pipeline version |
 

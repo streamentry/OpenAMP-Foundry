@@ -64,7 +64,7 @@ Cost: +$200–400 per peptide at most contract labs.
 **Note for SEED-009 (proline-rich, top 4 ensemble-score ranks in pilot panel):** Proline-rich
 cathelicidins can show reduced activity in standard Mueller-Hinton Broth — media composition
 (amino acids, divalent cation concentration) affects translocation efficiency and intracellular
-availability for this AMP class (Krizsan et al. 2014 Angew Chem Int Ed 53:14546). Run SEED-009
+availability for this AMP class (Krizsan et al. 2014 Angew Chem Int Ed 53:12236). Run SEED-009
 variants in parallel in RPMI-1640 medium in addition to standard MHB. Report both results; if
 MHB MIC is ≥4× higher than RPMI MIC, annotate as "media-dependent activity" in the results.
 

@@ -182,7 +182,7 @@ more mechanistically appropriate scorer. Do not deprioritise SEED-008 based on B
 chaperones) rather than membrane disruption. Standard broth MIC may underestimate activity
 because Pro-rich uptake efficiency depends on media protein content. Run SEED-009 variants
 in **RPMI-1640 in parallel** with standard Mueller-Hinton (Krizsan et al. 2014 Angew Chem Int
-Ed 53:14546). If MHB MIC is ≥4× higher than RPMI MIC, annotate as media-dependent.
+Ed 53:12236). If MHB MIC is ≥4× higher than RPMI MIC, annotate as media-dependent.
 
 ---
 
