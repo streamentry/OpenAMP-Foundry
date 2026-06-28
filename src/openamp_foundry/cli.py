@@ -360,6 +360,43 @@ def build_parser() -> argparse.ArgumentParser:
         help="Similarity threshold for diversity clustering (default: 0.80)",
     )
 
+    novelty_broad = sub.add_parser(
+        "novelty-check-broad",
+        help=(
+            "Check candidate novelty against a curated AMP reference database (72+ sequences). "
+            "The standard novelty score compares against 45 seed sequences only; this command "
+            "compares against the full amp_curated_references.csv to detect near-copies of "
+            "published AMPs that the seed-based score may miss."
+        ),
+    )
+    novelty_broad.add_argument(
+        "--panel-csv",
+        required=True,
+        help="Pilot panel CSV (candidate_id + sequence columns required).",
+    )
+    novelty_broad.add_argument(
+        "--references-csv",
+        default="examples/known_reference/amp_curated_references.csv",
+        help="Curated AMP reference CSV (default: amp_curated_references.csv).",
+    )
+    novelty_broad.add_argument(
+        "--out",
+        default="outputs/novelty_broad_report.md",
+        help="Output markdown report path.",
+    )
+    novelty_broad.add_argument(
+        "--threshold-known",
+        type=float,
+        default=0.70,
+        help="Similarity >= this value → KNOWN_VARIANT (default: 0.70).",
+    )
+    novelty_broad.add_argument(
+        "--threshold-close",
+        type=float,
+        default=0.50,
+        help="Similarity >= this value → CLOSE_RELATIVE (default: 0.50).",
+    )
+
     return parser
 
 
@@ -418,6 +455,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "diversity-check":
         return _run_diversity_check(args)
+
+    if args.command == "novelty-check-broad":
+        return _run_novelty_check_broad(args)
 
     parser.error("unknown command")
     return 2
@@ -1277,6 +1317,252 @@ def _run_diversity_check(args: argparse.Namespace) -> int:
         "n_family_warnings": len(fam_warnings),
         "out": args.out,
     }, indent=2))
+    return 0
+
+
+def _run_novelty_check_broad(args: argparse.Namespace) -> int:
+    """Compare pilot panel candidates against a curated AMP reference database.
+
+    The standard novelty score compares against ~45 seed sequences only.  This command
+    uses a broader curated reference set (default: 72 published AMPs) to detect whether
+    any candidates are near-copies of known AMPs that the seed-based score missed.
+
+    Classification thresholds (Levenshtein similarity):
+      KNOWN_VARIANT  >= threshold_known (default 0.70): effectively a known AMP
+      CLOSE_RELATIVE >= threshold_close (default 0.50): close relative of known AMP
+      NOVEL          < threshold_close: no close match in reference database
+    """
+    import csv as _csv
+    from openamp_foundry.scoring.novelty import normalized_similarity
+    from datetime import datetime, timezone
+
+    # Load panel
+    panel_path = Path(args.panel_csv)
+    if not panel_path.exists():
+        print(json.dumps({"status": "error", "message": f"panel CSV not found: {args.panel_csv}"}))
+        return 1
+
+    with open(panel_path, newline="", encoding="utf-8") as f:
+        panel = list(_csv.DictReader(f))
+
+    if not panel:
+        print(json.dumps({"status": "error", "message": "panel CSV is empty"}))
+        return 1
+
+    # Load references
+    refs_path = Path(args.references_csv)
+    if not refs_path.exists():
+        print(json.dumps({"status": "error", "message": f"references CSV not found: {args.references_csv}"}))
+        return 1
+
+    refs: list[dict] = []
+    seen_seqs: set[str] = set()
+    with open(refs_path, newline="", encoding="utf-8") as f:
+        for row in _csv.DictReader(f):
+            seq = row.get("sequence", "").strip().upper()
+            if seq and seq not in seen_seqs:
+                seen_seqs.add(seq)
+                refs.append({
+                    "id": row.get("id", row.get("candidate_id", "?")),
+                    "sequence": seq,
+                    "family": row.get("family", "unknown"),
+                    "reference": row.get("reference", ""),
+                })
+
+    if not refs:
+        print(json.dumps({"status": "error", "message": "references CSV has no valid sequences"}))
+        return 1
+
+    thr_known = args.threshold_known
+    thr_close = args.threshold_close
+
+    if thr_close >= thr_known:
+        print(json.dumps({
+            "status": "error",
+            "message": (
+                f"threshold-close ({thr_close}) must be less than threshold-known ({thr_known}); "
+                "the classification cascade would make CLOSE_RELATIVE unreachable"
+            ),
+        }))
+        return 1
+
+    import sys as _sys
+
+    # Score each candidate
+    results = []
+    n_known = 0
+    n_close = 0
+    n_novel = 0
+
+    for row in panel:
+        cid = row.get("candidate_id", "?")
+        seq = row.get("sequence", "").strip().upper()
+        if not seq:
+            print(f"WARNING: candidate {cid!r} has an empty sequence — skipping", file=_sys.stderr)
+            continue
+        seed = row.get("seed", "?")
+        seed_novelty = float(row.get("novelty") or 0.0)
+        ensemble = float(row.get("ensemble") or 0.0)
+
+        best_sim = -1.0
+        best_ref: dict = {}
+        for ref in refs:
+            s = normalized_similarity(seq, ref["sequence"])
+            if s > best_sim:
+                best_sim = s
+                best_ref = ref
+
+        best_sim = max(best_sim, 0.0)
+
+        broad_novelty = round(1.0 - best_sim, 4)
+
+        if best_sim >= thr_known:
+            category = "KNOWN_VARIANT"
+            n_known += 1
+        elif best_sim >= thr_close:
+            category = "CLOSE_RELATIVE"
+            n_close += 1
+        else:
+            category = "NOVEL"
+            n_novel += 1
+
+        results.append({
+            "candidate_id": cid,
+            "sequence": seq,
+            "seed": seed,
+            "ensemble": ensemble,
+            "seed_novelty": seed_novelty,
+            "broad_similarity": round(best_sim, 4),
+            "broad_novelty": broad_novelty,
+            "best_match_id": best_ref.get("id", ""),
+            "best_match_seq": best_ref.get("sequence", ""),
+            "best_match_family": best_ref.get("family", ""),
+            "best_match_reference": best_ref.get("reference", ""),
+            "category": category,
+        })
+
+    # Build markdown report
+    ts = datetime.now(timezone.utc).isoformat()
+    lines = [
+        "# Broad Novelty Check — Pilot Panel vs Curated AMP Database",
+        "",
+        f"> Generated: {ts}  ",
+        f"> Panel: {args.panel_csv}  ",
+        f"> Reference database: {args.references_csv} ({len(refs)} unique sequences)  ",
+        f"> Thresholds: KNOWN_VARIANT ≥ {thr_known:.0%}, CLOSE_RELATIVE ≥ {thr_close:.0%}",
+        "",
+        "## Purpose",
+        "",
+        "The standard pipeline novelty score compares candidates against ~45 seed sequences.",
+        "This report extends the comparison to the curated AMP reference database to detect",
+        "near-copies of published AMPs that the seed-based novelty score may miss.",
+        "",
+        "## Summary",
+        "",
+        "| Category | Count | Description |",
+        "|---|:---:|---|",
+        f"| KNOWN_VARIANT | {n_known} | ≥{thr_known:.0%} similar to a known published AMP |",
+        f"| CLOSE_RELATIVE | {n_close} | {thr_close:.0%}–{thr_known:.0%} similar to a known AMP |",
+        f"| NOVEL | {n_novel} | <{thr_close:.0%} similar — no close match in reference database |",
+        f"| **Total** | **{len(results)}** | |",
+        "",
+        "## Per-Candidate Results",
+        "",
+        "| Rank | Candidate | Sequence | Seed | Ensemble | Seed-Novelty | Broad-Sim | Best-Match | Category |",
+        "|--:|---|---|---|:---:|:---:|:---:|---|---|",
+    ]
+
+    for i, r in enumerate(results, 1):
+        cat_icon = {"KNOWN_VARIANT": "⚠ KNOWN", "CLOSE_RELATIVE": "≈ CLOSE", "NOVEL": "✓ NOVEL"}[r["category"]]
+        match_str = f"{r['best_match_id']} ({r['best_match_family']})" if r["best_match_id"] else "—"
+        lines.append(
+            f"| {i} | {r['candidate_id']} | `{r['sequence']}` | {r['seed']} "
+            f"| {r['ensemble']:.3f} | {r['seed_novelty']:.3f} | {r['broad_similarity']:.3f} "
+            f"| {match_str} | {cat_icon} |"
+        )
+
+    lines += [
+        "",
+        "## Interpretation",
+        "",
+        "### KNOWN_VARIANT candidates",
+        "",
+    ]
+
+    known_rows = [r for r in results if r["category"] == "KNOWN_VARIANT"]
+    if known_rows:
+        for r in known_rows:
+            lines += [
+                f"**{r['candidate_id']}** (`{r['sequence']}`) — {r['broad_similarity']:.1%} similar "
+                f"to {r['best_match_id']} ({r['best_match_family']}; {r['best_match_reference']}).  ",
+                f"The published AMP provides strong activity precedent for this candidate.",
+                f"Wet-lab value: confirms assay platform works; novelty claim limited.",
+                "",
+            ]
+    else:
+        lines += ["No KNOWN_VARIANT candidates found.", ""]
+
+    lines += [
+        "### CLOSE_RELATIVE candidates",
+        "",
+    ]
+    close_rows = [r for r in results if r["category"] == "CLOSE_RELATIVE"]
+    if close_rows:
+        for r in close_rows:
+            lines += [
+                f"**{r['candidate_id']}** (`{r['sequence']}`) — {r['broad_similarity']:.1%} similar "
+                f"to {r['best_match_id']} ({r['best_match_family']}).  ",
+                f"Related to a known AMP but with meaningful sequence differences. "
+                f"Activity probability elevated; novelty moderate.",
+                "",
+            ]
+    else:
+        lines += ["No CLOSE_RELATIVE candidates found.", ""]
+
+    lines += [
+        "### NOVEL candidates",
+        "",
+        f"{n_novel} candidates have <{thr_close:.0%} similarity to any sequence in the "
+        f"{len(refs)}-sequence reference database.  ",
+        "These represent the most scientifically novel fraction of the panel.",
+        "Discovery of activity in this subset would be publishable as a novel AMP class.",
+        "",
+        "## Recommendations",
+        "",
+        "1. **KNOWN_VARIANT candidates** should be de-emphasised in novelty claims but retained "
+        "as positive controls that validate the assay platform.",
+    ]
+
+    novel_seeds = sorted({r["seed"] for r in results if r["category"] == "NOVEL"})
+    novel_seed_str = ", ".join(novel_seeds) if novel_seeds else "none"
+    lines += [
+        f"2. **NOVEL candidates** (from seeds: {novel_seed_str}) are the primary discovery "
+        "targets. Any confirmed activity in this subset is publishable as a novel AMP.",
+        "3. This report should be submitted with the ASSAY_PREREGISTRATION.md to document "
+        "the novelty status of all candidates before wet-lab results are seen.",
+        "",
+        "## Caveat",
+        "",
+        "This comparison uses a curated 72-sequence reference database. A full BLASTp search "
+        "against APD3 (>3,800 sequences), DRAMP v3.0 (>22,000 sequences), or dbAMP would be "
+        "more comprehensive. Perform APD3 BLASTp of NOVEL candidates before publication to "
+        "confirm novelty claims. See ROADMAP.md §'Beyond v1.0'.",
+    ]
+
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    summary = {
+        "status": "ok",
+        "n_candidates": len(results),
+        "n_references": len(refs),
+        "n_known_variant": n_known,
+        "n_close_relative": n_close,
+        "n_novel": n_novel,
+        "out": args.out,
+    }
+    print(json.dumps(summary, indent=2))
     return 0
 
 

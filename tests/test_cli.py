@@ -390,3 +390,91 @@ class TestDiversityCheck:
         assert "Diversity" in text
         assert "SEED-009_VAR_033" in text
         assert "SEED-007_VAR_009" in text
+
+
+class TestNoveltyCheckBroad:
+    def test_novelty_check_broad_returns_zero(self, tmp_path, capsys):
+        panel_csv = _write_panel(tmp_path)
+        rc = main([
+            "novelty-check-broad",
+            "--panel-csv", panel_csv,
+            "--out", str(tmp_path / "novelty.md"),
+        ])
+        assert rc == 0
+
+    def test_novelty_check_broad_creates_report(self, tmp_path):
+        panel_csv = _write_panel(tmp_path)
+        out = tmp_path / "novelty.md"
+        main([
+            "novelty-check-broad",
+            "--panel-csv", panel_csv,
+            "--out", str(out),
+        ])
+        assert out.exists()
+        text = out.read_text()
+        assert "Broad Novelty Check" in text
+        assert "SEED-009_VAR_033" in text
+        assert "SEED-007_VAR_009" in text
+
+    def test_novelty_check_broad_stdout_summary(self, tmp_path, capsys):
+        panel_csv = _write_panel(tmp_path)
+        main([
+            "novelty-check-broad",
+            "--panel-csv", panel_csv,
+            "--out", str(tmp_path / "novelty.md"),
+        ])
+        captured = capsys.readouterr()
+        data = json.loads(captured.out)
+        assert data["status"] == "ok"
+        assert data["n_candidates"] == 2
+        assert data["n_references"] > 0
+        # Both SEED-009 and SEED-007 variants are genuinely novel (<50% to any reference)
+        assert data["n_novel"] == 2
+
+    def test_novelty_check_broad_missing_panel_returns_error(self, tmp_path, capsys):
+        rc = main([
+            "novelty-check-broad",
+            "--panel-csv", str(tmp_path / "nonexistent.csv"),
+            "--out", str(tmp_path / "novelty.md"),
+        ])
+        assert rc == 1
+        captured = capsys.readouterr()
+        data = json.loads(captured.out)
+        assert data["status"] == "error"
+
+    def test_novelty_check_broad_known_variant_classification(self, tmp_path, capsys):
+        # Craft a reference that is 100% identical to PANEL_CSV_ROW1's sequence
+        # so SEED-009_VAR_033 is classified as KNOWN_VARIANT at threshold 0.70
+        ref_csv = tmp_path / "refs.csv"
+        ref_csv.write_text(
+            "id,sequence,family,reference\n"
+            "KNOWN-001,RRLPRPGYMPRP,test_family,test_ref\n",  # exact match to SEED-009_VAR_033
+            encoding="utf-8",
+        )
+        panel_csv = _write_panel(tmp_path, two_rows=False)  # single row: SEED-009_VAR_033
+        main([
+            "novelty-check-broad",
+            "--panel-csv", panel_csv,
+            "--references-csv", str(ref_csv),
+            "--out", str(tmp_path / "novelty.md"),
+        ])
+        captured = capsys.readouterr()
+        data = json.loads(captured.out)
+        assert data["status"] == "ok"
+        assert data["n_known_variant"] == 1
+        assert data["n_novel"] == 0
+
+    def test_novelty_check_broad_inverted_thresholds_returns_error(self, tmp_path, capsys):
+        panel_csv = _write_panel(tmp_path)
+        rc = main([
+            "novelty-check-broad",
+            "--panel-csv", panel_csv,
+            "--out", str(tmp_path / "novelty.md"),
+            "--threshold-known", "0.30",
+            "--threshold-close", "0.70",  # close > known → invalid
+        ])
+        assert rc == 1
+        captured = capsys.readouterr()
+        data = json.loads(captured.out)
+        assert data["status"] == "error"
+        assert "threshold-close" in data["message"]
