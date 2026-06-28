@@ -43,6 +43,41 @@ def _auc_wilcoxon(pos_scores: list[float], neg_scores: list[float]) -> float:
     return concordant / (n_pos * n_neg)
 
 
+def _auprc(pos_scores: list[float], neg_scores: list[float]) -> float:
+    """Compute AUPRC via the trapezoidal rule on the precision-recall curve.
+
+    Random baseline = n_pos / (n_pos + n_neg) = prevalence.
+    AUPRC = 1.0 for a perfect classifier, prevalence for a random ranker.
+    """
+    n_pos = len(pos_scores)
+    if n_pos == 0:
+        return 0.0
+    # Pessimistic tie-breaking: negatives (label=0) sort before positives (label=1)
+    # on equal scores, matching sklearn average_precision_score convention.
+    # Without this, a random classifier with all-equal scores returns AUPRC=1.0
+    # instead of the correct prevalence baseline.
+    all_scored = sorted(
+        [(s, 1) for s in pos_scores] + [(s, 0) for s in neg_scores],
+        key=lambda x: (-x[0], x[1]),
+    )
+    tp = fp = 0
+    recalls = [0.0]
+    precisions = [1.0]
+    for _score, label in all_scored:
+        if label == 1:
+            tp += 1
+        else:
+            fp += 1
+        recalls.append(tp / n_pos)
+        precisions.append(tp / (tp + fp))
+    # trapezoidal integration
+    area = sum(
+        (recalls[i] - recalls[i - 1]) * (precisions[i] + precisions[i - 1]) / 2
+        for i in range(1, len(recalls))
+    )
+    return round(area, 4)
+
+
 def _bootstrap_auroc_ci(
     pos_scores: list[float],
     neg_scores: list[float],
@@ -159,6 +194,9 @@ def run_retrospective_benchmark(
     neg_scores = [r["ensemble"] for r in rows if r["label"] == 0]
     auroc = round(_auc_wilcoxon(pos_scores, neg_scores), 4)
     auroc_ci = _bootstrap_auroc_ci(pos_scores, neg_scores, n_bootstrap=n_bootstrap)
+    auprc = _auprc(pos_scores, neg_scores)
+    n_total_for_prev = len(pos_scores) + len(neg_scores)
+    auprc_random = round(len(pos_scores) / n_total_for_prev, 4) if n_total_for_prev > 0 else 0.0
 
     n_total = len(rows)
     n_pos = sum(r["label"] for r in rows)
@@ -189,6 +227,9 @@ def run_retrospective_benchmark(
         "n_bootstrap": auroc_ci["n_bootstrap"],
         "random_auroc": random_auroc,
         "auroc_above_random": round(auroc - random_auroc, 4),
+        "auprc": auprc,
+        "auprc_random_baseline": auprc_random,
+        "auprc_above_random": round(auprc - auprc_random, 4),
         **recall,
         "interpretation": interpretation,
         "benchmark_type": benchmark_type,

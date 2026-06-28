@@ -17,8 +17,9 @@ improvements already implemented or recommended.
 **Bottom line:** The pilot panel has a ~61–71% probability of yielding at least one candidate
 with MIC ≤ 32 μg/mL, and **~29–49%** probability of generating "breaking news" publication
 material with the fully updated panel (up from 5–12% before computational improvements).
-*External calibration: accounting for near-seed candidate correlation, the honest corrected
-estimate is ~15–30%. See the **External Calibration** section at the end of this document.*
+*External calibration: accounting for near-seed candidate correlation (10 effective independent
+scaffold families with 2 newly added mechanistically distinct seeds), the honest corrected
+estimate is ~18–30%. See the **External Calibration** section at the end of this document.*
 
 Key improvements since last assessment (PRs #39–#49):
 - **Charge×amphipathicity cross-term (PR #39):** Scoring now rewards simultaneous high charge AND
@@ -565,7 +566,7 @@ Executing all four actions on the best Wave 1 hits would push the combined proba
 | Stage | Gate | Original | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PRs #48–53 (current) | Primary limiting factor |
 |-------|------|----------|-----------------|-----------------|-----------------|--------------------------|------------------------|
 | 0 | Synthesis success | ~90% | ~90% | ~88% | **~89%** ✓ | **~90%** ✓ (agg model + agg-safe gen + pro penalty + pH74 charge) | SEED-008 W-rich; all aggregation/synthesis risks modelled |
-| 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~61–71%** ✓ (AUROC 0.8164) | AUROC 0.8164; 8 scaffold families |
+| 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~61–71%** ✓ (AUROC 0.8164) | AUROC 0.8164 (AUPRC computed); 10 scaffold families |
 | 2 | TI > 10 (selectivity) | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~42–57%** ✓ (stronger SEED-004 demotion) | sel_proxy doubled penalty for HIGH_CYTOTOX_RISK tier |
 | 3 | t½ > 2 h (serum) | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~29–44%** ✓ (3-protease model) | Wave 2 D-amino plan machine-readable |
 | 4 | Scaffold novelty | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | Diversity filter removes cross-seed near-dups |
@@ -598,20 +599,25 @@ The internal model's per-stage probabilities, multiplied across all 5 gates, giv
 all-gates pass rate of approximately 1.6–3.1%. With 20 assumed-independent candidates, the
 pipeline estimates P(≥1 breaking-news hit) = 1 − (1 − p)^20 ≈ 29–49%.
 
-If the effective number of independent experiments is ~8 scaffold families (not 20), using
-the **same per-scaffold all-gates rate of 1.6–3.1%**:
+**Update (PR #58):** Two mechanistically distinct seeds were added — SEED-009 (Bac2A bovine
+proline-rich cathelicidin, intracellular mechanism) and SEED-010 (KR-12 human LL-37 fragment,
+clinical relevance). The effective number of independent scaffolds increases from 8 to 10.
+
+Using the **same per-scaffold all-gates rate of 1.6–3.1%**, now for 10 effective scaffolds:
 
 ```
-P(≥1 from 8 at 1.6%) = 1 − (0.984)^8 ≈ 12%
-P(≥1 from 8 at 2.4%) = 1 − (0.976)^8 ≈ 17%
-P(≥1 from 8 at 3.1%) = 1 − (0.969)^8 ≈ 22%
+P(≥1 from 10 at 1.6%) = 1 − (0.984)^10 ≈ 15%
+P(≥1 from 10 at 2.4%) = 1 − (0.976)^10 ≈ 21%
+P(≥1 from 10 at 3.1%) = 1 − (0.969)^10 ≈ 26%
 ```
 
-**Calibrated estimate: ~12–22% (rounded to 15–30% to account for model uncertainty)**
+**Calibrated estimate: ~15–26% (rounded to 18–30% to account for model uncertainty)**
 
-| Outcome | Internal model (n=20 independent) | Calibrated estimate (n≈8 effective) |
-|---------|-----------------------------------|--------------------------------------|
-| ≥1 candidate with MIC + acceptable selectivity ("breaking news") | ~29–49% | ~15–30% |
+Prior estimate with 8 scaffolds: 12–22%. Adding 2 diverse seeds adds ~3 percentage points.
+
+| Outcome | Internal model (n=20 independent) | Calibrated estimate (n≈10 effective scaffolds) |
+|---------|-----------------------------------|-------------------------------------------------|
+| ≥1 candidate with MIC + acceptable selectivity ("breaking news") | ~29–49% | ~18–30% |
 | Publishable result (novel AMP + external replication) | not modeled | ~5–15% |
 | Major breakthrough (new AMP family, widely replicated) | not modeled | ~1–5% |
 

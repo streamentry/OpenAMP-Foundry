@@ -318,28 +318,34 @@ Phase 2 benchmarks verified that the pipeline:
 
 **Retrospective AUROC (v0.2.x):** `0.8164` (positive-vs-negative separation on the 45-reference
 benchmark set using the full ensemble scorer). Benchmarked after PRs #48–54; the scoring
-improvements in those PRs moved AUROC from 0.7926 → 0.8138 → 0.8164.
+improvements in those PRs moved AUROC from 0.7926 → 0.8138 → 0.8164. Bootstrap 95% CI
+computed via Wilcoxon-Mann-Whitney (n=2000 iterations; CI reported in `validate-scoring` output).
+
+**AUPRC (v0.5.x):** Area Under Precision-Recall Curve is now computed alongside AUROC and
+reported by `make validate-scoring`. AUPRC is preferable to AUROC for class-imbalanced
+datasets because it emphasises precision at the operating point actually used for candidate
+selection. Random baseline = dataset prevalence (0.50 for the balanced demo set).
 
 **To reproduce:** `make validate-scoring` (runs `cli validate-scoring` on
 `examples/validation/known_amps.csv` vs `examples/validation/random_background.csv`)
 or `make validate-scoring-strict` for the composition-matched (scrambled-decoy) variant.
 
-**Key scoring changes in v0.2.x (PRs #48–54):**
+**Key scoring changes in v0.2.x–v0.5.x (PRs #48–58):**
 
 | PR | Change | AUROC impact |
 |----|--------|-------------|
-| #47 | Selectivity proxy (charge/GRAVY) | +|
+| #47 | Selectivity proxy (charge/GRAVY) | + |
 | #48 | Selectivity proxy routed into pilot_priority | pilot ranking |
 | #49 | Elastase resistance + aggregation propensity | + |
 | #50 | Aggregation-safe mutations + balanced K/R variants | generation |
 | #51 | Proline synthesis penalty (−0.10 at >15%); helix bonus 0.01→0.03 | 0.8138→0.8164 |
-| #52 | DISCOVERY_PREDICTION.md updated | docs |
 | #53 | Safety uses charge_density_ph74; stronger cytotox_penalty in pilot | pilot ranking |
-| #54 | DISCOVERY_PREDICTION.md updated | docs |
+| #58 | AUPRC added; SEED-009 (Bac2A) + SEED-010 (KR-12) added | +2 scaffolds |
 
-**Limitation:** Benchmarks use a small, curated demo dataset. They do not validate against
-large independent AMP databases. Real retrospective validation against APD3-scale data is
-required before strong claims of predictive power.
+**Limitation:** Benchmarks use a small, curated demo dataset (44 AMPs + 44 background). They
+do not validate against large independent AMP databases. Real retrospective validation against
+APD3-scale data (> 3,000 AMPs, cluster-split) is required before strong claims of predictive
+power.
 
 ---
 
