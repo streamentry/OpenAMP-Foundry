@@ -16,7 +16,12 @@
   "properties": {
     "candidate_id": {"type": "string"},
     "sequence": {"type": "string"},
+    "source": {"type": "string", "description": "Dataset or generator that produced this candidate."},
     "features": {"type": "object"},
+    "nearest_reference": {
+      "description": "Closest known reference AMP found during novelty check, or null if none found.",
+      "oneOf": [{"type": "object"}, {"type": "null"}]
+    },
     "scores": {
       "type": "object",
       "required": ["activity", "safety", "synthesis", "novelty", "ensemble"],

@@ -1,7 +1,11 @@
+from pathlib import Path
+
 from openamp_foundry.evidence.certificate import build_certificate
 from openamp_foundry.evidence.schemas import validate_json_schema
 from openamp_foundry.features.physchem import compute_features
 from openamp_foundry.types import PeptideCandidate, ScoredCandidate
+
+_SCHEMA = Path(__file__).parents[1] / "schemas" / "candidate.schema.json"
 
 
 def test_certificate_validates():
@@ -14,4 +18,4 @@ def test_certificate_validates():
         known_failure_modes=["No wet-lab assay has been run."],
     )
     cert = build_certificate(scored, {"weights": {}}, [])
-    validate_json_schema(cert, "schemas/candidate.schema.json")
+    validate_json_schema(cert, _SCHEMA)
