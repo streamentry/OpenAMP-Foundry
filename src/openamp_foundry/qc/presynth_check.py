@@ -116,6 +116,13 @@ class SynthQC:
     c_amidation_recommended: bool = False   # request NH₂ C-terminus instead of COOH
     c_amidation_reason: str = ""
 
+    # N-terminal acetylation
+    n_acetylation_recommended: bool = False  # request Nα-Ac when interior trypsin sites exist
+    n_acetylation_reason: str = ""
+
+    # Wave 2 D-amino acid substitution guidance
+    wave2_d_substitutions: list[str] = field(default_factory=list)
+
     # Overall flag
     flags: list[str] = field(default_factory=list)
     synthesis_difficulty: str = "LOW"   # LOW / MODERATE / HIGH
@@ -143,6 +150,9 @@ class SynthQC:
             "hemolysis_start_conc": self.hemolysis_start_conc,
             "c_amidation_recommended": self.c_amidation_recommended,
             "c_amidation_reason": self.c_amidation_reason,
+            "n_acetylation_recommended": self.n_acetylation_recommended,
+            "n_acetylation_reason": self.n_acetylation_reason,
+            "wave2_d_substitutions": self.wave2_d_substitutions,
             "flags": self.flags,
             "synthesis_difficulty": self.synthesis_difficulty,
         }
@@ -235,6 +245,35 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
             "amidation optional — consider for serum stability improvement."
         )
 
+    # N-terminal acetylation recommendation.
+    # Nα-Ac blocks aminopeptidase-mediated N-terminal degradation (exopeptidase entry
+    # blocked). Recommend whenever interior trypsin sites exist — after trypsin exposure,
+    # the resulting N-terminal fragments become substrates for aminopeptidases.
+    # Synthesis cost: zero — specify "N-terminal acetylation (Ac-)" in synthesis order.
+    # Literature: Creighton (1993); Dhankhar et al. (2023).
+    if len(qc.trypsin_sites) > 0:
+        qc.n_acetylation_recommended = True
+        site_positions = [p + 1 for p in qc.trypsin_sites]
+        qc.n_acetylation_reason = (
+            f"{len(qc.trypsin_sites)} interior trypsin site(s) detected at position(s) "
+            f"{site_positions}. N-terminal acetylation (Nα-Ac) blocks aminopeptidase-mediated "
+            "N-terminal degradation (exopeptidase entry blocked). Specify 'N-terminal acetylation "
+            "(Ac-)' in synthesis order — zero extra cost. "
+            "Literature: Creighton (1993); Dhankhar et al. (2023)."
+        )
+
+    # Wave 2 D-amino acid substitution guidance.
+    # For each interior trypsin cleavage site, D-Lys or D-Arg substitution blocks trypsin
+    # (requires L-stereochemistry) and extends serum t½ by an estimated 3–10×.
+    # Only the 3 most N-terminal sites are listed (highest-priority targets).
+    # Literature: Wade et al. 1990 PNAS.
+    top_sites = sorted(qc.trypsin_sites)[:3]
+    qc.wave2_d_substitutions = [
+        f"Position {p + 1} ({seq[p]} → D-{'Arg' if seq[p] == 'R' else 'Lys'}): "
+        "eliminates trypsin cleavage site; extend serum t½ by estimated 3–10×"
+        for p in top_sites
+    ]
+
     # Collect flags
     if qc.cysteine_count > 0:
         qc.flags.append(f"CYSTEINE×{qc.cysteine_count}: disulfide/oxidation risk — store under N₂")
@@ -256,7 +295,9 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     if qc.length > 30:
         qc.flags.append(f"LONG_PEPTIDE ({qc.length}aa): SPPS yield risk; consider native chemical ligation")
 
-    # Synthesis difficulty rating
+    # Synthesis difficulty rating is based on synthesis-risk flags only.
+    # Guidance flags (N_ACETYLATION_RECOMMENDED, WAVE2_D_AMINO) are informational and
+    # carry zero synthesis cost — they are appended after the difficulty is set.
     n_flags = len(qc.flags)
     if n_flags == 0:
         qc.synthesis_difficulty = "LOW"
@@ -264,6 +305,18 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
         qc.synthesis_difficulty = "MODERATE"
     else:
         qc.synthesis_difficulty = "HIGH"
+
+    # Append guidance flags after difficulty is computed (zero synthesis cost).
+    if qc.n_acetylation_recommended:
+        qc.flags.append(
+            "N_ACETYLATION_RECOMMENDED: specify 'Ac-' (N-terminal acetyl) in synthesis order "
+            "(blocks aminopeptidase entry; zero cost)"
+        )
+    if qc.wave2_d_substitutions:
+        qc.flags.append(
+            f"WAVE2_D_AMINO: {len(qc.wave2_d_substitutions)} trypsin site(s) identified for "
+            "D-amino acid substitution in Wave 2 (see wave2_d_substitutions)"
+        )
 
     return qc
 

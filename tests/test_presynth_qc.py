@@ -457,3 +457,88 @@ class TestCTerminalAmidation:
         qc = check_sequence("empty", "")
         # Empty sequence: no C-term → c_amidation_recommended should be False (default)
         assert isinstance(qc.c_amidation_recommended, bool)
+
+
+# ---------------------------------------------------------------------------
+# Wave 2 guidance (N-acetylation + D-amino substitution)
+# ---------------------------------------------------------------------------
+
+class TestWave2Guidance:
+    def test_n_acetylation_recommended_when_interior_trypsin_sites(self):
+        # K/R at 0-based pos 0,1,5,7,8 (regex excludes pos 10=C-terminal G; all K/R here are considered interior)
+        qc = check_sequence("w1", "RRWQWRMKKLG")
+        assert qc.n_acetylation_recommended is True
+
+    def test_n_acetylation_not_recommended_when_no_interior_sites(self):
+        # "FLPLIGAVLSGIL" contains no K or R → no trypsin sites
+        qc = check_sequence("w2", "FLPLIGAVLSGIL")
+        assert qc.n_acetylation_recommended is False
+
+    def test_d_amino_guidance_lists_all_trypsin_positions(self):
+        # "RRWQWRMKKLG" has 5 interior sites; entries must reference D- substitutions
+        qc = check_sequence("w3", "RRWQWRMKKLG")
+        assert len(qc.wave2_d_substitutions) > 0
+        assert all("→ D-" in entry for entry in qc.wave2_d_substitutions)
+
+    def test_d_amino_guidance_empty_for_no_trypsin_sites(self):
+        qc = check_sequence("w4", "FLPLIGAVLSGIL")
+        assert qc.wave2_d_substitutions == []
+
+    def test_d_amino_guidance_capped_at_3_positions(self):
+        # "RRWQWRMKKLG" has 5 interior trypsin sites → only top 3 returned
+        qc = check_sequence("w5", "RRWQWRMKKLG")
+        assert len(qc.wave2_d_substitutions) == 3
+
+    def test_n_acetylation_flag_appears_in_flags_list(self):
+        qc = check_sequence("w6", "RRWQWRMKKLG")
+        acetyl_flags = [f for f in qc.flags if "N_ACETYLATION_RECOMMENDED" in f]
+        assert len(acetyl_flags) == 1
+
+    def test_wave2_d_amino_flag_appears_in_flags_list(self):
+        qc = check_sequence("w7", "RRWQWRMKKLG")
+        d_flags = [f for f in qc.flags if "WAVE2_D_AMINO" in f]
+        assert len(d_flags) == 1
+
+    def test_to_dict_contains_new_fields(self):
+        qc = check_sequence("w8", "RRWQWRMKKLG")
+        d = qc.to_dict()
+        assert "n_acetylation_recommended" in d
+        assert "n_acetylation_reason" in d
+        assert "wave2_d_substitutions" in d
+
+    def test_d_lys_for_interior_lys(self):
+        # "KKKAAA" has K at positions 0, 1, 2 — all interior → all D-Lys guidance
+        qc = check_sequence("w9", "KKKAAA")
+        assert any("D-Lys" in entry for entry in qc.wave2_d_substitutions)
+
+    def test_d_arg_for_interior_arg(self):
+        # "RRRAAA" has R at positions 0, 1, 2 — all interior → all D-Arg guidance
+        qc = check_sequence("w10", "RRRAAA")
+        assert any("D-Arg" in entry for entry in qc.wave2_d_substitutions)
+
+    def test_n_acetylation_not_recommended_when_only_terminal_kr(self):
+        # C-terminal K is excluded by trypsin regex (?=.) lookahead + guard
+        qc = check_sequence("w_cterm_only", "AAAAK")
+        assert qc.n_acetylation_recommended is False
+        assert qc.wave2_d_substitutions == []
+        assert not any("N_ACETYLATION" in f for f in qc.flags)
+
+    def test_d_amino_guidance_positions_are_1_indexed(self):
+        # RRWQWRMKKLG: internal K/R at 0-based positions 0,1,5,7,8
+        # Top 3 (most N-terminal) = positions 0,1,5 → displayed as 1,2,6
+        qc = check_sequence("w_pos_1idx", "RRWQWRMKKLG")
+        assert len(qc.wave2_d_substitutions) == 3
+        assert "Position 1" in qc.wave2_d_substitutions[0]
+        assert "Position 2" in qc.wave2_d_substitutions[1]
+        assert "Position 6" in qc.wave2_d_substitutions[2]
+
+    def test_empty_sequence_no_crash_wave2(self):
+        qc = check_sequence("w_empty", "")
+        assert qc.n_acetylation_recommended is False
+        assert qc.wave2_d_substitutions == []
+
+    def test_n_acetylation_reason_populated_when_recommended(self):
+        qc = check_sequence("w_reason", "RRWQWRMKKLG")
+        assert qc.n_acetylation_recommended is True
+        assert len(qc.n_acetylation_reason) > 0
+        assert "acetylat" in qc.n_acetylation_reason.lower()

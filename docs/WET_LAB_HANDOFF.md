@@ -64,6 +64,8 @@ before ordering. The report flags:
 | `MET×N` | Met oxidation to sulfoxide in air | Order with >95% purity; store at −80°C; re-check purity on thaw |
 | `HYDROPHOBIC_RUN (XXXX)` | Aggregation; poor aqueous solubility | Test solubility at 1 mM in PBS before assay; add 0.1% DMSO if needed |
 | `TRYPSIN_SITES×N` (N > 2) | Serum degradation < 2h | Use serum-free media for initial MIC; add protease inhibitors if needed |
+| `WAVE2_D_AMINO` | Wave 2 D-amino acid sites identified | See `wave2_d_substitutions` field — substitute D-Lys or D-Arg at listed positions in Wave 2 synthesis to extend serum t½ by 3–10× |
+| `N_ACETYLATION_RECOMMENDED` | N-terminal aminopeptidase exposure | **Request "N-terminal acetylation (Ac-)"** in synthesis order — zero cost, blocks aminopeptidase entry |
 | `DEAMIDATION_RISK` | N→D conversion at pH > 7.5 | Use pH 7.0 buffer; avoid long storage at room temp |
 | `LOW_CHARGE` | Reduced membrane affinity | Lower expected potency; may need higher test concentrations |
 | `LONG_PEPTIDE (>30aa)` | SPPS yield risk | Expect lower crude purity; order extra crude for purification |
