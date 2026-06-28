@@ -9,8 +9,23 @@ All notable changes to OpenAMP Foundry are documented here.
 **Status:** Pipeline frozen for synthesis batch ordering. All changes below were quality
 improvements made before committing the ~$10k wet-lab synthesis budget.
 
-### Latest fixes (PRs #61–67)
+### Latest fixes (PRs #61–69)
 
+- **PR #69** — synthesis_readiness_report.md updated for current 20-candidate pilot panel
+  (AUROC 0.8047; 43 AMPs; 6 seed families; all output files regenerated: presynth_qc_report.md,
+  diversity_report.md, gold_standard_calibration.md); external predictor gate marked PENDING for
+  new panel; SEED-007 HIGH SPPS difficulty noted; SEED-008 photolability warning added;
+  serum stability caveats from PR #68 incorporated; synthesis decision tree and 6-candidate
+  minimal diverse panel recommendation updated; stale reference to old 16-candidate
+  confident_panel.csv removed
+- **PR #68** — Stage 3 serum stability table updated with actual pilot-panel seed families
+  (SEED-003/005/006/007/008/009; old SEED-001/002/004 removed as excluded at earlier gates);
+  probability 28–42% → 30–46% (short/Trp-rich model correction; actual pilot-panel data);
+  SEED-006/SEED-007 gate labels corrected from Pass to Borderline (scores 0.61–0.67 below
+  ≥0.70 threshold); SEED-007 slot count corrected 4→5; Root Cause Analysis updated to
+  acknowledge model uncertainty before citing <40 min estimate; early serum screening protocol
+  added with time points, concentration, reference control; WET_LAB_HANDOFF.md new section
+  with SEED-003/005/008 stability model limitation table
 - **PR #67** — JSONL error handling in `pilot-panel` CLI (CRITICAL: bare crash on malformed
   line → structured error with line number and preview); synthesis-order CSV header validation;
   `validate-scoring` stdout now includes `n_positives`, `n_negatives`, `benchmark_type`, `auprc`;
