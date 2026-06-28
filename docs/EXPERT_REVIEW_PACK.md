@@ -1,23 +1,24 @@
 # OpenAMP Foundry — Expert Review Pack
 
-**Phase 3 Candidate Batch**  
-**Pipeline version:** 0.1.0 (v0.2 scorer update)  
-**Generated:** 2026-06-27  
+**Phase 3 Pilot Panel — Wave 1 Candidates**
+**Pipeline version:** 0.5.x (AUROC 0.8420 on 43-AMP / 44-decoy benchmark)
+**Generated:** 2026-06-28 (updated from 2026-06-27 original)
 **Batch ID:** See `outputs/phase3_manifest.json`
+**Candidate selection manifest SHA-256:** `outputs/phase3_manifest.json`
 
 ---
 
 ## Purpose of This Document
 
 This document is prepared for review by a qualified microbiology, peptide chemistry, or
-infectious disease expert prior to any wet-lab expenditure. It summarises the computational
+infectious disease expert **prior to any wet-lab expenditure**. It summarises the computational
 candidate nomination process, the selection rationale, and the recommended next steps.
 
 **The expert reviewer is asked to:**
 1. Evaluate whether the candidate selection methodology is scientifically credible.
 2. Identify any obvious problems the computational pipeline may have missed.
 3. Advise on which candidates (if any) are worth synthesising.
-4. Recommend appropriate assay types and target organisms.
+4. Recommend appropriate assay types, target organisms, and protocol adjustments.
 5. Flag any safety or dual-use concerns.
 
 ---
@@ -29,149 +30,159 @@ biological predictors. No antimicrobial activity has been demonstrated in vitro 
 Do not describe any candidate as an antibiotic, drug, cure, therapy, or proven antimicrobial
 without experimental evidence. The lab is the judge.
 
+The pipeline AUROC (0.8420) is a **retrospective benchmark** on the internal 43-AMP reference
+set — not an external prospective validation. It indicates the scoring can discriminate known
+AMPs from random peptides on held-out data; it does not predict any individual candidate's
+activity.
+
 ---
 
 ## 1. Overview of the Pipeline
 
-The OpenAMP Foundry pipeline applies a six-stage scoring system to candidate sequences:
+The OpenAMP Foundry pipeline applies an eight-stage scoring system to candidate sequences:
 
 | Stage | Method | What it measures |
 |-------|--------|-----------------|
-| Activity-likeness | Physicochemical heuristics | Charge, hydrophobicity, amphipathicity, length |
+| Activity-likeness | Physicochemical heuristics | Charge (pH 7.4), hydrophobicity, amphipathicity (μH), Trp-weighted aromatic bonus, helix propensity, face segregation |
 | Boman activity | Boman (2003) index normalized | Per-residue interaction potential; complements activity heuristic |
 | Model disagreement | \|activity − boman_activity\| | Scorer consensus: low = robust, high = uncertain |
 | Safety (toxicity proxy) | Physicochemical risk flags | Hemolysis-correlated excess hydrophobicity, charge density, repeats |
-| Synthesis feasibility | Composition and length filter | Cysteine content, proline content, repeat runs, length |
-| Novelty | Levenshtein distance | Sequence divergence from 45 known AMP references |
+| Synthesis feasibility | Composition and length filter | Cysteine, proline penalty, repeat runs, length |
+| Novelty | Levenshtein distance | Sequence divergence from 45 seed references |
+| Serum stability | Protease site density | Trypsin/chymotrypsin/elastase site count, length penalty |
 | Ensemble | Weighted sum | activity×0.35 + safety×0.30 + synthesis×0.20 + novelty×0.15 |
 
-**Pipeline configuration:** `configs/phase3.yaml`  
-**Selection rule:** `docs/SELECTION_RULE.md` (locked before generation)  
+**Scoring enhancements (post v0.5):** Trp-weighted aromatic bonus (1.5× Trp vs Phe/Tyr);
+windowed μH (Eisenberg window=11, Eisenberg 1984); moment-oriented helix-wheel face segregation
+bonus (Wieprecht 1997); cross-term (charge × μH synergy); pH 7.4 charge consistency; Pro-rich
+serum stability advantage from protease site model.
+
+**Pipeline configuration:** `configs/pipeline.yaml` and `configs/phase3.yaml`
+**Selection rule:** `docs/SELECTION_RULE.md` (locked before generation)
 **Full benchmark methodology:** `docs/BENCHMARKING.md`
-
-**Key evidence level:** These are Level 0–2 evidence scores (syntax validity, reproducible features,
-transparent heuristics). They have not been validated against lab measurements. Lab assay
-(Level 5) is the required next gate.
+**Benchmark AUROC:** 0.8420 (bootstrap CI₉₅: 0.76–0.91, n=87: 43 AMPs + 44 background)
+**Pipeline AUPRC:** 0.8627
 
 ---
 
-## 2. Reference Set
+## 2. Seed Sequences and Reference Set
 
-Novelty was scored against **45 known antimicrobial peptides** drawn from published literature
-(see `examples/known_reference/amp_curated_references.csv`). Families represented:
+### 2.1 Seed Sequences — 7 Template Families
 
-- Magainin and pexiganan analogs (Zasloff 1987, Ge 1999)
-- Buforin family (Kim 1996, Park 2000)
-- Indolicidin and analogs (Selsted 1992)
-- Temporin family (Mangoni 2001, Simmaco 1996)
-- Aurein family (Rozek 2000)
-- Cecropin family (Steiner 1981, Hultmark 1980)
-- Cathelicidin-related short sequences
-- Melittin (as hemolysis positive control reference)
+Candidates were generated by conservative amino-acid substitution of 7 template seeds:
 
-**Assessment:** Candidates with novelty < 0.10 against this reference set are near-duplicates
-of known AMPs and should be deprioritised. Novelty ≥ 0.30 indicates meaningful divergence from
-the known AMP landscape.
+| Seed | Sequence | Length | Family | Mechanism |
+|------|----------|--------|--------|-----------|
+| SEED-001 | KWKLFKKIGAVLKVL | 15 AA | Magainin-like | Cationic α-helix, membrane disruption |
+| SEED-003 | RRWQWRMKKLG | 11 AA | Cationic Trp helix | Trp/Arg-rich; known-active parent AMP |
+| SEED-005 | KRLFKKIGSALKFL | 14 AA | Cecropin-magainin hybrid | Dual-domain cationic helix |
+| SEED-006 | INLKGIAAMAKLLS | 14 AA | Mastoparan-X variant | GPCR + membrane disruption, wasp venom |
+| SEED-007 | IKFTTMLKKLG | 11 AA | Bombolitin-II | Short amphipathic; bee venom family |
+| SEED-008 | FPVTWRWWRWWKG | 13 AA | Puroindoline-a Trp-rich | Indole ring membrane stacking; not helical |
+| SEED-009 | RRLPRPPRYLPRP | 13 AA | Bac2A (bovine) Pro-rich | Ribosome exit tunnel + DnaK chaperone |
 
----
+Substitutions restricted to physicochemically conservative groups (cationic→cationic,
+hydrophobic→hydrophobic, etc.) to preserve amphipathic balance of templates.
 
-## 3. Generation Method
+### 2.2 Novelty Against Curated Reference Database (72 AMPs)
 
-Candidates were produced by conservative amino-acid substitutions on 5 template seeds:
+A broad novelty check (`docs/NOVELTY_BROAD_CHECK.md`) compared all 20 candidates against
+a curated 72-sequence AMP reference database (wider than the 45-seed novelty score used
+during ranking):
 
-| Seed | Sequence | Family |
-|------|----------|--------|
-| SEED-001 | KWKLFKKIGAVLKVL | Magainin-like |
-| SEED-002 | GIGKFLHSAKKFGKAFVGEIMNS | Cecropin/Magainin-like |
-| SEED-003 | RRWQWRMKKLG | Cationic tryptophan-rich |
-| SEED-004 | FLPLIGRVLSGIL | Temporin-like |
-| SEED-005 | KRLFKKIGSALKFL | Hybrid cationic-hydrophobic |
+| Category | Count | Families |
+|---|:---:|---|
+| KNOWN_VARIANT (≥70% similar) | 3 | SEED-001_VAR_064 (87%), SEED-003_VAR_017/012 (82%) |
+| CLOSE_RELATIVE (50–70% similar) | 1 | SEED-005_VAR_019 (60%) |
+| NOVEL (<50% similar) | 16 | SEED-006, SEED-007, SEED-008, SEED-009 |
 
-Substitutions were restricted to physicochemically conservative groups (cationic→cationic,
-hydrophobic→hydrophobic, etc.) to preserve the amphipathic balance of the templates.
-
-**Reviewer note:** This is an intentionally conservative generation strategy. It explores the
-near-neighbourhood of known AMP families. It does NOT explore truly novel sequence space.
-Future cycles should incorporate independent sequence generation (e.g. protein language models
-or Bayesian optimization) to achieve more radical novelty.
+**Implications:** SEED-001 and SEED-003 near-known-AMP status is **expected by design** —
+they serve as assay positive controls. SEED-003 variants are ~82% identical to RRWQWRMKKLG
+(Tam 2002 J Biol Chem), a known-active AMP, which **elevates P(activity) for SEED-003** but
+limits novelty claims. SEED-006/007/008/009 represent genuinely novel AMP families; confirmed
+activity in any of these would be publishable.
 
 ---
 
-## 4. Batch Statistics
+## 3. Pilot Panel — 20 Candidates
 
-| Metric | Value |
-|--------|-------|
-| Sequences generated | 383 |
-| Sequences passing all filters | 89 |
-| Sequence length range | 11–14 aa |
-| Mean ensemble score | 0.781 |
-| Mean predicted activity | 0.839 |
-| Mean predicted safety | 1.000 |
-| Mean synthesis feasibility | 1.000 |
-| Mean novelty vs reference set | 0.172 |
-| Diversity clusters (threshold 0.80) | 32 |
-| Singleton clusters | 13 (40.6%) |
-| Mean Boman activity score | 0.503 |
-| Mean scorer disagreement | 0.311 |
-| High consensus (disagreement <0.20) | 1 |
-| Uncertain (disagreement ≥0.30) | 48 |
+Selection: greedy diversity (max pairwise Levenshtein similarity 0.75), maximum 4 per seed.
+Full pilot panel table with provenance: `outputs/pilot_panel.md`
 
-**Reviewer alert — Safety scores:** Mean safety = 1.0 because ALL selected candidates passed
-the safety filter (max_safety_risk = 0.40). This is because the conservative substitution
-generator preserves balanced charge/hydrophobicity. This looks good computationally, but does
-not replace wet-lab hemolysis and cytotoxicity assays.
+| Rank | Candidate | Sequence | Len | Seed | Ensemble | Activity | Safety | Novelty | Disagr | Serum | Category |
+|--:|---|---|:---:|---|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| 1 | SEED-009_VAR_033 | `RRLPRPGYMPRP` | 12 | SEED-009 | 0.807 | 0.639 | 1.000 | 0.692 | 0.047 | 0.572 | ✓ NOVEL |
+| 2 | SEED-009_VAR_027 | `RRLPRGPYLPKP` | 12 | SEED-009 | 0.808 | 0.640 | 1.000 | 0.692 | 0.059 | 0.572 | ✓ NOVEL |
+| 3 | SEED-007_VAR_009 | `IKFTTMLRKLG` | 11 | SEED-007 | 0.849 | 0.697 | 1.000 | 0.727 | 0.222 | 0.636 | ✓ NOVEL |
+| 4 | SEED-007_VAR_001 | `AKITTMLKKLG` | 11 | SEED-007 | 0.824 | 0.662 | 1.000 | 0.636 | 0.142 | 0.662 | ✓ NOVEL |
+| 5 | SEED-007_VAR_018 | `IKISTMLKKAG` | 11 | SEED-007 | 0.815 | 0.632 | 1.000 | 0.647 | 0.114 | 0.636 | ✓ NOVEL |
+| 6 | SEED-009_VAR_039 | `RRLPRPPYIPRG` | 12 | SEED-009 | 0.796 | 0.624 | 1.000 | 0.650 | 0.043 | 0.572 | ✓ NOVEL |
+| 7 | SEED-009_VAR_017 | `RRLGRPPYLGRP` | 12 | SEED-009 | 0.799 | 0.633 | 1.000 | 0.647 | 0.051 | 0.572 | ✓ NOVEL |
+| 8 | SEED-007_VAR_035 | `IKITTMAKKVG` | 11 | SEED-007 | 0.806 | 0.635 | 1.000 | 0.647 | 0.107 | 0.636 | ✓ NOVEL |
+| 9 | SEED-006_VAR_059 | `INWKPIAAMAKKLV` | 14 | SEED-006 | 0.821 | 0.644 | 1.000 | 0.643 | 0.242 | 0.653 | ✓ NOVEL |
+| 10 | SEED-006_VAR_071 | `IQWKGIAAMAKRLL` | 14 | SEED-006 | 0.828 | 0.660 | 1.000 | 0.643 | 0.263 | 0.653 | ✓ NOVEL |
+| 11 | SEED-006_VAR_062 | `INWRGIAAMAKKFL` | 14 | SEED-006 | 0.841 | 0.697 | 1.000 | 0.643 | 0.312 | 0.612 | ✓ NOVEL |
+| 12 | SEED-006_VAR_006 | `INFKGIALMAKKLL` | 14 | SEED-006 | 0.812 | 0.616 | 1.000 | 0.643 | 0.226 | 0.674 | ✓ NOVEL |
+| 13 | SEED-008_VAR_032 | `FPVTWRFWRWWKG` | 13 | SEED-008 | 0.857 | 0.724 | 1.000 | 0.692 | 0.445 | 0.451 | ✓ NOVEL |
+| 14 | SEED-008_VAR_009 | `FPITWRWFKWWKG` | 13 | SEED-008 | 0.849 | 0.700 | 1.000 | 0.692 | 0.426 | 0.473 | ✓ NOVEL |
+| 15 | SEED-008_VAR_019 | `FPVSWRWWKFWKG` | 13 | SEED-008 | 0.845 | 0.690 | 1.000 | 0.692 | 0.413 | 0.429 | ✓ NOVEL |
+| 16 | SEED-003_VAR_017 | `RRWNWRMKKMG` | 11 | SEED-003 | 0.816 | 0.832 | 0.992 | 0.182 | 0.262 | 0.377 | ⚠ KNOWN |
+| 17 | SEED-003_VAR_012 | `RKWQYRMKKLG` | 11 | SEED-003 | 0.807 | 0.816 | 0.981 | 0.182 | 0.233 | 0.377 | ⚠ KNOWN |
+| 18 | SEED-008_VAR_044 | `FPVTWRWWKWYRG` | 13 | SEED-008 | 0.832 | 0.692 | 1.000 | 0.600 | 0.410 | 0.451 | ✓ NOVEL |
+| 19 | SEED-005_VAR_019 | `KRLFKKAGSALKFL` | 14 | SEED-005 | 0.808 | 0.842 | 0.845 | 0.400 | 0.321 | 0.449 | ≈ CLOSE |
+| 20 | SEED-001_VAR_064 | `KWKLFRKIGAVLRVL` | 15 | SEED-001 | 0.802 | 0.806 | 1.000 | 0.133 | 0.377 | 0.486 | ⚠ KNOWN |
 
-**Reviewer alert — Scorer disagreement:** The mean disagreement between the activity-likeness
-heuristic and the Boman index second scorer is 0.311. This is expected: the activity scorer
-rewards amphipathic charge/hydrophobicity balance (good for membrane disruption), while the
-Boman index penalizes hydrophobic residues as lower interaction potential. The disagreement is
-scientifically honest — these candidates are predicted AMPs through amphipathic mechanisms but
-have moderate protein-binding potential by the Boman criterion. Candidates with higher Boman
-scores should be given extra weight in expert review.
-
-**Reviewer alert — Cluster concentration:** 59% of candidates fall within multi-member clusters,
-meaning significant chemical similarity within the batch. Only ~13 candidates are sequence-isolated
-singletons. The expert should advise whether this diversity level is adequate for meaningful assay.
+**Columns:** Ensemble = weighted activity/safety/synthesis/novelty composite. Disagr = |activity − boman_activity| (lower = model consensus). Serum = model-estimated serum stability. Category = broad novelty classification vs 72-AMP curated database.
 
 ---
 
-## 5. Top 20 Candidates by Ensemble Score (with Dual-Scorer Columns)
+## 4. Gold-Standard Calibration
 
-> These candidates passed all computational filters and were selected by greedy diversity.
-> Rankings are provisional and may change with improved scoring in future pipeline versions.
-> **Dis** = scorer disagreement; lower is more robust (dual-scorer consensus).
+The scoring pipeline was calibrated against 7 well-characterised published AMPs
+(`docs/GOLD_STANDARD_CALIBRATION.md`):
 
-| Rank | Candidate ID | Sequence | Ens | Activity | Boman | Dis | Safety | Novelty | Len |
-|------|-------------|----------|-----|----------|-------|-----|--------|---------|-----|
-| 1 | SEED-005_VAR_049 | KRLFKKIPSALKFF | 0.880 | 0.885 | 0.485 | 0.400 | 1.000 | 0.467 | 14 |
-| 2 | SEED-005_VAR_009 | KRFFKKIGSALKFA | 0.877 | 0.878 | 0.508 | 0.370 | 1.000 | 0.467 | 14 |
-| 3 | SEED-005_VAR_063 | KRLFRKIGSALKFV | 0.874 | 0.867 | 0.503 | 0.365 | 1.000 | 0.467 | 14 |
-| 4 | SEED-005_VAR_058 | KRLFKKVGSALRFL | 0.871 | 0.861 | 0.503 | 0.358 | 1.000 | 0.467 | 14 |
-| 5 | SEED-005_VAR_023 | KRLFKKIGRALKFL | 0.870 | 0.913 | 0.537 | 0.376 | 1.000 | 0.333 | 14 |
-| 6 | SEED-005_VAR_061 | KRLFKRLGSALKFL | 0.868 | 0.853 | 0.497 | 0.355 | 1.000 | 0.467 | 14 |
-| 7 | SEED-005_VAR_068 | KRLMKKIGSAIKFL | 0.856 | 0.818 | 0.519 | 0.299 | 1.000 | 0.467 | 14 |
-| 8 | SEED-005_VAR_013 | KRLAKHIGSALKFL | 0.855 | 0.814 | 0.480 | 0.334 | 1.000 | 0.467 | 14 |
-| 9 | SEED-005_VAR_002 | HRLIKKIGSALKFL | 0.849 | 0.813 | 0.457 | 0.356 | 1.000 | 0.429 | 14 |
-| 10 | SEED-003_VAR_027 | RRWQWRFKRLG | 0.839 | 0.890 | 0.532 | 0.358 | 1.000 | 0.182 | 11 |
-| 11 | SEED-003_VAR_045 | RRWQYRIKKLG | 0.834 | 0.877 | 0.572 | 0.305 | 1.000 | 0.182 | 11 |
-| 12 | SEED-003_VAR_020 | RRWQWHIKKLG | 0.832 | 0.870 | 0.480 | 0.390 | 1.000 | 0.182 | 11 |
-| 13 | SEED-003_VAR_014 | RRFQWRMRKLG | 0.831 | 0.867 | 0.579 | 0.288 | 1.000 | 0.182 | 11 |
-| 14 | SEED-003_VAR_017 | RRWNWRMRKLG | 0.829 | 0.862 | 0.559 | 0.303 | 1.000 | 0.182 | 11 |
-| 15 | SEED-005_VAR_047 | KRLFKKIGSVLKML | 0.829 | 0.825 | 0.501 | 0.324 | 1.000 | 0.267 | 14 |
-| 16 | SEED-003_VAR_048 | RRWSWHMKKLG | 0.828 | 0.860 | 0.493 | 0.367 | 1.000 | 0.182 | 11 |
-| 17 | SEED-003_VAR_003 | KRWQWRIKKLG | 0.828 | 0.859 | 0.547 | 0.311 | 1.000 | 0.182 | 11 |
-| 18 | SEED-003_VAR_049 | RRWSWRMHKLG | 0.828 | 0.859 | 0.493 | 0.365 | 1.000 | 0.182 | 11 |
-| 19 | SEED-003_VAR_051 | RRWTWRMKKAG | 0.828 | 0.858 | 0.592 | 0.266 | 1.000 | 0.182 | 11 |
-| 20 | SEED-003_VAR_042 | RRWQWRMRKLP | 0.828 | 0.858 | 0.559 | 0.299 | 1.000 | 0.182 | 11 |
+| Gold-standard peptide | Known activity | Pipeline score | Assessment |
+|---|---|:---:|---|
+| Magainin-2 (23 AA) | Active, pore-forming | 0.872 | **Above panel** — very high score |
+| Melittin (26 AA) | Active + hemolytic | 0.844 | Within panel range |
+| Defensin-HNP1 (29 AA) | Active (β-sheet defensin) | 0.820 | Within panel range |
+| Temporin-A (13 AA) | Active, mildly hemolytic | 0.803 | Within panel range |
+| LL-37 (37 AA) | Active (cathelicidin) | 0.714 | **Below panel** |
+| Cecropin-A (37 AA) | Active (insect AMP) | 0.713 | **Below panel** |
 
-Full list: `outputs/phase3_report.md`  
-Machine-readable details: `outputs/phase3_batch_pack.json`  
-Evidence certificates: `outputs/phase3_evidence/` (89 selected, all schema-validated)
+**Critical safety caveat:** The pipeline assigns Safety=1.0 to **Melittin**, which is a strongly
+hemolytic benchmark AMP (HC₅₀ ≈ 1–5 µg/mL). This is a confirmed model blind spot. The safety
+score does NOT reliably detect curvature-mediated hemolysis. **Hemolysis assay (HC₅₀) is mandatory
+for all candidates regardless of safety score.**
 
-**Reviewer priority note:** The SEED-003 family (tryptophan-rich 11-mers) has higher Boman
-activity scores and lower disagreement than SEED-005 (14-mers), suggesting it should be prioritised
-for synthesis. Rank 19 (RRWTWRMKKAG) has the highest Boman score among the top-20 (0.592) with
-only moderate disagreement (0.266).
+**LL-37 and Cecropin-A below panel:** These are very long AMPs (37 AA). The pipeline's
+length-scoring term (peak at ~18 AA) penalises them. Their low scores reflect this length bias,
+not a claim that they are inactive.
+
+---
+
+## 5. Per-Family Summary for Reviewer
+
+| Family | n | Key mechanism | Novelty | Serum concern | P(≥1 active) | Reviewer focus |
+|---|:---:|---|---|---|:---:|---|
+| SEED-001 (magainin) | 1 | Cationic α-helix | Very low (positive control) | Moderate | ~70% | Assay control only |
+| SEED-003 (Trp-rich) | 2 | Arg/Trp cationic; known parent AMP | Very low (⚠ KNOWN_VARIANT) | High (11 AA model edge) | **60–75%** | SAR; not novelty |
+| SEED-005 (hybrid) | 1 | Dual-domain cecropin-magainin | Low (≈ CLOSE_RELATIVE) | Moderate | ~55–70% | Safety (score 0.845) |
+| SEED-006 (mastoparan) | 4 | GPCR + membrane disruption | Genuine (✓ NOVEL) | Low (14 AA; best) | ~70–82% | Novel mechanism |
+| SEED-007 (bombolitin) | 4 | Short amphipathic helix | Genuine (✓ NOVEL) | Low (11 AA; good) | ~70–82% | Novel short helix |
+| SEED-008 (Trp-rich) | 4 | Indole ring stacking; not helical | Genuine (✓ NOVEL) | Moderate (13 AA model edge) | ~70–82% | Novel mechanism; high disagreement |
+| SEED-009 (Pro-rich) | 4 | Ribosome exit + DnaK | Genuine (✓ NOVEL) | **Best** (Pro-X bonds resist protease) | ~60–75% | Novel; run RPMI parallel |
+
+**SEED-008 reviewer note:** Disagreement is highest in panel (0.41–0.44) because the Boman index
+penalises Trp (hydrophobic), while the activity scorer rewards it (Trp-weighted aromatic bonus).
+For Trp-rich AMPs acting via indole ring insertion into the membrane, `activity_likeness` is the
+more mechanistically appropriate scorer. Do not deprioritise SEED-008 based on Boman scores alone.
+
+**SEED-009 reviewer note:** Proline-rich AMPs target intracellular pathways (ribosome,
+chaperones) rather than membrane disruption. Standard broth MIC may underestimate activity
+because Pro-rich uptake efficiency depends on media protein content. Run SEED-009 variants
+in **RPMI-1640 in parallel** with standard Mueller-Hinton (Krizsan et al. 2014 Angew Chem Int
+Ed 53:14546). If MHB MIC is ≥4× higher than RPMI MIC, annotate as media-dependent.
 
 ---
 
@@ -180,28 +191,31 @@ only moderate disagreement (0.266).
 Please advise on the following:
 
 ### 6.1 Scientific credibility
-- [ ] Is the physicochemical scoring approach defensible for pre-screening short AMPs?
-- [ ] Is the novelty threshold (≥ 0.05 against 45 known AMP references) meaningful?
-- [ ] Does the diversity selection (max pairwise similarity 0.80) provide adequate batch diversity?
-- [ ] Is the Boman index (2003) a defensible second scorer for this class of peptides?
-- [ ] Is the mean scorer disagreement (0.311) consistent with what you would expect for helical AMPs?
+- [ ] Is the physicochemical scoring approach defensible for pre-screening short AMPs (11–15 AA)?
+- [ ] Is the AUROC (0.8420 on 43+44, CI₉₅: 0.76–0.91) sufficient to justify synthesis investment?
+- [ ] Do you agree that SEED-008 (Trp-rich, non-helical) warrants a different calibration than helical AMPs?
+- [ ] Does the face segregation bonus (helix-wheel moment analysis) reflect a mechanistically sound distinction?
+- [ ] Is the Boman index (2003) a defensible second scorer for the mix of helical and non-helical families?
 
 ### 6.2 Candidate quality
-- [ ] Do any of the top-20 candidates have obvious structural or sequence-level problems?
-- [ ] Are there specific sequences in the batch you would prioritise or deprioritise?
-- [ ] Is 11–14 aa the right length range, or should we explore longer candidates?
-- [ ] Do the SEED-003 tryptophan-rich 11-mers look more promising than the SEED-005 14-mers?
+- [ ] Do any of the 20 candidates have obvious structural or sequence-level problems?
+- [ ] Are there specific sequences you would prioritise or deprioritise?
+- [ ] SEED-007 and SEED-009 variants are 11–12 AA — is this length range acceptable for clinical relevance?
+- [ ] SEED-008 variants (Trp-rich) have the highest ensemble scores. Do you expect Trp-stacking to be active against the target organisms?
+- [ ] Should SEED-003 variants be included (assay controls) or dropped to save synthesis cost given their low novelty?
 
 ### 6.3 Assay recommendations
-- [ ] Which assay types are most appropriate for initial screening? (Suggested: MIC, hemolysis)
-- [ ] Which bacterial strains/organisms should be tested against?
-- [ ] What constitutes a meaningful positive result? (e.g. MIC ≤ 8 µg/mL)
-- [ ] How many candidates can reasonably be tested in a first-round assay?
-- [ ] Do you have a preferred CRO or academic partner for peptide assays?
+- [ ] Is the Wave 1 protocol (MIC broth microdilution, hemolysis HC₅₀, serum stability) appropriate?
+- [ ] Priority 3 organism is *S. aureus* USA300 MRSA — do you agree MRSA is the highest-impact target for this panel?
+- [ ] Should serum stability be run first (as pre-registered) or can MIC and hemolysis start in parallel?
+- [ ] For SEED-009 Pro-rich variants: RPMI-1640 parallel to MHB — is this the right media comparison?
+- [ ] Do you have a preferred CRO or academic partner for peptide synthesis and MIC screening?
+- [ ] Are biological triplicates on separate days (as pre-registered) adequate for publication?
 
 ### 6.4 Safety and dual-use
 - [ ] Are any sequences potentially concerning from a biosafety perspective?
 - [ ] Are there any concerns about these sequences being misused?
+- [ ] SEED-005_VAR_019 has the lowest safety score (0.845). Should it be dropped or assayed with extra hemolysis caution?
 
 ---
 
@@ -210,22 +224,24 @@ Please advise on the following:
 Before any candidate proceeds to synthesis or assay:
 
 1. **Expert sign-off**: A qualified reviewer completes section 6 above.
-2. **Synthesis plan**: A peptide chemist reviews feasibility and recommends synthesis vendor.
-3. **Target organism selection**: Microbiologist selects appropriate test organisms.
-4. **Protocol pre-registration**: Assay protocol and pass/fail criteria locked before synthesis.
-5. **Negative controls**: Known inactive sequences (e.g. scrambled versions) included in assay.
-6. **Ethical and regulatory check**: PI confirms no IRB, ITAR, dual-use, or export-control issues.
-7. **Pilot assay**: Small pilot (top 5–10 candidates by Boman+activity consensus) before full batch.
+2. **Pre-registration lock**: PI signs `docs/ASSAY_PREREGISTRATION.md` before ordering synthesis.
+3. **Broad novelty acknowledgement**: File `docs/NOVELTY_BROAD_CHECK.md` with the pre-registration.
+   SEED-003 and SEED-001 candidates are near-known AMPs; novelty claims must be appropriately limited.
+4. **External predictor check** (prior to synthesis): Submit `outputs/pilot_panel.fasta` to CAMPR4,
+   AMPScanner v2, dbAMP, AntiCP2, Macrel web server. Fill checklist `outputs/external_predict_checklist.md`.
+   Require ≥3/5 agreement before synthesis order.
+5. **Serum stability first**: Triage all 20 candidates in 50% human serum (0/30/60/120 min) before
+   committing to full MIC panel. Pass criterion: >50% intact at 60 min (HPLC/MS primary readout).
+6. **Synthesis order**: After serum stability triage, `make synthesis-order` generates vendor-ready CSV.
+7. **MRSA USA300 as Priority 3**: Include *S. aureus* USA300 (ATCC BAA-1556) alongside E. coli ATCC 25922
+   and *S. aureus* ATCC 29213 in the minimum viable screen.
 
-**Suggested pilot candidates (highest Boman × lowest disagreement):**
-
-| Priority | Candidate ID | Sequence | Boman | Dis | Rationale |
-|----------|-------------|----------|-------|-----|-----------|
-| 1st | SEED-003_VAR_051 | RRWTWRMKKAG | 0.592 | 0.266 | Highest Boman among top-20, low disagreement |
-| 2nd | SEED-003_VAR_014 | RRFQWRMRKLG | 0.579 | 0.288 | Strong Boman, low disagreement |
-| 3rd | SEED-003_VAR_045 | RRWQYRIKKLG | 0.572 | 0.305 | Good Boman, 11-mer |
-| 4th | SEED-003_VAR_003 | KRWQWRIKKLG | 0.547 | 0.311 | Good Boman, varied flanking residue |
-| 5th | SEED-005_VAR_023 | KRLFKKIGRALKFL | 0.537 | 0.376 | Highest activity in batch (0.913) |
+**Suggested priority for synthesis** (if budget-constrained to fewer than 20):
+- **Must include**: SEED-001_VAR_064 (positive control, rank 20)
+- **Highest novelty + ensemble**: SEED-008_VAR_032 (0.857), SEED-007_VAR_009 (0.849)
+- **Best serum stability model**: SEED-007 variants (0.636–0.662)
+- **Novel mechanism + serum-resistant**: SEED-009_VAR_033 (Pro-rich, model underestimates stability)
+- **Minimum viable set**: 1 positive control (SEED-001) + 1 from each novel family (4–5 additional peptides)
 
 ---
 
@@ -236,21 +252,37 @@ The expert reviewer must be aware of these limitations:
 | Limitation | Impact |
 |-----------|--------|
 | Level 0–2 evidence only | Scores are physicochemical heuristics, not validated ML predictions |
-| Two scorers only | Boman index added as second scorer; disagreement available; no ML predictor yet |
-| High mean disagreement (0.311) | Scorers model AMP activity by different mechanisms; consensus is weak for this batch |
-| Novelty vs. 45 references only | Novel against this reference set does not mean novel against all known AMPs |
-| Conservative generation only | Near-seed variants; genuinely novel families not explored |
+| AUROC = 0.8420 on n=87 | CI₉₅: 0.76–0.91; may not generalise to novel AMP classes outside training distribution |
+| Safety model blind spot | Melittin scores Safety=1.0; curvature-mediated hemolysis not captured; hemolysis assay mandatory |
+| SEED-008 high disagreement (0.41–0.44) | Boman index penalises Trp; activity_likeness more appropriate for Trp-rich sequences |
+| Serum stability model calibrated for 18–30 AA | SEED-003 (11 AA) and SEED-008 (13 AA) scores may underestimate actual stability |
+| Pro-rich serum stability not in model | SEED-009 model scores (0.572) expected to underestimate actual stability; Pro-X bond resistance is mechanistic |
+| Novelty vs. 45 seeds only (pipeline) | Broad check vs 72-AMP DB done (PR #86); APD3 BLASTp still recommended before publication |
+| Conservative generation only | Near-seed variants; genuinely novel families not explored by de novo generation |
 | No structural prediction | No secondary structure, membrane interaction, or 3D modeling |
-| Amphipathicity is helical-only | Assumes helix; β-sheet or other motifs not modeled |
-| Safety proxy is not validated | The pipeline has never been calibrated against hemolysis data |
-| Selection is single-objective | No multi-objective Pareto optimization; ensemble weights are heuristic |
+| Selection is multi-term heuristic | Ensemble weights are heuristic; not derived from multi-objective Pareto optimization |
+| LL-37/Cecropin-A below panel | Scoring penalises long AMPs (>30 AA); these are known active but score below panel due to length |
+
+---
+
+## 9. Document Cross-References
+
+| Document | Purpose |
+|----------|---------|
+| `docs/ASSAY_PREREGISTRATION.md` | Pre-registered assay protocol; must be PI-signed before synthesis |
+| `docs/WET_LAB_HANDOFF.md` | Detailed synthesis and assay guidance for the wet-lab team |
+| `docs/WET_LAB_PROBABILITY.md` | Quantified discovery probability analysis (92–97% P(≥1 active hit)) |
+| `docs/NOVELTY_BROAD_CHECK.md` | Broad novelty check vs 72-AMP reference database |
+| `docs/GOLD_STANDARD_CALIBRATION.md` | Pipeline score calibration against 7 gold-standard AMPs |
+| `docs/BENCHMARKING.md` | Full benchmark methodology (AUROC, AUPRC, CI) |
+| `docs/DISCOVERY_PREDICTION.md` | External calibration and breakthrough probability model |
 
 ---
 
 ## Contact
 
-This document is produced by the OpenAMP Foundry computational pipeline.  
-For human contact, see the repository README for contributor information.  
+This document is produced by the OpenAMP Foundry computational pipeline.
+For human contact, see the repository README for contributor information.
 All decisions about synthesis, assay, or publication require human expert authorization.
 
 **No candidate may be synthesised or sent to any external party without qualified expert review
