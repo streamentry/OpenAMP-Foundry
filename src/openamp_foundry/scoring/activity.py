@@ -21,7 +21,9 @@ def activity_likeness_score(features: dict) -> float:
     - Length: Jenssen et al. (2006) Clin Microbiol Rev; typical 8-50 AA
     """
     length = features["length"]
-    charge_density = features["charge_density"]
+    # Prefer physiologically accurate pH-7.4 charge density; fall back to proxy for
+    # manually constructed feature dicts that predate this field.
+    charge_density = features.get("charge_density_ph74", features["charge_density"])
     hydrophobic = features["hydrophobic_fraction"]
     aromatic = features["aromatic_fraction"]
     mu_h = features.get("hydrophobic_moment", 0.0)

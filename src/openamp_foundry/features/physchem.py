@@ -54,6 +54,35 @@ def net_charge_proxy(sequence: str) -> int:
     return sum(1 for aa in sequence if aa in POSITIVE) - sum(1 for aa in sequence if aa in NEGATIVE)
 
 
+def net_charge_at_ph74(sequence: str) -> float:
+    """Net peptide charge at physiological pH 7.4 using Henderson-Hasselbalch equation.
+
+    Side-chain pKa values (in peptide context):
+      Arg (R): 12.50  → +1.000 at pH 7.4
+      Lys (K): 10.50  → +1.000 at pH 7.4
+      His (H):  6.50  → +0.114 at pH 7.4 (partial protonation)
+      Asp (D):  3.90  → -1.000 at pH 7.4
+      Glu (E):  4.10  → -1.000 at pH 7.4
+
+    Reference: Bjellqvist et al. (1993) Electrophoresis 14:1023; pKa values for His
+    in peptides are shifted vs free amino acid (6.0) to 6.5 to account for context.
+    """
+    charge = 0.0
+    for aa in sequence:
+        if aa == "R":
+            charge += 1.0
+        elif aa == "K":
+            charge += 1.0
+        elif aa == "H":
+            # Fraction protonated = 1 / (1 + 10^(pH - pKa)) at pH 7.4, pKa 6.5
+            charge += 1.0 / (1.0 + 10.0 ** (7.4 - 6.5))
+        elif aa == "D":
+            charge -= 1.0
+        elif aa == "E":
+            charge -= 1.0
+    return round(charge, 4)
+
+
 def fraction(sequence: str, alphabet: set[str]) -> float:
     if not sequence:
         return 0.0
@@ -125,11 +154,14 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     # site density: interior cleavage sites per residue (0 = stable, 1 = all residues cleave)
     trypsin_density = round(n_trypsin / length if length else 0.0, 4)
     chymotrypsin_density = round(n_chymotrypsin / length if length else 0.0, 4)
+    charge_ph74 = net_charge_at_ph74(sequence)
     helix_pa = helix_propensity_score(sequence)
     return {
         "length": length,
         "net_charge_proxy": charge,
         "charge_density": charge / length if length else 0.0,
+        "net_charge_ph74": charge_ph74,
+        "charge_density_ph74": round(charge_ph74 / length if length else 0.0, 4),
         "hydrophobic_fraction": round(hydrophobic_fraction, 4),
         "aromatic_fraction": round(aromatic_fraction, 4),
         "cysteine_fraction": round(cys_fraction, 4),
