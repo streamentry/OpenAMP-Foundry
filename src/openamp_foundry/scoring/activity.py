@@ -47,12 +47,17 @@ def activity_likeness_score(features: dict) -> float:
     # Typical range for AMPs: 0.3–0.8; scale to [0,1] over 0–0.8 range
     amphipathicity_score = clamp01(mu_h / 0.8) * 0.14
 
+    # Cross-term: simultaneous high charge AND high amphipathicity is synergistic.
+    # Electrostatic attraction (charge) + hydrophobic bilayer insertion (mu_h) are both
+    # required for the carpet/pore-forming mechanism; neither alone is sufficient.
+    # Normalizer 0.15 = typical_cd (0.30) × typical_mu_h (0.50).
+    cross_bonus = clamp01(charge_density * mu_h / 0.15) * 0.02
+
     # Helix propensity: Chou-Fasman Pα > 1.03 rewards helix-forming sequences
     # Scale: indifferent (1.0) → 0.0; strong helix-former (1.20+) → 1.0
     helix_bonus = clamp01((helix_pa - 1.0) / 0.20) * 0.01
 
-    # Base weights (0.24+0.27+0.17 = 0.68) leave headroom for bonuses
-    # aromatic max 0.10 + amphipathicity max 0.14 + helix max 0.01 = 0.25 → ceiling 0.93
+    # ceiling = 0.24+0.27+0.17+0.10+0.14+0.01+0.02 = 0.95 < 1.0
     score = (
         0.24 * length_score
         + 0.27 * charge_score
@@ -60,5 +65,6 @@ def activity_likeness_score(features: dict) -> float:
         + aromatic_bonus
         + amphipathicity_score
         + helix_bonus
+        + cross_bonus
     )
     return round(clamp01(score), 4)

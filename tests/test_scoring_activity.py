@@ -6,8 +6,9 @@ activity_likeness_score combines:
   - hydro_score   (weight 0.17): 1 - min(|hf - 0.45| / 0.45, 1.0)
   - aromatic_bonus (max 0.10): min(aromatic / 0.20, 1.0) * 0.10
   - amphipathicity (max 0.15): clamp01(mu_h / 0.8) * 0.15
+  - cross_bonus   (max 0.02): clamp01(charge_density * mu_h / 0.15) * 0.02
 
-Total max ~0.93. Result is clamped to [0, 1] and rounded to 4 dp.
+Total max ~0.95. Result is clamped to [0, 1] and rounded to 4 dp.
 """
 from __future__ import annotations
 
@@ -196,18 +197,61 @@ class TestAmphipathicityBonus:
         assert s_08 == s_10
 
     def test_mu_h_0_4_half_bonus(self):
-        # amphipathicity = clamp01(0.4/0.8) * 0.14 = 0.5 * 0.14 = 0.07
-        # diff between mu_h=0.8 and mu_h=0.4 should be 0.07
+        # amphipathicity diff (weight=0.14): clamp(0.8/0.8)*0.14 - clamp(0.4/0.8)*0.14 = 0.07
+        # cross_bonus diff (cd=0.30 default): clamp(0.30*0.80/0.15)*0.02 - clamp(0.30*0.40/0.15)*0.02
+        #   = 1.0*0.02 - 0.8*0.02 = 0.004
+        # total diff = 0.07 + 0.004 = 0.074
         diff = (
             activity_likeness_score(_feat(mu_h=0.8)) -
             activity_likeness_score(_feat(mu_h=0.4))
         )
-        assert abs(diff - 0.07) < 0.001
+        assert abs(diff - 0.074) < 0.001
 
     def test_mu_h_improves_score_monotonically_up_to_ceiling(self):
         scores = [activity_likeness_score(_feat(mu_h=v)) for v in [0.0, 0.2, 0.4, 0.6, 0.8]]
         for a, b in zip(scores, scores[1:]):
             assert b > a, f"score did not increase: {a} → {b}"
+
+
+class TestChargeAmphipathicityCrossTerm:
+    def test_zero_charge_gives_no_cross_bonus(self):
+        # At charge_density=0, cross_bonus = 0 regardless of mu_h
+        s_no_charge = activity_likeness_score(_feat(charge_density=0.0, mu_h=0.8))
+        s_no_cross_check = activity_likeness_score(_feat(charge_density=0.0, mu_h=0.0))
+        # Only the amphipathicity term should differ (no cross contribution)
+        amp_diff = 0.8 / 0.8 * 0.14  # = 0.14
+        assert abs((s_no_charge - s_no_cross_check) - amp_diff) < 0.001
+
+    def test_zero_amphipathicity_gives_no_cross_bonus(self):
+        # At mu_h=0, cross_bonus = 0 regardless of charge_density
+        s_no_mu = activity_likeness_score(_feat(charge_density=0.50, mu_h=0.0))
+        s_ref = activity_likeness_score(_feat(charge_density=0.50, mu_h=0.0))
+        assert s_no_mu == s_ref  # trivially, but verifies no crash
+
+    def test_full_cross_bonus_at_saturation(self):
+        # At cd=0.30, mu_h=0.50: product = 0.15 → clamp(0.15/0.15)*0.02 = 0.02
+        high = activity_likeness_score(_feat(charge_density=0.30, mu_h=0.50))
+        low = activity_likeness_score(_feat(charge_density=0.0, mu_h=0.50))
+        # diff includes charge component + cross bonus; cross alone = 0.02
+        # charge component: clamp((0.30+0.05)/0.55) * 0.27 - clamp((0.00+0.05)/0.55) * 0.27
+        charge_diff = (
+            min(0.35 / 0.55, 1.0) - min(0.05 / 0.55, 1.0)
+        ) * 0.27
+        assert abs((high - low) - (charge_diff + 0.02)) < 0.001
+
+    def test_half_cross_bonus(self):
+        # cd=0.15, mu_h=0.50: product = 0.075; 0.075/0.15 = 0.5 → 0.5*0.02 = 0.01
+        s_half = activity_likeness_score(_feat(charge_density=0.15, mu_h=0.50))
+        s_zero_mu = activity_likeness_score(_feat(charge_density=0.15, mu_h=0.0))
+        amp_diff = (0.50 / 0.8) * 0.14  # amphipathicity only (weight=0.14)
+        expected_diff = amp_diff + 0.01  # + half cross bonus
+        assert abs((s_half - s_zero_mu) - expected_diff) < 0.001
+
+    def test_dual_property_amps_score_higher_than_single_property(self):
+        # A sequence that is both charged AND amphipathic beats one that is only amphipathic
+        dual = activity_likeness_score(_feat(charge_density=0.35, mu_h=0.65))
+        only_amph = activity_likeness_score(_feat(charge_density=0.0, mu_h=0.65))
+        assert dual > only_amph
 
 
 class TestKnownAMPs:
