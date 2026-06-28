@@ -130,6 +130,40 @@ def test_novelty_filter_excludes_near_duplicates(tmp_path):
     assert rows[0]["scores"]["novelty"] == 0.0
 
 
+def test_eligibility_novelty_at_exact_minimum_passes(tmp_path):
+    """A candidate with novelty exactly = min_novelty (>= boundary) must be selected.
+
+    Uses a custom config with min_novelty=0.0 so that even a candidate identical to
+    the reference (novelty=0.0) passes the filter.  Confirms the filter uses >=, not >.
+    """
+    config_path = tmp_path / "permissive.yaml"
+    config_path.write_text(
+        "pipeline_version: '0.1.0'\n"
+        "filters:\n  min_length: 8\n  max_length: 35\n"
+        "  allowed_amino_acids: 'ACDEFGHIKLMNPQRSTVWY'\n"
+        "weights:\n  activity: 0.40\n  safety: 0.25\n  synthesis: 0.15\n  novelty: 0.20\n"
+        "selection:\n  top_n: 100\n  min_novelty: 0.0\n  max_safety_risk: 1.0\n"
+    )
+    seq = "KWKLFKKIGAVLKVL"
+    csv = tmp_path / "candidates.csv"
+    refs = tmp_path / "refs.csv"
+    # Candidate is identical to the reference → novelty=0.0
+    csv.write_text(f"id,sequence,source\nTEST-001,{seq},test\n")
+    refs.write_text(f"id,sequence,source\nREF-001,{seq},reference\n")
+    out = tmp_path / "ranked.jsonl"
+    run_ranking_pipeline(
+        candidate_path=csv,
+        reference_path=refs,
+        out_path=out,
+        config_path=config_path,
+    )
+    rows = [json.loads(line) for line in out.read_text().splitlines() if line.strip()]
+    assert len(rows) == 1
+    assert rows[0]["scores"]["novelty"] == 0.0
+    # With min_novelty=0.0, novelty=0.0 satisfies 0.0 >= 0.0 → should be selected
+    assert rows[0]["selected"] is True
+
+
 def test_phase3_config_has_stricter_safety_filter_than_pipeline():
     """phase3.yaml max_safety_risk=0.40 (safety>=0.60) vs pipeline.yaml 0.70 (safety>=0.30).
 

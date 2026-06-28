@@ -1,9 +1,18 @@
 from __future__ import annotations
 
+import warnings
+
 
 def ensemble_score(scores: dict[str, float], weights: dict[str, float]) -> float:
+    missing = [name for name in weights if name not in scores]
+    if missing:
+        warnings.warn(
+            f"ensemble_score: weight keys missing from scores, defaulting to 0.0: {missing}",
+            UserWarning,
+            stacklevel=2,
+        )
     total_weight = sum(weights.values()) or 1.0
-    value = sum(scores[name] * weight for name, weight in weights.items()) / total_weight
+    value = sum(scores.get(name, 0.0) * weight for name, weight in weights.items()) / total_weight
     return round(max(0.0, min(1.0, value)), 4)
 
 

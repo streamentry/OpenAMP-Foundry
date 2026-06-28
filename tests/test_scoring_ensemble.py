@@ -56,6 +56,22 @@ class TestEnsembleScore:
         result = ensemble_score(scores, {"activity": 1.0, "safety": 0.0})
         assert result == round(result, 4)
 
+    def test_missing_score_key_defaults_to_zero_and_warns(self):
+        # weights has "safety" but scores doesn't: should default to 0.0 AND emit UserWarning
+        # A missing key could be a scorer failure or a config typo — the warning makes it auditable.
+        # weighted = (1.0*0.40 + 0.0*0.30) / (0.40+0.30) ≈ 0.5714
+        import pytest as _pytest
+        with _pytest.warns(UserWarning, match="safety"):
+            result = ensemble_score({"activity": 1.0}, {"activity": 0.40, "safety": 0.30})
+        assert abs(result - 0.5714) < 0.001
+
+    def test_extra_score_key_not_in_weights_is_ignored(self):
+        # boman_activity is in scores but not in weights — should not affect result.
+        # This pre-existing behavior (only weighted keys matter) is unchanged by the .get() fix.
+        result_without = ensemble_score({"activity": 1.0}, {"activity": 1.0})
+        result_with = ensemble_score({"activity": 1.0, "boman_activity": 0.0}, {"activity": 1.0})
+        assert result_without == result_with
+
 
 class TestSelectionReasons:
     def _scores(
