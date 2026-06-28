@@ -218,6 +218,98 @@ class TestSelectPilotPanel:
         assert "SEED-005" in seeds_in_panel
 
 
+class TestSelectPilotPanelDiversity:
+    """Tests for the similarity_threshold parameter added to select_pilot_panel."""
+
+    # Two sequences from DIFFERENT seeds that differ by 1 AA (V→I at position 14).
+    # Levenshtein distance = 1, max_len = 15 → similarity = 1 - 1/15 ≈ 0.933.
+    # With threshold=0.75 the lower-priority one should be filtered out.
+    _HIGH_SEQ = "KWKLFKKIGAVLKVL"  # SEED-001-like
+    _NEAR_DUP = "KWKLFKKIGAVLKIL"  # SEED-002-like; 1 substitution
+
+    def _near_dup_pair(self, ensemble_high: float = 0.80, ensemble_low: float = 0.70) -> list[dict]:
+        """Two candidates from different seeds with very similar sequences."""
+        return [
+            _make("HIGH", seq=self._HIGH_SEQ, seed="SEED-001", ensemble=ensemble_high, disagreement=0.05),
+            _make("LOW",  seq=self._NEAR_DUP, seed="SEED-002", ensemble=ensemble_low,  disagreement=0.05),
+        ]
+
+    def test_no_threshold_includes_both_near_duplicates(self):
+        pair = self._near_dup_pair()
+        panel = select_pilot_panel(pair, n=2, similarity_threshold=None)
+        ids = {c["candidate_id"] for c in panel}
+        assert ids == {"HIGH", "LOW"}
+
+    def test_strict_threshold_excludes_near_duplicate(self):
+        pair = self._near_dup_pair()
+        # threshold=0.75: similarity 0.933 > 0.75 → LOW excluded
+        panel = select_pilot_panel(pair, n=2, similarity_threshold=0.75)
+        ids = {c["candidate_id"] for c in panel}
+        assert "HIGH" in ids
+        assert "LOW" not in ids
+
+    def test_high_threshold_includes_both(self):
+        pair = self._near_dup_pair()
+        # threshold=0.95: similarity 0.933 <= 0.95 → both included
+        panel = select_pilot_panel(pair, n=2, similarity_threshold=0.95)
+        ids = {c["candidate_id"] for c in panel}
+        assert ids == {"HIGH", "LOW"}
+
+    def test_higher_priority_candidate_retained(self):
+        """When a near-dup pair shares a threshold, the higher-priority member is kept."""
+        # HIGH (ensemble=0.80) should win over LOW (ensemble=0.70)
+        pair = self._near_dup_pair(ensemble_high=0.80, ensemble_low=0.70)
+        panel = select_pilot_panel(pair, n=2, similarity_threshold=0.75)
+        assert len(panel) >= 1
+        # The retained candidate must be the higher-priority one
+        assert panel[0]["candidate_id"] == "HIGH"
+
+    def test_fully_diverse_panel_not_affected(self):
+        """Sequences from completely different families all pass even with strict threshold."""
+        diverse = [
+            _make("S1", seq="KWKLFKKIGAVLKVL", seed="SEED-001", ensemble=0.80),
+            _make("S2", seq="GIGKFLHSAKKFGKAFVGEIMNS", seed="SEED-002", ensemble=0.75),
+            _make("S3", seq="RRWQWRMKKLG",     seed="SEED-003", ensemble=0.70),
+            _make("S4", seq="FLPLIGRVLSGIL",   seed="SEED-004", ensemble=0.68),
+        ]
+        panel = select_pilot_panel(diverse, n=4, similarity_threshold=0.75)
+        assert len(panel) == 4
+
+    def test_threshold_none_unchanged_from_no_arg(self):
+        """Explicitly passing None is identical to not passing threshold at all."""
+        candidates = FIVE_SEEDS + EXTRA_SEED1
+        panel_default = select_pilot_panel(candidates, n=7)
+        panel_none = select_pilot_panel(candidates, n=7, similarity_threshold=None)
+        ids_default = [c["candidate_id"] for c in panel_default]
+        ids_none = [c["candidate_id"] for c in panel_none]
+        assert ids_default == ids_none
+
+    def test_panel_rank_still_assigned_with_threshold(self):
+        pair = self._near_dup_pair()
+        panel = select_pilot_panel(pair, n=2, similarity_threshold=0.75)
+        assert all("pilot_rank" in c for c in panel)
+        ranks = [c["pilot_rank"] for c in panel]
+        assert ranks == list(range(1, len(panel) + 1))
+
+    def test_diversity_filter_respects_max_per_seed(self):
+        """Diversity filter + max_per_seed both apply simultaneously."""
+        # 3 SEED-001 variants + 1 near-dup from SEED-002 (similar to SEED-001's best)
+        seed1_variants = [
+            _make("A1", seq=self._HIGH_SEQ, seed="SEED-001", ensemble=0.85),
+            _make("A2", seq="KWKLFKKIGAVLKVK", seed="SEED-001", ensemble=0.78),
+        ]
+        near_dup = _make("B1", seq=self._NEAR_DUP, seed="SEED-002", ensemble=0.77)
+        seed3 = _make("C1", seq="GIGKFLHSAKKFGKAFVGEIMNS", seed="SEED-003", ensemble=0.70)
+        candidates = seed1_variants + [near_dup, seed3]
+        panel = select_pilot_panel(candidates, n=4, max_per_seed=1, similarity_threshold=0.75)
+        # max_per_seed=1 ensures only 1 per seed; diversity also filters near-dup
+        seed_counts = {}
+        for c in panel:
+            seed_counts[c["seed"]] = seed_counts.get(c["seed"], 0) + 1
+        for seed, count in seed_counts.items():
+            assert count <= 1, f"{seed} appeared {count} times despite max_per_seed=1"
+
+
 class TestWritePilotCsv:
     def test_creates_file(self, tmp_path):
         panel = select_pilot_panel(FIVE_SEEDS, n=5)

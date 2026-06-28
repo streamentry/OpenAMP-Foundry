@@ -69,6 +69,7 @@ pilot: phase3
 		--ranked outputs/phase3_ranked.jsonl \
 		--n 20 \
 		--max-per-seed 4 \
+		--similarity-threshold 0.75 \
 		--out-csv outputs/pilot_panel.csv \
 		--out-md outputs/pilot_panel.md
 

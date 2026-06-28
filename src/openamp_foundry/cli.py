@@ -129,7 +129,18 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Cap the number of nominees from any single seed family. "
             "Prevents one high-scoring family from dominating the panel. "
-            "Recommended: panel_size // number_of_seeds (e.g. 4 for a 20-member, 5-seed panel)."
+            "Recommended: panel_size // number_of_seeds (e.g. 4 for a 20-member, 8-seed panel)."
+        ),
+    )
+    pilot.add_argument(
+        "--similarity-threshold",
+        type=float,
+        default=None,
+        help=(
+            "Levenshtein similarity ceiling between any two selected candidates (0–1). "
+            "Candidates above this threshold vs an already-selected member are skipped, "
+            "eliminating near-duplicates that crossed seed families. "
+            "Recommended: 0.75. None = no filter (default)."
         ),
     )
 
@@ -479,7 +490,12 @@ def _run_pilot_panel(args: argparse.Namespace) -> int:
                 if row.get("selected"):
                     candidates.append(row)
 
-    panel = select_pilot_panel(candidates, n=args.n, max_per_seed=args.max_per_seed)
+    panel = select_pilot_panel(
+        candidates,
+        n=args.n,
+        max_per_seed=args.max_per_seed,
+        similarity_threshold=getattr(args, "similarity_threshold", None),
+    )
     generated_at = datetime.now(timezone.utc).isoformat()
 
     write_pilot_csv(panel, args.out_csv)
