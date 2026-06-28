@@ -35,14 +35,18 @@ OpenAMP Foundry pipeline. It covers:
 
 | Risk | Status | Mitigation |
 |------|--------|-----------|
-| Extreme hydrophobicity (hemolysis proxy) | **FILTERED** | max_safety_risk=0.40 in phase3.yaml excludes sequences with hydrophobic_fraction > 0.65 |
-| Extreme charge density | **FILTERED** | Poly-cationic sequences excluded by safety scorer |
+| Extreme hydrophobicity (hemolysis proxy) | **FILTERED** | max_safety_risk=0.40 in phase3.yaml excludes sequences with hydrophobic_fraction > 0.65 or strong amphipathicity (μH > 0.55) |
+| Extreme charge density | **FILTERED** | Poly-cationic sequences excluded by safety scorer (charge_density_ph74 > 0.55 triggers risk increment); uses pH-7.4 charge for accuracy |
+| Predicted mammalian cytotoxicity | **FILTERED + DOWN-RANKED** | Selectivity proxy (charge/GRAVY ratio) flags HIGH_CYTOTOX_RISK candidates (proxy < 0.5); cytotox_penalty doubly demotes them in pilot panel selection |
 | Long repeat runs (degenerate composition) | **FILTERED** | Sequences with repeat_run ≥ 6 penalised; few reach selection threshold |
+| High proline content | **REPORTED** | proline_fraction > 15% incurs synthesis penalty (−0.10); flagged in expert review for pseudoproline dipeptide use |
 | Cysteines (disulfide bridges) | **REPORTED** | Flagged in synthesis feasibility report; reviewer must assess |
 | Sequences resembling known toxins | **NOT ASSESSED** | Computational toxin screening is out of scope for this pipeline version |
 
 **Action required:** A qualified reviewer must inspect the synthesis feasibility report
 for candidates with high cysteine fraction or proline content before ordering synthesis.
+Candidates with HIGH_CYTOTOX_RISK flag (selectivity_proxy < 0.5) require extra hemolysis
+assay scrutiny before any mammalian cell work.
 
 ---
 

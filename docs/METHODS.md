@@ -320,6 +320,10 @@ Phase 2 benchmarks verified that the pipeline:
 benchmark set using the full ensemble scorer). Benchmarked after PRs #48–54; the scoring
 improvements in those PRs moved AUROC from 0.7926 → 0.8138 → 0.8164.
 
+**To reproduce:** `make validate-scoring` (runs `cli validate-scoring` on
+`examples/validation/known_amps.csv` vs `examples/validation/random_background.csv`)
+or `make validate-scoring-strict` for the composition-matched (scrambled-decoy) variant.
+
 **Key scoring changes in v0.2.x (PRs #48–54):**
 
 | PR | Change | AUROC impact |
