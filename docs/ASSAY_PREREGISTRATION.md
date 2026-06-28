@@ -137,9 +137,13 @@ TI = HC50 (µg/mL) / MIC (µg/mL)
 > in any resulting publication.
 > 
 > Families with known model limitations (score may underestimate actual stability):
-> - SEED-003 (11 AA, <15 AA calibration edge)
-> - SEED-008 (13 AA, model calibrated for 18–30 AA)
+> - SEED-003 (11 AA, <15 AA calibration edge; model scores 0.35–0.38 likely underestimate actual t½)
+> - SEED-007 (11 AA; same length as SEED-003; Met at position 6 in all 4 pilot variants — HPLC
+>   purity mandatory at receipt; Nle substitution preferred for oxidation-resistant synthesis)
+> - SEED-008 (13 AA, model calibrated for 18–30 AA; Trp steric effect expected to improve t½)
 > - SEED-009 (Pro-X protease resistance not captured by model; expected to exceed model score)
+> - SEED-005 (safety score 0.845 — lowest in pilot panel; hemolysis assay at MIC/3 mandatory;
+>   if HC₅₀ < 10× MIC, exclude from Wave 2)
 
 ---
 
