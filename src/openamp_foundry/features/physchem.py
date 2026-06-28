@@ -19,8 +19,10 @@ ELASTASE_SITES = {"A", "V", "S"}
 # Hydrophobic residues that drive aggregation in synthetic peptides: Val, Ile, Leu, Met, Phe, Trp
 AGG_HYDROPHOBIC = set("VILMFW")
 
-# Eisenberg consensus hydrophobicity scale (normalized, 0-centred removed, shifted to 0..1 range)
-# Source: Eisenberg et al. (1984) J Mol Biol. Used for hydrophobic moment only.
+# Eisenberg (1984) consensus hydrophobicity scale. Raw signed values: R=-2.530 (most hydrophilic)
+# to I=+1.380 (most hydrophobic). DO NOT normalize to [0,1] — the hydrophobic moment calculation
+# requires signed values so that polar/charged residues (negative) cancel apolar residues (positive).
+# Source: Eisenberg et al. (1984) J Mol Biol 179:125-142, Table 2. Used for hydrophobic moment only.
 _HYDROPHOBICITY: dict[str, float] = {
     "A": 0.620, "R": -2.530, "N": -0.780, "D": -0.900, "C": 0.290,
     "Q": -0.850, "E": -0.740, "G": 0.480, "H": -0.400, "I": 1.380,
@@ -71,6 +73,12 @@ def net_charge_at_ph74(sequence: str) -> float:
 
     Reference: Bjellqvist et al. (1993) Electrophoresis 14:1023; pKa values for His
     in peptides are shifted vs free amino acid (6.0) to 6.5 to account for context.
+
+    Note: α-amino N-terminus (+≈0.80 at pH 7.4, pKa ≈ 8.0) and α-carboxyl C-terminus
+    (−≈1.00 at pH 7.4, pKa ≈ 3.1) are excluded — only side-chain charges are computed.
+    The net terminal offset is ≈ −0.20 per peptide (~7% underestimation for a 10-mer).
+    This is the standard convention for relative charge comparisons across candidates
+    synthesized under the same conditions.
     """
     charge = 0.0
     for aa in sequence:

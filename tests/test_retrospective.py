@@ -144,7 +144,7 @@ class TestRunRetrospectiveBenchmark:
         phase3.yaml shifts more weight to safety (0.30 vs 0.25) and synthesis (0.20 vs 0.15),
         which down-ranks hemolytic AMPs — correct behaviour for a synthesis gate but lowers raw
         AUROC slightly vs pipeline.yaml. Gate is still AUROC > 0.70 (STRONG).
-        Measured: AUROC=0.7936 (95% CI 0.6963-0.8827, n=2000 bootstrap).
+        Measured: AUROC=0.7890 (95% CI 0.6932-0.8784, n=2000 bootstrap; after PR #65 Trp bonus).
 
         The upper-bound check (< 0.83) is a config-identity sentinel: pipeline.yaml scores
         0.8164 which would breach it, so a silent config fallback is detectable.

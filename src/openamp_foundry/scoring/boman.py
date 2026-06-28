@@ -22,6 +22,8 @@ transparent, reproducible scoring. No training was done.
 """
 from __future__ import annotations
 
+import math
+
 # Published amino acid interaction potentials from Boman (2003), Table 1, set 2.
 # Units: kcal/mol (approximate interaction energies)
 # Positive → hydrophilic/charged, negative → hydrophobic
@@ -86,7 +88,6 @@ def boman_activity_score(sequence: str) -> float:
     bi = boman_index(sequence)
     # Sigmoid-like normalization centered at 0, scaled so bi=1.0 → ≈ 0.73
     # Using tanh mapping: score = 0.5 * (1 + tanh(bi / 2))
-    import math
     score = 0.5 * (1.0 + math.tanh(bi / 2.0))
     return round(max(0.0, min(1.0, score)), 4)
 

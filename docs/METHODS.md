@@ -316,29 +316,29 @@ Phase 2 benchmarks verified that the pipeline:
 - Produces stable rankings under repeated runs (reproducibility)
 - Shows performance degradation when key scoring dimensions are ablated
 
-**Retrospective AUROC — pipeline.yaml (v0.2.x):** `0.8164` (positive-vs-negative separation on
-the 44-AMP + 44-background benchmark set using the full ensemble scorer with pipeline.yaml
-weights). Benchmarked after PRs #48–54; the scoring improvements in those PRs moved AUROC from
-0.7926 → 0.8138 → 0.8164. Bootstrap 95% CI computed via Wilcoxon-Mann-Whitney (n=2000
-iterations; CI reported in `validate-scoring` output).
+**Retrospective AUROC — pipeline.yaml (v0.7.x):** `0.8086` (95% CI: 0.7149–0.8957, n=2000
+bootstrap). Positive-vs-negative separation on the 44-AMP + 44-background benchmark set using
+the full ensemble scorer with pipeline.yaml weights. Historical progression: 0.7926 → 0.8138 →
+0.8164 (PRs #48–54) → 0.8086 (PR #65: Trp-weighted aromatic bonus, safety abs() fix). The minor
+decrease from 0.8164 reflects that some random-background decoys contain Trp residues and benefit
+from the Trp bonus; this is within bootstrap CI width and the bonus is scientifically correct.
 
-**Retrospective AUROC — phase3.yaml (synthesis gate, v0.6.x):** `0.7936` (95% CI: 0.6963–0.8827,
+**Retrospective AUROC — phase3.yaml (synthesis gate, v0.7.x):** `0.7890` (95% CI: 0.6932–0.8784,
 n=2000 bootstrap). Phase3 uses re-weighted ensemble scores (activity=0.35, safety=0.30,
 synthesis=0.20, novelty=0.15 vs pipeline.yaml activity=0.40, safety=0.25, synthesis=0.15,
 novelty=0.20) and a stricter safety gate (max_safety_risk=0.40). The AUROC is lower than
 pipeline.yaml because the higher safety weight down-ranks some literature AMPs that have
 hemolysis risk, which is scientifically correct behaviour for a synthesis gate. Interpretation:
-**STRONG** (AUROC > 0.70). AUPRC = 0.8333 (+0.3333 above random baseline of 0.50).
-Recall@10 = 0.23, Recall@20 = 0.43, Recall@44 = 0.68.
+**STRONG** (AUROC > 0.70). AUPRC = 0.8301 (+0.3301 above random baseline of 0.50).
+Recall@10 = 0.23, Recall@20 = 0.43, Recall@44 = 0.70.
 
-> **Important:** The synthesis selection gate uses phase3.yaml. The phase3 AUROC (0.7936) is the
-> operationally relevant benchmark. pipeline.yaml AUROC (0.8164) is the full-ensemble reference.
+> **Important:** The synthesis selection gate uses phase3.yaml. The phase3 AUROC (0.7890) is the
+> operationally relevant benchmark. pipeline.yaml AUROC (0.8086) is the full-ensemble reference.
 > Both point estimates exceed the AUROC > 0.70 synthesis gate. Note that with n=88 sequences the
-> 95% CI spans the gate boundary (0.6963–0.8827); synthesis decisions are made on point estimates,
-> which is standard practice at this sample size — the CI reflects sampling uncertainty, not model
-> unreliability.
+> 95% CI spans the gate boundary; synthesis decisions are made on point estimates, which is standard
+> practice at this sample size — the CI reflects sampling uncertainty, not model unreliability.
 
-**AUPRC (v0.5.x):** `0.8556` for pipeline.yaml (+0.3556 above the random baseline of 0.50).
+**AUPRC (v0.7.x):** `0.8495` for pipeline.yaml (+0.3495 above the random baseline of 0.50).
 Area Under Precision-Recall Curve is computed alongside AUROC and reported by `make validate-scoring`.
 AUPRC is preferable to AUROC for class-imbalanced datasets because it emphasises precision
 at the operating point actually used for candidate selection. Random baseline = dataset
@@ -350,7 +350,7 @@ and avoid inflation to 1.0 for constant-score classifiers.
 `make validate-scoring-phase3` (synthesis gate weights, phase3.yaml) or
 `make validate-scoring-strict` for the composition-matched (scrambled-decoy) variant.
 
-**Key scoring changes in v0.2.x–v0.5.x (PRs #48–58):**
+**Key scoring changes in v0.2.x–v0.7.x (PRs #48–65):**
 
 | PR | Change | AUROC impact |
 |----|--------|-------------|
@@ -361,6 +361,7 @@ and avoid inflation to 1.0 for constant-score classifiers.
 | #51 | Proline synthesis penalty (−0.10 at >15%); helix bonus 0.01→0.03 | 0.8138→0.8164 |
 | #53 | Safety uses charge_density_ph74; stronger cytotox_penalty in pilot | pilot ranking |
 | #58 | AUPRC added; SEED-009 (Bac2A) + SEED-010 (KR-12) added | +2 scaffolds |
+| #65 | Trp-weighted aromatic bonus (1.5× vs Phe/Tyr); safety abs() fix | 0.8164→0.8086 |
 
 **Limitation:** Benchmarks use a small, curated demo dataset (44 AMPs + 44 background). They
 do not validate against large independent AMP databases. Real retrospective validation against

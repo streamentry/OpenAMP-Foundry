@@ -3,7 +3,7 @@
 safety_score = 1.0 - clamp01(risk), where risk accumulates from:
   - μH > 0.55: (μH - 0.55) * 1.5
   - hydrophobic_fraction > 0.65: (hf - 0.65) * 1.8
-  - |charge_density| > 0.55: (cd - 0.55) * 1.2
+  - charge_density > 0.55: (cd - 0.55) * 1.2  [positive charge only — abs() removed]
   - length > 35: +0.25 flat
   - cysteine_fraction > 0.25: +0.20 flat
   - longest_repeat_run >= 6: +0.15 flat
@@ -114,14 +114,23 @@ class TestHydrophobicFractionPenalty:
 
 class TestChargeDensityPenalty:
     def test_charge_density_at_threshold_no_penalty(self):
-        # |cd| exactly 0.55 → no penalty (condition is > 0.55)
+        # cd exactly 0.55 → no penalty (condition is > 0.55; abs() removed)
         assert safety_score(_feat(charge_density=0.55)) == 1.0
 
-    def test_negative_charge_density_uses_abs(self):
-        # charge_density = -0.60 → |cd| = 0.60 > 0.55 → penalty
+    def test_negative_charge_density_no_hemolysis_penalty(self):
+        # Negatively charged peptides are electrostatically repelled from membranes
+        # and pose no hemolysis risk. Only positive charge_density > 0.55 should trigger
+        # the penalty. The old abs() behavior was wrong.
         score_neg = safety_score(_feat(charge_density=-0.60))
         score_pos = safety_score(_feat(charge_density=0.60))
-        assert score_neg == score_pos
+        assert score_neg == 1.0, (
+            f"Negatively charged peptide (cd=-0.60) should have no hemolysis penalty, "
+            f"got safety_score={score_neg}"
+        )
+        assert score_pos < 1.0, (
+            f"Highly positively charged peptide (cd=0.60) should have hemolysis penalty, "
+            f"got safety_score={score_pos}"
+        )
 
     def test_charge_density_0_70_penalty_correct(self):
         # cd = 0.70 → risk = (0.70 - 0.55) * 1.2 = 0.18 → score = 0.82

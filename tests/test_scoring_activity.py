@@ -4,7 +4,9 @@ activity_likeness_score combines:
   - length_score  (weight 0.24): 1 - min(|length - 18| / 25, 1.0)
   - charge_score  (weight 0.27): clamp01((charge_density + 0.05) / 0.55)
   - hydro_score   (weight 0.17): 1 - min(|hf - 0.45| / 0.45, 1.0)
-  - aromatic_bonus (max 0.10): min(aromatic / 0.20, 1.0) * 0.10
+  - aromatic_bonus (max 0.10): min(weighted_aromatic / 0.20, 1.0) * 0.10
+      where weighted_aromatic = trp_fraction * 1.5 + non_trp_aromatic
+      (Trp weighted 1.5× vs Phe/Tyr; Wimley-White interfacial insertion mechanism)
   - amphipathicity (max 0.14): clamp01(mu_h / 0.8) * 0.14
   - helix_bonus   (max 0.03): clamp01((helix_pa - 1.0) / 0.20) * 0.03
   - cross_bonus   (max 0.02): clamp01(charge_density * mu_h / 0.15) * 0.02
@@ -29,6 +31,25 @@ def _feat(
         "hydrophobic_fraction": hydrophobic,
         "aromatic_fraction": aromatic,
         "hydrophobic_moment": mu_h,
+    }
+
+
+def _feat_with_counts(
+    length: int = 20,
+    charge_density: float = 0.30,
+    hydrophobic: float = 0.45,
+    aromatic: float = 0.0,
+    mu_h: float = 0.0,
+    counts: dict | None = None,
+) -> dict:
+    """Feature dict with residue_counts to exercise the Trp-weighted code path."""
+    return {
+        "length": length,
+        "charge_density": charge_density,
+        "hydrophobic_fraction": hydrophobic,
+        "aromatic_fraction": aromatic,
+        "hydrophobic_moment": mu_h,
+        "residue_counts": counts or {},
     }
 
 
@@ -182,6 +203,91 @@ class TestAromaticBonus:
             activity_likeness_score(_feat(aromatic=0.10))
         )
         assert abs(diff - 0.05) < 0.001
+
+
+class TestTrpWeightedAromaticBonus:
+    """Tests for the Trp-weighted aromatic bonus (residue_counts code path).
+
+    Trp is weighted 1.5× vs Phe/Tyr because Trp anchors at the lipid-water
+    interface (Wimley-White interfacial scale W=−1.85 kcal/mol).
+    """
+
+    def test_trp_rich_scores_higher_than_phe_rich_same_aromatic_fraction(self):
+        """Trp-rich peptide should outscore Phe-rich at identical aromatic fraction."""
+        # 2 W out of 20 = 10% aromatic; 2 F out of 20 = 10% aromatic
+        feat_trp = _feat_with_counts(length=20, aromatic=0.10, counts={"W": 2})
+        feat_phe = _feat_with_counts(length=20, aromatic=0.10, counts={"F": 2})
+        assert activity_likeness_score(feat_trp) > activity_likeness_score(feat_phe), (
+            "Trp-rich peptide should score higher than Phe-rich at the same aromatic fraction"
+        )
+
+    def test_trp_bonus_factor_1_5x_quantitative(self):
+        """With only Trp (no Phe/Tyr): weighted_aromatic = trp_fraction * 1.5.
+
+        trp_fraction=0.10 → weighted=0.15 → bonus = (0.15/0.20)*0.10 = 0.075
+        vs. old Phe-based (0.10/0.20)*0.10 = 0.05 → delta = 0.025
+        """
+        feat_trp = _feat_with_counts(length=20, aromatic=0.10, counts={"W": 2})
+        feat_phe = _feat_with_counts(length=20, aromatic=0.10, counts={"F": 2})
+        delta = activity_likeness_score(feat_trp) - activity_likeness_score(feat_phe)
+        # Expected: bonus_trp - bonus_phe = 0.075 - 0.05 = 0.025
+        assert abs(delta - 0.025) < 0.002, (
+            f"Trp vs Phe aromatic bonus delta should be ~0.025, got {delta:.4f}"
+        )
+
+    def test_trp_aromatic_bonus_capped_at_0_10(self):
+        """Ceiling is 0.10 regardless of Trp fraction — 1.5x just reaches cap sooner."""
+        # trp_fraction=0.14 → weighted=0.21 > 0.20 → capped: bonus=1.0*0.10=0.10
+        feat_trp_cap = _feat_with_counts(length=14, aromatic=0.14, counts={"W": 2})
+        # phe_fraction=0.20 → bonus=1.0*0.10=0.10 (also at cap)
+        feat_phe_cap = _feat_with_counts(length=20, aromatic=0.20, counts={"F": 4})
+        # Both should produce the same aromatic contribution (0.10)
+        # They may differ on other terms (length), so isolate aromatic by comparing
+        # to zero-aromatic baseline at same length
+        feat_trp_zero = _feat_with_counts(length=14, aromatic=0.0, counts={})
+        feat_phe_zero = _feat_with_counts(length=20, aromatic=0.0, counts={})
+        trp_bonus = activity_likeness_score(feat_trp_cap) - activity_likeness_score(feat_trp_zero)
+        phe_bonus = activity_likeness_score(feat_phe_cap) - activity_likeness_score(feat_phe_zero)
+        assert abs(trp_bonus - 0.10) < 0.002, f"Trp cap bonus should be 0.10, got {trp_bonus:.4f}"
+        assert abs(phe_bonus - 0.10) < 0.002, f"Phe cap bonus should be 0.10, got {phe_bonus:.4f}"
+
+    def test_no_residue_counts_falls_back_to_unweighted(self):
+        """When residue_counts is absent, Trp fraction defaults to 0 → same as all-Phe."""
+        # Without residue_counts: weighted_aromatic = 0*1.5 + aromatic = aromatic (Phe behavior)
+        feat_without_counts = _feat(length=20, aromatic=0.10)
+        feat_phe = _feat_with_counts(length=20, aromatic=0.10, counts={"F": 2})
+        assert activity_likeness_score(feat_without_counts) == activity_likeness_score(feat_phe)
+
+    def test_mixed_trp_phe_intermediate_score(self):
+        """Sequence with 1 Trp + 1 Phe (same aromatic fraction) scores between all-W and all-F."""
+        feat_trp = _feat_with_counts(length=20, aromatic=0.10, counts={"W": 2})
+        feat_phe = _feat_with_counts(length=20, aromatic=0.10, counts={"F": 2})
+        feat_mixed = _feat_with_counts(length=20, aromatic=0.10, counts={"W": 1, "F": 1})
+        score_trp = activity_likeness_score(feat_trp)
+        score_phe = activity_likeness_score(feat_phe)
+        score_mixed = activity_likeness_score(feat_mixed)
+        assert score_phe < score_mixed < score_trp, (
+            f"Mixed Trp/Phe should score between all-Phe ({score_phe:.4f}) "
+            f"and all-Trp ({score_trp:.4f}), got {score_mixed:.4f}"
+        )
+
+    def test_trp_bonus_active_only_in_sub_saturation_range(self):
+        """The Trp bonus differentiates at MODERATE aromatic fraction (< 13% Trp to reach cap).
+
+        At high aromatic fraction (>= 20%), both Trp and Phe hit the cap and the bonus
+        is identical. SEED-008 (38% Trp) already saturates; the bonus matters for sequences
+        with 5-13% Trp where the 1.5x weight pushes them above equivalent Phe fractions.
+        """
+        # Low aromatic fraction: 5% Trp vs 5% Phe — Trp gets higher score
+        feat_low_trp = _feat_with_counts(length=20, aromatic=0.05, counts={"W": 1})
+        feat_low_phe = _feat_with_counts(length=20, aromatic=0.05, counts={"F": 1})
+        assert activity_likeness_score(feat_low_trp) > activity_likeness_score(feat_low_phe)
+        # High aromatic fraction: 25% both → both cap at 0.10, no difference
+        feat_hi_trp = _feat_with_counts(length=20, aromatic=0.25, counts={"W": 5})
+        feat_hi_phe = _feat_with_counts(length=20, aromatic=0.25, counts={"F": 5})
+        assert activity_likeness_score(feat_hi_trp) == activity_likeness_score(feat_hi_phe), (
+            "High aromatic fraction: both Trp and Phe should saturate the cap at 0.10"
+        )
 
 
 class TestAmphipathicityBonus:

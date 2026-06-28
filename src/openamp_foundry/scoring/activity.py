@@ -40,8 +40,17 @@ def activity_likeness_score(features: dict) -> float:
     # Hydrophobicity: 40-50% is a sweet spot for membrane interaction
     hydro_score = 1.0 - min(abs(hydrophobic - 0.45) / 0.45, 1.0)
 
-    # Aromatic residues (F, W, Y) aid membrane insertion
-    aromatic_bonus = min(aromatic / 0.20, 1.0) * 0.10
+    # Aromatic residues (F, W, Y) aid membrane insertion.
+    # Trp is weighted 1.5× vs Phe/Tyr: Trp's indole ring preferentially anchors at the
+    # lipid-water interface (Wimley-White W=-1.85 kcal/mol; Wimley & White 1996 Nat Struct Biol),
+    # a mechanism distinct from and more membrane-favorable than Phe/Tyr's hydrophobic stacking.
+    # This differentiates puroindoline-a/indolicidin-class Trp-rich AMPs from Phe-rich peptides.
+    _counts = features.get("residue_counts", {})
+    _length = features["length"] or 1
+    trp_fraction = _counts.get("W", 0) / _length
+    non_trp_aromatic = max(0.0, aromatic - trp_fraction)
+    weighted_aromatic = trp_fraction * 1.5 + non_trp_aromatic
+    aromatic_bonus = min(weighted_aromatic / 0.20, 1.0) * 0.10
 
     # Amphipathicity: helical hydrophobic moment > 0.4 is associated with activity
     # Typical range for AMPs: 0.3–0.8; scale to [0,1] over 0–0.8 range
