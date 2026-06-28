@@ -248,7 +248,7 @@ hydrophilic faces and reports face contrast, cationic segregation, and amphipath
 | SEED-003 (cationic helix, 11 AA) | 2.058 | 1.000 | 0% | Helical insertion | ✅ Ideal amphipathic architecture |
 | SEED-005 (cecropin-magainin, 14 AA) | 1.942 | 0.971 | 0% | Helical insertion | ✅ Excellent amphipathic segregation |
 | SEED-006 (mastoparan-X, 14 AA) | 0.960 | 0.480 | 0% | Helical insertion | ✅ Good amphipathic architecture |
-| SEED-007 (bombolitin II, 18 AA) | 0.978 | 0.489 | 0% | Helical insertion | ✅ Good amphipathic architecture |
+| SEED-007 (bombolitin II, 11 AA) | 0.978 | 0.489 | 0% | Helical insertion | ✅ Good amphipathic architecture |
 | SEED-008 (puroindoline-a, Trp-rich, 13 AA) | −0.139 | 0.000 | 8% | **Aromatic anchoring** | ⚠️ Not a classical helix-wheel AMP — expected |
 | SEED-009 (Bac2A proline-rich, 12 AA) | 0.036 | 0.018 | 50% | **Intracellular (ribosome)** | ⚠️ Not a classical helix-wheel AMP — expected |
 
