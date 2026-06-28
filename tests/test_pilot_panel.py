@@ -151,6 +151,50 @@ class TestSelectPilotPanel:
         assert len(panel) == 1
         assert panel[0]["pilot_rank"] == 1
 
+    def test_max_per_seed_caps_dominant_family(self):
+        # 10 SEED-001 + 3 from each of SEED-002..005 → 22 total, n=10, max=2
+        # Phase 1: 5 seats (1/seed). Phase 2: 5 more, each seed has ≥2 → cap binds exactly.
+        # No Phase-3 spillover needed, so cap is effective.
+        many_seed1 = [_make(f"A{i}", seed="SEED-001", ensemble=0.90 - i * 0.01) for i in range(10)]
+        others = [_make(f"B{s}{i}", seed=f"SEED-00{s}", ensemble=0.72 - i * 0.01)
+                  for s in range(2, 6) for i in range(3)]
+        panel = select_pilot_panel(many_seed1 + others, n=10, max_per_seed=2)
+        seed_counts = {}
+        for c in panel:
+            seed_counts[c["seed"]] = seed_counts.get(c["seed"], 0) + 1
+        assert seed_counts.get("SEED-001", 0) <= 2, "SEED-001 should be capped at 2"
+
+    def test_max_per_seed_none_is_uncapped(self):
+        # Without cap, the dominant family fills all remaining slots
+        many_seed1 = [_make(f"A{i}", seed="SEED-001", ensemble=0.90 - i * 0.01) for i in range(10)]
+        others = [_make(f"B{i}", seed=f"SEED-00{i}", ensemble=0.60) for i in range(2, 6)]
+        candidates = many_seed1 + others
+        panel = select_pilot_panel(candidates, n=8, max_per_seed=None)
+        seed_counts = {}
+        for c in panel:
+            seed_counts[c["seed"]] = seed_counts.get(c["seed"], 0) + 1
+        # SEED-001 fills all slots after seed guarantee (1 from each seed = 5, 3 remaining → SEED-001)
+        assert seed_counts.get("SEED-001", 0) > 2
+
+    def test_max_per_seed_preserves_total_n(self):
+        many_seed1 = [_make(f"A{i}", seed="SEED-001", ensemble=0.90 - i * 0.01) for i in range(10)]
+        others = [_make(f"B{s}{i}", seed=f"SEED-00{s}", ensemble=0.72 - i * 0.01)
+                  for s in range(2, 6) for i in range(3)]
+        panel = select_pilot_panel(many_seed1 + others, n=10, max_per_seed=2)
+        assert len(panel) == 10
+
+    def test_max_per_seed_all_seeds_represented(self):
+        many_seed1 = [_make(f"A{i}", seed="SEED-001", ensemble=0.90 - i * 0.01) for i in range(10)]
+        others = [_make(f"B{s}{i}", seed=f"SEED-00{s}", ensemble=0.72 - i * 0.01)
+                  for s in range(2, 6) for i in range(3)]
+        panel = select_pilot_panel(many_seed1 + others, n=10, max_per_seed=2)
+        seeds_in_panel = {c["seed"] for c in panel}
+        assert "SEED-001" in seeds_in_panel
+        assert "SEED-002" in seeds_in_panel
+        assert "SEED-003" in seeds_in_panel
+        assert "SEED-004" in seeds_in_panel
+        assert "SEED-005" in seeds_in_panel
+
 
 class TestWritePilotCsv:
     def test_creates_file(self, tmp_path):

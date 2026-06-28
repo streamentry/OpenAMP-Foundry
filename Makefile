@@ -68,6 +68,7 @@ pilot: phase3
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli pilot-panel \
 		--ranked outputs/phase3_ranked.jsonl \
 		--n 20 \
+		--max-per-seed 4 \
 		--out-csv outputs/pilot_panel.csv \
 		--out-md outputs/pilot_panel.md
 

@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from openamp_foundry.benchmark.splits import cluster_by_similarity
+from openamp_foundry.scoring.stability import serum_stability_score
 
 
 def _load_ranked_jsonl(path: str | Path) -> list[dict[str, Any]]:
@@ -325,6 +326,14 @@ def generate_batch_pack(
     ensemble_scores = [r["scores"]["ensemble"] for r in sel]
     mean_ensemble = sum(ensemble_scores) / len(ensemble_scores) if ensemble_scores else 0.0
 
+    stability_scores = [
+        serum_stability_score(r["features"])
+        for r in sel
+        if r.get("features")
+    ]
+    mean_stability = sum(stability_scores) / len(stability_scores) if stability_scores else 0.0
+    n_high_stability = sum(1 for s in stability_scores if s >= 0.50)
+
     return {
         "batch_pack_version": "1.1",
         "disclaimer": (
@@ -345,6 +354,8 @@ def generate_batch_pack(
             "n_high_consensus": consensus["n_high_consensus_lt_0_20"],
             "n_uncertain_disagreement": consensus["n_uncertain_ge_0_30"],
             "mean_scorer_disagreement": consensus["mean_disagreement"],
+            "mean_serum_stability": round(mean_stability, 4),
+            "n_high_serum_stability": n_high_stability,
         },
         "diversity_clustering": diversity,
         "novelty_report": novelty,
@@ -385,6 +396,8 @@ def write_batch_pack_markdown(pack: dict[str, Any], path: str | Path) -> None:
         f"| Mean novelty | {s['mean_novelty']:.4f} |",
         f"| Mean safety | {s['mean_safety']:.4f} |",
         f"| Mean synthesis feasibility | {s['mean_synthesis']:.4f} |",
+        f"| Mean predicted serum stability | {s.get('mean_serum_stability', 0.0):.4f} |",
+        f"| High serum stability (≥0.50) | {s.get('n_high_serum_stability', 'N/A')} |",
         f"| High scorer consensus (disagreement <0.20) | {s.get('n_high_consensus', 'N/A')} |",
         f"| Uncertain (disagreement ≥0.30) | {s.get('n_uncertain_disagreement', 'N/A')} |",
         f"| Mean scorer disagreement | {s.get('mean_scorer_disagreement', 0.0):.4f} |",

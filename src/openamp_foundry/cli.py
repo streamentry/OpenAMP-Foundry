@@ -122,6 +122,16 @@ def build_parser() -> argparse.ArgumentParser:
         required=False,
         help="Optional output path for human-readable markdown panel.",
     )
+    pilot.add_argument(
+        "--max-per-seed",
+        type=int,
+        default=None,
+        help=(
+            "Cap the number of nominees from any single seed family. "
+            "Prevents one high-scoring family from dominating the panel. "
+            "Recommended: panel_size // number_of_seeds (e.g. 4 for a 20-member, 5-seed panel)."
+        ),
+    )
 
     validate_scoring = sub.add_parser(
         "validate-scoring",
@@ -436,7 +446,7 @@ def _run_pilot_panel(args: argparse.Namespace) -> int:
                 if row.get("selected"):
                     candidates.append(row)
 
-    panel = select_pilot_panel(candidates, n=args.n)
+    panel = select_pilot_panel(candidates, n=args.n, max_per_seed=args.max_per_seed)
     generated_at = datetime.now(timezone.utc).isoformat()
 
     write_pilot_csv(panel, args.out_csv)

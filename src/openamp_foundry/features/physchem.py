@@ -10,6 +10,9 @@ POSITIVE = set("KRH")
 NEGATIVE = set("DE")
 AROMATIC = set("FWY")
 CYS = "C"
+# Trypsin cleaves after K or R; chymotrypsin after F, W, Y (interior sites only)
+TRYPSIN_SITES = set("KR")
+CHYMOTRYPSIN_SITES = set("FWY")  # identical to AROMATIC — kept separate for semantic clarity
 
 # Eisenberg consensus hydrophobicity scale (normalized, 0-centred removed, shifted to 0..1 range)
 # Source: Eisenberg et al. (1984) J Mol Biol. Used for hydrophobic moment only.
@@ -68,6 +71,18 @@ def hydrophobic_moment(sequence: str, angle_deg: float = 100.0) -> float:
     return round(moment, 4)
 
 
+def interior_protease_sites(sequence: str, cleavage_set: set[str]) -> int:
+    """Count interior residues susceptible to a protease (excludes C-terminal position).
+
+    Trypsin cleaves after K or R; the C-terminal residue generates no downstream
+    fragment, so it is excluded from the interior site count.  N-terminal position
+    is included because cleavage there still produces a truncated product.
+    """
+    if len(sequence) < 2:
+        return 0
+    return sum(1 for aa in sequence[:-1] if aa in cleavage_set)
+
+
 def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     counts = Counter(sequence)
     length = len(sequence)
@@ -79,6 +94,11 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     pro_fraction = counts.get("P", 0) / length if length else 0.0
     repeat_run = longest_repeat_run(sequence)
     mu_h = hydrophobic_moment(sequence)
+    n_trypsin = interior_protease_sites(sequence, TRYPSIN_SITES)
+    n_chymotrypsin = interior_protease_sites(sequence, CHYMOTRYPSIN_SITES)
+    # site density: interior cleavage sites per residue (0 = stable, 1 = all residues cleave)
+    trypsin_density = round(n_trypsin / length if length else 0.0, 4)
+    chymotrypsin_density = round(n_chymotrypsin / length if length else 0.0, 4)
     return {
         "length": length,
         "net_charge_proxy": charge,
@@ -93,4 +113,8 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
         "boman_index": boman_index(sequence),
         "gravy": gravy_score(sequence),
         "residue_counts": dict(sorted(counts.items())),
+        "trypsin_site_density": trypsin_density,
+        "chymotrypsin_site_density": chymotrypsin_density,
+        "interior_trypsin_sites": n_trypsin,
+        "interior_chymotrypsin_sites": n_chymotrypsin,
     }
