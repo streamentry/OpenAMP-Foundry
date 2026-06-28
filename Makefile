@@ -1,4 +1,4 @@
-.PHONY: demo test lint ci clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order
+.PHONY: demo test lint ci clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -139,6 +139,12 @@ synthesis-order:
 		--out-csv outputs/synthesis_order.csv \
 		--out-md outputs/synthesis_checklist.md \
 		--quantity-mg 5
+
+novelty-broad: pilot
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli novelty-check-broad \
+		--panel-csv outputs/pilot_panel.csv \
+		--references-csv examples/known_reference/amp_curated_references.csv \
+		--out outputs/novelty_broad_report.md
 
 clean:
 	rm -rf outputs/*.jsonl outputs/*.md outputs/*.json outputs/evidence outputs/phase3_evidence .pytest_cache .ruff_cache

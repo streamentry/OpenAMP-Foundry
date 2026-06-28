@@ -2,8 +2,11 @@
 
 > **Scope**: Quantified probability that the 20-candidate pilot panel will produce ≥1 novel AMP
 > family passing multi-step wet-lab validation and generating a publishable breakthrough finding.
-> Generated: 2026-06-28. Reviewed against current `outputs/pilot_panel.csv` (7 scaffold families,
-> 20 candidates, pipeline AUROC = 0.8420, bootstrap CI₉₅: 0.76–0.91).
+> Generated: 2026-06-28. Updated 2026-06-28 (PR #86). Reviewed against `outputs/pilot_panel.csv`
+> (7 scaffold families, 20 candidates, pipeline AUROC = 0.8420, bootstrap CI₉₅: 0.76–0.91).
+> See `docs/NOVELTY_BROAD_CHECK.md` for broad novelty analysis (72-AMP reference database);
+> 16/20 candidates confirmed NOVEL, 3 KNOWN_VARIANT (SEED-003, SEED-001 positive control),
+> 1 CLOSE_RELATIVE (SEED-005).
 
 ---
 
@@ -95,15 +98,23 @@ Per-family P(≥1 active hit, MIC ≤ 16 µg/mL) is estimated using:
 ### 2.2 SEED-003 — Cationic Trp Helix (2 candidates)
 
 - Ensemble: 0.807–0.816 | Activity: 0.816–0.832 | Novelty: 0.182 | Serum stability: 0.377
-- **Mechanism**: Membrane disruption via Trp/Arg charge-hydrophobic coupling. Related to
-  bovine lactoferricin and human defensin analogs.
-- **Literature base rate**: Short Trp/Arg-rich peptides (11 AA): ~40–60% active in primary screen
-- **Serum stability risk**: 0.377 — our model flags potential protease susceptibility. For 11 AA
-  helices, model accuracy is lower; actual stability may be higher (shorter = faster folding,
+- **Mechanism**: Membrane disruption via Trp/Arg charge-hydrophobic coupling. Short cationic
+  Trp/Arg-rich helix; related to RRWQWRMKKLG class (Tam 2002 J Biol Chem).
+- **Broad novelty check** (PR #86): SEED-003_VAR_017 and SEED-003_VAR_012 are both 81.8%
+  similar to REF-RRW-001 (RRWQWRMKKLG, tachyplesin-like, known active AMP). This means
+  they are KNOWN_VARIANT candidates — close derivatives of a published AMP with demonstrated
+  activity. **This RAISES P(activity) above the base rate** because the parent sequence
+  is known to be antimicrobial. However, novelty claim is limited for publication purposes;
+  wet-lab value is primarily as assay controls and SAR (structure-activity relationship) data.
+- **Literature base rate**: RRWQWRMKKLG-class 11 AA peptides: ~60–75% active in primary screen
+  (elevated from the general 40–60% base rate because parent AMP has documented activity)
+- **Serum stability risk**: 0.377 — model flags protease susceptibility. For 11 AA helices,
+  model accuracy is lower; actual stability may be higher (shorter = faster folding,
   fewer enzymatic access sites). Recommend serum stability screen before full MIC panel.
-- **P(MIC ≤ 16 µg/mL)**: **50–65%**
-- **P(MIC ≤ 4 µg/mL, potent)**: **20–35%**
-- **P(publishable, with serum data)**: **25–40%** (requires serum stability experiment)
+- **P(MIC ≤ 16 µg/mL)**: **60–75%** (elevated from 50–65% due to known-active parent sequence)
+- **P(MIC ≤ 4 µg/mL, potent)**: **25–40%**
+- **P(publishable as novel AMP)**: **10–20%** (limited by low novelty; SAR utility is the
+  primary wet-lab value unless a distinct mechanism difference is demonstrated)
 - **Special note**: Disagreement (0.23–0.26) indicates model consensus — activity_likeness and
   boman_activity agree, reducing false-positive risk.
 
@@ -216,10 +227,10 @@ P(panel zero hits) = P(SEED-001 inactive) × P(SEED-003 inactive) × P(SEED-005 
                    × P(SEED-006 inactive) × P(SEED-007 inactive) × P(SEED-008 inactive)
                    × P(SEED-009 inactive)
 
-Pessimistic:
-  = (1-0.70) × (1-0.50) × (1-0.55) × (1-0.70) × (1-0.72) × (1-0.72) × (1-0.60)
-  = 0.30 × 0.50 × 0.45 × 0.30 × 0.28 × 0.28 × 0.40
-  = 0.000635  →  P(≥1 active) ≈ 99.94%
+Pessimistic (SEED-003 updated to 60% after broad novelty check confirms known-active parent):
+  = (1-0.70) × (1-0.60) × (1-0.55) × (1-0.70) × (1-0.72) × (1-0.72) × (1-0.60)
+  = 0.30 × 0.40 × 0.45 × 0.30 × 0.28 × 0.28 × 0.40
+  = 0.000508  →  P(≥1 active) ≈ 99.95%
 
 Moderate (excluding SEED-001 as positive control, only novel families):
   6 novel families, per-family P(active) = 40–60%
