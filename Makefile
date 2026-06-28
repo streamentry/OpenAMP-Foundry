@@ -20,7 +20,13 @@ lint:
 	$(RUFF) check src tests scripts
 
 ci: lint test
-	@echo "CI passed: lint + 1172-test suite green"
+	@echo "CI passed: lint + test suite green"
+
+coverage:
+	$(PYTEST) -q --cov=src --cov-report=term-missing 2>&1 | grep -E "TOTAL|Name|scoring|features|qc|benchmark"
+
+typecheck:
+	uv run mypy src/ --ignore-missing-imports --no-error-summary 2>&1 | head -30 || true
 
 bench-leakage:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench leakage \

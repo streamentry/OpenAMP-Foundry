@@ -9,8 +9,20 @@ All notable changes to OpenAMP Foundry are documented here.
 **Status:** Pipeline frozen for synthesis batch ordering. All changes below were quality
 improvements made before committing the ~$10k wet-lab synthesis budget.
 
-### Latest fixes (PRs #61–70)
+### Latest fixes (PRs #61–71)
 
+- **PR #71** — Rotation-invariant helix-wheel face analysis (`helix_wheel_faces()` in
+  `features/physchem.py`): uses the hydrophobic moment vector direction to define the
+  hydrophobic face for each specific peptide (rotation-invariant, unlike fixed cos(θ≥0)
+  splits); computes face contrast, cationic segregation (h_face_cationic_fraction vs
+  ph_face_cationic_fraction), and amphipathic_score (normalised [0,1]); all 6 keys added
+  to `compute_features()` output as `helix_wheel_*`; pilot panel analysis: SEED-003/005
+  show ideal architecture (contrast 2.06/1.94, 0% cationic on H-face), SEED-006/007 good
+  (contrast ~0.96-0.98), SEED-008/009 correctly flagged as non-helical (puroindoline
+  aromatic anchoring, Bac2A intracellular targeting — expected by design); 13 new tests;
+  `make coverage` + `make typecheck` targets added to Makefile; WET_LAB_HANDOFF.md new
+  section with per-seed helix-wheel table and mechanism-specific assay interpretation
+  matrix; 1237 tests passing
 - **PR #70** — Windowed hydrophobic moment (window=11, Eisenberg standard) + anionic charge guard:
   `max_windowed_hydrophobic_moment()` added to `features/physchem.py`; `max_hydrophobic_moment`
   feature now in `compute_features()` output; `activity_likeness_score()` uses

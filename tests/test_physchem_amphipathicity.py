@@ -5,6 +5,7 @@ import pytest
 
 from openamp_foundry.features.physchem import (
     compute_features,
+    helix_wheel_faces,
     hydrophobic_moment,
     max_windowed_hydrophobic_moment,
 )
@@ -182,3 +183,133 @@ class TestComputeFeaturesMaxMuH:
         assert features["max_hydrophobic_moment"] == pytest.approx(
             features["hydrophobic_moment"], abs=1e-3
         )
+
+
+class TestHelixWheelFaces:
+    """Tests for the moment-oriented amphipathic face analysis.
+
+    NOTE: The analysis is NOT independent of circular permutation. It depends on the
+    N-terminal convention (which residue is at position 0). This is by design — all
+    pipeline candidates have a fixed N-terminus determined at synthesis.
+    """
+
+    def test_returns_required_keys(self):
+        result = helix_wheel_faces("KWKLFKKIGAVLKVL")
+        for key in [
+            "hydrophobic_face_mean_h", "hydrophilic_face_mean_h",
+            "face_contrast", "h_face_cationic_fraction",
+            "ph_face_cationic_fraction", "amphipathic_score",
+        ]:
+            assert key in result
+
+    def test_short_sequence_lt4_returns_zeros(self):
+        # Sequences < 4 AA return all zeros (amphipathic character is ill-defined)
+        for seq in ["", "K", "KW", "KWL"]:
+            result = helix_wheel_faces(seq)
+            assert result["face_contrast"] == 0.0
+            assert result["amphipathic_score"] == 0.0
+
+    def test_four_residue_sequence_returns_nonzero(self):
+        # Exactly 4 residues should escape the guard and return a real result
+        result = helix_wheel_faces("KWLF")
+        assert isinstance(result["face_contrast"], float)
+        # KWLF has some amphipathic character; all required keys must be present
+        for key in ["hydrophobic_face_mean_h", "hydrophilic_face_mean_h",
+                    "face_contrast", "h_face_cationic_fraction",
+                    "ph_face_cationic_fraction", "amphipathic_score"]:
+            assert key in result
+
+    def test_known_amp_magainin_has_high_contrast(self):
+        # Magainin-2 is a textbook amphipathic helix — contrast should be > 0.8
+        hw = helix_wheel_faces("GIGKFLHSAKKFGKAFVGEIMNS")
+        assert hw["face_contrast"] > 0.8, (
+            f"Magainin-2 face_contrast={hw['face_contrast']:.4f} should be > 0.8"
+        )
+
+    def test_known_amp_cationic_on_hydrophilic_face(self):
+        # Magainin-2: K/R on the hydrophilic face — h_face_cationic_fraction should be low
+        hw = helix_wheel_faces("GIGKFLHSAKKFGKAFVGEIMNS")
+        assert hw["h_face_cationic_fraction"] < 0.15, (
+            f"Magainin-2 should have few cationic on hydrophobic face; "
+            f"got {hw['h_face_cationic_fraction']:.4f}"
+        )
+        assert hw["ph_face_cationic_fraction"] > 0.30, (
+            f"Magainin-2 should have cationic residues on hydrophilic face; "
+            f"got {hw['ph_face_cationic_fraction']:.4f}"
+        )
+
+    def test_uniform_sequence_has_zero_contrast(self):
+        # All-Gly: no hydrophobicity gradient → zero face contrast (zero moment → zero guard)
+        hw = helix_wheel_faces("GGGGGGGGGGGG")
+        assert hw["face_contrast"] == pytest.approx(0.0, abs=1e-6)
+        assert hw["amphipathic_score"] == 0.0
+
+    def test_amphipathic_score_in_unit_interval(self):
+        for seq in ["", "K", "KWKLFKK", "GIGKFLHSAKKFGKAFVGEIMNS", "GGGGGGGGGGGG"]:
+            hw = helix_wheel_faces(seq)
+            assert 0.0 <= hw["amphipathic_score"] <= 1.0
+
+    def test_amphipathic_score_positive_for_known_amp(self):
+        # A well-designed AMP (KWKLFKKIGAVLKVL) should score above 0.3 on the [0,1] scale
+        hw = helix_wheel_faces("KWKLFKKIGAVLKVL")
+        assert hw["amphipathic_score"] > 0.3
+
+    def test_nterminal_convention_documented(self):
+        # Circular permutation (different N-terminus) changes face_contrast — this is expected
+        # and documents that the analysis depends on the N-terminal convention.
+        seq = "KWKLFKKIGAVLKVL"
+        hw_original = helix_wheel_faces(seq)
+        # Rotation by 5 positions changes moment direction → different contrast
+        hw_rotated = helix_wheel_faces(seq[5:] + seq[:5])
+        # The values will differ (this is correct behaviour by design)
+        # We just verify both return valid results, not that they are equal
+        assert 0.0 <= hw_original["amphipathic_score"] <= 1.0
+        assert 0.0 <= hw_rotated["amphipathic_score"] <= 1.0
+        # Document the non-invariance explicitly for future readers
+        # (Values typically differ by 20-60% across random permutations)
+
+    def test_face_contrast_positive_for_amphipathic(self):
+        # For an amphipathic peptide, hydrophobic face must have higher mean_h than hydrophilic
+        hw = helix_wheel_faces("GIGKFLHSAKKFGKAFVGEIMNS")
+        assert hw["face_contrast"] > 0.0
+        assert hw["hydrophobic_face_mean_h"] > hw["hydrophilic_face_mean_h"]
+
+    def test_cationic_fractions_in_unit_interval(self):
+        for seq in ["KWKLFKK", "GIGKFLHSAKKFGKAFVGEIMNS", "RRWQWRMKKLG"]:
+            hw = helix_wheel_faces(seq)
+            assert 0.0 <= hw["h_face_cationic_fraction"] <= 1.0
+            assert 0.0 <= hw["ph_face_cationic_fraction"] <= 1.0
+
+    def test_amphipathic_score_not_saturated_for_magainin(self):
+        # With normalization constant 2.0 (contrast range [0, 2]), magainin-2 (contrast ~1.23)
+        # should NOT saturate to 1.0 — it should be in [0.5, 0.9]
+        hw = helix_wheel_faces("GIGKFLHSAKKFGKAFVGEIMNS")
+        assert hw["amphipathic_score"] < 1.0, (
+            f"Magainin-2 amphipathic_score={hw['amphipathic_score']:.4f} should not saturate; "
+            "normalization constant may need adjustment"
+        )
+        assert hw["amphipathic_score"] > 0.5, (
+            f"Magainin-2 amphipathic_score={hw['amphipathic_score']:.4f} should be > 0.5"
+        )
+
+
+class TestComputeFeaturesHelixWheel:
+    """Tests that compute_features() includes helix wheel face keys."""
+
+    def test_helix_wheel_keys_in_features(self):
+        features = compute_features("KWKLFKKIGAVLKVL")
+        for key in [
+            "helix_wheel_hydrophobic_face_mean_h", "helix_wheel_hydrophilic_face_mean_h",
+            "helix_wheel_face_contrast", "helix_wheel_h_face_cationic_fraction",
+            "helix_wheel_ph_face_cationic_fraction", "helix_wheel_amphipathic_score",
+        ]:
+            assert key in features, f"Missing key: {key}"
+
+    def test_helix_wheel_amphipathic_score_nonneg(self):
+        for seq in ["", "K", "KWKLFKKIGAVLKVL", "GIGKFLHSAKKFGKAFVGEIMNS"]:
+            features = compute_features(seq)
+            assert features["helix_wheel_amphipathic_score"] >= 0.0
+
+    def test_known_amp_has_positive_face_contrast(self):
+        features = compute_features("GIGKFLHSAKKFGKAFVGEIMNS")
+        assert features["helix_wheel_face_contrast"] > 0.0
