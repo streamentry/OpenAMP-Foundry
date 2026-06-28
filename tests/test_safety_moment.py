@@ -84,6 +84,32 @@ class TestHydrophobicMomentPenalty:
                 f"(μH={feat['hydrophobic_moment']:.4f} > 0.55 threshold)"
             )
 
+    def test_charge_density_ph74_used_when_available(self):
+        # safety_score should use charge_density_ph74 (physiologically accurate) over proxy.
+        # Construct a feature dict where the two values differ: charge_density=0.70 (proxy)
+        # vs charge_density_ph74=0.30 (pH-adjusted — His residues are uncharged at pH 7.4).
+        # Using the proxy (0.70 > 0.55) would trigger a charge risk penalty; pH74 (0.30) would not.
+        feat_with_ph74 = {
+            "length": 15, "charge_density": 0.70, "charge_density_ph74": 0.30,
+            "hydrophobic_fraction": 0.40, "cysteine_fraction": 0.0,
+            "longest_repeat_run": 1, "hydrophobic_moment": 0.0,
+        }
+        feat_without_ph74 = {
+            "length": 15, "charge_density": 0.70,
+            "hydrophobic_fraction": 0.40, "cysteine_fraction": 0.0,
+            "longest_repeat_run": 1, "hydrophobic_moment": 0.0,
+        }
+        score_with = safety_score(feat_with_ph74)
+        score_without = safety_score(feat_without_ph74)
+        # When pH74 is present, the 0.70 proxy should be ignored → no charge risk → higher score
+        assert score_with > score_without, (
+            "When charge_density_ph74=0.30 is present, the high proxy (0.70) should be ignored"
+        )
+        # Without pH74 key, falls back to the proxy (0.70 > 0.55 → charge risk penalty)
+        assert score_without < 1.0, "Fallback to charge_density=0.70 should trigger risk penalty"
+        # With pH74 key (0.30 < 0.55), no charge risk penalty
+        assert score_with == 1.0, "charge_density_ph74=0.30 should produce no charge risk"
+
     def test_seed003_variants_lower_risk(self):
         # SEED-003 tryptophan-rich variants: shorter, highly charged, moderate μH
         # Should have higher safety than SEED-005 amphipathic variants

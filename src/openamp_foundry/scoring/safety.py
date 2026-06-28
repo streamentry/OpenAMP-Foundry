@@ -17,7 +17,9 @@ def safety_score(features: dict) -> float:
     typical AMP-like candidates (μH ≈ 0.35–0.50).
     """
     length = features["length"]
-    charge_density = abs(features["charge_density"])
+    # Prefer pH 7.4 charge (same key-preference as activity scorer); abs() applied because
+    # charge magnitude, not sign, drives hemolysis risk. Fall back for pre-PR-47 callers.
+    charge_density = abs(features.get("charge_density_ph74", features["charge_density"]))
     hydrophobic = features["hydrophobic_fraction"]
     cys = features["cysteine_fraction"]
     repeat_run = features["longest_repeat_run"]

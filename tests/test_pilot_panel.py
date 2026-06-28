@@ -123,12 +123,13 @@ class TestPilotPriority:
         )
         assert p_selective > p_cytotoxic
 
-    def test_selectivity_proxy_max_delta_is_0_05(self):
-        # Full selectivity (1.0) adds 0.05; zero selectivity adds 0.00
-        # Maximum difference between any two candidates from this term alone = 0.05
+    def test_selectivity_proxy_max_delta_is_0_10(self):
+        # proxy=1.0: +0.05 bonus, 0.00 penalty → net +0.05
+        # proxy=0.0: +0.00 bonus, -0.05 penalty → net -0.05
+        # Maximum difference between any two candidates from selectivity alone = 0.10
         p_max = _pilot_priority({"ensemble": 0.0, "disagreement": 0.0, "selectivity_proxy": 1.0})
         p_min = _pilot_priority({"ensemble": 0.0, "disagreement": 0.0, "selectivity_proxy": 0.0})
-        assert p_max - p_min == pytest.approx(0.05, abs=1e-6)
+        assert p_max - p_min == pytest.approx(0.10, abs=1e-6)
 
     def test_selectivity_proxy_absent_defaults_to_1(self):
         # When selectivity_proxy is not in scores dict, assume fully selective (default=1.0)
@@ -141,11 +142,45 @@ class TestPilotPriority:
 
     def test_seed004_temporin_demoted_vs_selective_equal_ensemble(self):
         # SEED-004 (temporin, proxy=0.30) should rank below a fully selective candidate
-        # with equal ensemble/disagreement/stability/novelty
+        # with equal ensemble/disagreement/stability/novelty.
+        # New formula: proxy=0.30 gets +0.015 bonus − 0.020 cytotox_penalty = −0.005 net
+        #              proxy=1.00 gets +0.050 bonus − 0.000 cytotox_penalty = +0.050 net
+        # Expected delta: 0.050 − (−0.005) = 0.055
         temporin = _pilot_priority({"ensemble": 0.72, "disagreement": 0.10, "selectivity_proxy": 0.30})
         selective = _pilot_priority({"ensemble": 0.72, "disagreement": 0.10, "selectivity_proxy": 1.0})
         assert selective > temporin
-        assert selective - temporin == pytest.approx(0.05 * (1.0 - 0.30), abs=1e-6)
+        assert selective - temporin == pytest.approx(0.055, abs=1e-6)
+
+    def test_cytotox_penalty_not_applied_at_boundary(self):
+        # proxy=0.50 is exactly at the boundary — no cytotox_penalty applied
+        # Use serum_stability=0.0 to isolate the selectivity term (avoid 0.5 default)
+        p_boundary = _pilot_priority(
+            {"ensemble": 0.0, "disagreement": 0.0, "serum_stability": 0.0, "selectivity_proxy": 0.5}
+        )
+        p_above = _pilot_priority(
+            {"ensemble": 0.0, "disagreement": 0.0, "serum_stability": 0.0, "selectivity_proxy": 0.51}
+        )
+        p_below = _pilot_priority(
+            {"ensemble": 0.0, "disagreement": 0.0, "serum_stability": 0.0, "selectivity_proxy": 0.49}
+        )
+        # At boundary: bonus = 0.05 * 0.5 = 0.025, penalty = 0
+        assert p_boundary == pytest.approx(0.025, abs=1e-6)
+        assert p_above > p_boundary  # higher proxy → higher priority (no penalty)
+        assert p_boundary > p_below  # penalty kicks in just below threshold — monotonic
+
+    def test_cytotox_penalty_max_value(self):
+        # proxy=0.0: bonus=0, penalty=0.05*(0.5/0.5)=0.05 → net selectivity term = −0.05
+        p_zero = _pilot_priority(
+            {"ensemble": 0.0, "disagreement": 0.0, "serum_stability": 0.0, "selectivity_proxy": 0.0}
+        )
+        assert p_zero == pytest.approx(-0.05, abs=1e-6)
+
+    def test_cytotox_penalty_at_proxy_025(self):
+        # proxy=0.25: bonus=0.05*0.25=0.0125, penalty=0.05*(0.5-0.25)/0.5=0.025 → net=−0.0125
+        p = _pilot_priority(
+            {"ensemble": 0.0, "disagreement": 0.0, "serum_stability": 0.0, "selectivity_proxy": 0.25}
+        )
+        assert p == pytest.approx(-0.0125, abs=1e-6)
 
 
 class TestSelectPilotPanel:
