@@ -28,5 +28,7 @@ notes:
   - "Phase 3 exploration config. Weights differ from pipeline.yaml to prioritize safety."
   - "min_novelty=0.05 allows near-seed variants (1-3 mutation radius) through the filter."
   - "max_safety_risk=0.40 is stricter than pipeline.yaml (0.70) — only safe candidates selected."
+  - "max_disagreement=0.30 is stricter than pipeline.yaml (0.40) — final synthesis batch requires"
+  - "  tighter consensus between physchem-activity and Boman index scorer (< 0.30 disagreement)."
   - "These weights are transparent baseline heuristics, not validated biological predictors."
   - "Locked before Phase 3 generation run per docs/SELECTION_RULE.md."

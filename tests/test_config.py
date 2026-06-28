@@ -50,6 +50,8 @@ class TestLoadConfig:
         assert "min_novelty" in sel
         assert "max_safety_risk" in sel
         assert 0.0 < sel["max_safety_risk"] <= 1.0
+        assert "max_disagreement" in sel
+        assert 0.0 <= sel["max_disagreement"] <= 1.0
 
     def test_string_path_accepted(self):
         with tempfile.TemporaryDirectory() as d:

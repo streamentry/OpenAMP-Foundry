@@ -20,3 +20,7 @@ selection:
 notes:
   - "These weights are transparent baseline heuristics, not validated biological predictors."
   - "Do not change weights after inspecting held-out benchmark results unless you create a new holdout set."
+  - "max_disagreement=0.40: blocks candidates where |activity_likeness - boman_activity| > 0.40."
+  - "  Rationale: model_disagreement > 0.40 means the physicochemical scorer and Boman interaction"
+  - "  potential scorer diverge by more than 0.40 score units on a [0,1] scale — high uncertainty"
+  - "  about real AMP potential. KWKLFKKIGAVLKVL (canonical AMP) has disagreement ~0.23 and passes."
