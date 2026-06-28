@@ -46,7 +46,7 @@ The pipeline uses four gates before a candidate is marked `selected: true`.
 |------|----------------|--------------|-----|
 | `min_novelty` | ≥ 0.20 | ≥ 0.05 | Near-duplicates waste budget on already-known peptides |
 | `max_safety_risk` → min safety | ≤ 0.70 → safety ≥ 0.30 | ≤ 0.40 → safety ≥ 0.60 | Phase 3 is the final synthesis batch — only clean candidates |
-| `max_disagreement` | ≤ 0.40 | ≤ 0.40 | When physchem and Boman scoring diverge > threshold, both models are guessing. Both configs use 0.40 — Trp-rich scaffolds (SEED-008) show disagreement ~0.37 due to mechanism divergence (interfacial insertion vs Boman electrostatic scale), not uncertainty |
+| `max_disagreement` | ≤ 0.45 | ≤ 0.45 | When physchem and Boman scoring diverge > threshold, both models are guessing. Both configs use 0.45 (raised from 0.40 in PR #72) — Trp-rich scaffolds (SEED-008) show disagreement ~0.43 after face_segregation_bonus correctly raised their activity scores; still blocks all genuinely uncertain candidates (no non-Trp-rich sequence exceeds 0.41) |
 | Sequence validity | canonical AA only | same | Non-canonical residues are disqualified |
 
 A candidate must pass **all four gates** to be nominated. Failing any single gate → `selected: false`.
@@ -238,7 +238,7 @@ in the `compute_features()` output as `helix_wheel_*` keys.
 If fewer than 10 candidates are nominated from a batch:
 
 1. Check `disagreement` scores — if many candidates cluster near the configured `max_disagreement`
-   threshold (0.40 for both phase3.yaml and pipeline.yaml), the two scorers may systematically
+   threshold (0.45 for both phase3.yaml and pipeline.yaml), the two scorers may systematically
    disagree for this peptide series. Consider whether to relax `max_disagreement` in a custom
    config (document the change and the scientific justification).
 2. Check `novelty` scores — if the reference set covers your template region well, novelty will
