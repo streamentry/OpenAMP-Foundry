@@ -90,6 +90,22 @@ class TestPilotPriority:
         p2 = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10, "serum_stability": 0.0})
         assert p1 > p2
 
+    def test_higher_novelty_higher_priority(self):
+        p1 = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10, "novelty": 0.467})
+        p2 = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10, "novelty": 0.10})
+        assert p1 > p2
+
+    def test_missing_novelty_defaults_to_0(self):
+        p_absent = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10})
+        p_zero = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10, "novelty": 0.0})
+        assert p_absent == pytest.approx(p_zero, abs=1e-9)
+
+    def test_novelty_formula_contribution(self):
+        # novelty bonus = 0.05 * 0.40 = 0.02; stability absent → 0.5
+        p = _pilot_priority({"ensemble": 0.70, "disagreement": 0.10, "novelty": 0.40})
+        expected = 0.70 - 0.3 * 0.10 + 0.05 * 0.5 + 0.05 * 0.40
+        assert p == pytest.approx(expected, abs=1e-6)
+
 
 class TestSelectPilotPanel:
     def test_empty_input_returns_empty(self):

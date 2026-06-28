@@ -14,15 +14,17 @@ def _seed_from_source(source: str) -> str:
 
 
 def _pilot_priority(scores: dict) -> float:
-    """Higher is better: reward ensemble, reward serum stability, penalise disagreement.
+    """Higher is better: reward ensemble, stability, and novelty; penalise disagreement.
 
-    Serum stability is weighted lightly (0.05) so it acts as a tiebreaker without
-    overriding the ensemble score.  A candidate with stability=1.0 gains at most +0.05.
+    Within a seed family, higher-novelty variants are preferred as tiebreakers.
+    Novelty is weighted lightly (0.05) so the ensemble score remains dominant.
+    A candidate with novelty=0.467 (SEED-005 max) gains at most +0.023.
     """
     ensemble = scores.get("ensemble", 0.0)
     disagreement = scores.get("disagreement", 0.5)
     stability = scores.get("serum_stability", 0.5)
-    return round(ensemble - 0.3 * disagreement + 0.05 * stability, 6)
+    novelty = scores.get("novelty", 0.0)
+    return round(ensemble - 0.3 * disagreement + 0.05 * stability + 0.05 * novelty, 6)
 
 
 def select_pilot_panel(
