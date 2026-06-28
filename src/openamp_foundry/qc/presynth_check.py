@@ -401,6 +401,21 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
             "D-amino acid substitution in Wave 2 (see wave2_d_substitutions)"
         )
 
+    # Proline-rich intracellular mechanism: recommend RPMI-1640 parallel assay.
+    # Proline-rich AMPs (>= 30% Pro) like Bac2A target intracellular DnaK and require
+    # cell penetration for activity. Standard MHB/MHBII broth underestimates potency because
+    # it lacks the amino acids and vitamins that promote peptide uptake into Gram-negative cells.
+    # Running a parallel RPMI-1640 assay (RPMI + 10% LB at pH 7.4) recovers full activity.
+    # Literature: Krizsan et al. (2014) Angew Chem Int Ed 53(45):12236–12239.
+    pro_fraction = seq.count("P") / len(seq) if seq else 0.0
+    if pro_fraction >= 0.25:
+        qc.flags.append(
+            f"PROLINE_RICH_INTRACELLULAR (Pro={pro_fraction:.0%}): run PARALLEL assay in "
+            "RPMI-1640 supplemented with 10% LB broth (pH 7.4) alongside MHB — "
+            "proline-rich AMPs targeting intracellular DnaK show 4–16× lower MIC in RPMI vs MHB; "
+            "MHB alone underestimates activity (Krizsan et al. 2014 Angew Chem Int Ed 53:12236)"
+        )
+
     return qc
 
 

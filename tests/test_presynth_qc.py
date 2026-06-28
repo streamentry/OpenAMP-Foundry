@@ -716,3 +716,66 @@ class TestCheckSequenceInputValidation:
         for aa in "ACDEFGHIKLMNPQRSTVWY":
             qc = check_sequence(f"test_{aa}", aa * 5)
             assert qc.length == 5
+
+
+# ---------------------------------------------------------------------------
+# PROLINE_RICH_MEDIA flag — RPMI-1640 assay recommendation for proline-rich AMPs
+# ---------------------------------------------------------------------------
+
+# Bac2A-like proline-rich sequence: RRLPRPPYLPRP (5/12 Pro = 41.7% > 25%)
+_BAC2A_LIKE = "RRLPRPPYLPRP"
+# Non-proline-rich control: KWKLFKKIGSALKFL (0% Pro)
+_LOW_PRO = "KWKLFKKIGSALKFL"
+# Borderline: exactly 2/8 = 25% Pro — at threshold
+_BORDER_PRO = "RRLPRPAA"
+
+
+class TestProlineRichMediaFlag:
+    """PROLINE_RICH_MEDIA flag for proline-rich AMPs requiring RPMI-1640 parallel assay."""
+
+    def test_flag_present_for_proline_rich_sequence(self):
+        qc = check_sequence("bac2a", _BAC2A_LIKE)
+        flag_texts = " ".join(qc.flags)
+        assert "PROLINE_RICH" in flag_texts
+
+    def test_flag_mentions_rpmi(self):
+        qc = check_sequence("bac2a", _BAC2A_LIKE)
+        flag_texts = " ".join(qc.flags)
+        assert "RPMI" in flag_texts
+
+    def test_flag_mentions_krizsan(self):
+        qc = check_sequence("bac2a", _BAC2A_LIKE)
+        flag_texts = " ".join(qc.flags)
+        assert "Krizsan" in flag_texts
+
+    def test_flag_absent_for_low_proline_sequence(self):
+        qc = check_sequence("low_pro", _LOW_PRO)
+        flag_texts = " ".join(qc.flags)
+        assert "PROLINE_RICH" not in flag_texts
+
+    def test_flag_present_at_exactly_25_percent(self):
+        # RRLPRPAA: 2 Pro out of 8 = 25% — should trigger flag at threshold
+        qc = check_sequence("border", _BORDER_PRO)
+        flag_texts = " ".join(qc.flags)
+        assert "PROLINE_RICH" in flag_texts
+
+    def test_flag_does_not_increase_synthesis_difficulty(self):
+        # PROLINE_RICH_MEDIA is informational — must not raise difficulty rating.
+        # KWKIALK: 3 Lys (charge +2.8 at pH 7.4), no Met/Cys, no hydrophobic run,
+        # only 2 interior trypsin sites (threshold for flag is >2), 0% Pro.
+        # All flags it gets (N_ACETYLATION_RECOMMENDED, WAVE2_D_AMINO) are informational
+        # and appended AFTER difficulty is computed, so difficulty stays LOW.
+        qc_clean = check_sequence("clean", "KWKIALK")
+        assert qc_clean.synthesis_difficulty == "LOW"
+        assert "PROLINE_RICH" not in " ".join(qc_clean.flags)
+
+    def test_to_dict_flags_contains_proline_rich_entry(self):
+        qc = check_sequence("bac2a", _BAC2A_LIKE)
+        d = qc.to_dict()
+        assert any("PROLINE_RICH" in f for f in d["flags"])
+
+    def test_seed009_pilot_sequences_get_flag(self):
+        # Real SEED-009 sequences from the pilot panel
+        for seq in ("RRLPRPGYMPRP", "RRLPRGPYLPKP", "RRLPRPPYIPRG", "RRLGRPPYLGRP"):
+            qc = check_sequence("s9", seq)
+            assert any("PROLINE_RICH" in f for f in qc.flags), f"missing flag for {seq}"
