@@ -1,6 +1,6 @@
 # OpenAMP Foundry — Methods Appendix
 
-**Version:** 0.1.0  
+**Version:** 0.2.x (pipeline version); document updated for PRs #47–54  
 **Status:** Working draft for expert review. Not a peer-reviewed publication.
 
 ---
@@ -85,9 +85,37 @@ moment) assumes an α-helical conformation (100°/residue). Non-helical AMPs are
 
 ### 4.1 Activity-Likeness Score
 
-A heuristic score approximating AMP-like properties, computed from net_charge_proxy,
-hydrophobic_fraction, hydrophobic_moment, and length. Weights are not optimized; they
-encode biochemical priors only. Score range: [0, 1].
+A heuristic score approximating AMP-like physicochemical properties. Computed from
+seven terms; weights encode biochemical priors only (not data-optimised). Score ceiling
+0.97 < 1.0 (architectural headroom).
+
+| Term | Contribution | Literature basis |
+|------|-------------|-----------------|
+| Length score | × 0.24 | Peak at 18 aa; broad tolerance ±25 aa (Jenssen 2006) |
+| Charge density (pH 7.4) | × 0.27 | +2 to +9 net charge for active AMPs (Zasloff 2002) |
+| Hydrophobic fraction | × 0.17 | 40–50% sweet spot for membrane interaction (Hancock 2006) |
+| Aromatic bonus | up to +0.10 | F/W/Y aid membrane insertion; capped at 20% fraction |
+| Amphipathicity (μH) | up to +0.14 | μH > 0.4 correlates with membrane disruption (Eisenberg 1984) |
+| Helix bonus (Pα) | up to +0.03 | Chou-Fasman Pα > 1.0; helical AMPs ~70% of membrane-active families (Huang 2000) |
+| Cross-term (cd × μH) | up to +0.02 | Electrostatic + hydrophobic insertion synergy; normaliser 0.15 |
+
+**Formula (Python source: `scoring/activity.py`):**
+
+```
+score = 0.24 × length_score
+      + 0.27 × clamp01((charge_density_ph74 + 0.05) / 0.55)
+      + 0.17 × (1 − min(|hydrophobic − 0.45| / 0.45, 1.0))
+      + min(aromatic / 0.20, 1.0) × 0.10          # aromatic_bonus
+      + clamp01(μH / 0.8) × 0.14                  # amphipathicity_score
+      + clamp01((Pα − 1.0) / 0.20) × 0.03         # helix_bonus
+      + clamp01(charge_density_ph74 × μH / 0.15) × 0.02  # cross_bonus
+# Maximum achievable: 0.24+0.27+0.17+0.10+0.14+0.03+0.02 = 0.97 (arithmetic ceiling;
+# no explicit min() cap — the code returns clamp01(score) which clips to 1.0)
+```
+
+`charge_density_ph74` is the net peptide charge at pH 7.4 (Henderson-Hasselbalch) divided
+by sequence length; the code falls back to `charge_density` (integer net-charge proxy / length)
+for callers that pre-date the pH-7.4 charge model.
 
 ### 4.1b Boman Activity Score (Second Independent Scorer)
 
@@ -111,31 +139,69 @@ Annual Review of Immunology, 13, 61-92.
 
 ### 4.2 Safety Score
 
-Penalizes sequences with properties associated with hemolysis risk or synthesis difficulty:
+Coarse hemolysis/cytotoxicity risk proxy. Higher score = safer. Computed from six risk
+signals that sum to a `risk` variable; `score = 1.0 − clamp(risk, 0, 1)`.
 
-| Risk signal | Threshold | Penalty |
-|------------|-----------|---------|
-| Excess hydrophobicity | hydrophobic_fraction > 0.65 | multiplicative reduction |
-| Excess charge density | charge_density > 0.55 | multiplicative reduction |
-| High cysteine content | cysteine_fraction > 0.25 | multiplicative reduction |
-| Long sequence | length > 35 | multiplicative reduction |
-| Long repeat run | longest_repeat_run ≥ 6 | multiplicative reduction |
+| Risk signal | Threshold | Risk increment | Literature basis |
+|------------|-----------|---------------|-----------------|
+| Strong amphipathicity (μH) | μH > 0.55 | (μH − 0.55) × 1.5 | Non-selective membrane disruption (Dathe 1999 BBA) |
+| Excess hydrophobicity | hydrophobic_fraction > 0.65 | (hf − 0.65) × 1.8 | Membrane partitioning at high hf |
+| Excess charge density (pH 7.4) | charge_density_ph74 > 0.55 | (cd − 0.55) × 1.2 | Non-selective cationic disruption |
+| Long sequence | length > 35 | +0.25 | Synthesis yield loss |
+| High cysteine content | cysteine_fraction > 0.25 | +0.20 | Disulfide-mediated aggregation |
+| Long repeat run | longest_repeat_run ≥ 6 | +0.15 | On-resin aggregation |
 
-**Critical limitation:** This safety score has never been calibrated against experimental
+`charge_density_ph74` (preferred) falls back to `abs(charge_density)` for callers
+predating the pH-7.4 charge model.
+
+**Critical limitation:** This score has never been calibrated against experimental
 hemolysis or cytotoxicity measurements. It is a physics-based proxy only. Lab hemolysis
 assay (e.g., red blood cell lysis assay) is mandatory before any safety claim.
 
 ### 4.3 Synthesis Feasibility Score
 
-Penalizes sequences that are predicted to be difficult to synthesize by solid-phase peptide
-synthesis (SPPS):
+Penalizes sequences predicted to be difficult to synthesize by solid-phase peptide synthesis
+(SPPS). Score starts at 1.0; each penalty is subtractive; final score clamped to [0, 1].
 
-| Property | Concern |
-|----------|---------|
-| High cysteine fraction | Disulfide bridge complications |
-| High proline fraction | Coupling difficulty |
-| Very long sequences | Stepwise synthesis yield loss |
-| Non-canonical amino acids | Not applicable (filtered upstream) |
+| Penalty | Threshold | Deduction | Mechanism |
+|---------|-----------|-----------|-----------|
+| Long sequence | length > 30 | min((length − 30) × 0.04, 0.40) | Deletion error accumulation; up to −0.40 at length ≥ 40 |
+| Very short sequence | length < 8 | −0.30 flat | Unreliable purification / characterisation |
+| Long homo-repeat run (any AA) | longest_repeat_run ≥ 5 | −0.10 flat | Coupling efficiency drops on identical-residue stretches |
+| High cysteine fraction | cysteine_fraction > 0.20 | −0.15 flat | Disulphide scrambling; side-chain protection cost |
+| Aggregation propensity | aggregation_propensity > 0 | min(prop × 0.25, 0.20) | On-resin self-association from hydrophobic runs {V,I,L,M,F,W} or β-branched density |
+| High proline fraction | proline_fraction > 0.15 | −0.10 flat | N-terminal DKP; slow coupling at XP junctions during Fmoc deprotection |
+
+**Proline penalty detail:** Proline's N-methylated backbone causes slow coupling at
+XP-junction positions and N-terminal diketopiperazine (DKP) cyclisation risk during
+piperidine Fmoc deprotection. References: Barlos et al. (1989) Int J Peptide Protein Res;
+Quibell et al. (1994) J Am Chem Soc; Fischer (2003) Curr Opin Drug Discov Devel.
+
+**Aggregation penalty detail:** `aggregation_propensity` from `features/physchem.py` uses
+two components: (1) longest consecutive run in {V,I,L,M,F,W} (ramp: 0 at run < 4, 1.0 at
+run ≥ 8) and (2) β-branched density (V,I,T > 20%). The synthesis penalty is
+`min(agg × 0.25, 0.20)` — a linear ramp from zero, capped at −0.20.
+
+**Length boundary note:** The synthesis penalty threshold (length > 30) differs from the
+pipeline's sequence validity filter (length > 35 is flagged in safety, not synthesis). A
+candidate of length 32 incurs a −0.08 synthesis deduction but is not safety-penalised for
+length.
+
+### 4.3b Serum Stability Score
+
+Estimates relative proteolytic longevity from interior cleavage-site densities. Higher = more
+stable. Score = `1 − clamp(combined_density / 0.5, 0, 1)`.
+
+| Protease | P1 substrates | Site weight | Literature |
+|----------|--------------|-------------|-----------|
+| Trypsin | K, R (interior) | 2.0 | Dominant serum degradation; t½ < 30 min at ≥3 interior K/R (Hilpert 2006) |
+| Chymotrypsin | F, W, Y (interior) | 1.0 | Secondary serum route |
+| Neutrophil elastase (HNE) | A, V, S (interior) | 0.5 | Abundant at infection sites; HNE cleaves Ala > Val > Ser (Bieth 1986; Doherty 1991) |
+
+`combined_density = (2.0 × trypsin + 1.0 × chymo + 0.5 × elastase) / 3.5`
+
+Score 1.0 = no interior sites; 0.5 = combined density ≈ 0.25/residue; 0.0 ≥ 0.5/residue.
+This score does not gate the ensemble — it is used only in the pilot panel ranking (§5.2).
 
 ### 4.4 Novelty Score
 
@@ -164,12 +230,47 @@ data-optimized and have not been validated. The scoring rule is pre-registered i
 
 ## 5. Candidate Selection
 
+### 5.1 Phase-3 Batch Selection
+
 1. **Filter**: Length 8–35 aa, canonical AAs only, safety ≥ 0.60, novelty ≥ 0.05, ensemble ≥ 0.0
 2. **Rank**: By ensemble score (descending)
 3. **Diversity select**: Greedy selection with pairwise similarity cap of 0.80
 4. **Target batch**: Up to 100 candidates
 
 The complete pre-registered rule is in `docs/SELECTION_RULE.md`.
+
+### 5.2 Pilot Panel Selection (first-synthesis wave)
+
+The pilot panel selects the 20 best candidates from the ranked batch for first-wave synthesis.
+Each candidate is scored by `pilot_priority`:
+
+```
+pilot_priority = ensemble
+               − 0.30 × disagreement
+               + 0.05 × serum_stability
+               + 0.05 × novelty
+               + 0.05 × selectivity_proxy
+               − cytotox_penalty
+```
+
+`cytotox_penalty = 0.0` if `selectivity_proxy ≥ 0.5`, else `0.05 × (0.5 − proxy) / 0.5`
+
+| Term | Rationale |
+|------|-----------|
+| −0.30 × disagreement | Penalises candidates where activity vs Boman scorers diverge |
+| +0.05 × serum_stability | Rewards proteolytically stable candidates |
+| +0.05 × novelty | Rewards structural distance from known references |
+| +0.05 × selectivity_proxy | Rewards candidates with favourable charge/GRAVY selectivity profile |
+| −cytotox_penalty | Extra demerit for HIGH_CYTOTOX_RISK tier (proxy < 0.5); max −0.05 additional |
+
+**Net selectivity swing**: a perfectly selective candidate (proxy = 1.0) outranks a
+temporin-like low-selectivity candidate (proxy = 0.30) by 0.055 points — the same as
+ensemble gaining ~1.5 standard deviations in the demo pool.
+
+Selection rules (in order):
+1. One representative per distinct seed (best by pilot_priority)
+2. Remaining slots filled by priority, subject to `max_per_seed` cap (default 4)
+3. Optional diversity filter: similarity_threshold = 0.75 between panel members
 
 ---
 
@@ -215,6 +316,23 @@ Phase 2 benchmarks verified that the pipeline:
 - Produces stable rankings under repeated runs (reproducibility)
 - Shows performance degradation when key scoring dimensions are ablated
 
+**Retrospective AUROC (v0.2.x):** `0.8164` (positive-vs-negative separation on the 45-reference
+benchmark set using the full ensemble scorer). Benchmarked after PRs #48–54; the scoring
+improvements in those PRs moved AUROC from 0.7926 → 0.8138 → 0.8164.
+
+**Key scoring changes in v0.2.x (PRs #48–54):**
+
+| PR | Change | AUROC impact |
+|----|--------|-------------|
+| #47 | Selectivity proxy (charge/GRAVY) | +|
+| #48 | Selectivity proxy routed into pilot_priority | pilot ranking |
+| #49 | Elastase resistance + aggregation propensity | + |
+| #50 | Aggregation-safe mutations + balanced K/R variants | generation |
+| #51 | Proline synthesis penalty (−0.10 at >15%); helix bonus 0.01→0.03 | 0.8138→0.8164 |
+| #52 | DISCOVERY_PREDICTION.md updated | docs |
+| #53 | Safety uses charge_density_ph74; stronger cytotox_penalty in pilot | pilot ranking |
+| #54 | DISCOVERY_PREDICTION.md updated | docs |
+
 **Limitation:** Benchmarks use a small, curated demo dataset. They do not validate against
 large independent AMP databases. Real retrospective validation against APD3-scale data is
 required before strong claims of predictive power.
@@ -236,10 +354,24 @@ required before strong claims of predictive power.
 
 ## 10. References
 
-- Eisenberg, D. et al. (1984). Analysis of membrane and surface protein sequences with the hydrophobic moment plot. J Mol Biol, 179(1), 125-142.
-- Kyte, J. & Doolittle, R.F. (1982). A simple method for displaying the hydropathic character of a protein. J Mol Biol, 157(1), 105-132.
-- Wimley, W.C. & White, S.H. (1996). Experimentally determined hydrophobicity scale for proteins at membrane interfaces. Nat Struct Biol, 3(10), 842-848.
-- Zasloff, M. (1987). Magainins, a class of antimicrobial peptides from Xenopus skin. PNAS, 84(15), 5449-5453.
+- Bieth, J.G. (1986). Elastases: structure, function and pathological role. Bull Eur Physiopathol Respir, 22(Suppl 7), 7–12.
+- Bjellqvist, B. et al. (1993). The focusing positions of polypeptides in immobilized pH gradients can be predicted from their amino acid sequences. Electrophoresis, 14(10), 1023–1031.
+- Boman, H.G. (2003). Peptide antibiotics and their role in innate immunity. Annual Review of Immunology, 13, 61–92.
+- Chou, P.Y. & Fasman, G.D. (1974). Conformational parameters for amino acids in helical, beta-sheet, and random coil regions calculated from proteins. Biochemistry, 13(2), 222–245.
+- Dathe, M. & Wieprecht, T. (1999). Structural features of helical antimicrobial peptides: their potential to modulate activity on model membranes and biological cells. Biochim Biophys Acta, 1462(1–2), 71–87.
+- Doherty, J.B. et al. (1991). Potent and selective human neutrophil elastase inhibitors. Biochemistry, 30(35), 8540–8550.
+- Eisenberg, D. et al. (1984). Analysis of membrane and surface protein sequences with the hydrophobic moment plot. J Mol Biol, 179(1), 125–142.
+- Fields, G.B. & Noble, R.L. (1990). Solid phase peptide synthesis utilizing 9-fluorenylmethoxycarbonyl amino acids. Int J Pept Protein Res, 35(3), 161–214.
+- Hancock, R.E. & Sahl, H.G. (2006). Antimicrobial and host-defense peptides as new anti-infective therapeutic strategies. Nature Biotechnology, 24(12), 1551–1557.
+- Hilpert, K. et al. (2006). Short cationic antimicrobial peptides interact with ATP. Antimicrob Agents Chemother, 50(12), 4181–4188.
+- Huang, H.W. (2000). Action of antimicrobial peptides: two-state model. Biochemistry, 39(29), 8347–8352.
+- Jenssen, H. et al. (2006). Peptide antimicrobial agents. Clinical Microbiology Reviews, 19(3), 491–511.
+- Kyte, J. & Doolittle, R.F. (1982). A simple method for displaying the hydropathic character of a protein. J Mol Biol, 157(1), 105–132.
+- Tossi, A. et al. (2000). Amphipathic, alpha-helical antimicrobial peptides. Biopolymers, 55(1), 4–30.
+- Wade, D. et al. (1990). All-D amino acid-containing channel-forming antibiotic peptides. Proc Natl Acad Sci USA, 87(12), 4761–4765.
+- Wimley, W.C. & White, S.H. (1996). Experimentally determined hydrophobicity scale for proteins at membrane interfaces. Nat Struct Biol, 3(10), 842–848.
+- Zasloff, M. (1987). Magainins, a class of antimicrobial peptides from Xenopus skin. PNAS, 84(15), 5449–5453.
+- Zasloff, M. (2002). Antimicrobial peptides of multicellular organisms. Nature, 415(6870), 389–395.
 
 Full candidate-level references are in each evidence certificate.
 
