@@ -312,9 +312,10 @@ Selectivity proxy is a population-level heuristic, not a prediction for any spec
 **Probability: ~30–46%** (6–9 / 20 candidates with t½ > 2 h in 50% human serum)
 
 Updated from 28–42% to reflect two correction factors:
-(a) Only 6 scaffold families are in the actual synthesis pool (SEED-003, 005, 006, 007, 008, 009;
-    SEED-001, 002, 004 excluded at earlier gates); the per-scaffold analysis below uses actual pilot
-    panel observed serum_stability values, not seed-level averages.
+(a) 7 scaffold families are in the synthesis pool (SEED-001, 003, 005, 006, 007, 008, 009;
+    SEED-002, 004, 010 excluded at gates); the per-scaffold analysis below uses actual pilot
+    panel observed serum_stability values, not seed-level averages. SEED-001 (magainin-1 variants)
+    re-entered the top-100 pool after PR #72 face_segregation_bonus (5 selected).
 (b) The serum_stability model may **underestimate** stability for short peptides (< 14 AA, SEED-003
     class) and Trp-rich sequences (SEED-008 class) — both have documented steric protease resistance
     in the literature. Score-based estimates are conservative.
@@ -564,17 +565,17 @@ in the 20-member pilot panel, P(≥1 from family) ≈ 1 − (1 − P_candidate)^
 
 | Rank | Candidate family | Exemplar | Stability | Novelty | Est P(all gates) per candidate | Why bet here |
 |------|-----------------|----------|-----------|---------|-------------------------------|--------------|
-| 1 | SEED-008 | FPVTWRWWKWWKG vars | 0.385 | **0.667** | ~15–25% | Highest novelty + proven Trp mechanism; 24 selected (PR #61 reinstated) |
-| 2 | SEED-007 | IKITTMLKKLG vars | 0.636 | 0.615 | ~14–22% | Bumblebee venom; distinct from wasp mastoparan; 27 selected (highest count) |
-| 3 | SEED-006 | INWKGIAAMAKKLL vars | 0.667 | 0.643 | ~14–22% | Balanced stability+novelty; mastoparan mechanism data |
-| 4 | SEED-009 | RRLPRPPYLPRP vars | 0.80+ | 0.467 | ~12–20% | Proline-rich intracellular (DnaK); orthogonal mechanism to all other seeds; 19 selected |
-| 5 | SEED-003 | RRWQWRMKKLG vars | 0.27 | 0.182 | ~8–16% | High ensemble (0.780-0.795) but poor serum stability; 16 selected |
-| 6 | SEED-005 | KRLFKKIGSALKFL (seed) | 0.52 | 0.467 | ~8–14% | Cecropin-magainin hybrid; best variant VAR_009 (KRFFKKIGSALKFA, FF motif) aids membrane insertion; 4 selected |
+| 1 | SEED-008 | FPVTWRWWKWWKG vars | 0.385 | **0.667** | ~15–25% | Highest novelty + proven Trp mechanism; 24 selected |
+| 2 | SEED-007 | IKITTMLKKLG vars | 0.636 | 0.615 | ~14–22% | Bumblebee venom; distinct from wasp mastoparan; 26 selected |
+| 3 | SEED-006 | INWKGIAAMAKKLL vars | 0.667 | 0.643 | ~14–22% | Balanced stability+novelty; mastoparan mechanism data; 10 selected |
+| 4 | SEED-009 | RRLPRPPYLPRP vars | 0.80+ | 0.467 | ~12–20% | Proline-rich intracellular (DnaK); orthogonal mechanism; 18 selected |
+| 5 | SEED-003 | RRWQWRMKKLG vars | 0.27 | 0.182 | ~8–16% | High ensemble (0.780-0.795) but poor serum stability; 14 selected |
+| 6 | SEED-001 | GIGKFLHSAKKFGKAFVGEIMNS vars | 0.45 | 0.133 | ~7–14% | Magainin-1 (Xenopus laevis); most validated AMP family; 5 selected (PR #72 re-entry) |
+| 7 | SEED-005 | KRLFKKIGSALKFL (seed) | 0.52 | 0.467 | ~8–14% | Cecropin-magainin hybrid; best variant VAR_009 (KRFFKKIGSALKFA, FF motif) aids membrane insertion; 3 selected |
 
 > **Excluded from synthesis** (not in synthesis pool):
 > - SEED-004 (temporin, HIGH_CYTOTOX_RISK, GRAVY=+1.81): Correctly excluded by safety+cytotox gate
-> - SEED-001 (magainin, novelty=0.133): Displaced by higher-scoring SEED-007/008 in top-100 ranking
-> - SEED-002 (cecropin, novelty=0.087): Same as above
+> - SEED-002 (cecropin, novelty=0.087): Displaced by higher-scoring seeds in top-100 ranking
 > - SEED-010 (KR-12, safety 0.49-0.54): Fails phase3 safety gate (min safety=0.60)
 
 **For budget-constrained first wave (synthesis of 10 instead of 20):**
@@ -608,7 +609,7 @@ Executing all four actions on the best Wave 1 hits would push the combined proba
 | Stage | Gate | Original | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PRs #61–72 (current) | Primary limiting factor |
 |-------|------|----------|-----------------|-----------------|-----------------|--------------------------|------------------------|
 | 0 | Synthesis success | ~90% | ~90% | ~88% | **~89%** ✓ | **~90%** ✓ (agg model + agg-safe gen + pro penalty + pH74 charge) | SEED-008 W-rich; all aggregation/synthesis risks modelled |
-| 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~62–72%** ✓ (AUROC 0.8420) | AUROC 0.8420 (AUPRC 0.8627); 6 scaffold families confirmed |
+| 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~62–72%** ✓ (AUROC 0.8420) | AUROC 0.8420 (AUPRC 0.8627); 7 scaffold families confirmed (SEED-001 re-entered PR #72) |
 | 2 | TI > 10 (selectivity) | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~42–57%** ✓ (stronger SEED-004 demotion) | sel_proxy doubled penalty for HIGH_CYTOTOX_RISK tier |
 | 3 | t½ > 2 h (serum) | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~30–46%** ✓ (3-protease model + short/Trp-rich model correction; pilot-panel data) | SEED-003/008 may outperform model score; all seeds borderline — early serum assay recommended |
 | 4 | Scaffold novelty | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | Diversity filter removes cross-seed near-dups |
@@ -643,14 +644,15 @@ pipeline estimates P(≥1 breaking-news hit) = 1 − (1 − p)^20 ≈ 29–49%.
 
 **Update (PR #61):** After regenerating the phase3 synthesis pool with all 10 seeds:
 
-- **6 scaffold families confirmed in synthesis pool:** SEED-003 (cationic Trp helix), SEED-005
-  (hybrid), SEED-006 (mastoparan-X), SEED-007 (bombolitin-II NEW), SEED-008 (puroindoline-a
-  Trp-rich, reinstated from Boman artifact exclusion), SEED-009 (Bac2A proline-rich NEW)
-- **4 seeds excluded:** SEED-001/002 (displaced by higher-scoring seeds), SEED-004 (HIGH_CYTOTOX),
+- **7 scaffold families confirmed in synthesis pool (post-PR #72):** SEED-001 (magainin-1 variants,
+  re-entered after PR #72 face_segregation_bonus), SEED-003 (cationic Trp helix), SEED-005
+  (hybrid), SEED-006 (mastoparan-X), SEED-007 (bombolitin-II), SEED-008 (puroindoline-a
+  Trp-rich, reinstated from Boman artifact exclusion in PR #61), SEED-009 (Bac2A proline-rich)
+- **3 seeds excluded:** SEED-002 (displaced by higher-scoring seeds), SEED-004 (HIGH_CYTOTOX),
   SEED-010 (fails safety gate — KR-12 cytotoxic at physiological concentrations)
 
-**Important quality note:** The 6 confirmed scaffolds are mechanistically MORE diverse than the 8
-originally planned: 3 of the 6 are genuinely novel (SEED-007 bumblebee venom, SEED-008 Trp
+**Important quality note:** The 7 confirmed scaffolds are mechanistically MORE diverse than the 8
+originally planned: 3 of the 7 are genuinely novel (SEED-007 bumblebee venom, SEED-008 Trp
 interfacial insertion, SEED-009 proline-rich intracellular DnaK targeting). The 4 excluded seeds
 would have added lower novelty (SEED-001/002 are near-reference sequences) or safety risk
 (SEED-004, SEED-010). The quality improvement partially offsets the fewer scaffold count.
@@ -762,10 +764,11 @@ enter Wave 2 as D-amino variants at the positions specified in `wave2_d_substitu
 is the fastest path from the current ~10–18% (calibrated) to the ≥20–30% target that would
 justify a larger Wave 2 investment.
 
-**Synthesis pool status (PR #61, final pre-wetlab state):**
-6 scaffold families confirmed: SEED-003 (16), SEED-005 (4), SEED-006 (10), SEED-007 (27),
-SEED-008 (24), SEED-009 (19). Total: 100 selected candidates. Mean safety=0.991, mean
-ensemble=0.805. 20-member pilot panel drawn from these 100 for Wave 1 synthesis.
+**Synthesis pool status (PR #72, final pre-wetlab state):**
+7 scaffold families confirmed: SEED-001 (5), SEED-003 (14), SEED-005 (3), SEED-006 (10),
+SEED-007 (26), SEED-008 (24), SEED-009 (18). Total: 100 selected candidates. SEED-001
+(magainin-1) re-entered after PR #72 face_segregation_bonus improved its competitive ranking.
+20-member pilot panel drawn from these 100 for Wave 1 synthesis.
 
 ---
 
