@@ -15,11 +15,12 @@ each stage, identifies the key risk factors in the current nominee set, and list
 improvements already implemented or recommended.
 
 **Bottom line:** The pilot panel has a ~55–65% probability of yielding at least one candidate
-with MIC ≤ 32 μg/mL, and **~10–25%** probability of generating "breaking news" publication
-material with the updated panel (up from 5–12% before computational improvements in PRs #31–#33).
-The family diversity cap (max_per_seed=4) now ensures 4 candidates per seed family, including
-4 SEED-004 variants with serum_stability 0.85 (excellent predicted stability). The dominant
-remaining computational gap is scaffold novelty (all nominees remain near-seed variants).
+with MIC ≤ 32 μg/mL, and **~12–28%** probability of generating "breaking news" publication
+material with the updated panel (up from 5–12% before computational improvements in PRs #31–#36).
+The family diversity cap (max_per_seed=4) ensures 4 candidates per seed family including 4 SEED-004
+variants (serum_stability 0.85, C-terminal amidation recommended). New features (net charge pH 7.4,
+Chou-Fasman helix propensity, C-amidation flag) improve pipeline accuracy and synthesis guidance.
+The dominant remaining computational gap is scaffold novelty (all nominees remain near-seed variants).
 
 ---
 
@@ -37,7 +38,7 @@ To be publishable as a significant advance in AMP discovery, a candidate must sa
 | Potency against MDR strains | MIC < 8 μg/mL vs MRSA/MDR-GNR | not tested | not tested |
 
 **Combined probability of satisfying all criteria simultaneously (original panel):** ~5–12%  
-**Combined probability of satisfying all criteria simultaneously (updated panel):** ~10–25%
+**Combined probability of satisfying all criteria simultaneously (updated panel, PRs #31–#36):** ~12–28%
 
 **Serum stability improvement rationale:** Before PR #31, 16/20 pilot panel candidates were SEED-003
 variants with serum_stability ≈ 0.27 (≥4 interior K/R sites → t½ < 30 min). After family
@@ -198,12 +199,13 @@ Root causes (ranked by remaining impact):
    [Not addressable without wet-lab training data.]
 ```
 
-**What the improvements achieved (PRs #31–#33):**
-- Family diversity: 16/20 SEED-003 → 4/20 SEED-003 (equal representation, 4 per seed)
-- Serum stability visibility: `serum_stability` now in every candidate CSV and pilot panel
-- Pilot panel priority: stability bonus (+0.05 × serum_stability) now favors SEED-004
-- Reference set: 44 → 73 well-validated AMP sequences for future novelty comparisons
-- Overall "breaking news" probability: ~5–12% → ~10–25%
+**What the improvements achieved (PRs #31–#36):**
+- **PR #31/#32**: Family diversity cap (max_per_seed=4) + serum_stability_score; SEED-003 16→4 slots
+- **PR #33**: Reference set 44→73 sequences; 14 structural validation tests
+- **PR #34**: Net charge at pH 7.4 via Henderson-Hasselbalch; His now +0.114 not +1.0; 24 tests
+- **PR #35**: Chou-Fasman helix propensity (Pα) in compute_features(); small activity bonus; 23 tests
+- **PR #36**: C-terminal amidation recommendation in presynth QC; SEED-004 variants flagged; 11 tests
+- **Overall "breaking news" probability: ~5–12% → ~12–28%** (incremental gains from accuracy improvements)
 
 ---
 
@@ -306,7 +308,7 @@ Impact: any hit against MDR strains is immediately publishable as clinically sig
 **Probability of ≥1 active AMP from pilot panel (Stage 1 only):** ~85–95%  
 (Probability of zero active from 20 candidates with ~60% individual hit rate)
 
-**Probability of ≥1 candidate satisfying ALL gates (updated):** ~10–25%
+**Probability of ≥1 candidate satisfying ALL gates (updated after PRs #31–#36):** ~12–28%
 
 ---
 

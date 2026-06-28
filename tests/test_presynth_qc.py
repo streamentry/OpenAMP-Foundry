@@ -389,3 +389,71 @@ class TestSynthQCToDict:
         qc = check_sequence("X", "AAAAAA", mu_h=0.72)
         d = qc.to_dict()
         assert abs(d["mu_h"] - 0.72) < 1e-9
+
+
+# ---------------------------------------------------------------------------
+# C-terminal amidation recommendation
+# ---------------------------------------------------------------------------
+
+class TestCTerminalAmidation:
+    def test_neutral_cterm_low_charge_recommends_amidation(self):
+        # ALPFIGRVLSGIL (SEED-004 scaffold) ends in L, charge < 2 → recommend
+        qc = check_sequence("seed4", "ALPFIGRVLSGIL")
+        assert qc.c_amidation_recommended is True
+
+    def test_lys_cterm_does_not_recommend(self):
+        # Sequence ending in K already has positive C-terminal charge → no amidation needed
+        qc = check_sequence("k_cterm", "KWKLFKKIGAVLKVLK")
+        assert qc.c_amidation_recommended is False
+
+    def test_arg_cterm_does_not_recommend(self):
+        # Sequence ending in R → no recommendation (already positive)
+        qc = check_sequence("r_cterm", "GIGKFLHSAKKFGKR")
+        assert qc.c_amidation_recommended is False
+
+    def test_neutral_cterm_high_charge_does_not_flag(self):
+        # Sequence with neutral C-term but high charge (≥3.0) → optional but not recommended
+        # 3K + 3R + neutral C-term → charge > 3.0
+        qc = check_sequence("high_charge", "KRKKRRAL")  # 2K+2R → charge ~4+
+        assert qc.c_amidation_recommended is False
+
+    def test_recommended_adds_flag(self):
+        # When recommended, a C_AMIDATION_RECOMMENDED flag should appear in flags list
+        qc = check_sequence("seed4", "ALPFIGRVLSGIL")
+        c_flags = [f for f in qc.flags if "C_AMIDATION" in f]
+        assert len(c_flags) == 1
+
+    def test_not_recommended_no_flag(self):
+        # When not recommended, no C_AMIDATION flag
+        qc = check_sequence("k_cterm", "KWKLFKKIGAVLKVLK")
+        c_flags = [f for f in qc.flags if "C_AMIDATION" in f]
+        assert len(c_flags) == 0
+
+    def test_reason_populated_when_recommended(self):
+        qc = check_sequence("seed4", "ALPFIGRVLSGIL")
+        assert len(qc.c_amidation_reason) > 0
+        assert "amide" in qc.c_amidation_reason.lower() or "amidation" in qc.c_amidation_reason.lower()
+
+    def test_to_dict_contains_amidation_keys(self):
+        qc = check_sequence("seed4", "ALPFIGRVLSGIL")
+        d = qc.to_dict()
+        assert "c_amidation_recommended" in d
+        assert "c_amidation_reason" in d
+
+    def test_to_dict_amidation_recommended_matches_bool(self):
+        qc = check_sequence("seed4", "ALPFIGRVLSGIL")
+        d = qc.to_dict()
+        assert d["c_amidation_recommended"] == qc.c_amidation_recommended
+
+    def test_low_charge_sequence_benefits_most(self):
+        # SEED-004 (charge ≈ 0.8 at pH 7.4) → highest benefit from amidation
+        qc_low = check_sequence("low", "ALPFIGRVLSGIL")  # charge ~0.8
+        qc_high = check_sequence("high", "KWKLFKKIGAVLKVL")  # charge > 3.0
+        # low charge → recommended, high charge → not recommended (or optional)
+        assert qc_low.c_amidation_recommended is True
+        assert qc_high.c_amidation_recommended is False
+
+    def test_empty_sequence_no_crash(self):
+        qc = check_sequence("empty", "")
+        # Empty sequence: no C-term → c_amidation_recommended should be False (default)
+        assert isinstance(qc.c_amidation_recommended, bool)

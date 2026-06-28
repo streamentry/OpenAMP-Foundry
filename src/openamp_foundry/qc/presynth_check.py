@@ -112,6 +112,10 @@ class SynthQC:
     mu_h: float = 0.0
     hemolysis_start_conc: str = ""     # suggested starting concentration for hemolysis assay
 
+    # C-terminal modification
+    c_amidation_recommended: bool = False   # request NH₂ C-terminus instead of COOH
+    c_amidation_reason: str = ""
+
     # Overall flag
     flags: list[str] = field(default_factory=list)
     synthesis_difficulty: str = "LOW"   # LOW / MODERATE / HIGH
@@ -137,6 +141,8 @@ class SynthQC:
             "formulation_note": self.formulation_note,
             "mu_h": self.mu_h,
             "hemolysis_start_conc": self.hemolysis_start_conc,
+            "c_amidation_recommended": self.c_amidation_recommended,
+            "c_amidation_reason": self.c_amidation_reason,
             "flags": self.flags,
             "synthesis_difficulty": self.synthesis_difficulty,
         }
@@ -206,6 +212,29 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     else:
         qc.hemolysis_start_conc = f"Start at MIC; μH={mu_h:.2f} low risk"
 
+    # C-terminal amidation recommendation.
+    # ~70% of natural helical AMPs are C-terminally amidated. Amidation:
+    #   (i)  adds ~+0.5 to +1.0 net charge (replaces -COOH with -CONH₂)
+    #   (ii) improves serum stability (carboxypeptidase resistance)
+    #   (iii) enhances membrane binding for helical and cationic AMPs
+    # Cost at synthesis: typically zero extra (specify "C-term NH₂" in order form).
+    # Recommend when C-terminal residue is neutral (not K or R) AND charge < 3.0.
+    c_term = seq[-1] if seq else ""
+    c_term_already_charged = c_term in ("K", "R")
+    if not c_term_already_charged and qc.charge_ph74 < 3.0:
+        qc.c_amidation_recommended = True
+        qc.c_amidation_reason = (
+            f"C-terminus is {c_term!r} (neutral); charge_pH7.4={qc.charge_ph74:.1f}. "
+            "Amidation adds ≈+0.5–1.0 charge, improves serum stability and membrane binding. "
+            "Request 'C-terminal amide (CONH₂)' in synthesis order."
+        )
+    elif not c_term_already_charged:
+        qc.c_amidation_recommended = False
+        qc.c_amidation_reason = (
+            f"C-terminus is {c_term!r} (neutral) but charge_pH7.4={qc.charge_ph74:.1f} ≥ 3.0; "
+            "amidation optional — consider for serum stability improvement."
+        )
+
     # Collect flags
     if qc.cysteine_count > 0:
         qc.flags.append(f"CYSTEINE×{qc.cysteine_count}: disulfide/oxidation risk — store under N₂")
@@ -219,6 +248,11 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
         qc.flags.append(f"DEAMIDATION_RISK: {', '.join(qc.deamidation_sites)} — avoid >pH 7.5 storage")
     if qc.charge_ph74 < 2.0:
         qc.flags.append(f"LOW_CHARGE (pH7.4={qc.charge_ph74:.1f}): reduced membrane affinity")
+    if qc.c_amidation_recommended:
+        qc.flags.append(
+            "C_AMIDATION_RECOMMENDED: specify 'CONH₂ C-terminus' at ordering "
+            "(charge boost ≈+0.7, improved serum stability)"
+        )
     if qc.length > 30:
         qc.flags.append(f"LONG_PEPTIDE ({qc.length}aa): SPPS yield risk; consider native chemical ligation")
 
