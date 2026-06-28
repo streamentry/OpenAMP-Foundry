@@ -4,8 +4,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from openamp_foundry.config import load_config
+from openamp_foundry.features.physchem import compute_features
 from openamp_foundry.pipeline import _passes_length_filter, run_ranking_pipeline, score_candidates
+from openamp_foundry.scoring.activity import activity_likeness_score
+from openamp_foundry.scoring.boman import boman_activity_score, model_disagreement
 
 
 def test_length_filter_within_range():
@@ -253,3 +258,75 @@ def test_phase3_config_has_stricter_safety_filter_than_pipeline():
     candidate_safety = 0.50
     assert candidate_safety >= pipeline_min_safety, "Should pass pipeline filter"
     assert candidate_safety < phase3_min_safety, "Should fail phase3 filter"
+
+
+def test_zwitteramp_trap_scorer_divergence():
+    """KDKDKDKD is the 'ZwitterAMP trap': Boman scores it high (K+D each = +2.465 Boman
+    potential → high interaction energy), but activity_likeness scores it low (net charge = 0,
+    no hydrophobicity). Disagreement ≈ 0.73, well above both gate thresholds (0.40/0.30).
+
+    This test pins the end-to-end scorer divergence computation, ensuring that the two
+    independent scoring systems and the disagreement gate together catch this false positive.
+    """
+    seq = "KDKDKDKD"
+    features = compute_features(seq)
+
+    act = activity_likeness_score(features)
+    bom = boman_activity_score(seq)
+    dis = model_disagreement(act, bom)
+
+    # Boman sees K+D interaction potential → high score (K and D share same Boman potential)
+    assert bom > 0.85, f"boman_activity expected > 0.85 for KDKDKDKD, got {bom}"
+    # Activity scorer correctly penalises: net charge = 0, no hydrophobicity
+    assert act < 0.25, f"activity_likeness expected < 0.25 for KDKDKDKD (no net charge), got {act}"
+    # Disagreement is well above both gate thresholds (pipeline=0.40, phase3=0.30)
+    assert dis > 0.60, f"disagreement expected > 0.60 for KDKDKDKD, got {dis}"
+
+
+def test_zwitteramp_trap_blocked_by_pipeline(tmp_path):
+    """KDKDKDKD reaches selected=False via the disagreement gate in the full pipeline run."""
+    csv_path = tmp_path / "candidates.csv"
+    refs_path = tmp_path / "refs.csv"
+    csv_path.write_text("id,sequence,source\nZWITTER-001,KDKDKDKD,test\n")
+    refs_path.write_text("id,sequence,source\n")  # empty refs → novelty=1.0
+
+    out = tmp_path / "ranked.jsonl"
+    run_ranking_pipeline(
+        candidate_path=csv_path,
+        reference_path=refs_path,
+        out_path=out,
+    )
+    rows = [json.loads(ln) for ln in out.read_text().splitlines() if ln.strip()]
+    assert len(rows) == 1
+    row = rows[0]
+    # Both scorer values should be captured
+    assert row["scores"]["disagreement"] > 0.60
+    # The default pipeline.yaml has max_disagreement=0.40 → this candidate is blocked
+    assert row["selected"] is False, (
+        f"KDKDKDKD should be blocked (disagreement={row['scores']['disagreement']:.3f} "
+        f"> pipeline max_disagreement=0.40)"
+    )
+
+
+def test_all_proline_pipeline_scores_and_disagreement(tmp_path):
+    """PPPPPPPP: Boman(P)=0 → boman_activity=0.5; activity_likeness ≈ 0.17 (no charge).
+    Disagreement ≈ 0.33 — below pipeline gate (0.40) but above phase3 gate (0.30).
+    Pins this edge case so proline handling is explicit.
+    """
+    seq = "PPPPPPPP"
+    features = compute_features(seq)
+    act = activity_likeness_score(features)
+    bom = boman_activity_score(seq)
+    dis = model_disagreement(act, bom)
+
+    # P has Boman potential 0.0 → neutral Boman activity (0.5)
+    assert bom == pytest.approx(0.5, abs=0.01)
+    # Activity is low: no charge, not hydrophobic
+    assert act < 0.25
+    # Disagreement ≈ 0.33: passes pipeline gate (0.40) but fails phase3 gate (0.30)
+    assert 0.25 < dis < 0.45, f"PPPPPPPP disagreement expected ~0.33, got {dis}"
+    repo_root = Path(__file__).parents[1]
+    pipeline_max = float(load_config(repo_root / "configs" / "pipeline.yaml")["selection"]["max_disagreement"])
+    phase3_max = float(load_config(repo_root / "configs" / "phase3.yaml")["selection"]["max_disagreement"])
+    assert dis < pipeline_max, "PPPPPPPP should pass the pipeline disagreement gate"
+    assert dis > phase3_max, "PPPPPPPP should fail the stricter phase3 disagreement gate"
