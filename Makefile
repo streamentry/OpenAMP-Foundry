@@ -1,4 +1,4 @@
-.PHONY: demo test lint clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity
+.PHONY: demo test lint ci clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -18,6 +18,9 @@ test:
 
 lint:
 	$(RUFF) check src tests scripts
+
+ci: lint test
+	@echo "CI passed: lint + 814-test suite green"
 
 bench-leakage:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench leakage \

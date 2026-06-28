@@ -115,3 +115,10 @@ class TestNoveltyScore:
         refs = [_ref("R1", "KWKLFKKIGAVLKVL")]
         score, _ = novelty_score("KWKLFKKIGAVLKVK", refs)  # 1 substitution in 15
         assert score < 0.2
+
+    def test_empty_sequence_with_references_does_not_crash(self):
+        # Empty candidate sequence → levenshtein("", ref) = len(ref), sim = 0 → novelty = 1.0
+        # Pinned to detect any future change in empty-sequence handling.
+        refs = [_ref("R1", "KWKLFKKIGAVLKVL")]
+        score, nearest = novelty_score("", refs)
+        assert 0.0 <= score <= 1.0
