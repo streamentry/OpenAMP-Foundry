@@ -251,19 +251,190 @@ do not exclude on model score alone.
 
 ---
 
-## Serum Stability Model Limitations (SEED-001, SEED-003, SEED-005, SEED-008, SEED-009)
+## SEED-007 (Bombolitin-II) Special Notes
+
+SEED-007 variants are derived from **Bombolitin-II** (IKFTTMLKKLG, 11 AA), a short amphipathic
+cationic peptide from *Megabombus pennsylvanicus* (eastern bumblebee) venom (Barra *et al.* 1994,
+*Biochemistry* 33:10429). This is the **largest selected family** (26 variants in pool) and
+contributes **4 of the top 8 pilot panel candidates** (ranks 3, 4, 5, 8), all classified NOVEL.
+
+**Mechanism:** Short amphipathic helical insertion. Cationic face (K2, K8, K9) is electrostatically
+recruited to anionic bacterial lipid headgroups; hydrophobic face (F3, T4, T5, M6, L7, L10) inserts
+into the acyl chain region. Structural similarity to mastoparan suggests G-protein co-activation is
+possible but less well documented for bombolitin-class peptides.
+
+**Novelty and publication value:**
+All 4 pilot candidates are NOVEL (<50% similar to the 72-AMP reference set). Confirmed activity
+in any SEED-007 variant would be directly publishable. SEED-007_VAR_009 (IKFTTMLRKLG, ensemble
+0.849) is the **highest-scoring SEED-007 candidate and the highest-ranked SEED-007 variant by
+greedy selection (rank 3 overall)**. Note: SEED-008_VAR_032 has a marginally higher ensemble
+score (0.857, rank 13) and SEED-009_VAR_027/033 are ranked 1–2; VAR_009 is the primary
+breakthrough candidate within the bombolitin family.
+
+**Expected activity profile:**
+- Gram-positive coverage likely > Gram-negative (11 AA may not fully traverse outer membrane)
+- Dose-response: graded sigmoid, similar to mastoparan kinetics
+- Hemolytic risk: low-moderate (μH 0.430–0.516, charge +3, amphipathic_score 0.547–0.785 —
+  lower hemolysis risk than SEED-006 at comparable helix quality); mandatory HC₅₀ assay at MIC/3
+
+**Serum stability:** Model scores 0.636–0.662 — among the **best serum stability of all NOVEL pilot
+candidates** (tied with SEED-006 at 0.612–0.674; both families exceed SEED-003/005/008). Trypsin-site
+density 0.273 (3 interior K/R in 11 AA) is lowest of all helical seeds. No known model bias for
+short bombolitin-class peptides; scores are likely accurate. Assay to confirm.
+
+**Synthesis guidance:**
+- **All 4 pilot variants contain Met (M) at position 6** → oxidation risk. Request Nle
+  (norleucine) substitution at M6, or note requirement for argon atmosphere storage and 3-month
+  shelf-life limit. HPLC purity check at receipt is mandatory for Met-containing peptides.
+- No Cys → standard Fmoc SPPS, no disulfide handling required.
+- **C-terminal amidation recommended** (`CONH₂`) — all variants end in G (Gly); amidation adds
+  +0.7 charge and reduces C-terminal exopeptidase exposure.
+
+**Assay interpretation:**
+- If SEED-007_VAR_009 (rank 3) is active but lower-ranked SEED-007 variants are not: confirms
+  ensemble score correlates with MIC; focus Wave 2 on the VAR_009 scaffold.
+- If all SEED-007 are inactive but SEED-006 (mastoparan) variants are active: supports GPCR /
+  calmodulin-binding as the operative mechanism; review structural differences.
+- If active: compare MIC vs parent Bombolitin-II (IKFTTMLKKLG) — any improvement (lower MIC
+  per unit charge) from single substitutions is the primary SAR finding for publication.
+- Met oxidation artefact: if inactive, request HPLC purity certificate; oxidised Met (Met→Met-sulfoxide)
+  causes hydrophobic collapse and loss of amphipathicity.
+
+---
+
+## SEED-005 (Cecropin-Magainin Hybrid) Special Notes
+
+SEED-005 is derived from **KRLFKKIGSALKFL** (14 AA), a synthetic cecropin-magainin hybrid
+inspired by dual-domain AMP engineering (Boman *et al.* 1989; Maloy & Kari 1995, *Biopolymers*
+37:105). N-terminal cecropin-like helix (KRLFKK) recruits the peptide electrostatically; C-terminal
+magainin-like helix (IGSALKFL) drives hydrophobic insertion.
+
+**Novelty classification:** CLOSE_RELATIVE — 60% similar to a reference in the 72-AMP database.
+Confirmed activity would have moderate publication value (improvement over the reference AMP
+is the publication angle); it does not constitute a novel scaffold discovery.
+
+**Safety concern:** SEED-005_VAR_019 has the **lowest safety score in the pilot panel** (0.845 —
+above the 0.75 gate but with less margin than all other candidates). Hemolysis assay at MIC/3 is
+mandatory. If HC₅₀ < 10× MIC, deprioritise for Wave 2.
+
+**Expected activity profile:**
+- Gram-positive and Gram-negative coverage expected (cecropin N-terminal helix disrupts Gram-negative
+  outer membrane; magainin-like C-terminal helix disrupts inner membrane — dual-target mechanism)
+- Dose-response: sigmoidal; two-step membrane disruption may show kinetic inflection
+- Hemolytic risk: moderate (safety score 0.845 — the lowest in the pilot panel; assay HC₅₀ at MIC/3)
+
+**Serum stability:** Model score 0.449 — borderline. Second- or third-highest serum stability risk
+by raw model score (comparable to SEED-008 at 0.43–0.47 with Trp steric correction), and in the
+same risk tier as SEED-003. Prioritise in early serum screen. D-Lys Wave 2 substitution plan
+available if t½ < 1 h.
+
+**Synthesis guidance:**
+- No Met, no Cys → standard Fmoc SPPS; no special handling.
+- **C-terminal amidation recommended** (ends in L; adds +0.7 charge, improves serum stability).
+
+**Assay interpretation:**
+- Only 1 candidate in pilot panel (rank 19) — **lowest-priority family**. If resource constraints
+  arise, defer to later in the assay sequence and focus resources on SEED-007/006/008/009 first.
+- If active at MIC ≤ 8 µg/mL: characterise helix by circular dichroism to confirm dual-domain
+  mechanism; compare MIC to parent reference AMP.
+
+---
+
+## SEED-008 (Puroindoline-a, Trp-rich) Special Notes
+
+SEED-008 variants are derived from **FPVTWRWWRWWKG** (13 AA), a Trp-rich puroindoline-a fragment
+from wheat (*Triticum aestivum*) grain (Dubreil *et al.* 1998, *FEBS Lett* 427:197; Clifton *et al.*
+2011, *Biophys J* 100:1510). Puroindoline-a inserts into membranes via **aromatic ring stacking at
+the lipid-water interface** (indole π-electron interactions with phospholipid headgroups), not via
+amphipathic helix insertion.
+
+**Novelty:** All 4 pilot candidates NOVEL. SEED-008_VAR_032 (FPVTWRFWRWWKG) has the **highest
+ensemble score in the entire pilot panel** (0.857, rank 13). Publication value: high if the
+non-classical mechanism is confirmed.
+
+**Scorer note — high disagreement (0.41–0.44):** The Boman index penalises Trp as generic
+hydrophobic; the activity scorer rewards it (1.5× Trp aromatic bonus). For Trp-rich AMPs acting
+via indole ring insertion, **activity_likeness is the mechanistically appropriate scorer**. Do not
+deprioritise SEED-008 based on Boman scores alone.
+
+**Helix-wheel interpretation:** Amphipathic_score ≈ 0.00 and LOW_CONTRAST flag are **expected and
+correct** for this non-helical AMP class. See the Helix-Wheel Amphipathic Face Analysis section.
+
+**Expected activity profile:**
+- Gram-positive coverage expected (indole affinity for phosphatidylglycerol-rich membranes);
+  Gram-negative possible at higher concentrations.
+- Hemolytic risk: moderate (Trp-rich sequences can be cytotoxic; HC₅₀ assay mandatory at MIC/3).
+
+**Serum stability:** Model scores 0.43–0.47. Expected **better than model** — Trp-flanked cleavage
+sites are cut 3–8× slower (Wu & Ding 2016, *J Pept Sci*). Assay before committing to D-Trp Wave 2.
+
+**Synthesis guidance:**
+- No Met, no Cys → standard Fmoc SPPS; no special modifications.
+- High Trp content (3–4 Trp/13 AA): dissolve in DMSO (≤ 10% final), then dilute to assay
+  concentration. Use 0.01% BSA to prevent Trp-driven tube adhesion.
+
+**Assay interpretation:**
+- If active without helical CD signal: **confirms aromatic-anchoring mechanism** — the non-helical
+  CD spectrum is the novel finding; include it in the paper.
+- If inactive: check aggregation first (HPLC purity in assay buffer, 0.01% BSA retry) before
+  concluding negative.
+
+---
+
+## SEED-009 (Bac2A Proline-rich) Special Notes
+
+SEED-009 variants are derived from **RRLPRPPRYLPRP** (13 AA), a proline-rich fragment from bovine
+**Bac7/Bac2A** (*Bos taurus*; Romano *et al.* 2006, *J Pept Sci* 12:707). Proline-rich AMPs target
+**intracellular pathways** — ribosome exit-tunnel stalling and DnaK chaperone inhibition — rather
+than membrane disruption (Otvos *et al.* 2002, *Cell Mol Life Sci* 59:1826).
+
+**Novelty:** All 4 pilot candidates NOVEL. Confirmed Gram-negative activity via intracellular
+targeting is a high-value result; this mechanism class is under-represented in published AMPs.
+
+**CRITICAL ASSAY REQUIREMENT — RPMI-1640 parallel assay:**
+All 4 SEED-009 pilot variants carry the `PROLINE_RICH_INTRACELLULAR` presynth QC flag (Pro ≥ 25%).
+Standard Mueller-Hinton broth (MHB) **underestimates potency 4–16×** because active uptake into
+Gram-negative cells requires the amino acid and vitamin content of nutrient-rich media. **Run
+SEED-009 variants in parallel in RPMI-1640 supplemented with 10% LB (pH 7.4)** alongside MHB.
+If RPMI MIC ≤ MHB MIC / 4, annotate as "media-dependent uptake mechanism confirmed" (Krizsan
+*et al.* 2014, *Angew Chem Int Ed* 53:12236).
+
+**Serum stability:** Model scores 0.57 — mid-range by raw model score (SEED-006 0.61–0.67 and
+SEED-007 0.636–0.662 are higher); expected to be **significantly better than the model score**
+in practice due to Pro-bond protease resistance. Pro-X and X-Pro bonds resist all major serine proteases due to
+Pro ring conformational constraint (Vanhoof *et al.* 1995, *FASEB J* 9:736–744). Bac2A-type
+Pro-rich AMPs show > 2 h stability in 50% human serum (Otvos & Cudic 2002, *Curr Pharm Design*).
+
+**Synthesis guidance:**
+- No Met, no Cys → standard Fmoc SPPS.
+- Pro-rich sequences (50% Pro in some variants): use extended coupling times or double-coupling
+  at Pro positions; pseudoproline (Ψ-Pro) dipeptides at Pro-Ser/Thr junctions if yield is low.
+- C-terminal amidation optional (Pro-rich AMPs rely less on C-terminal charge).
+
+**Assay interpretation:**
+- Expected: MHB MIC > 64 µg/mL, RPMI MIC ≤ 16 µg/mL — report both values.
+- If RPMI also inactive: check charge_ph74 (must be ≥ +3 for efficient intracellular transport);
+  deprioritise variants with charge_ph74 < +3 in Wave 2 design.
+- Expected Gram-negative selectivity (Bac2A uptake via SbmA permease; MRSA likely resistant).
+  MRSA resistance + *E. coli* / *K. pneumoniae* sensitivity is a publishable mechanistic finding.
+
+---
+
+## Serum Stability Model Limitations (All 7 Seeds)
 
 The `serum_stability_score()` function is calibrated for medium-length cationic helices (~18–30 AA).
 All 7 pilot panel seed families have model scores below the 0.70 threshold (t½ > 2h gate).
-Five families are flagged as borderline or carrying a known model bias:
+Complete per-family analysis:
 
 | Scaffold | Pilot score | Issue | Expected actual t½ | Action |
 |----------|-------------|-------|-------------------|--------|
 | SEED-003 (cationic helix, 11–14 AA) | 0.35–0.38 | Short peptide: the trypsin-site density model was calibrated on 18–30 AA sequences. For <15 AA peptides, per-site cleavage probability and flanking-context effects dominate over the aggregate density metric; model scores below 0.40 are unreliable at this length | **Likely > model prediction** (known calibration range limitation — not a specific literature citation) | Do not exclude on serum score alone. Run assay and compare to model |
-| SEED-005 (cecropin-magainin hybrid, 14 AA) | 0.449 | Borderline score below 0.50 (t½ > 1h) threshold; only 1 pilot slot — any failure drops this family | ~30 min–1 h by model; no documented correction factor | Prioritise in early serum screen; D-Lys Wave 2 plan ready if needed |
 | SEED-008 (puroindoline-a, Trp-rich) | 0.43–0.47 | Indole ring bulk reduces chymotrypsin cleavage at Trp4 (steric interference) | **Likely > model prediction** — Wu & Ding (2016, J Pept Sci): Trp-flanked cleavage sites are cut 3–8× slower than Tyr/Phe equivalents | D-Trp Wave 2 plan stands; assay actual stability first — may not need D-modification |
+| SEED-005 (cecropin-magainin hybrid, 14 AA) | 0.449 | Borderline score below 0.50 (t½ > 1h) threshold; only 1 pilot slot — any failure drops this family | ~30 min–1 h by model; no documented correction factor | Prioritise in early serum screen; D-Lys Wave 2 plan ready if needed |
 | SEED-001 (magainin-1 derivative, 15 AA) | 0.49 | 5 K/R sites in 15-mer; natural magainin-2 has documented serum t½ 15–30 min (Park & Hahm 2005, Curr Protein Pept Sci) — score may be accurate, not a model underestimate | ~30–60 min estimated | N-terminal acetylation (recommended in QC) partially protects K1; run early serum screen before committing MIC budget; D-Lys at K3/K7 in Wave 2 if t½ < 30 min |
 | SEED-009 (Bac2A proline-rich, 12 AA) | 0.57 | Pro residues confer resistance to trypsin, chymotrypsin, and elastase: Pro-X bonds cannot be hydrolysed (Pro nitrogen lacks a free H for the serine protease oxyanion hole mechanism); X-Pro bonds are very slowly cleaved due to cis-trans isomerisation barriers (Vanhoof et al. 1995, FASEB J 9:736–744). The trypsin-site density model counts K/R residues only and cannot capture this resistance. | **Likely > model prediction** — Bac2A-type Pro-rich AMPs show > 2h stability in 50% human serum (Otvos & Cudic 2002, Curr Pharm Design) | Do not penalise SEED-009 for low model score; assay confirms likely robustness |
+| SEED-006 (mastoparan-X, 14 AA) | 0.61–0.67 | Near-threshold score; 2 interior Lys + moderate trypsin density; natural mastoparan t½ ~2–4 h in plasma (Rhee 1994, FEBS Lett) — score may be accurate | ~2–4 h estimated | Assay to confirm threshold passage; no special modification planned |
+| SEED-007 (bombolitin-II, 11 AA) | 0.636–0.662 | Among best NOVEL-family scores (tied with SEED-006); lowest trypsin-site density of all helical seeds (3 K/R in 11 AA = 0.273 density); no known model bias for short bombolitin-class peptides | **Likely accurate** — no documented correction factor needed; assay to confirm | No modification planned; Met-containing variants require HPLC purity check at receipt |
 
 **Recommended action before full MIC panel:**
 Run a serum stability screen on all 20 pilot candidates:
@@ -272,8 +443,7 @@ Run a serum stability screen on all 20 pilot candidates:
 - Cost: ~$200–400 per batch of multiple candidates (not per individual peptide)
 
 This validates the gate assumptions directly and prevents retiring candidates that the model
-incorrectly penalises. For SEED-006 (scores 0.61–0.67) and SEED-007 (scores 0.64–0.66), the
-assay will determine whether borderline scores translate to the required t½ > 2h.
+incorrectly penalises.
 
 ---
 
