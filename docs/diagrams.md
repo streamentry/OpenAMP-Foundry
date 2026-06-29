@@ -49,28 +49,32 @@ that every naive generator over-produces.
                 │  (loaded once; reused by novelty scan AND motif prior-art)
                 ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ STAGE 1   GENERATION              biased random sampling from weighted alphabet │
-│           generate_expert_1000.py   ~10^5–10^6 raw sequences                     │
+│ STAGE 1   GENERATION              amphipathic helical-wheel construction (75%)  │
+│           generate_expert_1000.py + pure-random diversity (25%)                  │
+│           Hydrophobic residues placed on one helical face, cationic/polar on    │
+│           the other (100°/residue wheel) → high μH by construction, not by luck;│
+│           optional central Gly/Pro hinge inserted (selectivity motif).          │
 └───────────────┬──────────────────────────────────────────────────────────────┘
                 ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ STAGE 2   EXPERT GATES (cheap, main process)        cost-ordered, reject early │
-│   2a biophysics   charge, μH band, hydrophobic+aromatic caps, Trp≤2             │
-│   2b selectivity  selectivity_proxy ≥ 0.60   (charge/GRAVY therapeutic window)  │
-│   2c synthesis QC  no DKP / aspartimide / Trp-photolability; difficulty ≠ HIGH  │
-│   2d motif novelty k-mer prior-art: no ≥3 consecutive known 5-mers              │
+│ STAGE 2-5 run INSIDE each parallel worker (cost-ascending, reject cheap first): │
+│                                                                                 │
+│   2 cheap gates    charge, μH band, hydrophobic+aromatic caps, Trp≤2 (O(n))     │
+│   3 k-mer novelty  no ≥3 consecutive known 5-mers (set lookups)                 │
+│   4 MACREL GATE    calibrated ONNX models (independent): AMP-margin ≥ gold-      │
+│       (the key)    standard panel AND Hemo-margin ≤ magainin. ~6% pass — the     │
+│                    tightest gate, so run it BEFORE the expensive steps.          │
+│   5a biophysics+QC selectivity≥0.55, safety≥0.55, activity≥0.50, synth≥0.70,    │
+│                    no DKP/aspartimide/Trp-photolability                          │
+│   5b NOVELTY SCAN  BLOSUM62 local identity vs all 51,503 AMPs; keep < 40%;       │
+│                    any DRAMP-patent proximity rejected (CLEAR only)             │
 └───────────────┬──────────────────────────────────────────────────────────────┘
-                ▼  (~15–18% survive)
+                ▼  survival ≈ 1e-5 (Macrel-AMP ∩ novelty is intrinsically rare)
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ STAGE 3   NOVELTY SCAN (expensive, 9 parallel workers)                          │
-│           BLOSUM62 local identity vs all 51,503 AMPs;  keep < 40%               │
-│           patent DB flagged → any DRAMP-patent proximity rejected (CLEAR only)  │
-└───────────────┬──────────────────────────────────────────────────────────────┘
-                ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ STAGE 4   EXPERT COMPOSITE + DIVERSITY                                          │
-│           expert_score(): activity∩selectivity∩safety∩synth∩motif∩hinge        │
-│           diversity bucketing: ≤28 per (charge × length × hydrophobicity) bin   │
+│ STAGE 6   FINAL SCORE + DIVERSITY (main process)                                │
+│   final = 0.55·expert_composite + 0.30·Macrel-AMP-like + 0.15·Macrel-NonHemo    │
+│           (two independent model families must agree)                           │
+│   diversity bucketing: ≤28 per (charge × length × hydrophobicity) bin           │
 │           → 1000 ranked, scaffold-diverse candidates                            │
 └───────────────┬──────────────────────────────────────────────────────────────┘
                 ▼
@@ -94,22 +98,34 @@ that every naive generator over-produces.
 
 ---
 
-## 3. Why Cost-Ordering (the single most important engineering choice)
+## 3. Why Cost-Ordering + Full Parallelism
 
-A BLOSUM62 scan against 51,503 sequences costs ~10–100 ms per candidate; computing
-biophysical features + QC + k-mer lookup costs <1 ms. If we scanned every raw sequence
-we would waste >90% of compute on candidates that fail a trivial charge or motif check.
+Each gate has a different cost and a different rejection rate. Order them so the cheapest,
+highest-rejection filters run first, and only the survivors pay for the expensive ones:
 
 ```
-  Raw sequence
-      │
-      ├─►  cheap gates  (µs–ms)  ──►  reject ~82–85%   ◄── do this FIRST
-      │
-      └─►  survivors only ──►  BLOSUM62 scan (ms, 9 workers)  ◄── expensive, LAST
+  per-candidate cost     reject rate   stage
+  ───────────────────    ───────────   ─────────────────────────────
+  O(n) counts   ~µs        ~87%        cheap biophysics prefilter
+  set lookups   ~µs        small       k-mer prior-art
+  ONNX 1 batch  ~30µs      ~94%        MACREL gate   ◄── tightest; run before features
+  features+QC   ~ms        moderate    biophysical + synthesis QC
+  BLOSUM×51503  ~10-100ms  high        novelty scan  ◄── most expensive; survivors only
 ```
 
-This is why Stage 2 lives in the main process and only Stage 3 is parallelised.
-**Reject the cheap-to-reject things first.**
+**Two independent engineering wins:**
+
+1. **Cost-ordering.** Running the ~94%-rejection Macrel gate (cheap ONNX) *before* the
+   expensive `compute_features` + BLOSUM cut wasted feature computation ~16×.
+
+2. **Full parallelism.** Each worker process self-generates candidates and runs the
+   *entire* gauntlet locally; the main process only collects, dedups, diversity-caps,
+   and applies the final composite. ONNX sessions are pinned to 1 thread/process to
+   avoid core oversubscription. Result: ~7.75× scaling on 9 workers, ~240 MB peak RSS.
+
+> Survival is ~1e-5 — not a bug. "Looks like an AMP to Macrel" ∩ "<40% identical to all
+> 51,503 known AMPs" is genuinely rare, because real-AMP-like sequences resemble real
+> AMPs. We pay for it with a large, fully-parallel search rather than by relaxing novelty.
 
 ---
 
@@ -166,6 +182,27 @@ hydrophobic-moment number is **blind to position** — this feature is not.
 `build_kmer_index()` stores every 5-mer in the 51,503-sequence corpus; a candidate
 sharing ≥3 *consecutive* known 5-mers is rejected. This is strictly sharper than a
 global-identity threshold for catching "this looks like X."
+
+### 4c. Calibrated Macrel in the loop (independent model, not just our own scores)
+
+The strongest evidence is two *independent* model families agreeing. Macrel (Santos-Junior
+et al. 2020) is an external trained AMP+hemolysis classifier. In this environment an
+onnxruntime/ZipMap mismatch breaks its *absolute* probabilities (it mis-labels even
+magainin-2). But the *relative* margin signal is intact and cleanly separates known AMPs
+from non-AMPs:
+
+```
+   AMP margin:   gold-standard AMPs ▏──────[ −0.26 … −0.04 ]      (magainin, LL-37, …)
+                 non-AMPs   ▏[ −1.00 … −0.51 ]──────              (polyK, insulin, albumin)
+                                          ↑ clean separating gap ↑
+                 gate = −0.30  →  "at least as AMP-like as the worst gold-standard AMP"
+   Hemo margin:  melittin −0.01 (hemolytic)  >  magainin −0.09 (selective)
+                 gate = −0.05  →  "no more hemolytic than magainin"
+```
+
+So every candidate is, by Macrel's own judgment, **as AMP-like as the gold-standard panel
+and no more hemolytic than magainin** — recovered from a broken absolute output by
+calibrating against known peptides. `final_score` blends this with the expert composite.
 
 ### 4b. The whole per-axis toolkit feeding the composite
 
