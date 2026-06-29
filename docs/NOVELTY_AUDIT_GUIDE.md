@@ -35,15 +35,24 @@ All FASTA files are committed to `data/novelty_db/`.
 | `uniprot_amps_unreviewed.fasta` | UniProt KW-0929 ≤60aa, unreviewed | 1,692 | No | TrEMBL broad coverage |
 | `escape_amps.fasta` | [ESCAPE NeurIPS-2025](https://doi.org/10.7910/DVN/C69MCD) | 3,542 | No | 21k AMPs from 27 repos; 3,542 clean standard-AA extracted |
 | `dbAMP3.fasta` | [dbAMP 3.0](https://awi.cuhk.edu.cn/dbAMP/) | 35,599 | No | Largest single AMP DB; 29,984 clean standard-AA extracted |
+| `dbaasp-peptides.fasta` | [DBAASP](https://dbaasp.org) | 1,988 | No | Database of Antimicrobial Activity and Structure of Peptides |
+| `apd6_human.fasta` | APD6 2024 (human subset) | 154 | No | Human host-defense peptides (cathelicidins, defensins, histatins) |
+| `uniprot_amps.fasta` | UniProt KW-0929 (combined pull) | 2,348 | No | Separate UniProt download; fully overlaps with reviewed+unreviewed above |
 
-After deduplication: **51,503 unique clean standard-AA sequences (5–100 aa)**
+After deduplication: **51,503 unique clean standard-AA sequences (5–100 aa)**  
+(DBAASP, APD6 human, and UniProt combined added 0 net new sequences — all subsumed by existing DB.)
 
 ### Databases NOT yet included
 
 | Database | Size | Status | Why excluded |
 |----------|------|--------|--------------|
-| [DBAASP](https://dbaasp.org) | >10,000 | Requires auth | API returns 403 for bulk download |
 | UniProt nr (full) | Billions | Scope | Beyond AMP-specific novelty; use BLASTp for global search |
+
+### DBAASP activity / hemolytic data
+
+`data/novelty_db/activity-against-target-species.csv` and `hemolytic-and-cytotoxic-activities.csv`
+are DBAASP metadata files (MIC values + hemolytic data). They are reference data for panel
+annotation, not sequence novelty files. Use them when interpreting activity predictions.
 
 **For global novelty (pre-grant):** Run BLASTp against NCBI nr and Google Patents / [Lens.org](https://lens.org) in addition to this audit.
 

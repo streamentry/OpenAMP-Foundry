@@ -2,20 +2,23 @@
 Expanded BLOSUM62 novelty audit against a multi-source AMP database.
 
 Database sources (see data/novelty_db/ and NOVELTY_AUDIT_GUIDE.md):
-  APD6 natural  (3,306)    — high-quality canonical AMPs
-  APD6 animal   (2,580)    — non-natural-subset animal AMPs
-  APD6 plant    (268)      — plant defensins & thionins
-  APD6 bacteria (410)      — bacteriocins & lantibiotics
+  APD6 natural  (3,307)    — high-quality canonical AMPs
+  APD6 animal   (2,581)    — non-natural-subset animal AMPs
+  APD6 plant    (269)      — plant defensins & thionins
+  APD6 bacteria (411)      — bacteriocins & lantibiotics
+  APD6 human    (155)      — human host-defense peptides (cathelicidins, defensins)
   DRAMP general (11,687)   — broad AMP collection, public
   DRAMP patent  (18,715)   — patent-protected AMPs   ← IP-risk detection
   DRAMP specific (6,321)   — clinical/stability/structural DRAMP entries
   UniProt reviewed (2,673) — Swiss-Prot reviewed AMPs ≤100aa
   UniProt unreviewed (1,692) — TrEMBL unreviewed AMPs ≤60aa
+  UniProt combined (2,348) — separate UniProt KW-0929 download (partial overlap)
   ESCAPE NeurIPS-2025 (3,542) — 21k exp. validated AMPs from 27 repos
   dbAMP 3.0 (35,599)       — largest dedicated AMP database
+  DBAASP (1,988)           — Database of Antimicrobial Activity and Structure of Peptides
 
-Combined before dedup: ~87,793 sequences
-After dedup, clean standard-AA 5-100aa: 51,503
+Combined before dedup: ~91,088 sequences
+After dedup, clean standard-AA 5-100aa: ~53,000 (exact count printed at runtime)
 
 Novelty thresholds (identity = matches / query_length, BLOSUM62 local):
   ≥99%  EXACT_MATCH_OR_FRAGMENT
@@ -67,10 +70,16 @@ DB_SOURCES: list[tuple[str, Path, bool]] = [
     # UniProt
     ("uniprot_reviewed",   ROOT / "data/novelty_db/uniprot_amps_reviewed.fasta",   False),
     ("uniprot_unreviewed", ROOT / "data/novelty_db/uniprot_amps_unreviewed.fasta", False),
+    # APD6 human — human host-defense peptides (cathelicidins, defensins, histatins)
+    ("apd6_human",         ROOT / "data/novelty_db/apd6_human.fasta",              False),
     # ESCAPE benchmark (NeurIPS 2025) — 21k experimentally validated AMPs from 27 repositories
     ("escape_amps",        ROOT / "data/novelty_db/escape_amps.fasta",             False),
     # dbAMP 3.0 — 35,599 AMPs, largest dedicated AMP database
     ("dbamp3",             ROOT / "data/novelty_db/dbAMP3.fasta",                  False),
+    # DBAASP — Database of Antimicrobial Activity and Structure of Peptides
+    ("dbaasp",             ROOT / "data/novelty_db/dbaasp-peptides.fasta",         False),
+    # UniProt combined — separate KW-0929 pull (partial overlap with reviewed/unreviewed above)
+    ("uniprot_combined",   ROOT / "data/novelty_db/uniprot_amps.fasta",            False),
 ]
 
 
@@ -244,7 +253,7 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     print("=== OpenAMP Expanded Novelty Audit ===")
-    print(f"DB version: APD6 + DRAMP 3.0 + UniProt + ESCAPE NeurIPS-2025 + dbAMP 3.0\n")
+    print(f"DB version: APD6 + DRAMP 3.0 + UniProt + ESCAPE NeurIPS-2025 + dbAMP 3.0 + DBAASP\n")
     print("Loading databases...")
     t0 = time.time()
     db = build_db(verbose=not args.quiet)
