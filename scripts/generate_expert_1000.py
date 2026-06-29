@@ -244,18 +244,23 @@ def build_db(root: Path) -> list[tuple[str, str, bool]]:
 
 _WDB: list = []
 _WALIGNER = None
+_WKMER: set[str] = set()          # worker-side k-mer prior-art index
+
+LENGTHS = list(range(GATE["len_min"], GATE["len_max"] + 1))
 
 
 def _worker_init(root_str: str) -> None:
     from Bio.Align import PairwiseAligner, substitution_matrices
-    global _WDB, _WALIGNER
+    global _WDB, _WALIGNER, _WKMER
     _WDB = build_db(Path(root_str))
+    _WKMER = build_kmer_index([s for s, _, _ in _WDB], k=GATE["kmer_k"])
     a = PairwiseAligner()
     a.substitution_matrix = substitution_matrices.load("BLOSUM62")
     a.mode = "local"
     a.open_gap_score = -11.0
     a.extend_gap_score = -1.0
     _WALIGNER = a
+    macrel_local._sessions()  # warm the ONNX models once per worker
 
 
 def _local_identity(query: str, target: str) -> float:
@@ -286,6 +291,64 @@ def _worker_scan(seq: str) -> tuple[str, float, str, bool]:
         if best_id >= GATE["novelty_max_identity"]:
             return seq, best_id, best_hit, best_pat
     return seq, best_id, best_hit, best_pat
+
+
+def _worker_generate(task: tuple[int, int]) -> list[tuple]:
+    """Self-contained generation + full gauntlet in a worker process.
+
+    task = (seed, n_attempts). The worker generates n_attempts candidates with its own
+    RNG, then runs the complete cost-ascending pipeline locally:
+        construct → cheap prefilter → k-mer prior-art → Macrel (AMP+Hemo) →
+        compute_features + biophysical/QC gates → BLOSUM62 novelty.
+    Returns one tuple per SURVIVING candidate. The main process only collects, dedups,
+    diversity-caps, and applies the final expert composite — so EVERY expensive step is
+    parallelised across all cores (generation was the serial bottleneck before this).
+
+    Macrel is run per-survivor of the cheap gates in small sub-batches to amortise ONNX.
+    """
+    seed, n_attempts = task
+    rng = random.Random(seed)
+    # Stage 1: generate + cheap gates (prefilter, k-mer) → candidate pool
+    pool_seqs: list[str] = []
+    local_seen: set[str] = set()
+    for _ in range(n_attempts):
+        length = rng.choice(LENGTHS)
+        seq = generate_amphipathic(rng, length) if rng.random() < 0.75 \
+            else generate_candidate(rng, length)
+        if seq in local_seen:
+            continue
+        local_seen.add(seq)
+        if not _cheap_prefilter(seq):
+            continue
+        motif = kmer_prior_art(seq, _WKMER, k=GATE["kmer_k"])
+        if motif["max_run_known"] >= GATE["kmer_max_known_run"] + 1:
+            continue
+        pool_seqs.append(seq)
+
+    if not pool_seqs:
+        return []
+
+    # Stage 2: Macrel gate (batched ONNX) → biophysical gates → BLOSUM novelty
+    mres = macrel_local.score_batch(pool_seqs)
+    if mres is None:
+        raise RuntimeError("Macrel ONNX models unavailable in worker")
+    out: list[tuple] = []
+    for s, mr in zip(pool_seqs, mres):
+        if not mr.passes:
+            continue
+        feats = compute_features(s)
+        ok, _why = passes_expert_gates(s, feats, _WKMER)
+        if not ok:
+            continue
+        _s, best_id, best_hit, is_pat = _worker_scan(s)
+        if best_id >= GATE["novelty_max_identity"] or is_pat:
+            continue
+        out.append((
+            s, feats,
+            mr.amp_margin, mr.amp_like_score, mr.hemo_margin, mr.nonhemo_score,
+            round(best_id, 4), best_hit,
+        ))
+    return out
 
 
 # ── Cheap expert gates (main process) ─────────────────────────────────────────
@@ -417,7 +480,6 @@ def main() -> None:
     pool = ctx.Pool(processes=N_WORKERS, initializer=_worker_init, initargs=(str(ROOT),))
     print(f"  ready ({time.time()-t0:.1f}s)\n", flush=True)
 
-    rng = random.Random(SEED)
     rows: list[dict] = []
     seen: set[str] = set()
     bin_counts: dict[tuple, int] = defaultdict(int)
@@ -429,143 +491,93 @@ def main() -> None:
           f"{'Hng':>3} {'Sim':>6}", flush=True)
     print("─" * 118, flush=True)
 
-    pending: list[tuple[str, dict]] = []   # (seq, feats) awaiting BLOSUM
-    attempt = 0
-    N_MAX = 50_000_000
+    ATTEMPTS_PER_TASK = 20000        # candidates each worker task generates + gauntlets
+    # Macrel-AMP-likeness ∩ novelty(<40%) is intrinsically rare (AMP-like sequences
+    # resemble known AMPs), so the survival rate is ~1e-5 and we must search a large
+    # space. Tasks are streamed continuously to keep all cores saturated.
+
+    def _ingest(survivor: tuple) -> bool:
+        """Score + diversity-cap one worker survivor in the main process. Returns True
+        if a candidate was accepted (and prints/checkpoints)."""
+        nonlocal n_novel, n_gate, n_div
+        seq, feats, amp_margin, amp_like, hemo_margin, nonhemo, best_id, best_hit = survivor
+        if seq in seen:                       # cross-worker duplicate
+            return False
+        seen.add(seq)
+        n_gate += 1
+        div = _diversity_bin(seq, feats)
+        if bin_counts[div] >= MAX_PER_BIN:
+            n_div += 1
+            return False
+        es = expert_score(seq, features=feats, kmer_index=kmer_index, k=GATE["kmer_k"])
+        qc = check_sequence("c", seq, mu_h=feats["hydrophobic_moment"])
+        # Final rank = expert composite blended with independent Macrel AMP-likeness +
+        # non-hemolysis. Two independent model families agreeing is the strongest signal.
+        final_score = round(0.55 * es.composite + 0.30 * amp_like + 0.15 * nonhemo, 4)
+        n_novel += 1
+        bin_counts[div] += 1
+        cid = f"XPRT_{n_novel:04d}"
+        rows.append({
+            "candidate_id": cid, "sequence": seq, "length": len(seq),
+            "net_charge_ph74": round(feats["net_charge_ph74"], 2),
+            "hydrophobic_fraction": feats["hydrophobic_fraction"],
+            "aromatic_fraction": feats["aromatic_fraction"],
+            "mu_h": feats["hydrophobic_moment"],
+            "max_mu_h": feats["max_hydrophobic_moment"],
+            "gravy": feats["gravy"], "selectivity_proxy": feats["selectivity_proxy"],
+            "final_score": final_score, "expert_composite": es.composite,
+            "expert_activity_consensus": es.components["activity_consensus"],
+            "expert_selectivity": es.components["selectivity"],
+            "expert_safety": es.components["safety"],
+            "expert_synthesis": es.components["synthesis"],
+            "expert_serum_stability": es.components["serum_stability"],
+            "expert_hinge_selectivity": es.components["hinge_selectivity"],
+            "expert_motif_novelty": es.components["motif_novelty"],
+            "macrel_amp_margin": amp_margin, "macrel_amp_like": amp_like,
+            "macrel_hemo_margin": hemo_margin, "macrel_nonhemo": nonhemo,
+            "has_central_hinge": es.extras["has_central_hinge"],
+            "motif_known_kmers": es.extras["motif_known_kmers"],
+            "motif_max_known_run": es.extras["motif_max_known_run"],
+            "best_identity": best_id, "best_hit_id": best_hit,
+            "novelty_class": "HIGH_CONFIDENCE_NOVEL", "patent_risk": "CLEAR",
+            "synthesis_difficulty": qc.synthesis_difficulty,
+            "expert_flags": ";".join(es.flags), "seed_family": cid,
+        })
+        print(f"{n_novel:>5}  {cid:<14} {seq:<26} {final_score:>5.3f} "
+              f"{amp_like:>4.2f} {nonhemo:>4.2f} "
+              f"{int(es.extras['has_central_hinge']):>3} {best_id:>6.1%}", flush=True)
+        if n_novel % CHECKPOINT == 0:
+            rows.sort(key=lambda r: -r["final_score"])
+            _write_outputs(rows)
+            el = time.time() - t_start
+            rate = n_novel / el * 3600
+            print(f"\n  [ckpt {n_novel}/{N_TARGET}] saved | {n_gate} survived / "
+                  f"{n_gen:,} gen | {rate:.0f}/hr "
+                  f"ETA {(N_TARGET-n_novel)/max(rate,1)*60:.0f}min\n", flush=True)
+        return True
+
+    def _task_stream():
+        """Yield generation tasks with distinct seeds, indefinitely."""
+        s = SEED
+        while True:
+            yield (s, ATTEMPTS_PER_TASK)
+            s += 1
 
     try:
-        while n_novel < N_TARGET and attempt < N_MAX:
-            # Fill a batch of gate-passing candidates
-            while len(pending) < BATCH and attempt < N_MAX:
-                attempt += 1
-                # 75% amphipathic-wheel construction (high μH yield), 25% pure random
-                # (diversity / scaffolds the wheel model would never propose).
-                length = rng.choice(LENGTHS)
-                if rng.random() < 0.75:
-                    seq = generate_amphipathic(rng, length)
-                else:
-                    seq = generate_candidate(rng, length)
-                n_gen += 1
-                if seq in seen:
-                    continue
-                seen.add(seq)
-                if not _cheap_prefilter(seq):
-                    reject["prefilter"] += 1
-                    continue
-                feats = compute_features(seq)
-                ok, why = passes_expert_gates(seq, feats, kmer_index)
-                if not ok:
-                    reject[why] += 1
-                    continue
-                n_gate += 1
-                pending.append((seq, feats))
-
-            if not pending:
-                break
-
-            batch_seqs = [s for s, _ in pending]
-            feat_map = {s: f for s, f in pending}
-            pending = []
-
-            # Macrel batch gate (independent ONNX activity + hemolysis, calibrated
-            # margins). Placed BEFORE the expensive BLOSUM scan: each survivor must be
-            # as AMP-like as the gold-standard panel AND no more hemolytic than magainin.
-            macrel_results = macrel_local.score_batch(batch_seqs)
-            if macrel_results is None:
-                raise RuntimeError(
-                    "Macrel ONNX models unavailable — refusing to generate without the "
-                    "independent activity/hemolysis gate (would reproduce the un-floored bug)."
-                )
-            macrel_map = {}
-            scan_in: list[str] = []
-            for s, mr in zip(batch_seqs, macrel_results):
-                if not mr.passes:
-                    reject["macrel_amp" if not mr.passes_amp_gate else "macrel_hemo"] += 1
-                    continue
-                macrel_map[s] = mr
-                scan_in.append(s)
-
-            if not scan_in:
-                continue
-            scan_out = pool.map(_worker_scan, scan_in)
-
-            for seq, best_id, best_hit, is_pat in scan_out:
-                if best_id >= GATE["novelty_max_identity"] or is_pat:
-                    reject["novelty_or_patent"] += 1
-                    continue
-                feats = feat_map[seq]
-                mr = macrel_map[seq]
-                div = _diversity_bin(seq, feats)
-                if bin_counts[div] >= MAX_PER_BIN:
-                    n_div += 1
-                    continue
-
-                es = expert_score(seq, features=feats, kmer_index=kmer_index, k=GATE["kmer_k"])
-                qc = check_sequence("c", seq, mu_h=feats["hydrophobic_moment"])
-
-                # Final rank = expert composite (internal multi-axis) blended with the
-                # independent Macrel AMP-likeness + non-hemolysis. Two independent model
-                # families agreeing is stronger evidence than either alone.
-                final_score = round(
-                    0.55 * es.composite
-                    + 0.30 * mr.amp_like_score
-                    + 0.15 * mr.nonhemo_score,
-                    4,
-                )
-
-                n_novel += 1
-                bin_counts[div] += 1
-                cid = f"XPRT_{n_novel:04d}"
-
-                row = {
-                    "candidate_id": cid, "sequence": seq, "length": len(seq),
-                    "net_charge_ph74": round(feats["net_charge_ph74"], 2),
-                    "hydrophobic_fraction": feats["hydrophobic_fraction"],
-                    "aromatic_fraction": feats["aromatic_fraction"],
-                    "mu_h": feats["hydrophobic_moment"],
-                    "max_mu_h": feats["max_hydrophobic_moment"],
-                    "gravy": feats["gravy"],
-                    "selectivity_proxy": feats["selectivity_proxy"],
-                    "final_score": final_score,
-                    "expert_composite": es.composite,
-                    "expert_activity_consensus": es.components["activity_consensus"],
-                    "expert_selectivity": es.components["selectivity"],
-                    "expert_safety": es.components["safety"],
-                    "expert_synthesis": es.components["synthesis"],
-                    "expert_serum_stability": es.components["serum_stability"],
-                    "expert_hinge_selectivity": es.components["hinge_selectivity"],
-                    "expert_motif_novelty": es.components["motif_novelty"],
-                    "macrel_amp_margin": mr.amp_margin,
-                    "macrel_amp_like": mr.amp_like_score,
-                    "macrel_hemo_margin": mr.hemo_margin,
-                    "macrel_nonhemo": mr.nonhemo_score,
-                    "has_central_hinge": es.extras["has_central_hinge"],
-                    "motif_known_kmers": es.extras["motif_known_kmers"],
-                    "motif_max_known_run": es.extras["motif_max_known_run"],
-                    "best_identity": round(best_id, 4), "best_hit_id": best_hit,
-                    "novelty_class": "HIGH_CONFIDENCE_NOVEL", "patent_risk": "CLEAR",
-                    "synthesis_difficulty": qc.synthesis_difficulty,
-                    "expert_flags": ";".join(es.flags),
-                    "seed_family": cid,
-                }
-                rows.append(row)
-
-                print(f"{n_novel:>5}  {cid:<14} {seq:<26} {final_score:>5.3f} "
-                      f"{mr.amp_like_score:>4.2f} {mr.nonhemo_score:>4.2f} "
-                      f"{int(es.extras['has_central_hinge']):>3} {best_id:>6.1%}", flush=True)
-
-                if n_novel % CHECKPOINT == 0:
-                    rows.sort(key=lambda r: -r["final_score"])
-                    _write_outputs(rows)
-                    el = time.time() - t_start
-                    rate = n_novel / el * 3600
-                    print(f"\n  [ckpt {n_novel}/{N_TARGET}] saved | {n_gate} gated / "
-                          f"{n_gen} gen ({100*n_gate/max(n_gen,1):.1f}%) | "
-                          f"{rate:.0f}/hr ETA {(N_TARGET-n_novel)/max(rate,1)*60:.0f}min\n", flush=True)
+        # Stream tasks through imap_unordered so all workers stay continuously saturated
+        # (chunksize=1: hand out one task at a time; tasks are ~1s each so overhead is
+        # negligible and load stays balanced). Break as soon as the target is reached.
+        result_iter = pool.imap_unordered(_worker_generate, _task_stream(), chunksize=1)
+        for survivors in result_iter:
+            n_gen += ATTEMPTS_PER_TASK
+            for survivor in survivors:
+                _ingest(survivor)
                 if n_novel >= N_TARGET:
                     break
+            if n_novel >= N_TARGET:
+                break
     finally:
-        pool.close()
+        pool.terminate()      # stop the infinite stream promptly
         pool.join()
 
     rows.sort(key=lambda r: -r["final_score"])

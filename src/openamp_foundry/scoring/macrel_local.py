@@ -73,11 +73,17 @@ def _sessions():
     hemo_path = os.path.join(models_dir, "Hemo.onnx.gz")
     if not (os.path.exists(amp_path) and os.path.exists(hemo_path)):
         return None
+    # Pin to single-threaded inference. Under multiprocessing (one session per worker
+    # process), the default multi-threaded ONNX runtime oversubscribes cores and destroys
+    # parallel scaling. One thread per session × N worker processes is the correct layout.
+    opts = rt.SessionOptions()
+    opts.intra_op_num_threads = 1
+    opts.inter_op_num_threads = 1
     try:
         with gzip.open(amp_path, "rb") as f:
-            amp = rt.InferenceSession(f.read(), providers=["CPUExecutionProvider"])
+            amp = rt.InferenceSession(f.read(), sess_options=opts, providers=["CPUExecutionProvider"])
         with gzip.open(hemo_path, "rb") as f:
-            hemo = rt.InferenceSession(f.read(), providers=["CPUExecutionProvider"])
+            hemo = rt.InferenceSession(f.read(), sess_options=opts, providers=["CPUExecutionProvider"])
     except Exception:
         return None
     return amp, hemo
