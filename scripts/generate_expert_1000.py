@@ -396,9 +396,14 @@ def main() -> None:
     print("=== God-Level Expert Generator — target", N_TARGET, "===")
     print("DB: APD6 + DRAMP3 + UniProt + ESCAPE + dbAMP3 + DBAASP  (51,503 seqs)")
     print(f"Workers: {N_WORKERS} | seed: {SEED}")
-    print("Gates: selectivity≥0.60, safety≥0.60, synth≥0.70, μH 0.18–0.55,")
-    print("       aromatic≤0.25, W≤2, k-mer run<3, no DKP/aspartimide/Trp-photo, <40% identity")
-    print("Ranking: expert composite (activity∩selectivity∩safety∩synth∩motif∩hinge)\n", flush=True)
+    print(f"Gates: activity≥{GATE['activity_min']}, selectivity≥{GATE['selectivity_min']}, "
+          f"safety≥{GATE['safety_min']}, synth≥{GATE['synthesis_min']}, "
+          f"μH {GATE['mu_h_min']}–{GATE['mu_h_max']}, hydro {GATE['hydro_min']}–{GATE['hydro_max']},")
+    print(f"       aromatic≤{GATE['aromatic_max']}, W≤{GATE['trp_max']}, k-mer run<{GATE['kmer_max_known_run']+1}, "
+          f"no DKP/aspartimide/Trp-photo, <{int(GATE['novelty_max_identity']*100)}% identity")
+    print(f"       Macrel AMP-margin≥{GATE['macrel_amp_margin_min']}, Hemo-margin≤{GATE['macrel_hemo_margin_max']} "
+          f"(calibrated vs gold-standard panel)")
+    print("Ranking: final = 0.55 expert ∩ 0.30 Macrel-AMP ∩ 0.15 Macrel-NonHemo\n", flush=True)
 
     t0 = time.time()
     print("Building known-AMP DB + k-mer index (main process)...", flush=True)
