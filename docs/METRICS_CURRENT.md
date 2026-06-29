@@ -14,7 +14,7 @@
 | Metric | Value | Notes |
 |--------|-------|-------|
 | Benchmark type | Standard (composition-matched decoys) | Default `make validate-scoring` |
-| Positives | **95** public-domain AMPs | 12 taxonomic classes; see `examples/validation/knownd_amps.csv` |
+| Positives | **95** public-domain AMPs | 12 taxonomic classes; see `examples/validation/known_amps.csv` |
 | Negatives | **96** length-matched random decoys | Swiss-Prot residue frequencies, seed=1729 |
 | Total (n) | **191** | Expanded from original 87 (PR #110) |
 | **Pipeline AUROC** | **0.7832** | Bootstrap CI₉₅: 0.72–0.84 (n_bootstrap=2000) |
