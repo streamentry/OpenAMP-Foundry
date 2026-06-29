@@ -170,9 +170,37 @@ openamp-foundry external-consensus \
 
 ---
 
-## Step 2 — APD3 / DRAMP / dbAMP Novelty Check
+## Step 2 — Novelty Gate (Full-DB Audit Required Before Panel Lock)
 
-The internal 120-sequence novelty audit is a preliminary screen.
+> **⚠ Postmortem gate (2026-06-29):** A preliminary 72-sequence novelty check returned
+> NOVEL for SEED-020_VAR_004/002 while the full BLOSUM62 audit (27,234 sequences, patent DB
+> included) classified them CLOSE_RELATIVE / POSSIBLE_PATENT_RISK. **Always use the full
+> audit tool before adding any candidate to `wave1_final_panel.csv` or citing a novelty
+> status in a submission document.** See `docs/postmortems/2026-06-29-seed020-novelty-patent-risk.md`.
+
+### Gate: Full BLOSUM62 audit must exist for every panel candidate
+
+Before adding a candidate to `outputs/wave1_final_panel.csv`:
+
+```bash
+# Verify the candidate appears in the full audit output:
+grep "CANDIDATE_ID" outputs/wave0_5_novelty_audit_v2.csv
+
+# If missing, run the full audit (includes 27,234 sequences, DRAMP patent sub-DB):
+python scripts/run_wave0_5_novelty_audit_v2.py
+```
+
+**Do NOT cite the `novelty-check-broad` CLI result alone in any submission document.**
+That tool uses a 72-sequence database with no patent sequences — it is a fast preliminary
+filter only, not a sufficient novelty gate.
+
+### Scaffold continuity rule
+
+If any existing variant of a seed family is classified POSSIBLE_PATENT_RISK in the full
+audit, **all new variants from that family must also be run through the full audit before
+documentation**, regardless of preliminary check results.
+
+### The internal 120-sequence novelty audit is a preliminary screen.
 Before publication, verify against the full public databases.
 
 ### Database BLAST
