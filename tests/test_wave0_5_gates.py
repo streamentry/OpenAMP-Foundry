@@ -2,9 +2,6 @@
 from __future__ import annotations
 
 import csv
-import io
-import json
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -20,7 +17,6 @@ from openamp_foundry.gates.wave0_5_gate_checker import (
     check_w05_7_claim_safety,
     run_all_gates,
     MIN_FAMILIES,
-    MAX_LEADS_PER_FAMILY,
 )
 
 

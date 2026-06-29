@@ -9,7 +9,6 @@ All thresholds are hardcoded constants. Do not change thresholds silently.
 from __future__ import annotations
 
 import csv
-import json
 import re
 from pathlib import Path
 from typing import NamedTuple
