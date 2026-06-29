@@ -482,8 +482,8 @@ Despite the probability gap, the pipeline has done the following correctly:
 2. **Consistent synthesis feasibility:** All pilot candidates are MODERATE SPPS difficulty
    except one HIGH (SEED-002 23-mer). Zero synthesis-impossible candidates nominated.
 
-3. **Strong AUROC:** 0.8420 (bootstrap CI₉₅: 0.76–0.91, n=87, n_bootstrap=2000; PR #72 face_segregation_bonus) — the ensemble correctly separates
-   AMP-like from random-sequence background ~84% of the time.
+3. **Strong AUROC:** 0.7832 (expanded 95-AMP + 96-decoy benchmark, CI₉₅: 0.72–0.84, n=191, n_bootstrap=2000; original demo set 0.8420 on 43+44; PR #110) — the ensemble correctly separates
+   AMP-like from random-sequence background ~78% of the time.
 
 4. **Dual-scorer consensus:** All phase3 nominees have disagreement ≤ 0.45 (physicochemical and
    Boman scorers agree within the validated threshold). Note: SEED-008 (Trp-rich puroindoline-a)

@@ -75,15 +75,20 @@ def _isoelectric_point(seq: str) -> float:
     return round((lo + hi) / 2.0, 2)
 
 
+# Average amino acid masses (g/mol) — used for MW calculation and DKP mass estimation.
+_AA_AVG_MASS: dict[str, float] = {
+    "A": 89.09, "R": 174.20, "N": 132.12, "D": 133.10, "C": 121.16,
+    "Q": 146.15, "E": 147.13, "G": 75.03,  "H": 155.16, "I": 131.17,
+    "L": 131.17, "K": 146.19, "M": 149.20, "F": 165.19, "P": 115.13,
+    "S": 105.09, "T": 119.12, "W": 204.23, "Y": 181.19, "V": 117.15,
+}
+
+
 def _molecular_weight(seq: str) -> float:
     """Approximate MW (Da) from residue masses."""
-    mw = {
-        "A": 89.09, "R": 174.20, "N": 132.12, "D": 133.10, "C": 121.16,
-        "Q": 146.15, "E": 147.13, "G": 75.03, "H": 155.16, "I": 131.17,
-        "L": 131.17, "K": 146.19, "M": 149.20, "F": 165.19, "P": 115.13,
-        "S": 105.09, "T": 119.12, "W": 204.23, "Y": 181.19, "V": 117.15,
-    }
-    return round(sum(mw.get(aa, 110.0) for aa in seq) - 18.02 * (len(seq) - 1), 1)
+    return round(
+        sum(_AA_AVG_MASS.get(aa, 110.0) for aa in seq) - 18.02 * (len(seq) - 1), 1
+    )
 
 
 def _has_uv_chromophore(seq: str) -> bool:
@@ -117,6 +122,9 @@ class SynthQC:
     chymotrypsin_sites: list[int] = field(default_factory=list)
     deamidation_sites: list[str] = field(default_factory=list)  # e.g. ["N3G", "Q5S"]
     isomerization_sites: list[str] = field(default_factory=list)  # e.g. ["D2G", "D9S"]
+
+    # N-terminal diketopiperazine cyclization
+    diketopiperazine_risk: bool = False  # N-terminal X-Pro dipeptide → cyclo(X-Pro) + truncation
 
     # N-terminal pyroglutamate cyclization
     pyroglutamate_risk: bool = False   # N-terminal Q or E → pGlu (activity loss)
@@ -172,6 +180,7 @@ class SynthQC:
             "chymotrypsin_sites": self.chymotrypsin_sites,
             "deamidation_sites": self.deamidation_sites,
             "isomerization_sites": self.isomerization_sites,
+            "diketopiperazine_risk": self.diketopiperazine_risk,
             "pyroglutamate_risk": self.pyroglutamate_risk,
             "tryptophan_count": self.tryptophan_count,
             "trp_photolability_risk": self.trp_photolability_risk,
@@ -240,6 +249,26 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
         f"{m.group()[0]}{m.start() + 1}{m.group()[1]}"
         for m in _ISOMERIZATION_RE.finditer(seq)
     ]
+
+    # N-terminal diketopiperazine (DKP) cyclization: X-Pro at positions 1-2 → cyclo(X-Pro).
+    # The free α-NH₂ of residue 1 (primary amine) attacks the carbonyl between Pro (position 2)
+    # and residue 3, forming a 6-membered DKP ring and releasing a truncated peptide at position 3.
+    # Excluded: N-terminal Pro (Pro-Pro): Pro has a secondary amine (pyrrolidine nitrogen) with
+    # greatly reduced nucleophilicity — cyclization rate negligible at physiological pH.
+    # Rates: F-Pro t½ ~hours to 2 days at 37°C pH 7.4; varies by residue 1 identity.
+    # Prevention: Nα-acetylation completely blocks DKP (blocks free amine → no nucleophile).
+    # Literature: Smyth et al. (2000) J Peptide Res 55:105; Boddy et al. (2016) J Pept Sci.
+    qc.diketopiperazine_risk = len(seq) >= 2 and seq[1] == "P" and seq[0] != "P"
+    if qc.diketopiperazine_risk:
+        dkp_reason = (
+            f"DKP prevention: N-terminal {seq[0]}-Pro requires Nα-Ac to block free amine "
+            "(cyclo(X-Pro) formation at physiological pH, t½ hours–days at 37°C)."
+        )
+        if qc.n_acetylation_reason:
+            qc.n_acetylation_reason = f"{qc.n_acetylation_reason} {dkp_reason}"
+        else:
+            qc.n_acetylation_recommended = True
+            qc.n_acetylation_reason = dkp_reason
 
     # N-terminal pyroglutamate cyclization: Q at position 1 cyclises spontaneously to
     # pyroglutamic acid (pGlu) at physiological pH (t½ hours–days at 37°C, 5–50× MIC loss).
@@ -335,13 +364,17 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
     if len(qc.trypsin_sites) > 0:
         qc.n_acetylation_recommended = True
         site_positions = [p + 1 for p in qc.trypsin_sites]
-        qc.n_acetylation_reason = (
+        trypsin_reason = (
             f"{len(qc.trypsin_sites)} interior trypsin site(s) detected at position(s) "
             f"{site_positions}. N-terminal acetylation (Nα-Ac) blocks aminopeptidase-mediated "
             "N-terminal degradation (exopeptidase entry blocked). Specify 'N-terminal acetylation "
             "(Ac-)' in synthesis order — zero extra cost. "
             "Literature: Creighton (1993); Dhankhar et al. (2023)."
         )
+        if qc.n_acetylation_reason:
+            qc.n_acetylation_reason = f"{qc.n_acetylation_reason} {trypsin_reason}"
+        else:
+            qc.n_acetylation_reason = trypsin_reason
 
     # Wave 2 D-amino acid substitution guidance.
     # For each interior trypsin cleavage site, D-Lys or D-Arg substitution blocks trypsin
@@ -372,6 +405,18 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
         qc.flags.append(f"DEAMIDATION_RISK: {', '.join(qc.deamidation_sites)} — avoid >pH 7.5 storage; use pH 5–6 lyophilization buffer")
     if qc.isomerization_sites:
         qc.flags.append(f"ISOMERIZATION_RISK: {', '.join(qc.isomerization_sites)} — Asp→β-Asp rearrangement at neutral pH; store lyophilized at −20°C")
+    if qc.diketopiperazine_risk:
+        truncated_from = seq[2:] if len(seq) > 2 else "(empty)"
+        dkp_mass = round(_AA_AVG_MASS.get(seq[0], 110.0) + _AA_AVG_MASS["P"] - 2 * 18.02, 0)
+        qc.flags.append(
+            f"DKP_RISK: N-terminal {seq[0]}-Pro dipeptide cyclises to cyclo({seq[0]}-Pro) "
+            f"(diketopiperazine, MW≈{dkp_mass:.0f} Da) at physiological pH (t½ hours–days at 37°C); "
+            f"truncates peptide to '{truncated_from}' — specify N-terminal Ac (Nα-acetylation) "
+            "in synthesis order (zero extra cost) to block free amine and prevent DKP formation; "
+            f"confirm identity by MS at receipt (full-length peptide peak should dominate; "
+            f"MW−{dkp_mass:.0f} Da satellite = DKP contamination); "
+            "Literature: Smyth et al. (2000) J Peptide Res 55:105"
+        )
     if qc.pyroglutamate_risk:
         qc.flags.append(
             "PYROGLUTAMATE_RISK: N-terminal Q cyclises to pGlu (t½ hours–days at 37°C, pH 7.4); "
@@ -423,6 +468,20 @@ def check_sequence(candidate_id: str, seq: str, mu_h: float = 0.0) -> SynthQC:
         qc.flags.append(
             f"WAVE2_D_AMINO: {len(qc.wave2_d_substitutions)} trypsin site(s) identified for "
             "D-amino acid substitution in Wave 2 (see wave2_d_substitutions)"
+        )
+
+    # Serum stability model calibration gap: model trained on 18–30 AA helical/cationic
+    # sequences. For short peptides (< 14 AA), the model likely UNDERESTIMATES stability
+    # because (a) fewer total cleavage sites reduces the density term disproportionately
+    # per residue; (b) short peptides in solution adopt less protease-accessible extended
+    # conformations; (c) Trp-rich sequences (SEED-008 class) gain steric chymotrypsin
+    # protection from indole bulk not captured by the site-count model.
+    # Literature: Radzishevsky et al. (2007) Nat Biotechnol 25:657; Wu & Ding (2016) J Pept Sci 22:223.
+    if len(seq) < 14:
+        qc.flags.append(
+            f"SHORT_PEPTIDE ({len(seq)} AA): serum stability model calibrated for 18–30 AA; "
+            "model may UNDERESTIMATE actual t½ — measure empirically (50% human serum, 37°C, "
+            "0/30/60/120 min time points, HPLC quantification) instead of relying on model score"
         )
 
     # Proline-rich intracellular mechanism: recommend RPMI-1640 parallel assay.

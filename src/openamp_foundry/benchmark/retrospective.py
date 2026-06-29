@@ -3,7 +3,7 @@
 Two complementary benchmark modes:
 
   STANDARD (primary gate):
-    Positives — 43 confirmed literature AMPs (unique; REF-GIG-001 duplicate removed in PR #66)
+    Positives — confirmed literature AMPs (original 43; expanded to 95 in PR #110)
     Negatives — 44 length-matched peptides drawn from UniProt Swiss-Prot
                 background amino acid frequencies (RNG seed=43)
     Tests: can the model distinguish AMP-like composition/structure from

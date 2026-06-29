@@ -866,3 +866,118 @@ class TestLongPeptideFlag:
     def test_long_peptide_flag_absent_at_exactly_30aa(self):
         qc = check_sequence("edge30", self._EXACT_30)
         assert not any("LONG_PEPTIDE" in f for f in qc.flags)
+
+
+# ---------------------------------------------------------------------------
+# DKP_RISK flag (N-terminal X-Pro diketopiperazine cyclization)
+# ---------------------------------------------------------------------------
+
+class TestDiketopiperazineRisk:
+    # SEED-008 pilot sequences all start with F-P — the canonical DKP-susceptible motif.
+    _SEED008_VARIANTS = [
+        "FPVTWRFWRWWKG",   # rank 13
+        "FPITWRWFKWWKG",   # rank 14
+        "FPVSWRWWKFWKG",   # rank 15
+        "FPVTWRWWKWYRG",   # rank 18
+    ]
+
+    def test_xpro_nterminus_sets_risk(self):
+        qc = check_sequence("fp", "FPVTWRFWRWWKG")
+        assert qc.diketopiperazine_risk is True
+
+    def test_no_proline_at_pos2_no_risk(self):
+        # Standard AMP: F at pos 1 but not P at pos 2
+        qc = check_sequence("no_dkp", "FKWKLFKKIG")
+        assert qc.diketopiperazine_risk is False
+
+    def test_proline_at_pos1_not_pos2_no_risk(self):
+        # P at position 1 does not cause DKP (needs N-terminal free amine + Pro at pos 2)
+        qc = check_sequence("p1", "PKWKLFKKIG")
+        assert qc.diketopiperazine_risk is False
+
+    def test_pro_pro_nterminus_no_risk(self):
+        # PP: N-terminal Pro has a secondary amine (pyrrolidine N) — no DKP cyclization.
+        # Even though position 2 is Pro, the secondary amine at pos-1 cannot attack the carbonyl.
+        qc = check_sequence("pp", "PPWKLFKKIG")
+        assert qc.diketopiperazine_risk is False
+        assert not any("DKP_RISK" in f for f in qc.flags)
+
+    def test_single_residue_no_risk(self):
+        qc = check_sequence("single", "K")
+        assert qc.diketopiperazine_risk is False
+
+    def test_all_seed008_pilots_get_dkp_flag(self):
+        for seq in self._SEED008_VARIANTS:
+            qc = check_sequence("s8", seq)
+            assert qc.diketopiperazine_risk, f"DKP_RISK missing for SEED-008 sequence {seq!r}"
+            assert any("DKP_RISK" in f for f in qc.flags), f"DKP_RISK flag text missing for {seq!r}"
+
+    def test_flag_text_mentions_truncation(self):
+        qc = check_sequence("fp", "FPVTWRFWRWWKG")
+        flag_texts = " ".join(qc.flags)
+        assert "truncates" in flag_texts.lower() or "truncat" in flag_texts.lower()
+
+    def test_flag_text_mentions_acetylation(self):
+        qc = check_sequence("fp", "FPVTWRFWRWWKG")
+        flag_texts = " ".join(qc.flags)
+        assert "Nα-acetylation" in flag_texts or "acetylation" in flag_texts.lower()
+
+    def test_flag_text_mentions_ms_verification(self):
+        qc = check_sequence("fp", "FPVTWRFWRWWKG")
+        dkp_flags = [f for f in qc.flags if "DKP_RISK" in f]
+        assert dkp_flags, "DKP_RISK flag must be present"
+        assert "MS" in dkp_flags[0], "DKP flag must mention MS receipt check"
+
+    def test_flag_text_shows_correct_dkp_mass_for_fpro(self):
+        # cyclo(Phe-Pro): Phe=165.19 + Pro=115.13 - 2*18.02 = 244.28 ≈ 244 Da
+        qc = check_sequence("fp", "FPVTWRFWRWWKG")
+        dkp_flag = next(f for f in qc.flags if "DKP_RISK" in f)
+        assert "244" in dkp_flag, f"F-Pro DKP mass should be ~244 Da in flag; got: {dkp_flag!r}"
+
+    def test_dkp_risk_in_to_dict(self):
+        qc = check_sequence("fp", "FPVTWRFWRWWKG")
+        d = qc.to_dict()
+        assert "diketopiperazine_risk" in d
+        assert d["diketopiperazine_risk"] is True
+
+    def test_dkp_false_in_to_dict_when_absent(self):
+        qc = check_sequence("no_dkp", "KWKLFKKIG")
+        d = qc.to_dict()
+        assert d["diketopiperazine_risk"] is False
+
+    def test_various_xpro_residue1s_all_flagged(self):
+        # DKP susceptibility does not depend on which residue is at position 1
+        for res1 in "AKLRWIG":
+            seq = f"{res1}PKWKLFK"
+            qc = check_sequence("xp", seq)
+            assert qc.diketopiperazine_risk, f"DKP risk missed for {res1}-Pro N-terminus"
+
+    def test_dkp_increases_synthesis_difficulty(self):
+        # FP with no other risk flags → 1 synthesis flag (DKP_RISK) → MODERATE.
+        # Body chosen to avoid all other flags: no Met/Cys, no hydrophobic run, positive charge,
+        # no deamidation/isomerization, no Q1/E1 → only DKP_RISK counts toward difficulty.
+        qc = check_sequence("fp_min", "FPKWKK")
+        assert qc.synthesis_difficulty == "MODERATE", (
+            f"Expected MODERATE from DKP_RISK alone; "
+            f"got {qc.synthesis_difficulty!r} (flags: {qc.flags!r})"
+        )
+
+    def test_dkp_no_risk_sets_n_acetylation_when_no_trypsin_sites(self):
+        # Sequence with X-Pro N-terminus but no interior K/R: DKP should set
+        # n_acetylation_recommended=True even without a trypsin site trigger.
+        qc = check_sequence("fp_no_kr", "FPVVAAAAA")
+        assert qc.n_acetylation_recommended is True
+        assert "DKP prevention" in qc.n_acetylation_reason
+
+    def test_dkp_reason_preserved_when_trypsin_sites_also_present(self):
+        # SEED-008 pilots have both F-Pro N-terminus AND interior K/R residues.
+        # The trypsin-site logic must APPEND to (not overwrite) the DKP reason.
+        # FPKWKLFK: F-Pro at N-term + interior K at pos 3, 5 (before non-terminal positions)
+        qc = check_sequence("fp_with_kr", "FPKWKLFK")
+        assert qc.n_acetylation_recommended is True
+        assert "DKP prevention" in qc.n_acetylation_reason, (
+            "DKP prevention reason must survive when trypsin sites also exist"
+        )
+        assert "trypsin" in qc.n_acetylation_reason.lower(), (
+            "Trypsin reason must also appear in combined n_acetylation_reason"
+        )

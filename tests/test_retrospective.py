@@ -161,11 +161,11 @@ class TestRunRetrospectiveBenchmark:
         phase3.yaml shifts more weight to safety (0.30 vs 0.25) and synthesis (0.20 vs 0.15),
         which down-ranks hemolytic AMPs — correct behaviour for a synthesis gate but lowers raw
         AUROC slightly vs pipeline.yaml. Gate is still AUROC > 0.70 (STRONG).
-        Measured: AUROC=0.8266 (post PR #72 face_segregation_bonus).
-        Previous values: 0.8126 (PR #70), 0.7846 (pre-PR #70), 0.7936 (before PR #65 Trp bonus).
+        Measured: AUROC=0.7448 on expanded 95-AMP / 96-decoy benchmark (PR #110).
+        Previous values (original 43+44 demo set): 0.8266 (PR #72), 0.8126 (PR #70).
 
-        The upper-bound check (< 0.84) is a config-identity sentinel: pipeline.yaml scores
-        0.8420 which would breach it, so a silent config fallback is detectable.
+        The upper-bound check (< 0.78) is a config-identity sentinel: pipeline.yaml scores
+        0.7832 which would breach it, so a silent config fallback is detectable.
         """
         from pathlib import Path
         amp_csv = Path("examples/validation/known_amps.csv")
@@ -183,17 +183,21 @@ class TestRunRetrospectiveBenchmark:
             f"phase3.yaml AUROC={result['auroc']:.4f}: synthesis gate does not meet the 0.70 "
             "threshold. Do not proceed to wet-lab synthesis."
         )
-        # Regression sentinel: measured AUROC=0.8266 (post PR #72 face_segregation_bonus)
-        assert result["auroc"] >= 0.81, (
-            f"phase3.yaml AUROC={result['auroc']:.4f} < 0.81: a regression has occurred "
-            "(baseline 0.8266). Synthesis gate still valid at >0.70 but scoring may be degraded."
+        # Regression sentinel: measured AUROC=0.7448 (expanded 95+96 benchmark, PR #110).
+        # Original baseline 0.8266 on 43+44 demo set; expanded benchmark is more honest
+        # (covers defensins, proline-rich, lantibiotics — classes the helic-centric scorer
+        # was not calibrated for). Threshold 0.73 buffers minor fluctuations.
+        assert result["auroc"] >= 0.73, (
+            f"phase3.yaml AUROC={result['auroc']:.4f} < 0.73: a regression has occurred "
+            f"(baseline 0.7448 on expanded {result['n_positives']}+{result['n_negatives']} benchmark). "
+            "Synthesis gate still valid at >0.70 but scoring may be degraded."
         )
-        # Config-identity sentinel: pipeline.yaml AUROC=0.8420 >= 0.84 would fail this,
-        # while phase3.yaml AUROC=0.8266 < 0.84 passes. Threshold sits between the two measured
+        # Config-identity sentinel: pipeline.yaml AUROC=0.7832 >= 0.78 would fail this,
+        # while phase3.yaml AUROC=0.7448 < 0.78 passes. Threshold sits between the two measured
         # point estimates so a silent config fallback is caught.
-        assert result["auroc"] < 0.84, (
-            f"phase3.yaml AUROC={result['auroc']:.4f} >= 0.84: this is higher than expected "
-            "for phase3.yaml (measured 0.8266). Check that phase3.yaml (not pipeline.yaml) was loaded."
+        assert result["auroc"] < 0.78, (
+            f"phase3.yaml AUROC={result['auroc']:.4f} >= 0.78: this is higher than expected "
+            "for phase3.yaml (measured 0.7448). Check that phase3.yaml (not pipeline.yaml) was loaded."
         )
         print(f"\n[phase3 benchmark] AUROC={result['auroc']:.4f}: {result['interpretation']}")
         print(f"AUPRC={result.get('auprc', 'N/A')}, Recall@20={result.get('recall_at_20', 'N/A')}")

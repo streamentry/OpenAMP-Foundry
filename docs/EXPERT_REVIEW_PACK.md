@@ -1,7 +1,7 @@
 # OpenAMP Foundry — Expert Review Pack
 
 **Phase 3 Pilot Panel — Wave 1 Candidates**
-**Pipeline version:** 0.5.x (AUROC 0.8420 on 43-AMP / 44-decoy benchmark)
+**Pipeline version:** 0.5.x (AUROC 0.7832 on expanded 95-AMP / 96-decoy benchmark; original demo set 0.8420 on 43+44)
 **Generated:** 2026-06-28 (updated from 2026-06-27 original)
 **Batch ID:** See `outputs/phase3_manifest.json`
 **Candidate selection manifest SHA-256:** `outputs/phase3_manifest.json`
@@ -30,7 +30,7 @@ biological predictors. No antimicrobial activity has been demonstrated in vitro 
 Do not describe any candidate as an antibiotic, drug, cure, therapy, or proven antimicrobial
 without experimental evidence. The lab is the judge.
 
-The pipeline AUROC (0.8420) is a **retrospective benchmark** on the internal 43-AMP reference
+The pipeline AUROC (0.7832) is a **retrospective benchmark** on the expanded 95-AMP / 96-decoy
 set — not an external prospective validation. It indicates the scoring can discriminate known
 AMPs from random peptides on held-out data; it does not predict any individual candidate's
 activity.
@@ -60,7 +60,7 @@ serum stability advantage from protease site model.
 **Pipeline configuration:** `configs/pipeline.yaml` and `configs/phase3.yaml`
 **Selection rule:** `docs/SELECTION_RULE.md` (locked before generation)
 **Full benchmark methodology:** `docs/BENCHMARKING.md`
-**Benchmark AUROC:** 0.8420 (bootstrap CI₉₅: 0.76–0.91, n=87: 43 AMPs + 44 background)
+**Benchmark AUROC:** 0.7832 (bootstrap CI₉₅: 0.72–0.84, n=191: 95 AMPs + 96 background)
 **Pipeline AUPRC:** 0.8627
 
 ---
@@ -211,7 +211,7 @@ Please advise on the following:
 
 ### 6.1 Scientific credibility
 - [ ] Is the physicochemical scoring approach defensible for pre-screening short AMPs (11–15 AA)?
-- [ ] Is the AUROC (0.8420 on 43+44, CI₉₅: 0.76–0.91) sufficient to justify synthesis investment?
+- [ ] Is the AUROC (0.7832 on expanded 95+96 benchmark, CI₉₅: 0.72–0.84) sufficient to justify synthesis investment?
 - [ ] Do you agree that SEED-008 (Trp-rich, non-helical) warrants a different calibration than helical AMPs?
 - [ ] Does the face segregation bonus (helix-wheel moment analysis) reflect a mechanistically sound distinction?
 - [ ] Is the Boman index (2003) a defensible second scorer for the mix of helical and non-helical families?
@@ -271,10 +271,10 @@ The expert reviewer must be aware of these limitations:
 | Limitation | Impact |
 |-----------|--------|
 | Level 0–2 evidence only | Scores are physicochemical heuristics, not validated ML predictions |
-| AUROC = 0.8420 on n=87 | CI₉₅: 0.76–0.91; may not generalise to novel AMP classes outside training distribution |
+| AUROC = 0.7832 on n=191 (expanded) | CI₉₅: 0.72–0.84; 52 new AMPs from 12 taxonomic classes now included (defensins, proline-rich, lantibiotics) — more honest estimate but broader AMP classes still challenge the helic-centric scorer |
 | Safety model blind spot | Melittin scores Safety=1.0; curvature-mediated hemolysis not captured; hemolysis assay mandatory |
 | SEED-008 high disagreement (0.41–0.44) | Boman index penalises Trp; activity_likeness more appropriate for Trp-rich sequences |
-| Serum stability model calibrated for 18–30 AA | SEED-003 (11 AA) and SEED-008 (13 AA) scores may underestimate actual stability |
+| Serum stability model calibrated for 18–30 AA | SEED-003 (11 AA), SEED-007 (11 AA), and SEED-008 (13 AA) scores may underestimate actual stability (short-peptide steric/flexibility effects) |
 | Pro-rich serum stability not in model | SEED-009 model scores (0.572) expected to underestimate actual stability; Pro-X bond resistance is mechanistic |
 | SEED-007 Met oxidation (all 4 pilot variants) | Met at position 6 in all SEED-007 pilot sequences; oxidised Met loses amphipathicity; Nle substitution or inert atmosphere storage required |
 | SEED-009_VAR_033 Met oxidation | VAR_033 (RRLPRPGYMPRP) has Met at position 9 — unique among SEED-009 variants; carries both MET×1 and PROLINE_RICH_INTRACELLULAR QC flags simultaneously; Nle substitution + HPLC purity mandatory at receipt |

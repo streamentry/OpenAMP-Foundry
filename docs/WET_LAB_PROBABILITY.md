@@ -2,11 +2,11 @@
 
 > **Scope**: Quantified probability that the 20-candidate pilot panel will produce ≥1 novel AMP
 > family passing multi-step wet-lab validation and generating a publishable breakthrough finding.
-> Generated: 2026-06-28. Updated 2026-06-28 (PR #86). Reviewed against `outputs/pilot_panel.csv`
-> (7 scaffold families, 20 candidates, pipeline AUROC = 0.8420, bootstrap CI₉₅: 0.76–0.91).
-> See `docs/NOVELTY_BROAD_CHECK.md` for broad novelty analysis (72-AMP reference database);
-> 16/20 candidates confirmed NOVEL, 3 KNOWN_VARIANT (SEED-003, SEED-001 positive control),
-> 1 CLOSE_RELATIVE (SEED-005).
+> Generated: 2026-06-28. Updated 2026-06-29 (expanded benchmark PR #110). Reviewed against `outputs/pilot_panel.csv`
+> (7 scaffold families, 20 candidates, pipeline AUROC = 0.7832, bootstrap CI₉₅: 0.72–0.84,
+> expanded 95-AMP + 96-decoy benchmark, n=191). See `docs/NOVELTY_BROAD_CHECK.md` for broad
+> novelty analysis (72-AMP reference database); 16/20 candidates confirmed NOVEL, 3 KNOWN_VARIANT
+> (SEED-003, SEED-001 positive control), 1 CLOSE_RELATIVE (SEED-005).
 
 ---
 
