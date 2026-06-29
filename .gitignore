@@ -163,3 +163,4 @@ temp/
 *.tmp
 .commandcode/
 external_validation/
+*.zip
