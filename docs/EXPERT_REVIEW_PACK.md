@@ -61,7 +61,7 @@ serum stability advantage from protease site model.
 **Selection rule:** `docs/SELECTION_RULE.md` (locked before generation)
 **Full benchmark methodology:** `docs/BENCHMARKING.md`
 **Benchmark AUROC:** 0.7832 (bootstrap CI₉₅: 0.72–0.84, n=191: 95 AMPs + 96 background)
-**Pipeline AUPRC:** 0.8627
+**Pipeline AUPRC:** 0.8164 (expanded 95+96 benchmark; original demo set: 0.8627)
 
 ---
 
@@ -296,11 +296,13 @@ The expert reviewer must be aware of these limitations:
 |----------|---------|
 | `docs/ASSAY_PREREGISTRATION.md` | Pre-registered assay protocol; must be PI-signed before synthesis |
 | `docs/WET_LAB_HANDOFF.md` | Detailed synthesis and assay guidance for the wet-lab team |
-| `docs/WET_LAB_PROBABILITY.md` | Quantified discovery probability analysis (92–97% P(≥1 active hit)) |
+| `docs/WET_LAB_PROBABILITY.md` | Quantified discovery probability analysis (upper bound; honest estimate in text) |
 | `docs/NOVELTY_BROAD_CHECK.md` | Broad novelty check vs 72-AMP reference database |
+| `docs/NOVELTY_CHECKLIST.md` | External novelty verification checklist (APD3, DRAMP, dbAMP, UniProt, patents) |
+| `docs/REVIEWER_SUMMARY.md` | 2-page reviewer summary — start here for a quick overview |
 | `docs/GOLD_STANDARD_CALIBRATION.md` | Pipeline score calibration against 7 gold-standard AMPs |
 | `docs/BENCHMARKING.md` | Full benchmark methodology (AUROC, AUPRC, CI) |
-| `docs/DISCOVERY_PREDICTION.md` | External calibration and breakthrough probability model |
+| `docs/DISCOVERY_PREDICTION.md` | External calibration and high-impact probability model |
 
 ---
 

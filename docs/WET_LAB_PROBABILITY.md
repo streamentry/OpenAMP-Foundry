@@ -68,8 +68,10 @@ above panel minimum.
 
 Base rate for computationally-nominated AMPs in primary screens: **30–50%** per candidate
 (Chen et al. 2019 Bioinformatics 35:4464; Melo et al. 2021 J Chem Inf Model 61:3145).
-Pipeline AUROC 0.8420 provides ~1.8× enrichment over a random 50% selector, raising
-per-candidate P(activity) to approximately **40–55%** for sequences within the panel range.
+Pipeline AUROC 0.7832 (expanded 95+96 benchmark, PR #110) provides ~1.56× enrichment.
+Original demo set (43+44, n=87) achieved AUROC 0.8420 (~1.8× enrichment). Per-candidate
+P(activity) is uncertain until Wave 1 data. Literature base rate 30–50% is a more honest
+starting estimate.
 
 After correcting for within-family correlation (variants from the same seed share ~60–80%
 sequence identity), the effective number of **independent tests** in the 20-candidate panel is
@@ -243,6 +245,11 @@ Conservative (per-family p=35%, n=6 novel families):
 **P(≥1 active candidate, MIC ≤ 16 µg/mL) ≈ 92–97%** for any hit (including positive control).
 Excluding SEED-001: **85–95%** that at least one novel family has activity.
 
+> **Honesty correction:** The 92-97% value is a plausible upper bound from literature base
+> rates and the model enrichment factor. A more conservative read — appropriate for external
+> communications — is **55–80%** for any hit (including positive control), **35–60%** for a
+> genuinely novel family. The true hit rate is unknown until Wave 1 wet-lab data.
+
 ### Conditional probabilities
 
 | Sequential screen | Probability | Notes |
@@ -253,7 +260,7 @@ Excluding SEED-001: **85–95%** that at least one novel family has activity.
 | P(active AND passes hemolysis) | **45–60%** | Joint probability; hemolysis must be assayed |
 | P(serum stable AND active, MIC ≤ 16) | **35–55%** | SEED-009 best positioned |
 | P(publishable novel result) | **30–50%** | ≥2 organisms, novel family, full characterisation |
-| P(breaking news) | **5–15%** | Novel scaffold class, MDR, in vivo data |
+| P(high-impact scenario) | **5–15%** | Novel scaffold class, MDR, in vivo data |
 
 ---
 
@@ -283,7 +290,7 @@ at least 3 of the following 5 criteria:
    - Not in Wave 1 plan; requires follow-on funding
    - Status: Wave 2 milestone; not actionable before wet-lab results
 
-**P(meeting ≥3/5 criteria for breaking news)**: **8–18%** if MDR strains are added.
+**P(meeting ≥3/5 criteria for high-impact scenario)**: **8–18%** if MDR strains are added.
 **P(meeting ≥3/5 criteria without MDR)**: **3–8%**.
 
 **Recommendation**: Add MRSA USA300 to Wave 1 MIC screen. Cost: +$200–400 per candidate.
@@ -323,13 +330,14 @@ documents the irreducible epistemic gap.
 
 ### 6.1 Model accuracy ceiling (AUROC)
 
-The pipeline AUROC = 0.8420 means that for any pair (active, inactive), the model ranks the
-active higher in **84.2% of cases**. The remaining 15.8% are **irreducible false positives** at
-the current feature set. To reach 100% AUROC, the model would need to memorise the benchmark —
-which is benchmark leakage, not predictive power.
+The pipeline AUROC = 0.7832 (expanded 95+96 benchmark, PR #110; original demo set: 0.8420)
+means that for any pair (active, inactive), the model ranks the active higher in **78.3%
+of cases**. The remaining 21.7% are **irreducible false positives** at the current feature
+set. To reach 100% AUROC, the model would need to memorise the benchmark — which is benchmark
+leakage, not predictive power.
 
-Raising AUROC from 0.84 to 0.90+ requires:
-- A benchmark with ≥ 500 sequences (current: 87)
+Raising AUROC above 0.80 requires:
+- A benchmark with ≥ 500 sequences (current: 191, expanded from 87)
 - Structural features (3D docking, MD simulation) not accessible without AlphaFold + GPU
 - Experimental confirmation loop (active-learning) — requires wet-lab data
 
@@ -356,7 +364,7 @@ active hit) while accepting that prediction is probabilistic.
 
 | Improvement | Impact |
 |-------------|--------|
-| Pipeline AUROC raised from 0.74→0.8420 (PRs #47–#72) | +35% enrichment vs random |
+| Pipeline AUROC 0.7832 (expanded 95+96 benchmark, PR #110) | Enrichment: ~1.56× vs random; original demo set 0.8420 |
 | 7 scaffold families (vs 5 initially) | +2 independent shots on goal |
 | 20-candidate panel from ≥7 mechanisms | Covers helical, Trp-rich, Pro-rich |
 | Serum stability scoring (flagged families with limitations) | Reduces false-safe nominations |
@@ -432,7 +440,20 @@ and pipeline calibration data. They are not guarantees of experimental outcome. 
 activity has been demonstrated for any candidate in this panel. Human expert review is required
 before synthesis. These estimates do not constitute drug development claims.
 
-Pipeline calibration: AUROC 0.8420 on 87-sequence benchmark (43 AMPs + 44 background peptides;
-PR #66, finalized PR #72). Gold-standard calibration: Magainin-2 ensemble=0.872 (above panel),
+Pipeline calibration: AUROC 0.7832 on expanded 191-sequence benchmark (95 AMPs + 96 background
+peptides; PR #110). Historical baseline: AUROC 0.8420 on original 87-sequence demo set (43 AMPs +
+44 background; PR #72). Gold-standard calibration: Magainin-2 ensemble=0.872 (above panel),
 Melittin=0.844 (within), Defensin-HNP1=0.820 (within), Temporin-A=0.803 (within).
 See `docs/GOLD_STANDARD_CALIBRATION.md`.
+NP1=0.820 (within), Temporin-A=0.803 (within).
+See `docs/GOLD_STANDARD_CALIBRATION.md`.
+(within).
+See `docs/GOLD_STANDARD_CALIBRATION.md`.
+2 (above panel),
+Melittin=0.844 (within), Defensin-HNP1=0.820 (within), Temporin-A=0.803 (within).
+See `docs/GOLD_STANDARD_CALIBRATION.md`.
+s/GOLD_STANDARD_CALIBRATION.md`.
+GOLD_STANDARD_CALIBRATION.md`.
+_CALIBRATION.md`.
+s/GOLD_STANDARD_CALIBRATION.md`.
+GOLD_STANDARD_CALIBRATION.md`.

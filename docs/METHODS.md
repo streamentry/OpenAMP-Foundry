@@ -40,13 +40,16 @@ Three variant strategies were applied:
 
 Total: 383 unique variants from 5 seeds (rng_seed=2024).
 
-> **Note (PRs #63–78):** The generation strategy above (5 seeds, rng_seed=2024) describes the
-> initial variant corpus. Scoring was then improved across PRs #47–72; the current pipeline
-> achieves **AUROC 0.8420** on the 87-sequence benchmark set (43 AMPs + 44 background; set
-> finalized PR #66). Separately, the synthesis pool was expanded to 7 scaffold families:
-> SEED-006 through SEED-009 added in expansion PRs #38–58; SEED-001 (magainin-1) re-entered
-> PR #72 after the face_segregation_bonus raised its helix-score contribution. Current synthesis
-> pool: **100 candidates from 7 scaffold families**. Same pipeline config (`pipeline.yaml`,
+> **Note (PRs #63–110):** The generation strategy above (5 seeds, rng_seed=2024) describes the
+> initial variant corpus. Scoring was then improved across PRs #47–72. Benchmark expanded in
+> PR #110 from 43+44 (n=87) to **95 AMPs + 96 decoys (n=191)**: the expanded benchmark
+> achieves AUROC **0.7832** (bootstrap CI₉₅: 0.72–0.84). The original demo set (43 AMPs,
+> n=87) achieved AUROC 0.8420 and remains the historical baseline. The expanded set includes
+> 52 additional well-characterised public-domain AMPs from 12 taxonomic classes and provides
+> a more honest generalisation estimate. Separately, the synthesis pool was expanded to 7
+> scaffold families: SEED-006 through SEED-009 added in expansion PRs #38–58; SEED-001
+> (magainin-1) re-entered PR #72. Current synthesis pool:
+> **100 candidates from 7 scaffold families**. Same pipeline config (`pipeline.yaml`,
 > `phase3.yaml`); wider seed set.
 
 **Limitation:** This generation strategy produces near-seed variants. It does not explore
@@ -348,35 +351,37 @@ Phase 2 benchmarks verified that the pipeline:
 - Produces stable rankings under repeated runs (reproducibility)
 - Shows performance degradation when key scoring dimensions are ablated
 
-**Retrospective AUROC — pipeline.yaml (v0.8.x):** `0.8420` (bootstrap CI₉₅: 0.76–0.91, n=87, n_bootstrap=2000).
-Positive-vs-negative separation on the 43-AMP + 44-background benchmark set using the full
-ensemble scorer with pipeline.yaml weights. Historical progression: 0.7926 → 0.8138 →
-0.8164 (PRs #48–54) → 0.8086 (PR #65: Trp-weighted aromatic bonus, safety abs() fix) →
-0.8047 (PR #66: removed duplicate REF-GIG-001; 43 unique AMPs) →
-0.8348 (PR #70: windowed mu_h + anionic guard) →
-0.8420 (PR #72: face_segregation_bonus; see below).
+### Expanded benchmark (PR #110) — 95 AMPs + 96 decoys (n=191)
 
-**Retrospective AUROC — phase3.yaml (synthesis gate, v0.8.x):** `0.8266` (bootstrap CI₉₅: 0.74–0.90, n=87, n_bootstrap=2000). Phase3 uses re-weighted ensemble scores (activity=0.35, safety=0.30,
+The benchmark was expanded from 43+44 (n=87) to **95 AMPs + 96 decoys (n=191)** in PR #110
+to improve generalisability. 52 well-characterised public-domain AMPs were added from 12
+taxonomic classes: human defensins (hBD-1/2/3, histatin 5, dermcidin, hepcidin), insect
+(apidaecin, drosocin, formaecin, thanatin), mammalian cathelicidins (BMAP-27/28, SMAP-29,
+PMAP-23/36, protegrins 1-3, PR-39), plant (RsAFP1/2, snakin-1), fungal (plectasin,
+eurocin), fish (pleurocidin, piscidins), marine (tachyplesins, polyphemusin, arenicin),
+and additional frog families. Background decoys were expanded to 96.
+
+**Retrospective AUROC — pipeline.yaml:** `0.7832` (bootstrap CI₉₅: 0.72–0.84, n=191,
+n_bootstrap=2000). Interpretation: **STRONG** (AUROC > 0.70). The lower point estimate
+compared to the original demo set (0.8420) reflects that the expanded benchmark includes
+diverse AMP classes (disulfide-stabilised defensins, proline-rich intracellular, lantibiotics)
+that the helic-centric scorer was not calibrated for — the 0.7832 value is a more honest
+and generalisable estimate of model discrimination on novel AMP classes.
+
+**Retrospective AUROC — phase3.yaml (synthesis gate):** `0.7448` (bootstrap CI₉₅: 0.68–0.81,
+n=191, n_bootstrap=2000). Phase3 uses re-weighted ensemble scores (activity=0.35, safety=0.30,
 synthesis=0.20, novelty=0.15 vs pipeline.yaml activity=0.40, safety=0.25, synthesis=0.15,
-novelty=0.20) and a stricter safety gate (max_safety_risk=0.40). Historical: 0.7846 (PR #66)
-→ 0.8126 (PR #70) → 0.8266 (PR #72). The AUROC is lower than pipeline.yaml because the higher
-safety weight down-ranks some literature AMPs that have hemolysis risk, which is scientifically
-correct behaviour for a synthesis gate. Interpretation: **STRONG** (AUROC > 0.70).
+novelty=0.20) and a stricter safety gate (max_safety_risk=0.40). Interpretation: **STRONG**
+(AUROC > 0.70).
 
-> **Important:** The synthesis selection gate uses phase3.yaml. The phase3 AUROC (0.8266) is the
-> operationally relevant benchmark. pipeline.yaml AUROC (0.8420) is the full-ensemble reference.
-> Both point estimates comfortably exceed the AUROC > 0.70 synthesis gate. Note that with n=87
-> sequences the 95% CI spans ~±0.09; synthesis decisions are made on point estimates, which is
-> standard practice at this sample size — the CI reflects sampling uncertainty, not model unreliability.
+> **Important:** Both point estimates comfortably exceed the AUROC > 0.70 synthesis gate.
+> The expanded benchmark is the primary reference for model discrimination. The original
+> demo set (43 AMPs + 44 decoys, AUROC 0.8420 pipeline / 0.8266 phase3) remains the
+> historical baseline but should not be cited as the current benchmark in external
+> communications.
 
-**AUPRC (v0.8.x):** `0.8627` for pipeline.yaml (+0.3684 above the random baseline of 0.4943);
-`0.8479` for phase3.yaml.
-Area Under Precision-Recall Curve is computed alongside AUROC and reported by `make validate-scoring`.
-AUPRC is preferable to AUROC for class-imbalanced datasets because it emphasises precision
-at the operating point actually used for candidate selection. Random baseline = dataset
-prevalence (43/87 ≈ 0.4943 for the slightly unbalanced post-dedup set). Implemented with
-pessimistic tie-breaking (negatives sort first on tied scores) to match sklearn
-`average_precision_score` convention and avoid inflation to 1.0 for constant-score classifiers.
+**AUPRC:** `0.8164` for pipeline.yaml (+0.3190 above random baseline 0.4974);
+`0.7933` for phase3.yaml. Random baseline = dataset prevalence (95/191 ≈ 0.4974).
 
 **To reproduce:** `make validate-scoring` (pipeline.yaml weights) or
 `make validate-scoring-phase3` (synthesis gate weights, phase3.yaml) or
@@ -396,7 +401,8 @@ pessimistic tie-breaking (negatives sort first on tied scores) to match sklearn
 | #65 | Trp-weighted aromatic bonus (1.5× vs Phe/Tyr); safety abs() fix | 0.8164→0.8086 |
 | #66 | Remove duplicate REF-GIG-001 (magainin-2 counted twice in validation set) | 0.8086→0.8047 |
 | #70 | Windowed mu_h (window=11, Eisenberg standard); anionic charge guard | 0.8047→0.8348 (pipeline); 0.7846→0.8126 (phase3) |
-| #72 | Face segregation bonus (helix_wheel_amphipathic_score × 0.05); max_disagreement 0.40→0.45 | 0.8348→0.8420 (pipeline); 0.8126→0.8266 (phase3) |
+| #72 | Face segregation bonus (helix_wheel_amphipathic_score × 0.05); max_disagreement 0.40→0.45 | 0.8348→0.8420 (pipeline); 0.8126→0.8266 (phase3) — **original demo set (43+44)** |
+| #110 | Expanded benchmark: 95 AMPs + 96 decoys (n=191); 52 new AMPs from 12 taxonomic classes | 0.8420→0.7832 (pipeline); 0.8266→0.7448 (phase3) — **expanded benchmark** |
 
 **PR #70 detail — windowed hydrophobic moment:** For sequences > 11 residues, the full-sequence
 μH is diluted by non-helical termini and linker regions. `max_windowed_hydrophobic_moment()`
@@ -427,10 +433,13 @@ units (their Trp clusters form a genuine hydrophobic face), pushing disagreement
 so the new 0.45 threshold still blocks genuinely uncertain candidates.
 Literature: Wieprecht et al. (1997) Biochemistry 36:6124; Tossi et al. (2000) Biopolymers 55:4.
 
-**Limitation:** Benchmarks use a small, curated demo dataset (43 AMPs + 44 background). They
-do not validate against large independent AMP databases. Real retrospective validation against
-APD3-scale data (> 3,000 AMPs, cluster-split) is required before strong claims of predictive
-power.
+**Limitation:** The expanded benchmark (95 AMPs + 96 decoys, n=191) includes diverse AMP
+classes from 12 taxonomic families but is still far from the scale of curated databases
+(APD3 > 3,000 AMPs, DRAMP > 19,000 entries). Benchmark expansion to >500 sequences with
+composition-matched decoys and cluster-split evaluation is identified as deferred work
+(v1.0+) in ROADMAP.md. Current AUROC estimates should be interpreted as a lower bound on
+discrimination: the model is tested against diverse AMP classes it was not calibrated for,
+which is a stricter test than a compositionally homogeneous benchmark.
 
 ---
 

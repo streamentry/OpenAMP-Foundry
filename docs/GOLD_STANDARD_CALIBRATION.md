@@ -79,6 +79,7 @@ If known AMPs score *far below*, the panel may be over-scoring on non-AMP featur
 
 This calibration uses the same scoring model as candidate nomination. It is not
 independent validation — it confirms internal consistency, not external predictive power.
-The AUROC benchmark (AUROC=0.8420 on 43 literature AMPs vs 44 background peptides) is
-the appropriate measure of pipeline discrimination performance; it is a retrospective
-benchmark, not external prospective validation.
+The expanded AUROC benchmark (AUROC=0.7832 on 95 literature AMPs vs 96 background peptides;
+PR #110) is the appropriate measure of pipeline discrimination performance. The original demo
+set (AUROC=0.8420 on 43+44) is the historical baseline. Both are retrospective benchmarks,
+not external prospective validation.

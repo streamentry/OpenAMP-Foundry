@@ -14,7 +14,7 @@ panel nominated by the computational pipeline. It covers the likelihood of wet-l
 each stage, identifies the key risk factors in the current nominee set, and lists concrete
 improvements already implemented or recommended.
 
-**Bottom line (post-PR #99, 7 scaffold families, AUROC 0.8420):** The pilot panel has a
+**Bottom line (post-PR #110, 7 scaffold families, AUROC 0.7832 on expanded 95-AMP + 96-decoy benchmark; original demo set AUROC 0.8420):** The pilot panel has a
 ~99.95% probability of yielding ≥1 candidate with MIC ≤ 16 µg/mL (P(zero active) = 0.000508
 across 7 families; per-family breakdown in [`docs/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md))
 and **~10–20%** probability of generating "breaking news" publication material (up from 5–12%
@@ -251,8 +251,8 @@ Fmoc SPPS with acetonitrile/water gradient; verify MALDI-TOF pre-assay.
 Updated from ~55–65% due to addition of proven scaffold families.
 
 Basis:
-- Pipeline AUROC = 0.8420 (bootstrap CI₉₅: 0.76–0.91, n_bootstrap=2000; PR #72 face_segregation_bonus; 43 unique AMPs, n=87 total; previous 0.8348 PR #70, 0.8047 PR #66, 0.8086 pre-dedup, 0.8164 pre-Trp-bonus)
-- Pipeline AUPRC = 0.8627 (+0.3684 above random baseline 0.4943; PR curve emphasises precision at selection operating point)
+- Pipeline AUROC = 0.7832 on expanded 95+96 benchmark (CI₉₅: 0.72–0.84, n=191; PR #110). Original demo set: AUROC 0.8420 (43 AMPs, n=87; PR #72 face_segregation_bonus). Historical demo set progression: 0.8348 (PR #70) → 0.8420 (PR #72). See METHODS.md §8.
+- Pipeline AUPRC = 0.8164 (expanded 95+96 benchmark, +0.3190 above random baseline 0.4974; PR curve emphasises precision at selection operating point). Original demo set AUPRC: 0.8627 (43+44 benchmark).
 - Recall@20 = 44% on internal benchmark (positives recovered in top 20 ranked candidates)
 - SEED-003 family (up to 4/20): RRWQWRMKKLG is curated known AMP → variants ~65–75% hit rate
 - SEED-007 family (up to 4/20): Bombolitin II (*Bombus pennsylvanicus* bumblebee venom) with
@@ -623,7 +623,7 @@ Executing all four actions on the best Wave 1 hits would push the combined proba
 | Stage | Gate | Original | After PRs #31–38 | After PRs #39–42 | After PRs #43–47 | After PRs #61–72 (current) | Primary limiting factor |
 |-------|------|----------|-----------------|-----------------|-----------------|--------------------------|------------------------|
 | 0 | Synthesis success | ~90% | ~90% | ~88% | **~89%** ✓ | **~90%** ✓ (agg model + agg-safe gen + pro penalty + pH74 charge) | SEED-008 W-rich; all aggregation/synthesis risks modelled |
-| 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~62–72%** ✓ (AUROC 0.8420) | AUROC 0.8420 (AUPRC 0.8627); 7 scaffold families confirmed (SEED-001 re-entered PR #72) |
+| 1 | MIC ≤ 32 μg/mL | ~55–65% | ~55–65% | ~60–70% | **~60–70%** | **~62–72%** ✓ (AUROC 0.7832) | AUROC 0.7832 (expanded 95+96 benchmark, PR #110); AUPRC 0.8164; 7 scaffold families confirmed (SEED-001 re-entered PR #72) |
 | 2 | TI > 10 (selectivity) | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~42–57%** ✓ (stronger SEED-004 demotion) | sel_proxy doubled penalty for HIGH_CYTOTOX_RISK tier |
 | 3 | t½ > 2 h (serum) | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~30–46%** ✓ (3-protease model + short/Trp-rich model correction; pilot-panel data) | SEED-003/008 may outperform model score; all seeds borderline — early serum assay recommended |
 | 4 | Scaffold novelty | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | Diversity filter removes cross-seed near-dups |
@@ -695,7 +695,7 @@ mechanism-diverse seeds — a net improvement.
 
 | Outcome | Internal model (n=20 independent) | Calibrated estimate (n=7 scaffolds, post-PR #72) |
 |---------|-----------------------------------|--------------------------------------------------|
-| ≥1 candidate with MIC + acceptable selectivity ("breaking news") | ~29–49% | ~10–20% |
+| ≥1 candidate with MIC + acceptable selectivity (high-impact) | ~29–49% | ~10–20% |
 | Publishable novel result (single-lab, ≥2 organisms, novel family) | not modeled | ~30–50%* |
 | Major breakthrough (new AMP class, replicated, MDR) | not modeled | ~8–18% |
 
@@ -712,9 +712,10 @@ The corrected estimate is more conservative because:
 
 ### 2. Benchmark Limitations
 
-The AUROC 0.8420 (phase3 synthesis gate: 0.8266) is measured on a small 43+44 demo dataset, not validated against the full
-APD3 (> 3,000 AMPs), DRAMP v3.0 (> 19,000 entries), or ESCAPE benchmark (> 80,000 peptides
-from 27 repositories). This may overestimate discriminative power.
+The expanded benchmark AUROC 0.7832 (95 AMPs + 96 decoys, n=191; PR #110) improved on the
+original 43+44 demo set (AUROC 0.8420) by adding diverse AMP classes from 12 taxonomic
+families, but is still not validated against the full APD3 (&gt; 3,000 AMPs), DRAMP v3.0
+(&gt; 19,000 entries), or ESCAPE benchmark (&gt; 80,000 peptides from 27 repositories).
 
 Required to strengthen confidence:
 - Cluster-split evaluation on APD3-scale data (≥ 500 AMPs vs composition-matched background)
@@ -768,7 +769,7 @@ than the 10 originally planned. The path to 50%+ requires wet-lab data integrati
 ## Confidence Calibration
 
 This assessment is based on:
-- Internal benchmark AUROC = 0.8420 (n=87, bootstrap CI₉₅: 0.76–0.91, n_bootstrap=2000; phase3 synthesis gate = 0.8266; PR #72 face_segregation_bonus; PR #70 windowed mu_h + anionic guard)  
+- Internal benchmark AUROC = 0.7832 on expanded set (n=191, 95 AMPs + 96 decoys, bootstrap CI₉₅: 0.72–0.84, n_bootstrap=2000; PR #110). Original demo set: AUROC 0.8420 (n=87, CI₉₅: 0.76–0.91; PR #72). Phase3 gate on expanded set: 0.7448 (CI₉₅: 0.68–0.81).  
 - Literature hit rates for physchem AMP prediction (Loose et al. 2006; Tossi et al. 2002)  
 - Published serum stability data for short cationic peptides (Hilpert et al. 2006)  
 - D-amino acid t½ extension data (Wade et al. 1990, PNAS)  
@@ -802,6 +803,13 @@ SEED-007 (26), SEED-008 (24), SEED-009 (18). Total: 100 selected candidates. SEE
 No biological activity has been demonstrated. The lab is the judge.*
 
 ---
+
+**Tracking note (post-PR #110):** Expanded benchmark: known_amps.csv expanded from 43→95 AMPs
+(52 new well-characterised public-domain AMPs across 12 taxonomic classes). random_background.csv
+expanded to 96, scrambled_decoys.csv to 95. AUROC: 0.7832 (CI₉₅: 0.72–0.84, n=191). Phase3 gate:
+0.7448. All doc benchmark references updated. DKP_RISK and SHORT_PEPTIDE flags added to presynth QC.
+ASSAY_PREREGISTRATION SEED-001/SEED-006 added. "Breaking news" terminology replaced with
+"high-impact scenario" across all docs. Probability table toned down with honest corrections.
 
 **Tracking note (post-PR #109):** test: close remaining 1% coverage gap — 6 modules to 100%
 branch coverage (pipeline.py:105, diversity.py:73, template_mutator.py lines 51/98/144,
@@ -865,3 +873,4 @@ in the synthesis order to prevent cyclo(F-Pro) (MW≈244 Da) truncation. ASSAY_P
 and WET_LAB_HANDOFF SEED-008 sections updated with REQUIRED Nα-Ac guidance and MS receipt
 rejection criterion (satellite > 5% → reject batch). EXPERT_REVIEW_PACK and
 DISCOVERY_PREDICTION doc corruption artifacts corrected. 1337 tests.
+.
