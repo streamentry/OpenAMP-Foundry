@@ -18,7 +18,7 @@
 | ≥1 candidate with MIC ≤ 4 µg/mL (potent) | **40–60%** | Potency threshold ~3× more stringent than screen threshold |
 | ≥1 hit passes hemolysis (HC₅₀ > 100 µg/mL) | **45–65%** | Safety model blind spot confirmed (Melittin scores 1.0); estimate from structural class literature; SEED-008 Trp-rich at risk |
 | Publishable novel result (≥2 organisms, novel family) | **30–50%** | Contingent on ≥1 potent hit from a non-seed family |
-| Breaking news (novel scaffold, MDR, in vivo) | **5–15%** | Requires unexpected mechanism + Phase II investment |
+| high-impact scenario (novel scaffold, MDR, in vivo) | **5–15%** | Requires unexpected mechanism + Phase II investment |
 | 100% guaranteed discovery | **0%** | Computationally impossible; see Section 6 |
 
 **Best-case scenario** (all 7 families active, SEED-008/009 show novel mechanisms): 15–20% chance
@@ -264,7 +264,7 @@ Excluding SEED-001: **85–95%** that at least one novel family has activity.
 
 ---
 
-## 4. What Would "Breaking News" Require?
+## 4. What Would "high-impact scenario" Require?
 
 A high-impact result (Nature, Cell, PNAS tier, or high-impact antimicrobials journal) requires
 at least 3 of the following 5 criteria:
@@ -428,7 +428,7 @@ active hit) while accepting that prediction is probabilistic.
 | Will a candidate pass both MIC and hemolysis? | **55–70%** |
 | Will a serum-stable active be found? | **35–55%** |
 | Will the result be publishable (≥2 organisms, novel family)? | **30–50%** |
-| Will the result be "breaking news" (novel class, MDR, SI>10)? | **8–18%** (with MRSA added) |
+| Will the result be high-impact (novel class, MDR, SI>10)? | **2–8%** (with MRSA added) |
 | Will we achieve 100% guarantee computationally? | **0%** (epistemic limit; see Section 6) |
 
 ---
@@ -456,4 +456,6 @@ s/GOLD_STANDARD_CALIBRATION.md`.
 GOLD_STANDARD_CALIBRATION.md`.
 _CALIBRATION.md`.
 s/GOLD_STANDARD_CALIBRATION.md`.
+GOLD_STANDARD_CALIBRATION.md`.
+.md`.
 GOLD_STANDARD_CALIBRATION.md`.

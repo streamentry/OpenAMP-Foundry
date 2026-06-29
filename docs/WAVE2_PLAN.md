@@ -75,7 +75,7 @@ Target: 10 selectivity-improved variants from the 3 most active Wave 1 scaffolds
 Re-test all confirmed hits (Scenario C candidates) in at least one additional lab for
 independent replication. Required for publication and to rule out assay artefacts.
 
-**Target MIC for "breaking news" classification:**
+**Target MIC for high-impact classification:**
 
 | MIC range | Classification |
 |-----------|---------------|

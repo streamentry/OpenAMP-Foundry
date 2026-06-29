@@ -28,7 +28,7 @@
 - negative control rejection (`test_negative_penalization.py`, `test_negative_robustness.py`);
 - novelty stress test (`test_novelty_pressure.py`);
 - toxicity penalty benchmark (`test_toxicity_penalty.py`);
-- retrospective AUROC benchmark (`validate-scoring` CLI, AUROC = 0.8420 on demo set, bootstrap CI₉₅: 0.76–0.91).
+- retrospective AUROC benchmark (`validate-scoring` CLI, original demo set AUROC = 0.8420, bootstrap CI₉₅: 0.76–0.91).
 
 ## v0.5 — Lab-batch package ✓
 

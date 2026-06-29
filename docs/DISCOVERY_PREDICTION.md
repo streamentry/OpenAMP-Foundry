@@ -17,7 +17,7 @@ improvements already implemented or recommended.
 **Bottom line (post-PR #110, 7 scaffold families, AUROC 0.7832 on expanded 95-AMP + 96-decoy benchmark; original demo set AUROC 0.8420):** The pilot panel has a
 ~99.95% probability of yielding ≥1 candidate with MIC ≤ 16 µg/mL (P(zero active) = 0.000508
 across 7 families; per-family breakdown in [`docs/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md))
-and **~10–20%** probability of generating "breaking news" publication material (up from 5–12%
+and **~10–20%** probability of generating high-impact publication material (up from 5–12%
 before computational improvements). The higher per-candidate estimate (internal model) is
 corrected to 10–20% by accounting for near-seed correlation and 7 effective independent scaffold
 families. See the **External Calibration** section for the derivation.
@@ -101,7 +101,7 @@ Key improvements since last assessment (PRs #39–#49):
   candidates (selectivity_proxy < 0.5): `−0.05 × (0.5 − proxy) / 0.5`. Combined with the
   existing soft bonus, SEED-004 temporin (proxy=0.30) now swings −0.055 relative to a fully
   selective equal-ensemble peer (was −0.035). This better reflects that Stage 2 failure
-  (hemolysis/cytotoxicity) is the largest single remaining contributor to missed "breaking news"
+  (hemolysis/cytotoxicity) is the largest single remaining contributor to missed "high-impact scenario"
   candidates. Literature: Dathe & Wieprecht (1999) BBA 1462; Carotenuto et al. (2008) J Med Chem.
   AUROC unchanged at 0.8164 (safety/selectivity affect panel selection, not the scoring model).
 
@@ -139,7 +139,7 @@ novel scaffold family in the pilot panel.**
 
 ---
 
-## What "Breaking News" Requires
+## What "high-impact scenario" Requires
 
 To be publishable as a significant advance in AMP discovery, a candidate must satisfy all of:
 
@@ -416,7 +416,7 @@ For candidates from SEED-001/002/003 (low novelty), publishability requires one 
 ## Root Cause Analysis of the Probability Gap
 
 ```
-Target:  100% breaking news probability
+Target:  100% high-impact probability
 Current: ~29–49% (after all computational improvements PRs #31–#53)
 Gap:     ~51–71%
 
@@ -438,7 +438,7 @@ Root causes (ranked by remaining impact):
    NOT addressable computationally — expand assay panel to ≥1 MDR strain.
 
 3. SEED-001/002/003 low novelty (~-5 pp remaining): 8/20 panel slots still allocated to
-   near-template families (novelty 0.09–0.26). These can only achieve breaking news through
+   near-template families (novelty 0.09–0.26). These can only achieve high-impact scenario through
    exceptional potency or mechanism studies, not scaffold novelty alone.
    PARTIALLY addressed: SEED-007 (novelty 0.615) and SEED-008 (novelty 0.667) provide 4–8
    genuinely novel candidates. Remaining gap: SEED-001/002/003 slots are hard to displace
@@ -464,7 +464,7 @@ Root causes (ranked by remaining impact):
 - Seed novelty ceiling: 0.467 → 0.643 (SEED-006) → 0.667 (SEED-008)
 - Three genuinely novel scaffold families added: wasp mastoparan (SEED-006), bumblebee bombolitin
   (SEED-007), wheat puroindoline Trp domain (SEED-008)
-- "Breaking news" probability: ~5–12% → ~16–35% → ~22–42% → ~22–43% → ~24–45% → ~25–46% → ~27–47% → ~28–48% → **~29–49%** (current, PR #53)
+- "high-impact scenario" probability: ~5–12% → ~16–35% → ~22–42% → ~22–43% → ~24–45% → ~25–46% → ~27–47% → ~28–48% → **~29–49%** (current, PR #53)
 - Selectivity proxy: `selectivity_proxy` in compute_features() output; `HIGH_CYTOTOX_RISK` flag
   in presynth QC + synthesis order checklist (PR #47)
 - `selectivity_proxy` in pilot_priority formula (weight 0.05, same as stability/novelty); SEED-004
@@ -525,7 +525,7 @@ Despite the probability gap, the pipeline has done the following correctly:
     `ensemble − 0.30×disagreement + 0.05×stability + 0.05×novelty + 0.05×selectivity_proxy`.
     This gives the 20-member pilot panel a statistical bias toward selective candidates when all
     else is equal — the best defense against the Stage 2 failure mode that currently blocks ~45–60%
-    of candidates from reaching "breaking news" publication.
+    of candidates from reaching "high-impact scenario" publication.
 
 12. **Aggregation propensity scoring (PR #49):** `aggregation_propensity()` [0,1] quantifies
     on-resin and post-synthesis aggregation risk from two mechanisms: (a) interior hydrophobic runs
@@ -602,7 +602,7 @@ Proceed with full panel. Prepare D-amino Wave 2 synthesis order for the 3 best W
 
 ---
 
-## Roadmap to ≥50% Breaking News Probability
+## Roadmap to ≥50% high-impact scenario Probability
 
 The gap between the current ~29–49% and the 50% mark can be crossed with the following:
 
@@ -627,7 +627,7 @@ Executing all four actions on the best Wave 1 hits would push the combined proba
 | 2 | TI > 10 (selectivity) | ~35–50% | ~35–50% | ~38–52% | **~40–55%** ✓ | **~42–57%** ✓ (stronger SEED-004 demotion) | sel_proxy doubled penalty for HIGH_CYTOTOX_RISK tier |
 | 3 | t½ > 2 h (serum) | ~10–20% | ~25–40% | ~28–42% | **~28–42%** | **~30–46%** ✓ (3-protease model + short/Trp-rich model correction; pilot-panel data) | SEED-003/008 may outperform model score; all seeds borderline — early serum assay recommended |
 | 4 | Scaffold novelty | ~10–15% | ~18–25% | ~25–35% | **~26–36%** ✓ | **~26–36%** | Diversity filter removes cross-seed near-dups |
-| All | "Breaking news" hit | ~5–12% | ~16–35% | ~22–42% | ~24–45% | **~29–49%** ✓ | MDR strains + Wave 2 D-amino = path to 50%+ |
+| All | "high-impact scenario" hit | ~5–12% | ~16–35% | ~22–42% | ~24–45% | **~29–49%** ✓ | MDR strains + Wave 2 D-amino = path to 50%+ |
 
 **Probability of ≥1 active AMP from pilot panel (Stage 1 only):** ~91–97%  
 (Probability of zero active from 20 candidates with ~66% individual hit rate ≈ 3–9%)
@@ -650,11 +650,11 @@ incompatibility, mammalian toxicity at the seed level), most variants from that 
 together. The effective number of independent experiments is closer to the number of distinct
 scaffold families tested (6) than the number of candidates (20).
 
-**Correlation-corrected estimate for the breaking-news gate (updated after PR #61):**
+**Correlation-corrected estimate for the high-impact gate (updated after PR #61):**
 
 The internal model's per-stage probabilities, multiplied across all 5 gates, give a per-candidate
 all-gates pass rate of approximately 1.6–3.1%. With 20 assumed-independent candidates, the
-pipeline estimates P(≥1 breaking-news hit) = 1 − (1 − p)^20 ≈ 29–49%.
+pipeline estimates P(≥1 high-impact hit) = 1 − (1 − p)^20 ≈ 29–49%.
 
 **Update (PR #61):** After regenerating the phase3 synthesis pool with all 10 seeds:
 
@@ -691,7 +691,7 @@ mechanism-diverse seeds — a net improvement.
 
 > **For a per-family detailed analysis** with attrition model and assay guidance, see
 > [`docs/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md). That document distinguishes
-> "publishable novel result" (~30–50%) from "breaking news tier" (~8–18% with MDR added).
+> "publishable novel result" (~30–50%) from "high-impact scenario tier" (~8–18% with MDR added).
 
 | Outcome | Internal model (n=20 independent) | Calibrated estimate (n=7 scaffolds, post-PR #72) |
 |---------|-----------------------------------|--------------------------------------------------|
@@ -699,13 +699,13 @@ mechanism-diverse seeds — a net improvement.
 | Publishable novel result (single-lab, ≥2 organisms, novel family) | not modeled | ~30–50%* |
 | Major breakthrough (new AMP class, replicated, MDR) | not modeled | ~8–18% |
 
-*"Publishable novel result" bar is lower than "breaking news" — single-lab first characterisation
+*"Publishable novel result" bar is lower than "high-impact" — single-lab first characterisation
 in a peptide science journal, not requiring independent external replication. See
 `docs/WET_LAB_PROBABILITY.md` Section 3 for the composite probability derivation.
 
 The MIC-only probability (Stage 1) is harder to correct without a formal per-scaffold Stage 1
 rate; it is left as a qualitative adjustment toward the lower end of the 61–71% range. The
-full-panel composite P(≥1 active, MIC ≤ 16 µg/mL) ≈ 92–97% from `WET_LAB_PROBABILITY.md`
+full-panel composite P(≥1 active, MIC ≤ 16 µg/mL) ≈ 92–97% (upper bound; honest estimate in text) from `WET_LAB_PROBABILITY.md`
 corroborates the upper end of this range.
 
 The corrected estimate is more conservative because:
@@ -808,8 +808,8 @@ No biological activity has been demonstrated. The lab is the judge.*
 (52 new well-characterised public-domain AMPs across 12 taxonomic classes). random_background.csv
 expanded to 96, scrambled_decoys.csv to 95. AUROC: 0.7832 (CI₉₅: 0.72–0.84, n=191). Phase3 gate:
 0.7448. All doc benchmark references updated. DKP_RISK and SHORT_PEPTIDE flags added to presynth QC.
-ASSAY_PREREGISTRATION SEED-001/SEED-006 added. "Breaking news" terminology replaced with
-"high-impact scenario" across all docs. Probability table toned down with honest corrections.
+ASSAY_PREREGISTRATION SEED-001/SEED-006 added. Old terminology replaced with "high-impact
+scenario" across all docs. Probability table toned down with honest corrections.
 
 **Tracking note (post-PR #109):** test: close remaining 1% coverage gap — 6 modules to 100%
 branch coverage (pipeline.py:105, diversity.py:73, template_mutator.py lines 51/98/144,
@@ -873,4 +873,5 @@ in the synthesis order to prevent cyclo(F-Pro) (MW≈244 Da) truncation. ASSAY_P
 and WET_LAB_HANDOFF SEED-008 sections updated with REQUIRED Nα-Ac guidance and MS receipt
 rejection criterion (satellite > 5% → reject batch). EXPERT_REVIEW_PACK and
 DISCOVERY_PREDICTION doc corruption artifacts corrected. 1337 tests.
+.
 .
