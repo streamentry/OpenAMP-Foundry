@@ -51,8 +51,12 @@ Confidence intervals: percentile bootstrap (2000 resamples, seed=0).
 |------|--------|------------|
 | Helical-centric scorer | β-sheet AMPs (defensins) score below panel | Noted in METRICS_CURRENT.md |
 | Melittin safety blind spot | Safety=1.0 despite strong hemolysis | Hemolysis assay mandatory for all |
-| Composition-matched scrambled AUROC < 0.5 | Model relies on composition > order | Expected for physicochemical scorer |
+| Composition-matched scrambled AUROC < 0.5 | Model relies on composition > order; fails strict order-sensitivity test | OpenAMP is an **evidence-ranking tool**, not a validated sequence-order activity predictor. Composition-scrambled test confirms the model captures AMP-like composition, not sequence-order features. |
 | Near-seed generation only | Novel sequence space not explored | Acknowledged limitation in all docs |
+
+## Classification
+
+OpenAMP performs well on standard decoys (AUROC 0.7832) but **fails the strict composition-scrambled benchmark (AUROC 0.4335, below random)**. This means the model primarily detects AMP-like amino acid composition rather than sequence-order-dependent antimicrobial features. This is expected for a physicochemical heuristic scorer and is appropriate for its intended use: **triage and ranking**, not deep biological prediction.
 
 ## Historical Baseline
 

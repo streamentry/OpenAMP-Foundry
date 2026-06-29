@@ -51,7 +51,8 @@ representative of diverse AMP classes not covered by the helic-centric scorer.
 | Scaffold families | 7 (SEED-001, 003, 005, 006, 007, 008, 009) |
 | Seeds in synthesis pool | 7 families (SEED-002, 004, 010 excluded at gates) |
 | Total synthesis pool | 100 candidates from 7 families |
-| Broad novelty (72 refs) | 16/20 NOVEL, 3 KNOWN_VARIANT, 1 CLOSE_RELATIVE |
+| Broad novelty (72 refs) | 16/20 NOVEL, 3 KNOWN_VARIANT, 1 CLOSE_RELATIVE | See NOVELTY_AUDIT_FULL.md for 5-tier breakdown |
+| 5-tier audit (120 refs) | 12 HIGH_CONFIDENCE_NOVEL + 4 NOVEL + 1 CLOSE_RELATIVE + 3 KNOWN_VARIANT | Audited against unified AMP library (120 seqs) |
 | Panel ensemble range | 0.796–0.857 |
 | Panel safety range | 0.845–1.000 |
 | Positive control | SEED-001_VAR_064 (magainin-1 derivative, ensemble 0.802) |

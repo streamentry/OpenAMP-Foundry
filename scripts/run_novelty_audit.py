@@ -96,8 +96,6 @@ def main():
                     "ref_sequence": ref_seq,
                     "similarity": round(sim, 4),
                 })
-        if all_pairs:
-            detail_rows.extend(all_pairs)
 
             if sim > best_sim:
                 best_sim = sim
@@ -107,6 +105,8 @@ def main():
                     "sequence": ref_seq,
                     "source": ref.get("reference", ref.get("source", "")),
                 }
+        if all_pairs:
+            detail_rows.extend(all_pairs)
 
         # 5-layer classification
         novelty = round(1.0 - best_sim, 4)

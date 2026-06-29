@@ -103,32 +103,43 @@ def check_gate_5_interpretation(validation_data: dict[str, Any]) -> GateResult:
     )
 
 
+def _gate_pending(gate: int, name: str, detail: str) -> GateResult:
+    """Create a GateResult with passed=False for intentionally pending gates.
+    
+    Pending gates are NOT passed — they are unresolved and block synthesis
+    readiness until completed. This prevents a false sense of readiness.
+    """
+    return GateResult(
+        gate=gate, name=name, passed=False, value="PENDING",
+        threshold="Must be resolved before synthesis",
+        detail=f"{detail} (PENDING — does not pass until completed)",
+    )
+
+
+def _gate_6_pending(_val: Any) -> GateResult:
+    return _gate_pending(
+        6, "External predictor consensus",
+        "Submit FASTA to CAMPR4, AMPScanner, dbAMP, AntiCP2, Macrel. "
+        "See outputs/external_predict_checklist.md.",
+    )
+
+
+def _gate_7_pending(_val: Any) -> GateResult:
+    return _gate_pending(
+        7, "Human expert review",
+        "Generate reviewer questionnaires via 'make questionnaire', distribute, "
+        "and collect APPROVE/CONDITIONAL/REJECT verdicts.",
+    )
+
+
 _ALL_GATES = [
     check_gate_1_auroc,
     check_gate_2_leakage,
     check_gate_3_disagreement,
     check_gate_4_top10_positive_recall,
     check_gate_5_interpretation,
-]
-
-
-def _gate_pending(gate: int, name: str, detail: str) -> GateResult:
-    """Create a GateResult with passed=True for intentionally pending gates."""
-    return GateResult(
-        gate=gate, name=name, passed=True, value="PENDING",
-        threshold="N/A (manual review)", detail=detail,
-    )
-
-
-_ALL_GATES += [
-    lambda _val: _gate_pending(6, "External predictor consensus",
-        "Gate 6 PENDING — external predictor results not yet available. "
-        "Submit FASTA to CAMPR4, AMPScanner, dbAMP, AntiCP2, Macrel to populate "
-        "outputs/external_predict_results.csv. See outputs/external_predict_checklist.md for guide."),
-    lambda _val: _gate_pending(7, "Human expert review",
-        "Gate 7 PENDING — expert reviewer sign-off required. "
-        "Generate reviewer questionnaires via 'make questionnaire', "
-        "distribute to reviewers, and collect APPROVE/CONDITIONAL/REJECT verdicts."),
+    _gate_6_pending,
+    _gate_7_pending,
 ]
 
 
