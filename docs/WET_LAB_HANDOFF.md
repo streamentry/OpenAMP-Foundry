@@ -450,27 +450,46 @@ confirmed by external predictor screening (wave 0.5b; 2026-06-29).
 
 **Best candidates added to final panel (wave 0.5b, external predictor confirmed):**
 
-| Candidate | Sequence | AMPScanner | HemoFinder | AntiCP | Broad novelty (72-AMP DB) | Full-DB novelty |
+| Candidate | Sequence | AMPScanner | HemoFinder | AntiCP | Broad novelty (72-AMP DB only) | Full-DB novelty (27,234-seq BLOSUM62) |
 |-----------|----------|:----------:|:----------:|:------:|:-------------:|:---:|
-| SEED-020_VAR_004 | RLRIRVLKRLLK | 0.9928 (AMP) | LOW | Non-AntiCP 0.29 | NOVEL (41.7% max) | NOVEL |
-| SEED-020_VAR_002 | KVRIRVLKRLLK | 0.9960 (AMP) | LOW | Non-AntiCP 0.32 | NOVEL (37.5% max) | NOVEL |
-| SEED-019_VAR_004 | RVRIRLVKRLLK | panel anchor | LOW | Non-AntiCP | 38.1% max vs non-patent AMPs | **CLOSE_RELATIVE ⚠ patent risk** |
+| SEED-020_VAR_004 | RLRIRVLKRLLK | 0.9928 (AMP) | LOW | Non-AntiCP 0.29 | NOVEL (41.7% max) | ⚠ CLOSE_RELATIVE 75% to DRAMP05502 (patent) |
+| SEED-020_VAR_002 | KVRIRVLKRLLK | 0.9960 (AMP) | LOW | Non-AntiCP 0.32 | NOVEL (37.5% max) | ⚠ CLOSE_RELATIVE 67% to DRAMP05504 (patent) |
+| SEED-020_VAR_008 *(fallback — see IP NOTE)* | RVRIKVLKRLLK | ext. pred. confirmed | LOW | — | — | CLOSE_RELATIVE 67% to DRAMP31150 (**CLEAR** — public DRAMP entry, no patent sub-database hit) |
+| SEED-019_VAR_004 | RVRIRLVKRLLK | panel anchor | LOW | Non-AntiCP | 38.1% max vs non-patent AMPs | **CLOSE_RELATIVE ⚠ patent risk** (66.7% to DRAMP05502) |
 
-> **IP NOTE — SEED-019_VAR_004:** Full 27,234-sequence novelty audit v2 (APD6, DRAMP general,
-> DRAMP patent, UniProt) classifies SEED-019_VAR_004 as **CLOSE_RELATIVE (66.7% identity to
-> DRAMP patent sequence DRAMP05502)**. **IP clearance is required before ordering synthesis
-> or publishing results for SEED-019_VAR_004.** The SEED-020 pair (VAR_004 and VAR_002) were
-> not flagged in the patent database and carry no identified IP risk.
+> **IP NOTE — SEED-020_VAR_004, SEED-020_VAR_002, and SEED-019_VAR_004:**
+> Full 27,234-sequence novelty audit v2 (APD6, DRAMP general, DRAMP patent, UniProt; BLOSUM62
+> local alignment) reveals patent proximity for all three candidates:
+> - **SEED-020_VAR_004** (RLRIRVLKRLLK): 75% identity to DRAMP patent sequence **DRAMP05502**
+>   (RLLKQWPIGRLLKRLLKRLLK; C-terminal RLLK-repeat region aligns 9/12 residues)
+> - **SEED-020_VAR_002** (KVRIRVLKRLLK): 67% identity to DRAMP patent sequence **DRAMP05504**
+>   (RVLKQWPIGRVLKRVLKRVLK; analogous C-terminal alignment)
+> - **SEED-019_VAR_004** (RVRIRLVKRLLK): 66.7% identity to DRAMP05502 (patent)
+>
+> All three are classified **POSSIBLE_PATENT_RISK**. **IP clearance is required before
+> ordering synthesis or publishing results for any of these three sequences.**
+>
+> The preliminary broad novelty check used a 72-sequence curated database that does NOT include
+> patent sequences; that check returned NOVEL for SEED-020_VAR_004 and SEED-020_VAR_002 —
+> that result was misleading and is superseded by the full-DB BLOSUM62 audit above.
+>
+> **Safest wave 0.5b alternative — SEED-020_VAR_008 (RVRIKVLKRLLK):** 67% to DRAMP31150
+> (general/public database — no patent hit); classified **CLEAR**. If IP clearance for
+> VAR_004/VAR_002 cannot be confirmed before the synthesis deadline, use VAR_008 as the
+> primary SEED-020 representative.
 
 SEED-020_VAR_004 is the **best safety-activity tradeoff in the entire wave 0.5b batch** by
 combined external predictor consensus. SEED-020_VAR_002 has the highest AMPScanner score (0.9960)
-of any candidate in the batch.
+of any candidate in the batch. Both require IP clearance before synthesis (see IP NOTE above).
 
-**Novelty:** SEED-020_VAR_004 and SEED-020_VAR_002 confirmed NOVEL by broad novelty check
-(72-AMP curated reference database; < 50% similarity). Closest matches are in the REF-RLK-001
-(cationic helix) and REF-LL37-003 (LL-37 fragment) classes — confirmed activity in either
-would be publishable. SEED-019_VAR_004 carries a patent proximity flag (see IP NOTE above);
-publishability claims for SEED-019_VAR_004 require IP clearance.
+**Novelty:** The preliminary broad novelty check (72-AMP curated DB; <50% similarity) showed
+NOVEL for SEED-020_VAR_004 and VAR_002, but this database does not include patent sequences.
+The full BLOSUM62 audit (27,234 sequences including DRAMP patent DB) classifies VAR_004 and
+VAR_002 as **CLOSE_RELATIVE with POSSIBLE_PATENT_RISK** (75% to DRAMP05502 and 67% to
+DRAMP05504 respectively). Activity confirmed at wet-lab would require patent search and IP
+clearance before publication. SEED-020_VAR_008 (RVRIKVLKRLLK; CLEAR — public DRAMP entry,
+no patent sub-database hit) is the publication-safe fallback within this scaffold class. SEED-019_VAR_004 also carries
+a patent proximity flag (see IP NOTE above).
 
 **Mechanism:** Cationic amphipathic helix — alternating hydrophobic (Leu/Val/Ile) and cationic
 (Arg/Lys) faces interact with anionic bacterial membranes, causing rapid membrane depolarization.

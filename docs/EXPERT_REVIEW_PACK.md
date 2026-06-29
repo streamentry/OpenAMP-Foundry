@@ -174,19 +174,29 @@ not a claim that they are inactive.
 | SEED-007 (bombolitin) | 4 | Short amphipathic helix | Genuine (✓ NOVEL) | Low (11 AA; good) | ~70–82% | Novel short helix |
 | SEED-008 (Trp-rich) | 4 | Indole ring stacking; not helical | Genuine (✓ NOVEL) | Moderate (13 AA model edge) | ~70–82% | Novel mechanism; high disagreement |
 | SEED-009 (Pro-rich) | 4 | Ribosome exit + DnaK | Genuine (✓ NOVEL) | **Best** (Pro-X bonds resist protease) | ~60–75% | Novel; run RPMI parallel |
-| SEED-019/020 (Arg-Ile/Val/Leu) | 3 | Cationic amphipathic helix | ✓ NOVEL (SEED-020 pair); CLOSE_RELATIVE + ⚠ patent risk (SEED-019_VAR_004) | Short (12 AA model edge) | **~75–85%** (SEED-020 pair); patent clearance needed for SEED-019_VAR_004 | Best ext.-predictor confirmed leads; IP check before SEED-019 synthesis |
+| SEED-019/020 (Arg-Ile/Val/Leu) | 3 | Cationic amphipathic helix | CLOSE_RELATIVE + ⚠ patent risk for all 3 (VAR_004/VAR_019→DRAMP05502; VAR_002→DRAMP05504); CLEAR alternative: VAR_008 | Short (12 AA model edge) | **~75–85%** (activity unchanged); IP clearance required before any synthesis | Best ext.-predictor confirmed leads; VAR_008 is the publication-safe option |
 
-> **Wave 0.5b addendum (2026-06-29):** External predictor screening (CAMPR4 × 4 votes,
-> AMPScanner v2, Macrel, AMPActiPred, HemoFinder, AntiCP2) of 23 new SEED-020/021/023/024
-> candidates confirmed SEED-020_VAR_004 (RLRIRVLKRLLK) and SEED-020_VAR_002 (KVRIRVLKRLLK)
-> as the best safety-activity tradeoff in the batch: HemoFinder LOW, AMPScanner > 0.99,
-> Non-AntiCP. Both confirmed NOVEL by broad novelty check (72-AMP curated DB; < 50% max
-> similarity; no patent DB matches). Both added to `outputs/wave1_final_panel.csv` as
-> BALANCED_LEAD candidates (source: WAVE0_5B). SEED-019_VAR_004 (already in panel) carries
-> a POSSIBLE_PATENT_RISK flag (66.7% to DRAMP05502 in full 27,234-sequence audit) — require
-> IP clearance before synthesis. SEED-022 was excluded at pre-screen (no viable candidates
-> after safety scoring; poor AntiCP / HemoFinder profile across all variants). Full synthesis
-> notes: `docs/WET_LAB_HANDOFF.md §SEED-019/SEED-020`.
+> **Wave 0.5b addendum (2026-06-29; novelty corrected 2026-06-29):** External predictor
+> screening (CAMPR4 × 4 votes, AMPScanner v2, Macrel, AMPActiPred, HemoFinder, AntiCP2) of
+> 23 new SEED-020/021/023/024 candidates confirmed SEED-020_VAR_004 (RLRIRVLKRLLK) and
+> SEED-020_VAR_002 (KVRIRVLKRLLK) as the best safety-activity tradeoff in the batch:
+> HemoFinder LOW, AMPScanner > 0.99, Non-AntiCP. Both added to `outputs/wave1_final_panel.csv`
+> as BALANCED_LEAD candidates (source: WAVE0_5B).
+>
+> **⚠ Novelty correction:** The preliminary broad novelty check (72-AMP curated DB, no patent
+> sequences) returned NOVEL for SEED-020_VAR_004 and SEED-020_VAR_002. The full 27,234-sequence
+> BLOSUM62 audit (APD6 + DRAMP general + DRAMP patent + UniProt) reclassifies both as
+> **CLOSE_RELATIVE with POSSIBLE_PATENT_RISK**:
+> - SEED-020_VAR_004: **75% identity to DRAMP05502** (patent; RLLKQWPIGRLLKRLLKRLLK —
+>   C-terminal repeat RLLK aligns 9/12 residues)
+> - SEED-020_VAR_002: **67% identity to DRAMP05504** (patent; RVLKQWPIGRVLKRVLKRVLK)
+> - SEED-019_VAR_004: 66.7% to DRAMP05502 (patent; already flagged)
+>
+> All three require IP clearance before synthesis or publication. **Publication-safe
+> alternative: SEED-020_VAR_008 (RVRIKVLKRLLK)** — 67% to DRAMP31150 (general public
+> database, no patent hit; classified CLEAR). SEED-022 was excluded at pre-screen (no viable
+> candidates after safety scoring; poor AntiCP / HemoFinder profile across all variants).
+> Full synthesis and IP notes: `docs/WET_LAB_HANDOFF.md §SEED-019/SEED-020`.
 
 **SEED-007 reviewer note:** Bombolitin-II (*Megabombus pennsylvanicus* venom) is the
 **largest selected family** (26 variants, 4 pilot slots). All 4 pilot candidates are NOVEL
