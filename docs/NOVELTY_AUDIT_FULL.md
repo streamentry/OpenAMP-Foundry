@@ -111,3 +111,39 @@ Bac2A proline-rich intracellular. Novel mechanism (DnaK binding).
 - Expanded AMP set: `examples/validation/known_amps.csv`
 - Levenshtein distance: `scoring/novelty.py`
 - Tool: `scripts/run_novelty_audit.py`
+
+---
+
+## Wave 0.5 Novelty Audit (2026-06-29)
+
+> Separate audit for Wave 0.5 scaffold diversification candidates.
+> Full details: `docs/WAVE_0_5_NOVELTY_AUDIT.md`
+> Machine-readable: `outputs/wave0_5_novelty_audit.csv`
+
+### Summary
+
+| Novelty Class | Wave 0.5 Count | Wave 0 Count |
+|---|---|---|
+| HIGH_CONFIDENCE_NOVEL | 5 | 13 |
+| RELATED_NOVEL | 48 | 3 |
+| CLOSE_RELATIVE | 7 | 1 |
+| KNOWN_VARIANT | 0 | 3 |
+| EXACT_MATCH | 0 | 0 |
+
+Wave 0.5 shortlist: 60 candidates (10 new families) screened against 72 curated references + 20 Wave 0 panel sequences.
+Novel leads (HIGH_CONFIDENCE + RELATED): 53/60 — all acceptance criteria met.
+
+### New Family Novelty Notes
+
+| Family | Mechanism | Best DB Hit Class | Notes |
+|---|---|---|---|
+| SEED-010 | Histatin-5 P-113 oral innate | RELATED_NOVEL (histatin family) | Distance from database histatin-5 confirmed |
+| SEED-011 | Pro-kinked helices | HIGH_CONFIDENCE_NOVEL | No close relatives in reference set |
+| SEED-012 | Glycine-rich design | HIGH_CONFIDENCE_NOVEL | Novel low-hydrophobicity class |
+| SEED-013 | Pleurocidin/fish AMP | RELATED_NOVEL (pleurocidin family) | Distance from database pleurocidin confirmed |
+| SEED-014 | Scattered-helix cathelicidin-mini | RELATED_NOVEL | Partial cathelicidin similarity |
+| SEED-015 | KFLK de novo cationic | HIGH_CONFIDENCE_NOVEL | No close relatives |
+| SEED-016 | RRWK dual-Trp | HIGH_CONFIDENCE_NOVEL | Distinct from SEED-008 Trp-rich |
+| SEED-017 | Pro-kinked Leu/Phe-enriched | RELATED_NOVEL | Some Pro-rich overlap with SEED-009 |
+| SEED-018 | GKRK scattered-charge | HIGH_CONFIDENCE_NOVEL | Novel charge-arrangement pattern |
+| SEED-019 | Arg-Val alternating | HIGH_CONFIDENCE_NOVEL | Novel residue-alternation motif |

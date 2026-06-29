@@ -54,6 +54,29 @@ Deposit sequences in patent filing as SEQ ID NOs. Use the WIPO ST.26 standard
 - [ ] Google Patents / Lens.org — scaffold-level search
 - [ ] Competitor sequence database (AMP-Designer, AMPGAN v3, etc.)
 
+---
+
+## Wave 0.5 IP Addendum (2026-06-29)
+
+Wave 0.5 added 10 new scaffold families. IP guidance by family:
+
+| Family | Novelty Class | Claim Strategy |
+|---|---|---|
+| SEED-010 (histatin) | RELATED_NOVEL | Histatin-5/P-113 fragments are in clinical development (Cda1p binding); claim specific modifications (K4R, H13L), not the parent scaffold |
+| SEED-011 (Pro-kinked) | HIGH_CONFIDENCE_NOVEL | Novel kinked-helix design; primary patent claim on kink-disrupted amphipathic motif |
+| SEED-012 (Gly-rich) | HIGH_CONFIDENCE_NOVEL | Novel low-hydrophobicity cationic class; differentiated from defensins by sequence composition |
+| SEED-013 (pleurocidin) | RELATED_NOVEL | Pleurocidin (Coulson 1996) is in the public domain; claim specific analogs with modifications |
+| SEED-014 (cathelicidin-mini) | RELATED_NOVEL | Cathelicidin C-terminal domain widely patented; claim minimum-pharmacophore analogs |
+| SEED-015 (KFLK de novo) | HIGH_CONFIDENCE_NOVEL | Fully de novo design; strong primary patent claim |
+| SEED-016 (RRWK dual-Trp) | HIGH_CONFIDENCE_NOVEL | Novel dual-Trp low-aromatic design; distinguish from indolicidin and SEED-008 |
+| SEED-017 (Pro-kinked Leu/Phe) | RELATED_NOVEL | Some overlap with proline-rich class; claim specific Pro-kink + Leu/Phe combination |
+| SEED-018 (GKRK scattered-charge) | HIGH_CONFIDENCE_NOVEL | Novel charge-spacing pattern; strong claim |
+| SEED-019 (Arg-Val alternating) | HIGH_CONFIDENCE_NOVEL | Novel Arg-Val beta-strand alternating motif; strong claim |
+
+Wave 0.5 candidates in the final panel with REVIEW_REQUIRED patent risk (from novelty audit):
+See `outputs/wave0_5_novelty_audit.csv`, `patent_risk` column.
+All REVIEW_REQUIRED candidates must undergo FTO analysis before synthesis order.
+
 ## Publication Strategy
 
 1. **First publication:** Pipeline methodology + benchmark results only

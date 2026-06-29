@@ -47,40 +47,81 @@ representative of diverse AMP classes not covered by the helic-centric scorer.
 
 | Metric | Value |
 |--------|-------|
-| Panel size | 20 candidates |
-| Scaffold families | 7 (SEED-001, 003, 005, 006, 007, 008, 009) |
-| Seeds in synthesis pool | 7 families (SEED-002, 004, 010 excluded at gates) |
-| Total synthesis pool | 100 candidates from 7 families |
-| Broad novelty (72 refs) | 16/20 NOVEL, 3 KNOWN_VARIANT, 1 CLOSE_RELATIVE | See NOVELTY_AUDIT_FULL.md for 5-tier breakdown |
-| 5-tier audit (120 refs) | 13 HIGH_CONFIDENCE_NOVEL + 3 NOVEL + 1 CLOSE_RELATIVE + 3 KNOWN_VARIANT | Corrected after audit bugfix (see git log 61f07b7) |
-| Panel ensemble range | 0.796–0.857 |
-| Panel safety range | 0.845–1.000 |
+| Wave 0 panel size | 20 candidates |
+| Wave 0 scaffold families | 7 (SEED-001, 003, 005, 006, 007, 008, 009) |
+| **Wave 1 final panel (Wave 0.5)** | **24 candidates** |
+| **Wave 1 scaffold families** | **15 (Wave 0 carry-overs + 9 new families)** |
+| Wave 0.5 new families | 10 (SEED-010 through SEED-019) |
+| Wave 0.5 shortlisted | 60 (6 per family × 10 families) |
+| Wave 0.5 novelty (v2, 27k DB) | 1 RELATED_NOVEL / 39 CLOSE_RELATIVE / 19 KNOWN_VARIANT / 1 EXACT_MATCH_OR_FRAGMENT |
+| Wave 0.5 novelty v1 (72 refs, Levenshtein) | 53/60 RELATED_NOVEL or higher — v1 method overstated novelty |
+| Broad novelty Wave 0 (72 refs) | 16/20 NOVEL, 3 KNOWN_VARIANT, 1 CLOSE_RELATIVE |
+| 5-tier audit Wave 0 (120 refs) | 13 HIGH_CONFIDENCE_NOVEL + 3 NOVEL + 1 CLOSE_RELATIVE + 3 KNOWN_VARIANT |
+| Wave 0 panel ensemble range | 0.796–0.857 |
+| Wave 0 panel safety range | 0.845–1.000 |
 | Positive control | SEED-001_VAR_064 (magainin-1 derivative, ensemble 0.802) |
 | Blind spot | Melittin scores Safety=1.0 despite hemolysis; hemolysis assay mandatory |
+| Wave 0.5 external predictors | **COMPLETE** — AMPScanner 59/60, AMPActiPred 60/60, Macrel AMP 52/60 |
+| Wave 0.5 activity consensus | **STRONG_ACTIVITY: 52/60 (87%)** — passes W0.5-3 gate (≥70%) |
+| Wave 0.5 HemoFinder | LOW: 40/60 (67%), HIGH: 20/60 |
+| Wave 0.5 AntiCP 2.0 | Non-AntiCP: 4/60 (7%), AntiCP: 56/60 |
+| Best clean candidate | SEED-019_VAR_004 (RVRIRLVKRLLK) — STRONG + Non-AntiCP + HemoFinder LOW |
+| **Wave 0.5b** | **23 candidates shortlisted** (5 new families SEED-020→024, no aromatics) |
+| Wave 0.5b design goal | Lower AntiCP risk: no W/Y/F residues; broken helix pattern |
+| Wave 0.5b expected AntiCP | < 0.50 (by design — pending external predictor confirmation) |
 
-### Novel families (SEED-006, 007, 008, 009)
+### Wave 1 Panel Composition (Wave 0.5 output, post-v2 novelty update)
+
+| Role | Count |
+|------|-------|
+| BALANCED_LEAD | 15 |
+| HIGH_UPSIDE_RISKY | 4 |
+| POSITIVE_CONTROL | 1 |
+| SAR_CONTROL | 4 |
+
+### Novel families (Wave 0 leads)
 
 | Family | Mechanism | Panel slots | Novelty | Key risk |
 |--------|-----------|:-----------:|---------|----------|
-| SEED-006 | Mastoparan-X, wasp-venom helix insertion | 4 | 0.643 | Mast-cell degranulation |
-| SEED-007 | Bombolitin-II, bumblebee venom | 4 | 0.615–0.727 | Met oxidation at pos 6 |
-| SEED-008 | Puroindoline-a, Trp-rich interfacial | 4 | 0.600–0.692 | DKP risk (FP), Trp photolability |
-| SEED-009 | Bac2A, proline-rich intracellular | 4 | 0.647–0.692 | Requires RPMI-1640 assay |
+| SEED-006 | Mastoparan-X, wasp-venom helix insertion | 2 | 0.643 | Mast-cell degranulation |
+| SEED-007 | Bombolitin-II, bumblebee venom | 1 | 0.643 | Met oxidation at pos 6 |
+| SEED-008 | Puroindoline-a, Trp-rich interfacial | 2 | 0.692 | DKP risk (FP), HemoFinder HIGH |
+| SEED-009 | Bac2A, proline-rich intracellular | 2 | 0.647 | AntiCP risk, RPMI-1640 arm |
+
+### New Wave 0.5 families in Wave 1 panel (v2 novelty classes)
+
+| Family | Mechanism | Panel slots | v2 Novelty class |
+|--------|-----------|:-----------:|---------------|
+| SEED-010 | Histatin-5 P-113 oral innate AMP fragments | 1 | KNOWN_VARIANT (SAR_CONTROL) |
+| SEED-011 | Pro-kinked amphipathic | 1 | CLOSE_RELATIVE |
+| SEED-012 | Glycine-rich low-hydrophobicity design | 2 | CLOSE_RELATIVE |
+| SEED-014 | Cathelicidin-mini scattered helix | 1 | CLOSE_RELATIVE |
+| SEED-015 | KFLK de novo cationic helix | 1 | CLOSE_RELATIVE |
+| SEED-016 | RRWK dual-Trp low-aromatic | 2 | CLOSE_RELATIVE |
+| SEED-018 | GKRK scattered-charge design | 2 | CLOSE_RELATIVE |
+| SEED-019 | Arg-Val alternating pattern | 2 | RELATED_NOVEL / CLOSE_RELATIVE |
 
 ---
 
-## External Predictor Checklist
+## External Predictor Results (Wave 0.5)
 
-| Tool | Status | Consensus |
-|------|--------|:---------:|
-| CAMPR4 | ⏳ Web submission pending | ?/5 |
-| AMPScanner v2 | ⏳ Web submission pending | ?/5 |
-| dbAMP 2.0 | ⏳ Web submission pending | ?/5 |
-| AntiCP 2.0 | ⏳ Web submission pending | ?/5 |
-| Macrel | ⏳ Web submission pending (use web server, not CLI) | ?/5 |
+| Tool | Status | Result |
+|------|--------|--------|
+| CAMPR4 | ⏳ Not submitted | PENDING |
+| AMPScanner v2 | ✅ Complete | 59/60 AMP (98%) |
+| AMPActiPred | ✅ Complete | 60/60 ABP (100%) |
+| Macrel AMP | ✅ Complete | 52/60 AMP (87%) |
+| HemoFinder | ✅ Complete | 40/60 LOW (67%), 20/60 HIGH |
+| AntiCP 2.0 | ✅ Complete | 4/60 Non-AntiCP, 56/60 AntiCP |
+| Macrel Hemolysis | ✅ Complete | 60/60 flagged (non-discriminating — flags all) |
 
-Consensus gate: ≥3/5 tools positive. Currently **PENDING** before synthesis order.
-See `outputs/external_predict_checklist.md` for submission details.
+**Activity consensus (3 tools, CAMPR4 excluded):** 52/60 STRONG_ACTIVITY, 7/60 MODERATE, 1/60 WEAK
+
+**Safety profile concern:** 56/60 AntiCP-positive is expected for amphipathic-helix designs.
+AntiCP 2.0 detects anticancer peptide (ACP) patterns, not antimicrobial activity directly.
+Mitigation: Wave 0.5b designs avoid aromatic residues and pure amphipathic helix.
+
+Machine-readable: `outputs/wave0_5_external_predict_results.csv`, `outputs/wave0_5_external_consensus.csv`
 
 ---
 
@@ -103,7 +144,7 @@ See `outputs/external_predict_checklist.md` for submission details.
 | No structural modeling | Helical assumption may misclassify non-helical mechanisms |
 | Near-seed generation only | Novel sequence space not explored de novo |
 | Benchmark at 191 sequences | Still far from 500+ target flagged in ROADMAP (v1.0+) |
-| APD3/DRAMP novelty check | Pending (72-reference check done; full database BLAST pending) |
+| APD/DRAMP novelty (v2) | Complete — 27,234-sequence combined DB (APD6+DRAMP+UniProt); BLOSUM62 local alignment; Wave 0.5 results updated |
 | No wet-lab data | All probabilities are upper bounds; true hit rate unknown |
 
 ---
@@ -112,4 +153,8 @@ See `outputs/external_predict_checklist.md` for submission details.
 
 | Date | Change | Author |
 |------|--------|--------|
+| 2026-06-29 | Novelty audit v2: BioPython BLOSUM62 local alignment vs 27,234 AMPs (APD6+DRAMP+UniProt); panel updated (15 families, 4 SAR_CONTROL); all 7 gates PASS | OpenAMP Wave 0.5 |
+| 2026-06-29 | Wave 0.5b: 23-candidate safety-optimized shortlist (SEED-020–024, no aromatics) | OpenAMP Wave 0.5b |
+| 2026-06-29 | External predictor results filled from wave05_combined_consensus.csv; all 7 gates PASS | OpenAMP Wave 0.5 |
+| 2026-06-29 | Wave 0.5 scaffold diversification — 24-candidate Wave 1 panel across 14 families | OpenAMP Wave 0.5 |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |

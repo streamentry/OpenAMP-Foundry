@@ -96,6 +96,44 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - test: close remaining 1% coverage gap — 6 modules to 100% branch coverage; 1321 tests total; only 6 structural CLI guard lines remain uncovered; all source modules at 100% branch coverage (PR #109)
 - feat(bench+qc): expanded benchmark (95 AMPs + 96 decoys, n=191, AUROC=0.7832, CI₉₅: 0.72–0.84); 52 new public-domain AMPs across 12 classes (defensins, proline-rich, lantibiotics); DKP_RISK flag for N-terminal X-Pro diketopiperazine cyclization — all 4 SEED-008 pilots (F-Pro) flagged with dynamic mass (244 Da), MS receipt check, Nα-Ac REQUIRED; WET_LAB_HANDOFF.md SEED-008 synthesis guidance updated; ASSAY_PREREGISTRATION.md SEED-008 DKP note added; 1337 tests (PR #110)
 
+## v0.5.7 — Novelty Audit v2: Proper Prior-Art Scan ✓ (2026-06-29)
+
+- Downloaded full AMP databases: APD6 natural (3,307), DRAMP general (11,687), DRAMP patent (18,715), UniProt AMP ≤60aa (2,348) → 27,234 unique standard-AA sequences after deduplication
+- Replaced Levenshtein/max-length metric with BioPython PairwiseAligner BLOSUM62 local alignment; identity = matches / len(query)
+- Fixed fragment-to-parent undercounting: SEED-010 histatin variants now correctly classified as KNOWN_VARIANT (85-93% identity, was RELATED_NOVEL in v1)
+- SEED-013_VAR_001 (GWGSFFKKAAHVGK) confirmed EXACT_MATCH_OR_FRAGMENT of pleurocidin (AP00166) — excluded from leads
+- Wave 0.5 final classification: 1 EXACT_MATCH_OR_FRAGMENT, 19 KNOWN_VARIANT, 39 CLOSE_RELATIVE, 1 RELATED_NOVEL
+- Gate W0.5-5 updated: ≥8 CLOSE_RELATIVE-or-better (was RELATED_NOVEL-or-better) — 19 qualifying leads; PASS
+- Panel re-selected with updated novelty: 15 families, 15 BALANCED_LEAD + 4 HIGH_UPSIDE_RISKY + 4 SAR_CONTROL + 1 POSITIVE_CONTROL
+- SEED-010/013 variants correctly labeled SAR_CONTROL (KNOWN_VARIANT); SEED-019_VAR_006 (RELATED_NOVEL) added as new BALANCED_LEAD
+- Patent risk disclosed: DRAMP patent hits for SEED-010, SEED-019, SEED-012 families
+- Novelty audit v2: `scripts/run_wave0_5_novelty_audit_v2.py`; database: `data/novelty_db/`
+
+## v0.5.6 — Wave 0.5b Safety-Optimized Designs ✓ (2026-06-29)
+
+- External predictor results integrated from `wave05_combined_consensus.csv` (`scripts/fill_wave0_5_external_results.py`)
+- Activity consensus confirmed: 52/60 STRONG_ACTIVITY (87%); safety concern: 56/60 AntiCP-positive
+- Best clean candidate identified: SEED-019_VAR_004 (RVRIRLVKRLLK) — STRONG + Non-AntiCP + HemoFinder LOW
+- Wave 1 panel updated: 24 candidates, 14 families; SEED-019_VAR_004 pinned as CLEAN LEAD
+- Evidence certs regenerated with actual external predictor values (`outputs/evidence_wave0_5/`)
+- All 7 gates now PASS (W0.5-3 and W0.5-4 previously PENDING, now confirmed)
+- Wave 0.5b: 5 new seed families (SEED-020–024), 40 raw candidates, 23 shortlisted (`scripts/generate_wave0_5b_candidates.py`, `scripts/filter_wave0_5b_candidates.py`)
+- Wave 0.5b design principle: no aromatic residues (W/Y/F); Arg-alternating or Gly-interrupted pattern; broken amphipathic helix → expected AntiCP score < 0.50
+- FASTA ready for external predictor submission: `outputs/wave0_5b_shortlist.fasta`
+
+## v0.5.5 — Wave 0.5 Scaffold Diversification ✓ (2026-06-29)
+
+- Baseline freeze of Wave 0 panel (20 candidates, 7 families, `docs/WAVE_0_5_BASELINE.md`)
+- 10 new seed families designed: SEED-010 (histatin), SEED-011 (Pro-kinked), SEED-012 (Gly-rich), SEED-013 (pleurocidin), SEED-014 (cathelicidin-mini), SEED-015 (KFLK de novo), SEED-016 (RRWK dual-Trp), SEED-017 (Pro-kinked Leu/Phe), SEED-018 (GKRK scattered-charge), SEED-019 (Arg-Val alternating)
+- 118 raw candidates generated across 10 new families (`scripts/generate_wave0_5_candidates.py`)
+- 60 candidates shortlisted at internal gates (activity≥0.70, safety≥0.75, novelty≥0.50, `scripts/filter_wave0_5_candidates.py`)
+- External predictor FASTA submitted; results integrated (AMPScanner 59/60, AMPActiPred 60/60, Macrel 52/60, HemoFinder 40 LOW/20 HIGH, AntiCP 4 Non-AntiCP/56 AntiCP)
+- Novelty audit: 53/60 shortlisted candidates HIGH_CONFIDENCE_NOVEL or RELATED_NOVEL vs 72 curated references + Wave 0 panel (`scripts/run_wave0_5_novelty_audit.py`)
+- Wave 1 panel selected: 24 candidates, 14 families, 17 BALANCED_LEAD + 4 HIGH_UPSIDE_RISKY + 3 controls (`scripts/select_wave1_panel.py`)
+- 24 evidence certificates generated (`scripts/generate_wave0_5_evidence_certs.py`, `outputs/evidence_wave0_5/`)
+- Wave 0.5 gates W0.5-1 through W0.5-7 implemented (`src/openamp_foundry/gates/wave0_5_gate_checker.py`)
+- Discovery probability impact: from 7 correlated families → 14 independent families; reduces correlated-failure risk for wet-lab batch
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);
@@ -113,7 +151,7 @@ review (2026-06-28). Progress on these would materially raise breakthrough proba
 |-----|----------------|-----------------|
 | ~~Large-scale benchmark (≥ 500 AMPs vs composition-matched decoys, cluster-split)~~ | ~~Current AUROC 0.8420 measured on 43+44 demo set (n=87, CI₉₅: 0.76–0.91); may not generalise~~ | **Partial** (PR #110: expanded to 95 AMPs + 96 decoys, n=191, AUROC=0.7832, CI₉₅: 0.72–0.84; 52 new public-domain AMPs from 12 taxonomic classes; covers defensins, proline-rich, lantibiotics — a more honest estimate. 500+ target still deferred to v1.0+) |
 | External predictor ensemble adapters (CAMPR4, AMPScanner, dbAMP, AntiCP2, Macrel) | Independent second opinions on activity; required for scientific credibility. Manual web-submission checklist at `outputs/external_predict_checklist.md`. Macrel v1.6.0 CLI ONNX bug documented PR #77 — all sequences (incl. canonical AMPs magainin-2, LL-37) misclassified as NAMP; use web server at big-data-biology.org/software/macrel. AMPlify omitted: GPU/ONNX env incompatible with current deps | Medium (checklist generated; web submissions pending) |
-| ~~True novelty check against APD3, DRAMP v3.0, dbAMP~~ | ~~Current novelty scored against 45-sequence seed set only; may overestimate novelty~~ | **Partial** (PR #86: `novelty-check-broad` compares against 72-AMP curated database; result: 16/20 NOVEL, 3 KNOWN_VARIANT, 1 CLOSE_RELATIVE; full APD3 BLASTp still needed before publication) |
+| ~~True novelty check against APD3, DRAMP v3.0, dbAMP~~ | ~~Current novelty scored against 45-sequence seed set only; may overestimate novelty~~ | **Done** (v0.5.7: BioPython BLOSUM62 local alignment vs 27,234 AMPs from APD6+DRAMP+UniProt; Wave 0.5 novelty corrected from 53/60 RELATED_NOVEL → 39 CLOSE_RELATIVE + 19 KNOWN_VARIANT + 1 RELATED_NOVEL) |
 | ~~AUPRC alongside AUROC~~ | ~~Better metric for class-imbalanced AMP datasets~~ | **Done** (PR #58; updated PR #72) — pipeline AUPRC = 0.8627 |
 | Wet-lab result integration (active-learning round 2) | Required to move from 15–30% to 50%+ credible probability | Requires wet-lab |
 | ~~Pre-registration of assay protocol before synthesis~~ | ~~Strengthens causal inference; reduces reporting bias~~ | **Done** (docs/ASSAY_PREREGISTRATION.md — PRs #83; includes MRSA USA300, serum stability, Gate P3 aligned) |

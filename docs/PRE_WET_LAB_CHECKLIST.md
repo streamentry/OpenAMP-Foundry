@@ -34,7 +34,7 @@ Record Y (predicted AMP) or N (not AMP) for each candidate.
 
 | Field | Value |
 |-------|-------|
-| URL | http://www.camp3.bicnirrh.res.in/predict.php |
+| URL | https://camp3.bicnirrh.res.in/predict/ |
 | Method | SVM + Random Forest + ANN + Decision Tree (ensemble vote) |
 | Submission | Paste FASTA in text box, select all four models, submit |
 | Export | CSV results (there should be a download link) |
@@ -59,11 +59,37 @@ Record Y (predicted AMP) or N (not AMP) for each candidate.
 
 | Field | Value |
 |-------|-------|
-| URL | https://awi.cuhk.edu.cn/dbAMP/predict.php |
+| URL | https://ycclab.cuhk.edu.cn/dbAMP/analyze.php |
 | Method | Random Forest on physicochemical + AA composition |
 | Submission | Paste FASTA, click 'Predict' |
 | Label | Positive = **AMP** |
 | Tip | Also reports predicted activity spectrum (antibacterial/antifungal) |
+
+
+https://ycclab.cuhk.edu.cn/dbAMP/HemoFinder_result.php?ID=HVM0vChd_
+https://ycclab.cuhk.edu.cn/AMPActiPred/
+https://ycclab.cuhk.edu.cn/AMPActiPred/result.php?ID=aCdkKYcv_OpenAMPWave1
+Step 2: Predict functional type? → Yes
+Step 3: Select type → tick ALL bacteria
+Step 4: Predict activity levels? → Yes
+Step 5: Project name → OpenAMPWave1
+
+
+Minimum must-tick set:
+
+E. coli
+S. aureus
+P. aeruginosa
+A. baumannii
+K. pneumoniae
+E. faecalis
+S. typhimurium
+
+Also tick these if allowed:
+
+B. subtilis
+S. epidermidis
+M. luteus
 
 **Per-candidate rule:** Record Y if predicted as AMP.
 
@@ -71,13 +97,30 @@ Record Y (predicted AMP) or N (not AMP) for each candidate.
 
 | Field | Value |
 |-------|-------|
-| URL | https://webs.iiitd.edu.in/raghava/anticp2/ |
+| URL | https://webs.iiitd.edu.in/raghava/anticp2/predict.php |
 | Method | SVM trained on anticancer peptides |
 | Submission | Select 'Predict' tab, paste sequences one per line (NOT FASTA format) |
 | Label | Positive = **ACP** (anticancer peptide — NOT AMP-specific) |
 | Caution | AntiCP predicts ACP, not AMP. ACP and AMP activity correlate but are not identical. Count ACP-positive as **indirect supporting evidence only**. |
 
 **Per-candidate rule:** Record Y if predicted as ACP. Mark as caveat in the consensus report.
+
+Tick Model 1, keep SVM threshold = 0.45, upload pilot_panel.fasta.
+
+Do not use Hybrid_DS1 / Hybrid_DS2 for the full batch, because your panel has many peptides under 15 AA. The page itself says the hybrid/N15C15 model needs at least 15 residues, and many of your candidates are 11–14 AA.
+
+For the physicochemical properties, they usually only affect displayed descriptors, not the classifier. Tick:
+
+Hydrophobicity
+Hydropathicity
+Hydrophilicity
+Charge
+Amphipathicity
+Molecular weight
+pI
+
+Net Hydrogen / Steric hindrance / Side bulk are optional. They are not critical for your Gate 6 consensus.
+
 
 ### Tool 5: Macrel (web server ONLY)
 

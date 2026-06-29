@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card
+.PHONY: help demo test lint ci clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -30,6 +30,13 @@ help:
 	@echo "  make bench-baseline           Hidden-positive recovery benchmark (demo set)"
 	@echo "  make bench-hidden-active      Hidden-positive recovery on mixed benchmark set"
 	@echo ""
+	@echo "  make wave0-5-gate-check     Run Wave 0.5 gates W0.5-1 through W0.5-7"
+	@echo "  make wave0-5-novelty-audit  Re-run novelty audit for Wave 0.5 shortlist"
+	@echo "  make wave0-5-fill-external  Fill external predictor CSVs from wave05_combined_consensus.csv"
+	@echo "  make wave0-5-panel          Re-run Wave 1 panel selection (fills external data first)"
+	@echo "  make wave0-5-evidence       Re-generate evidence certificates"
+	@echo "  make wave0-5b-generate      Generate Wave 0.5b candidates (safety-optimized, no aromatics)"
+	@echo "  make wave0-5b-filter        Filter Wave 0.5b shortlist (depends on wave0-5b-generate)"
 	@echo "  make test               Run full test suite (1287 tests, ≥80% coverage)"
 	@echo "  make coverage           Test suite with per-module coverage report"
 	@echo "  make lint               Ruff lint check on src/ tests/ scripts/"
@@ -208,3 +215,29 @@ novelty-broad: pilot
 
 clean:
 	rm -rf outputs/*.jsonl outputs/*.md outputs/*.json outputs/evidence outputs/phase3_evidence .pytest_cache .ruff_cache
+
+# ── Wave 0.5 Scaffold Diversification targets ──────────────────────────────
+
+wave0-5-gate-check:
+	PYTHONPATH=src $(PYTHON) src/openamp_foundry/gates/wave0_5_gate_checker.py
+
+wave0-5-novelty-audit:
+	PYTHONPATH=src $(PYTHON) scripts/run_wave0_5_novelty_audit.py
+
+wave0-5-novelty-audit-v2:
+	$(PYTHON) scripts/run_wave0_5_novelty_audit_v2.py
+
+wave0-5-fill-external:
+	PYTHONPATH=src $(PYTHON) scripts/fill_wave0_5_external_results.py
+
+wave0-5-panel: wave0-5-fill-external
+	PYTHONPATH=src $(PYTHON) scripts/select_wave1_panel.py
+
+wave0-5-evidence:
+	PYTHONPATH=src $(PYTHON) scripts/generate_wave0_5_evidence_certs.py
+
+wave0-5b-generate:
+	PYTHONPATH=src $(PYTHON) scripts/generate_wave0_5b_candidates.py
+
+wave0-5b-filter: wave0-5b-generate
+	PYTHONPATH=src $(PYTHON) scripts/filter_wave0_5b_candidates.py
