@@ -146,8 +146,8 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 
 ## v1.1 — Virtual assay scaffold
 
-- write the first explicit simulator scope document: what OpenAMP will model and what it will not;
-- add membrane/selectivity/stability proxy interfaces with uncertainty fields;
+- ~~write the first explicit simulator scope document: what OpenAMP will model and what it will not;~~
+- ~~add membrane/selectivity/stability proxy interfaces with uncertainty fields;~~
 - benchmark candidate triage against a reference panel that includes selective AMPs, hemolytic positives, inactive peptides, and random controls;
 - require every proxy module to justify itself against cheap heuristic baselines before it affects selection.
 

@@ -41,12 +41,12 @@ The purpose of the added layers is not simulation theater. It is to improve whic
 | `openamp_foundry.evidence` | JSON certificate generation and validation |
 | `openamp_foundry.benchmark` | leakage checks and evaluation scaffolding |
 | `openamp_foundry.generators` | safe, bounded toy candidate generation |
+| `openamp_foundry.simulation` | membrane/selectivity/stability proxy modeling (scaffolded) |
 
 Potential future packages, only if benchmarked honestly:
 
 | Future package | Intended role |
 |---|---|
-| `openamp_foundry.simulation` | membrane/selectivity/stability proxy modeling |
 | `openamp_foundry.calibration` | learning from assay results and recalibrating scores |
 | `openamp_foundry.active_learning` | choosing informative next experiments under uncertainty |
 
@@ -107,19 +107,19 @@ Later external predictors should be added as adapters. Each adapter must return:
 
 Adapters must not silently download model weights or send sequences to third-party services without explicit user consent.
 
-Any future simulation or emulator module should also return:
+Any future simulation or emulator module must implement the `VirtualAssayProxy` interface (in `openamp_foundry.simulation`) and return a `SimulationResult` object matching this schema:
 
-```json
-{
-  "module": "virtual-assay-name",
-  "version": "x.y.z",
-  "scope": ["bacterial_membrane", "rbc_membrane", "stability"],
-  "scores": {},
-  "uncertainty": 0.0,
-  "calibration_set": "dataset-or-batch-id",
-  "validated_against": [],
-  "notes": []
-}
+```python
+@dataclass
+class SimulationResult:
+    module: str
+    version: str
+    scope: list[str]
+    scores: dict[str, float]
+    uncertainty: float
+    calibration_set: str | None
+    validated_against: list[str]
+    notes: list[str]
 ```
 
-If calibration data is absent or weak, that fact must surface directly in outputs.
+If calibration data is absent or weak, the `uncertainty` field must surface that directly.
