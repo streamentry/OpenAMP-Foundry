@@ -1,30 +1,34 @@
-"""God-level de novo AMP generator — expert-objective gated, target 1000 candidates.
+"""God-level de novo AMP generator — expert-objective gated, default target ~450.
 
 Every candidate that survives is simultaneously:
   • HIGH_CONFIDENCE_NOVEL  — <40% BLOSUM62 identity to all 51,503 known AMPs
   • MOTIF-NOVEL            — no long contiguous k-mer lifted from a known AMP
-  • SELECTIVE              — selectivity_proxy ≥ 0.6 (charge/GRAVY therapeutic window)
-  • LOW-HEMOLYSIS          — safety_score ≥ 0.6, μH capped, aromatic/Trp capped
+  • SELECTIVE              — selectivity_proxy ≥ 0.55 (charge/GRAVY therapeutic window)
+  • LOW-HEMOLYSIS          — safety ≥ 0.55, μH 0.35–0.55, aromatic/Trp capped
   • SYNTHESISABLE          — synthesis_feasibility ≥ 0.7, no DKP/aspartimide/Trp-photo
+  • MACREL-AMP ∩ NONHEMO   — calibrated Macrel ONNX: ≥ gold-standard panel, ≤ magainin
   • CLEAR                  — no DRAMP patent proximity at any threshold
 
-Ranked by the transparent expert composite (scoring/expert.py), which balances
-activity ∩ selectivity ∩ safety ∩ synthesis ∩ motif-novelty ∩ helix-hinge — NOT a
-single proxy. This is the automation of what a 30-year peptide chemist weighs at once.
+Ranked by `final_score` = 0.55·expert_composite + 0.30·Macrel-AMP + 0.15·Macrel-NonHemo
+(two independent model families must agree). The expert composite (scoring/expert.py)
+balances activity ∩ selectivity ∩ safety ∩ synthesis ∩ motif-novelty ∩ helix-hinge.
 
-Pipeline (cost-ordered, cheap rejects first):
-  1. generate                       (main proc, ~µs)
-  2. compute_features + expert gates(main proc, ~ms)        ← biophysics + selectivity
-  3. pre-synthesis QC liabilities   (main proc, ~ms)        ← DKP/aspartimide/Trp-photo
-  4. k-mer prior-art prefilter      (main proc, set lookup) ← local motif novelty
-  5. BLOSUM62 novelty scan          (9 workers, parallel)   ← the only expensive step
-  6. expert composite + diversity   (main proc)
+Architecture — each worker self-generates and runs the FULL gauntlet in parallel
+(cost-ascending, cheapest/highest-rejection first):
+  construct (amphipathic wheel 75% / random 25%) → cheap prefilter → k-mer prior-art →
+  Macrel gate (tightest, ~6%) → compute_features + biophysical/QC gates → BLOSUM novelty.
+The main process only collects, dedups, diversity-caps, and applies the final composite.
+
+Yield is intrinsically ~1e-5 (AMP-likeness ∩ novelty is rare) and the 28-per-bin
+diversity cap × ~32 scaffold bins imposes a ~896 ceiling whose tail diverges; ~450 is
+the practical sweet spot reached fast. See docs/diagrams.md §3a. Stall detection ends
+the run gracefully if the diversity cap saturates before --target.
 
 Usage:
-    .venv/bin/python3 scripts/generate_expert_1000.py [--workers N] [--target 1000]
+    .venv/bin/python3 scripts/generate_expert_1000.py [--workers 4] [--target 450]
 
 Output (checkpointed every 50):
-    outputs/expert_1000_candidates.csv
+    outputs/expert_1000_candidates.csv   (filename retained for pipeline compatibility)
     outputs/expert_1000_candidates.fasta
 """
 from __future__ import annotations
@@ -447,7 +451,11 @@ def _write_outputs(rows: list[dict]) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=max(1, mp.cpu_count() - 1))
-    ap.add_argument("--target", type=int, default=1000)
+    # Default target 450: the practical sweet spot BEFORE the diversity-cap tail collapses
+    # (see docs/diagrams.md §3a). The 28-per-bin cap × ~32 reachable scaffold bins makes
+    # the accept rate diverge above ~450; 450 is reached fast and every candidate is fully
+    # validated. Raise --target (and MAX_PER_BIN / bin granularity) to push higher.
+    ap.add_argument("--target", type=int, default=450)
     ap.add_argument("--seed", type=int, default=20260630)
     args = ap.parse_args()
 
