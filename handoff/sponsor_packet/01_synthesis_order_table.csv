@@ -1,0 +1,13 @@
+candidate_id,sequence,length,MW_Da,net_charge_pH7.4,pI,N_terminus,C_terminus,purity,quantity,counter_ion,special_handling,internal_final
+XPRT_0014,IVKQARGRVGKIRTNWHRLFHRIG,24,2899.2,7.0,13.1,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.7352
+XPRT_0022,IWRILWKFGNHEYKIIKSKGRKD,23,2916.3,4.9,10.73,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.7202
+XPRT_0039,IDEAKRIFKGLKRSVWIHRIN,21,2579.9,3.9,11.5,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.7124
+XPRT_0051,GRGRRFPRFWYKDAINLS,18,2239.4,3.8,12.05,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.706
+XPRT_0052,IRKAGKIRRVFPYRAVRQLIKLS,23,2769.2,7.8,12.68,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.7057
+XPRT_0058,LFGKAFQPFVIRWRPSQRPVKRKR,24,2998.4,7.8,13.11,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.7037
+XPRT_0087,LKGVWTRIRGRVHHAWRNAKKAI,23,2754.1,7.0,12.98,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.6915
+XPRT_0090,VKGVIDHFKVKGRFTKKVNEFWKA,24,2862.2,4.9,10.8,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.6907
+XPRT_0092,VKNWKRDWPRLYNVKAKI,18,2314.7,4.8,11.01,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.6903
+XPRT_0152,GWRRWINHIRSQAGQIRSKLGK,22,2647.8,5.9,12.98,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.6684
+XPRT_0162,WAGHAKGSFRKWITRIRK,18,2198.4,5.9,12.81,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.665
+XPRT_0166,RAIQRVEKWVKPRVKAKPEKVRFK,24,2977.5,7.8,12.1,Acetyl (Ac-),Free acid (-OH),>=95% (HPLC),5 mg,acetate (TFA-free),none,0.6642
