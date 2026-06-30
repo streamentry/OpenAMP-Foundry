@@ -75,7 +75,7 @@ that every naive generator over-produces.
 │   final = 0.55·expert_composite + 0.30·Macrel-AMP-like + 0.15·Macrel-NonHemo    │
 │           (two independent model families must agree)                           │
 │   diversity bucketing: ≤28 per (charge × length × hydrophobicity) bin           │
-│           → 1000 ranked, scaffold-diverse candidates                            │
+│           → ~850–896 ranked, scaffold-diverse candidates (see §3a)              │
 └───────────────┬──────────────────────────────────────────────────────────────┘
                 ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -126,6 +126,43 @@ highest-rejection filters run first, and only the survivors pay for the expensiv
 > Survival is ~1e-5 — not a bug. "Looks like an AMP to Macrel" ∩ "<40% identical to all
 > 51,503 known AMPs" is genuinely rare, because real-AMP-like sequences resemble real
 > AMPs. We pay for it with a large, fully-parallel search rather than by relaxing novelty.
+
+## 3a. Why the batch is ~850–896, not exactly 1000 (diversity ceiling)
+
+The final batch deliberately tops out **below** the nominal `--target 1000`. This is by
+design, not a shortfall — it is the **scaffold-diversity ceiling**.
+
+The diversity gate keeps at most `MAX_PER_BIN = 28` candidates per scaffold bin, where a
+bin is `(charge bucket × length bucket × hydrophobicity bucket)`. Within the gate's own
+acceptance window the number of *reachable* bins is small:
+
+```
+  charge bucket   min(charge,8)//2  over net charge +3..+8   →  ~4 values
+  length bucket   len//4            over length 12..24        →  ~4 values
+  hydrophob bucket int(hf*5)        over hf 0.30..0.50         →  ~2 values
+                                                  ─────────────────────────
+  reachable bins ≈ 4 × 4 × 2 = 32     →   hard ceiling ≈ 32 × 28 = 896
+```
+
+So **896 is the maximum a 28-per-bin cap can hold**, regardless of how long generation
+runs. As the popular bins (e.g. charge +5, length 16–19, hf ≈ 0.4) saturate, the accept
+rate falls (you can watch `/hr` drop in the checkpoints) and generation would otherwise
+spin forever chasing the last, rarely-hit bins.
+
+**Stall detection** ends the run gracefully: if no new candidate is accepted in
+`STALL_LIMIT = 60,000,000` generated attempts, generation stops and keeps the full
+diverse set reached (typically ~850–896). The `--target` is therefore an *upper cap*,
+and the diversity cap + stall together set the *actual* count.
+
+> **Why not just set `--target 896`?** Not every one of the 32 bins is equally reachable,
+> so true saturation can land at ~870–890. Hard-coding 896 would risk stalling a few
+> short and looking "unfinished." Leaving `--target 1000` lets the run take as many
+> diverse candidates as the bins genuinely allow, then stop cleanly. The number you get
+> *is* the diversity-limited maximum.
+>
+> **To get more than ~896:** raise `MAX_PER_BIN`, or make bins finer (e.g. use raw charge
+> instead of `//2`, add an aromatic-fraction dimension). Both trade per-bin redundancy
+> for total count — a deliberate diversity-vs-quantity choice, left as a config knob.
 
 ---
 
