@@ -3,7 +3,7 @@
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-01 (hemolysis benchmark expanded to 238 peptides)
+> **Last updated:** 2026-07-01 (triage benchmark added)
 > **Pipeline version:** v0.5.x
 > **Branch:** main
 
@@ -374,6 +374,70 @@ variability. Melittin's risk score (0.13) remains modest because its bent-helix
 hemolysis mechanism is not fully captured by 1D features.
 
 ---
+
+## Multi-Class Triage Benchmark (v0.5.12 — added 2026-07-01)
+
+> Tests the v1.1 ROADMAP item: "benchmark candidate triage against a reference
+> panel that includes selective AMPs, hemolytic positives, inactive peptides,
+> and random controls." Prior benchmarks tested two separate 2-class problems
+> (AMP vs decoy, hemolytic vs selective). This benchmark tests the combined
+> triage task the virtual assay layer must solve: rank selective AMPs above
+> hemolytic AMPs above random decoys in a single panel.
+>
+> Run: `make bench-triage`
+
+**Dataset:** 125 selective AMPs (HC50 >= 100 µg/mL) + 45 hemolytic AMPs (HC50 < 25 µg/mL)
++ 96 random background decoys = 266 total.
+
+### Per-scorer pairwise AUROCs
+
+A scorer that triages correctly should have all three AUROCs > 0.5:
+  - selective > decoy (identifies AMPs)
+  - hemolytic > decoy (identifies AMPs)
+  - selective > hemolytic (prefers safe AMPs)
+
+| Scorer | sel > decoy | hem > decoy | sel > hem | Triages correctly? |
+|--------|:-----------:|:-----------:|:---------:|:------------------:|
+| ensemble | 0.848 | 0.891 | 0.466 | **NO** (anti-selective) |
+| activity | 0.885 | 0.934 | 0.430 | NO |
+| selectivity_proxy | 0.782 | 0.795 | 0.610 | **YES** |
+| triage_score (activity × (1 - hemo_risk)) | 0.863 | 0.902 | 0.462 | NO |
+| safe_weighted_ensemble | 0.849 | 0.890 | 0.483 | NO |
+| safety | 0.344 | 0.300 | 0.538 | NO |
+| synthesis | 0.590 | 0.634 | 0.469 | NO |
+| hemolysis_risk (inverted) | 0.485 | 0.492 | 0.488 | NO |
+| serum_stability | 0.217 | 0.160 | 0.569 | NO |
+
+**Key findings:**
+
+1. **The ensemble does NOT triage correctly.** It ranks hemolytic AMPs above
+   selective AMPs (sel_vs_hem AUROC = 0.466 < 0.5). This is the anti-selective
+   bias documented in the selectivity benchmark, now confirmed in the combined
+   triage context.
+
+2. **Only selectivity_proxy triages correctly** (all three AUROCs > 0.5). It
+   sacrifices some decoy discrimination (0.782 vs ensemble's 0.848) but is the
+   only scorer that prefers selective AMPs over hemolytic ones.
+
+3. **The naive triage_score (activity × (1 - hemolysis_risk)) does NOT fix the
+   anti-selective bias** (sel_vs_hem = 0.462). This is because hemolysis_risk
+   is too weak (detection AUROC 0.565, not significant on expanded benchmark).
+   A naive virtual-assay composite does not outperform the ensemble.
+
+4. **Top-20 distribution shift:** The triage_score moves 2 more selective AMPs
+   into the top-20 (16 vs 14 for ensemble), removing 2 hemolytic AMPs (4 vs 6).
+   The shift is in the right direction but modest — the hemolysis_risk penalty
+   is weak.
+
+**Implication for the virtual assay layer:** Any future virtual assay module
+must beat this triage benchmark baseline. The minimum bar is: triage correctly
+(all three AUROCs > 0.5) while maintaining ensemble-level decoy discrimination
+(sel_vs_decoy > 0.80). The selectivity_proxy achieves correct triage but at
+the cost of decoy discrimination. A successful virtual assay must achieve both.
+
+**Honest limitation:** The benchmark uses literature HC50 values with high
+inter-assay variability. The binary thresholds (25 / 100 µg/mL) are coarse.
+The MODERATE class (HC50 25-100, n=68) is excluded from the binary task.
 
 ## Test Suite
 

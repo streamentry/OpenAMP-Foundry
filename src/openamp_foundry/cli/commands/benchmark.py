@@ -182,3 +182,40 @@ def _run_selectivity_bench(args: argparse.Namespace) -> int:
     }
     print(_json.dumps(summary, indent=2))
     return 0
+
+
+def _run_triage(args: argparse.Namespace) -> int:
+    import json
+    from openamp_foundry.benchmark.triage import run_triage_benchmark
+    from openamp_foundry.utils.io import write_json
+
+    result = run_triage_benchmark(
+        hemolysis_csv=args.hemolysis_csv,
+        decoy_csv=args.decoy_csv,
+        config_path=args.config,
+        n_bootstrap=args.n_bootstrap,
+    )
+    if args.out:
+        write_json(args.out, result)
+    summary = {
+        "status": "ok",
+        "benchmark": result["benchmark"],
+        "n_selective": result["n_selective"],
+        "n_hemolytic": result["n_hemolytic"],
+        "n_decoy": result["n_decoy"],
+        "best_scorer": result["best_scorer"],
+        "per_scorer": {
+            s: {
+                "selective_vs_decoy": info["selective_vs_decoy"]["auroc"],
+                "hemolytic_vs_decoy": info["hemolytic_vs_decoy"]["auroc"],
+                "selective_vs_hemolytic": info["selective_vs_hemolytic"]["auroc"],
+                "triages_correctly": info["triages_correctly"],
+            }
+            for s, info in result["per_scorer"].items()
+        },
+        "top_20_by_ensemble": result["top_20_by_ensemble"],
+        "top_20_by_triage_score": result["top_20_by_triage_score"],
+        "out": args.out,
+    }
+    print(json.dumps(summary, indent=2))
+    return 0

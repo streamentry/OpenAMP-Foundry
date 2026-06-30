@@ -154,6 +154,10 @@ bench-selectivity:
 		--hemolysis-csv examples/validation/hemolysis_reference.csv 
 		--out outputs/selectivity_benchmark_report.json
 
+
+bench-triage:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench triage \
+		--out outputs/triage_benchmark_report.json
 validate-scoring-strict:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli validate-scoring \
 		--amp-csv examples/validation/known_amps.csv \

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from openamp_foundry.cli.commands.core import _run_generate_batch
-from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench
+from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
@@ -165,6 +165,32 @@ def build_parser() -> argparse.ArgumentParser:
         help="Bootstrap resample count (default: 2000).",
     )
     selectivity.add_argument(
+        "--out",
+        required=False,
+        help="Optional JSON output path.",
+    )
+
+    triage = bench_sub.add_parser(
+        "triage",
+        help=(
+            "Multi-class triage benchmark: can the pipeline rank "
+            "selective AMPs > hemolytic AMPs > random decoys in a combined panel? "
+            "Tests the v1.1 ROADMAP triage benchmark requirement."
+        ),
+    )
+    triage.add_argument(
+        "--hemolysis-csv",
+        default="examples/validation/hemolysis_reference.csv",
+        help="Hemolysis reference CSV (id,sequence,family,hc50_ugml,hemolysis_class,reference).",
+    )
+    triage.add_argument(
+        "--decoy-csv",
+        default="examples/validation/random_background.csv",
+        help="Random background decoy CSV (id,sequence,family,source,label).",
+    )
+    triage.add_argument("--config", default="configs/pipeline.yaml")
+    triage.add_argument("--n-bootstrap", type=int, default=2000)
+    triage.add_argument(
         "--out",
         required=False,
         help="Optional JSON output path.",
@@ -619,6 +645,8 @@ def main(argv: list[str] | None = None) -> int:
             return _run_expert_ablation_bench(args)
         if args.bench_command == "selectivity":
             return _run_selectivity_bench(args)
+        if args.bench_command == "triage":
+            return _run_triage(args)
         return _run_bench(args)
 
     if args.command == "generate-batch":

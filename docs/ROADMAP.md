@@ -185,6 +185,30 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - Blind spots: 14 hemolytic AMPs with safety >= 0.8 (melittin, indolicidin, protegrins, tachyplesins, piscidin-1, arenicin, polyphemusin, gramicidin-S-like, BMAP fragment)
 - 18 new tests in `test_selectivity_benchmark.py`; 1453 total tests
 
+## v0.5.12 — Multi-Class Triage Benchmark ✓ (2026-07-01)
+
+- **Multi-class triage benchmark** (`benchmark/triage.py`): tests whether the
+  pipeline can rank selective AMPs > hemolytic AMPs > random decoys in a single
+  combined panel (125 selective + 45 hemolytic + 96 decoys = 266 total).
+- Addresses the v1.1 ROADMAP item: "benchmark candidate triage against a
+  reference panel that includes selective AMPs, hemolytic positives, inactive
+  peptides, and random controls."
+- **Key finding:** The ensemble does NOT triage correctly. It ranks hemolytic
+  AMPs above selective AMPs (AUROC 0.466 < 0.5) due to the activity scorer's
+  anti-selective bias. Hemolytic AMPs have stronger amphipathic helices, higher
+  hydrophobic moment, and higher charge — exactly the features the activity
+  scorer rewards.
+- **Key finding:** Only `selectivity_proxy` triages correctly (all three pairwise
+  AUROCs > 0.5), but at the cost of decoy discrimination (0.782 vs ensemble 0.848).
+- **Key finding:** The naive `triage_score` (activity × (1 - hemolysis_risk))
+  does NOT fix the anti-selective bias because hemolysis_risk is too weak
+  (detection AUROC 0.565, not significant on expanded benchmark).
+- The `triage_score` does shift the top-20 distribution favorably (16 selective
+  vs 14 for ensemble; 4 hemolytic vs 6), but the pairwise AUROC remains < 0.5.
+- CLI: `openamp-foundry bench triage --hemolysis-csv ... --decoy-csv ...`
+- Makefile: `make bench-triage`
+- 16 new tests (15 triage benchmark + 1 CLI integration); 1487 tests total.
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);
@@ -197,7 +221,7 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 
 - ~~write the first explicit simulator scope document: what OpenAMP will model and what it will not;~~
 - ~~add membrane/selectivity/stability proxy interfaces with uncertainty fields;~~
-- benchmark candidate triage against a reference panel that includes selective AMPs, hemolytic positives, inactive peptides, and random controls;
+- ~~benchmark candidate triage against a reference panel that includes selective AMPs, hemolytic positives, inactive peptides, and random controls;~~ (v0.5.12: triage benchmark added — ensemble fails, selectivity_proxy only correct triager)
 - require every proxy module to justify itself against cheap heuristic baselines before it affects selection.
 
 ## v2.x — Wet-lab compression engine
