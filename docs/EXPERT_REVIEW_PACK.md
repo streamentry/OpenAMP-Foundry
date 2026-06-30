@@ -295,7 +295,7 @@ The expert reviewer must be aware of these limitations:
 |-----------|--------|
 | Level 0–2 evidence only | Scores are physicochemical heuristics, not validated ML predictions |
 | AUROC = 0.7832 on n=191 (expanded) | CI₉₅: 0.72–0.84; 52 new AMPs from 12 taxonomic classes now included (defensins, proline-rich, lantibiotics) — more honest estimate but broader AMP classes still challenge the helic-centric scorer |
-| Safety model blind spot | Melittin scores Safety=1.0; curvature-mediated hemolysis not captured; hemolysis assay mandatory |
+| Safety model blind spot | Melittin scores Safety=1.0; confirmed quantitatively in v0.5.9 selectivity benchmark: safety scorer detection AUROC=0.3844 (14 hemolytic vs 21 selective AMPs); all 14 hemolytic AMPs score safety >= 0.8; hemolysis assay mandatory |
 | SEED-008 high disagreement (0.41–0.44) | Boman index penalises Trp; activity_likeness more appropriate for Trp-rich sequences |
 | Serum stability model calibrated for 18–30 AA | SEED-003 (11 AA), SEED-007 (11 AA), and SEED-008 (13 AA) scores may underestimate actual stability (short-peptide steric/flexibility effects) |
 | Pro-rich serum stability not in model | SEED-009 model scores (0.572) expected to underestimate actual stability; Pro-X bond resistance is mechanistic |

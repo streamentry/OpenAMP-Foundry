@@ -25,6 +25,7 @@ Common artifacts:
 | Hidden-positive recovery | Check whether known actives are ranked high |
 | Toxicity down-ranking | Ensure predicted risky candidates are penalized |
 | Novelty stress test | Avoid near-clones of references |
+| Within-AMP selectivity | Test whether scorers distinguish hemolytic from selective AMPs |
 
 ## Minimum report fields
 

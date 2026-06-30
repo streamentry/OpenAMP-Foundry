@@ -15,7 +15,6 @@ All results are computational. No biological activity is implied.
 """
 from __future__ import annotations
 
-import csv
 import pytest
 
 from openamp_foundry.benchmark.retrospective import run_expert_ablation_benchmark

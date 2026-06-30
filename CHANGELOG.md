@@ -4,6 +4,37 @@ All notable changes to OpenAMP Foundry are documented here.
 
 ---
 
+## [Unreleased — Within-AMP Selectivity Benchmark] — 2026-07-01
+
+### v0.5.9 — Within-AMP Selectivity Benchmark
+
+- **Hemolysis reference dataset**: 42 known AMPs with literature HC50 values
+  (`examples/validation/hemolysis_reference.csv`): 14 HEMOLYTIC (HC50 < 25 µg/mL),
+  21 SELECTIVE (HC50 >= 100 µg/mL), 7 BORDER (25-100 µg/mL)
+- **`run_selectivity_benchmark()`** in `benchmark/retrospective.py`: tests whether
+  pipeline scorers can distinguish hemolytic from selective AMPs — the within-AMP
+  ranking task that the expert ablation identified as the correct test for
+  safety/selectivity/synthesis components
+- **`bench selectivity` CLI command** + `make bench-selectivity` Makefile target
+- **18 new tests** in `test_selectivity_benchmark.py`; 1453 total tests
+
+**Key findings:**
+
+1. Safety scorer FAILS hemolysis detection (detection AUROC=0.3844, CI lo=0.26).
+   All 14 hemolytic AMPs score safety >= 0.8. Melittin blind spot confirmed
+   quantitatively.
+2. Selectivity proxy FAILS hemolysis detection (detection AUROC=0.4133, CI lo=0.28).
+   Charge/GRAVY heuristic insufficient.
+3. Synthesis feasibility is the only significant hemolysis risk detector
+   (detection AUROC=0.8027, CI lo=0.63) — incidental correlation via cysteine
+   content and repeat runs in hemolytic AMPs.
+4. Expert composite is better than ensemble on hemolysis detection (0.5119 vs
+   0.3486) but not significant (CI includes 0.5) at n=14 vs n=21.
+5. Activity scorer is anti-selective (detection AUROC=0.34): ranks hemolytic
+   AMPs higher due to stronger amphipathic helices. Ensemble inherits this bias.
+
+---
+
 ## [Unreleased — Pre-synthesis Quality Sprint] — 2026-06
 
 **Status:** Pipeline frozen for synthesis batch ordering. All changes below were quality

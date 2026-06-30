@@ -151,3 +151,34 @@ def _run_expert_ablation_bench(args: argparse.Namespace) -> int:
     }
     print(_json.dumps(summary, indent=2))
     return 0
+
+
+def _run_selectivity_bench(args: argparse.Namespace) -> int:
+    """Run within-AMP selectivity benchmark (hemolytic vs selective AMPs)."""
+    import json as _json
+    from openamp_foundry.benchmark.retrospective import run_selectivity_benchmark
+    from openamp_foundry.utils.io import write_json
+
+    result = run_selectivity_benchmark(
+        hemolysis_csv=args.hemolysis_csv,
+        config_path=args.config,
+        n_bootstrap=args.n_bootstrap,
+    )
+    if args.out:
+        write_json(args.out, result)
+    summary = {
+        "status": "ok",
+        "benchmark": "within_amp_selectivity",
+        "n_hemolytic": result["n_hemolytic"],
+        "n_selective": result["n_selective"],
+        "n_border": result["n_border"],
+        "risk_detectors": result["risk_detectors"],
+        "risk_indicators": result["risk_indicators"],
+        "safety_verdict": result["safety_verdict"],
+        "selectivity_proxy_verdict": result["selectivity_proxy_verdict"],
+        "expert_composite_verdict": result["expert_composite_verdict"],
+        "n_blind_spots": len(result["blind_spots"]),
+        "out": args.out,
+    }
+    print(_json.dumps(summary, indent=2))
+    return 0

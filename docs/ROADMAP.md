@@ -142,9 +142,23 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - `bench expert-ablation` CLI command + `make bench-expert-ablation` target
 - Per-component AUROC attribution: identifies signal-bearing (activity 0.814, selectivity 0.773), near-zero (hinge, novelty, boman, motif), and anti-signal (safety 0.349, serum_stability 0.223, synthesis 0.423) components
 - **Key finding:** Expert composite AUROC 0.736 < ensemble AUROC 0.783 (delta −0.047). The added complexity does NOT improve AMP-vs-decoy discrimination. Three components are anti-signal because real AMPs have extreme biophysical properties that safety/stability/synthesis scorers penalise.
-- Ensemble remains primary synthesis gate. Expert composite may add value for within-AMP ranking (not yet demonstrated).
+- Ensemble remains primary synthesis gate. Expert composite may add value for within-AMP ranking (tested in v0.5.9 — see selectivity benchmark; expert composite detection AUROC 0.5119 vs ensemble 0.3486, but not significant at n=14 vs n=21).
 - `make bench-cluster-split` Makefile target added (was missing despite CLI command existing)
 - 14 new tests in `test_expert_ablation.py`; 1435 total tests
+
+## v0.5.9 — Within-AMP Selectivity Benchmark ✓ (2026-07-01)
+
+- `run_selectivity_benchmark()` in `benchmark/retrospective.py` — tests whether pipeline scorers can distinguish hemolytic AMPs (HC50 < 25 µg/mL) from selective AMPs (HC50 >= 100 µg/mL)
+- `bench selectivity` CLI command + `make bench-selectivity` target
+- Hemolysis reference dataset: 42 known AMPs with literature HC50 values (`examples/validation/hemolysis_reference.csv`)
+- Per-score hemolysis detection AUROC: identifies the only significant risk detector (synthesis, AUROC=0.8027, CI: 0.63-0.95) and confirms the safety scorer blind spot (detection AUROC=0.3844)
+- **Key finding:** Safety scorer FAILS to detect hemolysis (detection AUROC=0.3844, CI lo=0.26). All 14 hemolytic AMPs score safety >= 0.8. The melittin blind spot is confirmed quantitatively — 1D hydrophobic moment cannot capture hemolysis mechanisms like curvature-mediated lysis or beta-sheet pore formation.
+- **Key finding:** Selectivity proxy FAILS to detect hemolysis (detection AUROC=0.4133, CI lo=0.28). The charge/GRAVY heuristic is insufficient — hemolytic AMPs like melittin have optimal charge and moderate GRAVY.
+- **Key finding:** Synthesis feasibility is the only significant hemolysis risk detector (detection AUROC=0.8027, CI lo=0.63). This is an incidental correlation: hemolytic AMPs tend to have more cysteines, repeat runs, and hydrophobic segments that make them harder to synthesize. The synthesis gate provides partial indirect hemolysis filtering.
+- **Key finding:** Expert composite is better than ensemble on hemolysis detection (0.5119 vs 0.3486) but not significant (CI includes 0.5). The added selectivity/safety components partially offset the activity scorer's anti-selective bias.
+- **Key finding:** Activity scorer is anti-selective (detection AUROC=0.34): it ranks hemolytic AMPs *higher* because they have stronger amphipathic helices. The ensemble inherits this bias.
+- Blind spots: 14 hemolytic AMPs with safety >= 0.8 (melittin, indolicidin, protegrins, tachyplesins, piscidin-1, arenicin, polyphemusin, gramicidin-S-like, BMAP fragment)
+- 18 new tests in `test_selectivity_benchmark.py`; 1453 total tests
 
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 

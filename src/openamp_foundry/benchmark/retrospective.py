@@ -756,3 +756,284 @@ def run_expert_ablation_benchmark(
             "Wet-lab validation remains mandatory."
         ),
     }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Within-AMP selectivity benchmark
+# ─────────────────────────────────────────────────────────────────────────────
+
+def run_selectivity_benchmark(
+    hemolysis_csv: str | Path,
+    config_path: str | Path = "configs/pipeline.yaml",
+    n_bootstrap: int = 2000,
+) -> dict:
+    """Within-AMP selectivity benchmark: can scorers distinguish hemolytic from selective AMPs?
+
+    The standard and expert-ablation benchmarks measure AMP-vs-decoy discrimination:
+    can the pipeline tell AMPs from random peptides? The expert ablation found that
+    safety, synthesis, and serum stability are anti-signal on that task — real AMPs
+    have extreme biophysical properties that safety/stability scorers penalise.
+
+    But those scorers were not designed for AMP-vs-decoy discrimination. They were
+    designed for *within-AMP ranking*: given two peptides that are both AMP-like,
+    which one is more likely to spare mammalian cells? This benchmark tests that.
+
+    Design:
+      - Positives (hemolytic): AMPs with literature HC50 < 25 µg/mL (HEMOLYTIC + MODERATE
+        classes with HC50 ≤ 25).
+      - Negatives (selective): AMPs with literature HC50 ≥ 100 µg/mL (SELECTIVE class).
+      - MODERATE peptides with HC50 25–100 are excluded from the binary task to create
+        a cleaner separation, but are reported separately as a "border zone" diagnostic.
+      - The benchmark computes AUROC for every pipeline score (ensemble, activity,
+        safety, selectivity_proxy, synthesis, serum_stability, boman_activity) and
+        the expert composite, asking: which scores rank hemolytic AMPs *higher* than
+        selective AMPs?
+
+    A score that ranks hemolytic AMPs higher has AUROC > 0.5 (it detects hemolysis
+    risk). A score that ranks selective AMPs higher has AUROC < 0.5 (it detects
+    selectivity). The sign matters: for a safety scorer, AUROC < 0.5 is correct
+    (safety should be lower for hemolytic peptides). We report both the raw AUROC
+    and a "hemolysis-detection AUROC" where low-safety → high-risk is the correct
+    direction.
+
+    Args:
+        hemolysis_csv: CSV with columns id, sequence, family, hc50_ugml,
+            hemolysis_class, reference.
+        config_path: Pipeline config for scoring weights.
+        n_bootstrap: Bootstrap resample count for CIs.
+
+    Returns:
+        Dict with per-score AUROC, bootstrap CIs, hemolytic vs selective score
+        distributions, border-zone diagnostics, and an honest verdict.
+    """
+    from openamp_foundry.config import load_config
+    from openamp_foundry.features.physchem import compute_features
+    from openamp_foundry.scoring.activity import activity_likeness_score
+    from openamp_foundry.scoring.boman import boman_activity_score, model_disagreement
+    from openamp_foundry.scoring.ensemble import ensemble_score
+    from openamp_foundry.scoring.expert import expert_score
+    from openamp_foundry.scoring.novelty import novelty_score
+    from openamp_foundry.scoring.safety import safety_score
+    from openamp_foundry.scoring.stability import serum_stability_score
+    from openamp_foundry.scoring.synthesis import synthesis_feasibility_score
+
+    config = load_config(config_path)
+    weights = config["weights"]
+
+    rows: list[dict] = []
+    with open(hemolysis_csv, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            seq = row["sequence"].strip().upper()
+            if not all(aa in "ACDEFGHIKLMNPQRSTVWY" for aa in seq):
+                continue
+            hc50 = float(row["hc50_ugml"])
+            hemo_class = row["hemolysis_class"].strip().upper()
+            features = compute_features(seq)
+            act = activity_likeness_score(features)
+            safe = safety_score(features)
+            synth = synthesis_feasibility_score(features, valid_sequence=True)
+            nov, _ = novelty_score(seq, [])
+            boman_act = boman_activity_score(seq)
+            stability = serum_stability_score(features)
+            sel_proxy = float(features.get("selectivity_proxy", 0.0))
+            raw = {
+                "activity": act, "safety": safe,
+                "synthesis": synth, "novelty": nov,
+                "boman_activity": boman_act,
+                "disagreement": model_disagreement(act, boman_act),
+                "serum_stability": stability,
+                "selectivity_proxy": sel_proxy,
+            }
+            ens = ensemble_score(raw, weights)
+            exp = expert_score(seq, features=features)
+
+            rows.append({
+                "id": row["id"],
+                "sequence": seq,
+                "family": row.get("family", ""),
+                "hc50": hc50,
+                "hemolysis_class": hemo_class,
+                "ensemble": ens,
+                "expert_composite": exp.composite,
+                "activity": act,
+                "safety": safe,
+                "synthesis": synth,
+                "novelty": nov,
+                "boman_activity": boman_act,
+                "serum_stability": stability,
+                "selectivity_proxy": sel_proxy,
+                "hinge_selectivity": exp.components["hinge_selectivity"],
+            })
+
+    # Binary task: hemolytic (HC50 < 25) vs selective (HC50 >= 100)
+    hemolytic = [r for r in rows if r["hc50"] < 25]
+    selective = [r for r in rows if r["hc50"] >= 100]
+    border = [r for r in rows if 25 <= r["hc50"] < 100]
+
+    n_hemo = len(hemolytic)
+    n_sel = len(selective)
+    n_border = len(border)
+
+    # Score columns to evaluate
+    score_cols = [
+        "ensemble", "expert_composite", "activity", "safety",
+        "synthesis", "novelty", "boman_activity", "serum_stability",
+        "selectivity_proxy", "hinge_selectivity",
+    ]
+
+    per_score: dict[str, dict] = {}
+    for col in score_cols:
+        hemo_scores = [r[col] for r in hemolytic]
+        sel_scores = [r[col] for r in selective]
+        auroc = round(_auc_wilcoxon(hemo_scores, sel_scores), 4)
+        ci = _bootstrap_auroc_ci(hemo_scores, sel_scores, n_bootstrap=n_bootstrap)
+
+        # For safety/selectivity scorers, the CORRECT direction is:
+        # hemolytic AMPs should score LOWER (less safe, less selective).
+        # So the "hemolysis-detection AUROC" = 1 - raw AUROC for those axes.
+        # We report both and let the verdict interpret.
+        detection_auroc = round(1.0 - auroc, 4)
+        detection_ci = {
+            "ci_lo": round(1.0 - ci["ci_hi"], 4),
+            "ci_hi": round(1.0 - ci["ci_lo"], 4),
+        }
+
+        per_score[col] = {
+            "auroc": auroc,
+            "ci95_lo": ci["ci_lo"],
+            "ci95_hi": ci["ci_hi"],
+            # hemolysis_detection_auroc: AUROC when the positive class is "hemolytic"
+            # and higher score = higher risk. For safety, detection_auroc = 1 - auroc
+            # because lower safety = higher risk.
+            "hemolysis_detection_auroc": detection_auroc,
+            "detection_ci95_lo": detection_ci["ci_lo"],
+            "detection_ci95_hi": detection_ci["ci_hi"],
+            "mean_hemolytic": round(sum(hemo_scores) / n_hemo, 4) if hemo_scores else None,
+            "mean_selective": round(sum(sel_scores) / n_sel, 4) if sel_scores else None,
+            "direction": "higher_is_risk" if auroc > 0.5 else "higher_is_safe",
+        }
+
+    # Identify which scores detect hemolysis risk (detection AUROC > 0.5 with CI lo > 0.5)
+    risk_detectors = [
+        col for col, info in per_score.items()
+        if info["hemolysis_detection_auroc"] > 0.5
+        and info["detection_ci95_lo"] > 0.5
+    ]
+    risk_indicators = [
+        col for col, info in per_score.items()
+        if info["hemolysis_detection_auroc"] > 0.5
+        and info["detection_ci95_lo"] <= 0.5
+    ]
+
+    # Key question: does the safety scorer detect hemolysis?
+    safety_detection = per_score["safety"]["hemolysis_detection_auroc"]
+    safety_ci_lo = per_score["safety"]["detection_ci95_lo"]
+
+    if safety_detection > 0.5 and safety_ci_lo > 0.5:
+        safety_verdict = (
+            f"Safety scorer detects hemolysis risk (detection AUROC={safety_detection:.4f}, "
+            f"CI lo={safety_ci_lo:.4f}). This is the first evidence that the safety scorer "
+            "earns its keep on the within-AMP selectivity task."
+        )
+    elif safety_detection > 0.5:
+        safety_verdict = (
+            f"Safety scorer shows weak hemolysis detection (detection AUROC={safety_detection:.4f}, "
+            f"CI lo={safety_ci_lo:.4f} < 0.5). Signal is present but not statistically significant. "
+            "The melittin blind spot remains: 1D hydrophobic moment cannot capture all hemolysis mechanisms."
+        )
+    else:
+        safety_verdict = (
+            f"Safety scorer FAILS to detect hemolysis risk (detection AUROC={safety_detection:.4f}). "
+            "This confirms the expert ablation finding: the safety scorer does not distinguish "
+            "hemolytic from selective AMPs. Hemolysis must be assayed experimentally."
+        )
+
+    # Selectivity proxy assessment
+    sel_detection = per_score["selectivity_proxy"]["hemolysis_detection_auroc"]
+    sel_ci_lo = per_score["selectivity_proxy"]["detection_ci95_lo"]
+
+    if sel_detection > 0.5 and sel_ci_lo > 0.5:
+        sel_verdict = (
+            f"Selectivity proxy detects hemolysis risk (detection AUROC={sel_detection:.4f}, "
+            f"CI lo={sel_ci_lo:.4f}). The charge/GRAVY heuristic captures the selectivity signal."
+        )
+    elif sel_detection > 0.5:
+        sel_verdict = (
+            f"Selectivity proxy shows weak hemolysis detection (detection AUROC={sel_detection:.4f}, "
+            f"CI lo={sel_ci_lo:.4f}). Trend is correct but not significant at this sample size."
+        )
+    else:
+        sel_verdict = (
+            f"Selectivity proxy does NOT detect hemolysis risk (detection AUROC={sel_detection:.4f}). "
+            "The charge/GRAVY heuristic does not capture hemolysis on this reference set."
+        )
+
+    # Expert composite assessment
+    exp_detection = per_score["expert_composite"]["hemolysis_detection_auroc"]
+    ens_detection = per_score["ensemble"]["hemolysis_detection_auroc"]
+
+    if exp_detection > ens_detection + 0.02:
+        expert_verdict = (
+            f"Expert composite detects hemolysis risk better than ensemble "
+            f"(detection AUROC {exp_detection:.4f} vs {ens_detection:.4f}). "
+            "The added selectivity/safety components earn their keep on within-AMP ranking."
+        )
+    elif abs(exp_detection - ens_detection) <= 0.02:
+        expert_verdict = (
+            f"Expert composite ({exp_detection:.4f}) and ensemble ({ens_detection:.4f}) "
+            "are within ±0.02 on hemolysis detection. The expert components do not materially "
+            "improve within-AMP selectivity on this reference set."
+        )
+    else:
+        expert_verdict = (
+            f"Expert composite detects hemolysis risk worse than ensemble "
+            f"(detection AUROC {exp_detection:.4f} vs {ens_detection:.4f}). "
+            "The expert components degrade within-AMP selectivity on this reference set."
+        )
+
+    # Rank hemolytic AMPs by safety score to find blind spots
+    hemolytic_by_safety = sorted(hemolytic, key=lambda r: r["safety"], reverse=True)
+    blind_spots = [
+        {"id": r["id"], "sequence": r["sequence"], "family": r["family"],
+         "hc50": r["hc50"], "safety": r["safety"], "selectivity_proxy": r["selectivity_proxy"]}
+        for r in hemolytic_by_safety if r["safety"] >= 0.8
+    ]
+
+    return {
+        "benchmark": "within_amp_selectivity",
+        "n_total": len(rows),
+        "n_hemolytic": n_hemo,
+        "n_selective": n_sel,
+        "n_border": n_border,
+        "hemolytic_threshold_hc50": 25,
+        "selective_threshold_hc50": 100,
+        "per_score_auroc": per_score,
+        "risk_detectors": risk_detectors,
+        "risk_indicators": risk_indicators,
+        "safety_verdict": safety_verdict,
+        "selectivity_proxy_verdict": sel_verdict,
+        "expert_composite_verdict": expert_verdict,
+        "blind_spots": blind_spots,
+        "border_zone": [
+            {"id": r["id"], "sequence": r["sequence"], "family": r["family"],
+             "hc50": r["hc50"], "safety": r["safety"],
+             "selectivity_proxy": r["selectivity_proxy"]}
+            for r in sorted(border, key=lambda r: r["hc50"])
+        ],
+        "design_note": (
+            "Within-AMP selectivity benchmark: all sequences are confirmed AMPs. "
+            "The task is NOT 'is this an AMP?' but 'is this AMP likely to be hemolytic?'. "
+            "Hemolytic class: HC50 < 25 µg/mL. Selective class: HC50 >= 100 µg/mL. "
+            "Border zone (25-100) excluded from binary AUROC, reported separately. "
+            "HC50 values are approximate literature values from multiple sources; "
+            "they vary with assay conditions (RBC source, buffer, incubation time). "
+            "This is a coarse triage benchmark, not a calibrated hemolysis predictor."
+        ),
+        "disclaimer": (
+            "HC50 values are approximate literature values with high inter-assay variability. "
+            "This benchmark tests whether the pipeline's physicochemical scorers can distinguish "
+            "hemolytic from selective AMPs. It does NOT predict any individual candidate's "
+            "hemolysis. Hemolysis must be assayed experimentally for every candidate. "
+            "Wet-lab validation remains mandatory."
+        ),
+    }

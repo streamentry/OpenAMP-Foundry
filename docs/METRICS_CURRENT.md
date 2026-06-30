@@ -224,16 +224,93 @@ frequencies tend to have more moderate biophysical properties.
 only. The expert composite's selectivity, safety, and synthesis components are
 designed for within-AMP candidate differentiation, not for separating AMPs from
 non-AMPs. A within-AMP ranking benchmark (comparing selective vs hemolytic AMPs)
-would be a more appropriate test for those components and is a candidate for the
-next loop.
+has been added in v0.5.9 (see Within-AMP Selectivity Benchmark section below).
 
 ---
+
+
+## Within-AMP Selectivity Benchmark (v0.5.x — added 2026-07-01)
+
+> The expert ablation benchmark found that safety, synthesis, and serum stability are
+> anti-signal for AMP-vs-decoy discrimination. But those scorers were designed for
+> *within-AMP ranking*: distinguishing hemolytic AMPs from selective AMPs. This benchmark
+> tests them on that intended task.
+>
+> Run: `make bench-selectivity`
+
+**Dataset:** 42 known AMPs with literature HC50 values (hemolysis_reference.csv)
+
+| Class | HC50 threshold | Count |
+|-------|:--------------:|:-----:|
+| HEMOLYTIC | < 25 µg/mL | 14 |
+| SELECTIVE | >= 100 µg/mL | 21 |
+| BORDER (excluded from AUROC) | 25-100 µg/mL | 7 |
+
+**Task:** Can pipeline scorers distinguish hemolytic AMPs from selective AMPs?
+For safety/selectivity scorers, the correct direction is: hemolytic AMPs score *lower*
+(less safe, less selective). We report "hemolysis detection AUROC" where higher = better
+risk detection (1 - raw AUROC for safety-type scorers).
+
+### Per-score hemolysis detection AUROC
+
+| Score | Detection AUROC | CI₉₅ | Significant? | Verdict |
+|-------|:--------------:|:----:|:------------:|---------|
+| synthesis | 0.8027 | 0.63-0.95 | **YES** | Synthesis difficulty correlates with hemolysis — hemolytic AMPs are harder to synthesize |
+| boman_activity | 0.6837 | 0.49-0.85 | No (CI lo < 0.5) | Weak trend: hemolytic AMPs have lower Boman activity |
+| serum_stability | 0.6020 | 0.40-0.80 | No (CI lo < 0.5) | Weak trend: hemolytic AMPs less serum-stable |
+| expert_composite | 0.5119 | 0.31-0.71 | No (CI lo < 0.5) | Better than ensemble but not significant |
+| hinge_selectivity | 0.4456 | 0.24-0.64 | No | No selectivity signal from hinge detection |
+| selectivity_proxy | 0.4133 | 0.28-0.55 | No | **FAILS** — charge/GRAVY does not capture hemolysis |
+| safety | 0.3844 | 0.26-0.52 | No | **FAILS** — confirms melittin blind spot |
+| activity | 0.3401 | 0.16-0.52 | No | Activity scorer ranks hemolytic AMPs *higher* (anti-selective) |
+| ensemble | 0.3486 | 0.17-0.54 | No | Ensemble inherits activity scorer's anti-selective bias |
+
+**Key findings:**
+
+1. **The safety scorer does NOT detect hemolysis** (detection AUROC = 0.3844, CI lo = 0.26).
+   This confirms the expert ablation's prediction and the previously documented melittin
+   blind spot. All 14 hemolytic AMPs in the reference set score safety >= 0.8 — the scorer
+   cannot distinguish them from selective AMPs.
+
+2. **The selectivity proxy does NOT detect hemolysis** (detection AUROC = 0.4133, CI lo = 0.28).
+   The charge/GRAVY heuristic is insufficient for capturing hemolysis risk. Hemolytic AMPs
+   like melittin and protegrin have optimal charge (+2 to +7) and moderate GRAVY, so the
+   proxy assigns them high selectivity scores.
+
+3. **Synthesis feasibility is the only significant risk detector** (detection AUROC = 0.8027,
+   CI lo = 0.63). Hemolytic AMPs tend to be harder to synthesize: they have more cysteines
+   (protegrins, tachyplesins), repeat runs, and hydrophobic segments. This is an incidental
+   correlation, not a designed safety feature — but it means the synthesis gate provides
+   partial hemolysis filtering as a side effect.
+
+4. **The activity scorer is anti-selective** (detection AUROC = 0.34): it ranks hemolytic
+   AMPs *higher* than selective AMPs. This is expected: hemolytic AMPs like melittin have
+   strong amphipathic helices, high hydrophobic moment, and high charge — exactly the
+   features the activity scorer rewards. The ensemble inherits this bias.
+
+5. **The expert composite is better than the ensemble** on hemolysis detection (0.5119 vs
+   0.3486) but not significantly so (CI includes 0.5). The added selectivity and safety
+   components partially offset the activity scorer's anti-selective bias, but not enough
+   to reach significance at n=14 vs n=21.
+
+**Honest limitation:** HC50 values are approximate literature values with high inter-assay
+variability (RBC source, buffer, incubation time, concentration range). The binary
+thresholds (25 / 100 µg/mL) are coarse. A larger reference set with standardized HC50
+measurements would tighten the CIs and might flip some near-zero results to significant.
+The current sample size (14 vs 21) is too small for confident conclusions on any score
+with CI lower bound below 0.5.
+
+**Implication for the pipeline:** Hemolysis remains unpredictable by the current
+physicochemical scorers. The melittin blind spot is confirmed quantitatively. Hemolysis
+must be assayed experimentally for every candidate regardless of safety or selectivity
+score. The synthesis gate provides partial indirect filtering but should not be relied
+upon as a hemolysis predictor.
 
 ## Test Suite
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1435 |
+| Total tests | 1453 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 
@@ -262,4 +339,5 @@ next loop.
 | 2026-06-29 | External predictor results filled from wave05_combined_consensus.csv; all 7 gates PASS | OpenAMP Wave 0.5 |
 | 2026-06-29 | Wave 0.5 scaffold diversification — 24-candidate Wave 1 panel across 14 families | OpenAMP Wave 0.5 |
 | 2026-07-01 | Expert ablation benchmark added: expert composite AUROC 0.736 vs ensemble 0.7832 (delta −0.0472); 3 components anti-signal; ensemble remains primary gate | OpenAMP loop |
+| 2026-07-01 | Within-AMP selectivity benchmark added: safety scorer FAILS hemolysis detection (AUROC=0.3844); synthesis is only significant risk detector (AUROC=0.8027); expert composite better than ensemble but not significant (0.5119 vs 0.3486) | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |

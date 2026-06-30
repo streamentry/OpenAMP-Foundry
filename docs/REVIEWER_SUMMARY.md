@@ -77,7 +77,7 @@ assay is mandatory for all candidates.
 | AUROC 0.7832 — 22% of benchmark pairs misranked | ~1 in 5 candidate ranking decisions are wrong; wet-lab is the judge |
 | No 3D structure or docking | Helical assumption may misclassify non-helical mechanisms |
 | Near-seed generation only | Novel sequence space not explored by de novo generation |
-| Melittin safety blind spot | Hemolysis must be assayed, cannot be predicted |
+| Melittin safety blind spot | Hemolysis must be assayed — confirmed quantitatively: safety scorer detection AUROC=0.3844 on 14 hemolytic vs 21 selective AMPs (v0.5.9 selectivity benchmark) |
 | No external predictor ensemble yet | CAMPR4/AMPScanner/dbAMP/AntiCP2/Macrel web submission checklist exists at `outputs/external_predict_checklist.md` but results not yet obtained |
 | Probability table uncalibrated | All "P(≥1 active) ≈ 92–97%" statements are upper bounds; honest estimate 55–80% for any hit, 35–60% for novel family |
 
