@@ -563,18 +563,36 @@ def main() -> None:
             yield (s, ATTEMPTS_PER_TASK)
             s += 1
 
+    # Stall detection: the diversity cap (MAX_PER_BIN × reachable bins) imposes a natural
+    # ceiling below N_TARGET. Once the reachable bins saturate, generation can run forever
+    # without accepting a new candidate. Stop gracefully when no candidate has been accepted
+    # in STALL_LIMIT generated attempts, and keep whatever diverse set was reached.
+    STALL_LIMIT = 60_000_000
+    last_accept_gen = 0
+    stopped_reason = "target reached"
+
     try:
         # Stream tasks through imap_unordered so all workers stay continuously saturated
         # (chunksize=1: hand out one task at a time; tasks are ~1s each so overhead is
-        # negligible and load stays balanced). Break as soon as the target is reached.
+        # negligible and load stays balanced). Stop at target OR on stall.
         result_iter = pool.imap_unordered(_worker_generate, _task_stream(), chunksize=1)
         for survivors in result_iter:
             n_gen += ATTEMPTS_PER_TASK
             for survivor in survivors:
+                before = n_novel
                 _ingest(survivor)
+                if n_novel > before:
+                    last_accept_gen = n_gen
                 if n_novel >= N_TARGET:
                     break
             if n_novel >= N_TARGET:
+                break
+            if n_gen - last_accept_gen > STALL_LIMIT:
+                stopped_reason = (
+                    f"diversity saturated (no new candidate in {STALL_LIMIT:,} attempts)"
+                )
+                print(f"\n  [stall] {stopped_reason} — stopping at {n_novel} "
+                      f"diverse candidates.\n", flush=True)
                 break
     finally:
         pool.terminate()      # stop the infinite stream promptly
@@ -585,6 +603,7 @@ def main() -> None:
     el = time.time() - t_start
     print("\n" + "─" * 118)
     print("\n=== DONE ===")
+    print(f"  Stop reason: {stopped_reason}")
     print(f"  Generated: {n_gen:,} | gate-passed: {n_gate:,} ({100*n_gate/max(n_gen,1):.2f}%)")
     print(f"  Novel+CLEAR kept: {n_novel} | dropped by diversity cap: {n_div}")
     print(f"  Time: {el/60:.1f} min")
