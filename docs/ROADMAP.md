@@ -136,6 +136,16 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - Wave 0.5 gates W0.5-1 through W0.5-7 implemented (`src/openamp_foundry/gates/wave0_5_gate_checker.py`)
 - Discovery probability impact: from 7 correlated families → 14 independent families; reduces correlated-failure risk for wet-lab batch
 
+## v0.5.8 — Expert Ablation Benchmark ✓ (2026-07-01)
+
+- `run_expert_ablation_benchmark()` in `benchmark/retrospective.py` — scores all 95 AMPs + 96 decoys with both the simple ensemble and the 7-component expert composite
+- `bench expert-ablation` CLI command + `make bench-expert-ablation` target
+- Per-component AUROC attribution: identifies signal-bearing (activity 0.814, selectivity 0.773), near-zero (hinge, novelty, boman, motif), and anti-signal (safety 0.349, serum_stability 0.223, synthesis 0.423) components
+- **Key finding:** Expert composite AUROC 0.736 < ensemble AUROC 0.783 (delta −0.047). The added complexity does NOT improve AMP-vs-decoy discrimination. Three components are anti-signal because real AMPs have extreme biophysical properties that safety/stability/synthesis scorers penalise.
+- Ensemble remains primary synthesis gate. Expert composite may add value for within-AMP ranking (not yet demonstrated).
+- `make bench-cluster-split` Makefile target added (was missing despite CLI command existing)
+- 14 new tests in `test_expert_ablation.py`; 1435 total tests
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);

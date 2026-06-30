@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from openamp_foundry.cli.commands.core import _run_generate_batch
-from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench
+from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
@@ -100,6 +100,41 @@ def build_parser() -> argparse.ArgumentParser:
         help="Bootstrap resample count (default: 2000).",
     )
     cluster_split.add_argument(
+        "--out",
+        required=False,
+        help="Optional JSON output path.",
+    )
+
+    expert_ablation = bench_sub.add_parser(
+        "expert-ablation",
+        help=(
+            "Expert-vs-ensemble ablation: does the 7-component expert composite "
+            "(selectivity, serum stability, helix hinge, motif novelty) beat the "
+            "simple ensemble on AMP-vs-decoy discrimination? Reports per-component "
+            "AUROC to identify signal-bearing vs noise components."
+        ),
+    )
+    expert_ablation.add_argument(
+        "--amp-csv",
+        default="examples/validation/known_amps.csv",
+        help="CSV of known AMPs (id, sequence, ...).",
+    )
+    expert_ablation.add_argument(
+        "--decoy-csv",
+        default="examples/validation/random_background.csv",
+        help="CSV of decoy peptides.",
+    )
+    expert_ablation.add_argument(
+        "--config",
+        default="configs/pipeline.yaml",
+    )
+    expert_ablation.add_argument(
+        "--n-bootstrap",
+        type=int,
+        default=2000,
+        help="Bootstrap resample count (default: 2000).",
+    )
+    expert_ablation.add_argument(
         "--out",
         required=False,
         help="Optional JSON output path.",
@@ -550,6 +585,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "bench":
         if args.bench_command == "cluster-split":
             return _run_cluster_split_bench(args)
+        if args.bench_command == "expert-ablation":
+            return _run_expert_ablation_bench(args)
         return _run_bench(args)
 
     if args.command == "generate-batch":

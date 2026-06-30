@@ -163,11 +163,77 @@ Machine-readable: `outputs/wave0_5_external_predict_results.csv`, `outputs/wave0
 
 ---
 
+---
+
+## Expert Ablation Benchmark (v0.5.x — added 2026-07-01)
+
+> The expert composite scorer (`scoring/expert.py`) adds four components beyond the
+> simple ensemble: selectivity, serum stability, helix-hinge, and k-mer motif novelty.
+> This ablation tests whether those additions improve binary AMP-vs-decoy discrimination
+> or are complexity that does not earn its keep.
+>
+> Run: `make bench-expert-ablation`
+
+| Metric | Pipeline (pipeline.yaml) | Phase3 (phase3.yaml) |
+|--------|:-----------------------:|:-------------------:|
+| Ensemble AUROC | 0.7832 | 0.7448 |
+| Ensemble CI₉₅ | 0.717–0.8423 | 0.6741–0.8118 |
+| Expert composite AUROC | 0.7360 | 0.7360 |
+| Expert CI₉₅ | 0.6604–0.8037 | 0.6604–0.8037 |
+| **Delta (expert − ensemble)** | **−0.0472** | **−0.0088** |
+| Verdict | Expert LOWER | Within ±0.02 |
+
+**Per-component AUROC** (pipeline config, n=191):
+
+| Component | AUROC | Above random | Classification |
+|-----------|:-----:|:------------:|:--------------:|
+| activity | 0.8137 | +0.3137 | **Signal-bearing** |
+| selectivity_proxy | 0.7729 | +0.2729 | **Signal-bearing** |
+| hinge_selectivity | 0.5180 | +0.0180 | Near-zero |
+| novelty | 0.5000 | 0.0000 | Near-zero |
+| motif_novelty | 0.5000 | 0.0000 | Near-zero |
+| boman_activity | 0.4620 | −0.0380 | Near-zero |
+| synthesis | 0.4228 | −0.0772 | **Anti-signal** |
+| safety | 0.3487 | −0.1513 | **Anti-signal** |
+| serum_stability | 0.2231 | −0.2769 | **Anti-signal** |
+
+**Key finding:** The expert composite scores **lower** than the simple ensemble on
+binary AMP-vs-decoy discrimination (delta = −0.0472). Three expert components are
+anti-signal: `safety`, `serum_stability`, and `synthesis` score random decoys higher
+than known AMPs. This is expected and not a bug: real AMPs have high hydrophobic
+moment and charge (features the safety scorer penalises), many interior protease
+sites (low serum stability), and often contain repeat runs or aggregation-prone
+segments (low synthesis feasibility). Random decoys drawn from Swiss-Prot
+frequencies tend to have more moderate biophysical properties.
+
+**What this means for the pipeline:**
+
+1. The expert composite should NOT replace the ensemble for AMP/non-AMP triage.
+2. The ensemble (activity + safety + synthesis + novelty + Boman) remains the
+   primary synthesis gate, as it has higher discriminative power.
+3. The expert components may still add value for **within-AMP ranking** (selectivity
+   and safety differentiation among candidates that already pass the activity gate)
+   — but this has not been demonstrated and should not be assumed.
+4. The `boman_activity` scorer (AUROC 0.462, below random) does not discriminate
+   AMPs from random decoys on the expanded benchmark. It contributes to the ensemble
+   only through the disagreement signal, not through independent discrimination.
+5. `motif_novelty` and `novelty` are 0.5 by construction (no k-mer index, no
+   references in this benchmark) — they are correctly neutral, not noise.
+
+**Honest limitation:** This benchmark measures binary AMP-vs-decoy discrimination
+only. The expert composite's selectivity, safety, and synthesis components are
+designed for within-AMP candidate differentiation, not for separating AMPs from
+non-AMPs. A within-AMP ranking benchmark (comparing selective vs hemolytic AMPs)
+would be a more appropriate test for those components and is a candidate for the
+next loop.
+
+---
+
 ## Test Suite
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1343 |
+| Total tests | 1435 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 
@@ -195,4 +261,5 @@ Machine-readable: `outputs/wave0_5_external_predict_results.csv`, `outputs/wave0
 | 2026-06-29 | Wave 0.5b: 23-candidate safety-optimized shortlist (SEED-020–024, no aromatics) | OpenAMP Wave 0.5b |
 | 2026-06-29 | External predictor results filled from wave05_combined_consensus.csv; all 7 gates PASS | OpenAMP Wave 0.5 |
 | 2026-06-29 | Wave 0.5 scaffold diversification — 24-candidate Wave 1 panel across 14 families | OpenAMP Wave 0.5 |
+| 2026-07-01 | Expert ablation benchmark added: expert composite AUROC 0.736 vs ensemble 0.7832 (delta −0.0472); 3 components anti-signal; ensemble remains primary gate | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |

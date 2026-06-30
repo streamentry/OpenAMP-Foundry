@@ -117,3 +117,37 @@ def _run_cluster_split_bench(args: argparse.Namespace) -> int:
     }
     print(_json.dumps(summary, indent=2))
     return 0
+
+
+def _run_expert_ablation_bench(args: argparse.Namespace) -> int:
+    """Run expert-vs-ensemble ablation benchmark."""
+    import json as _json
+    from openamp_foundry.benchmark.retrospective import run_expert_ablation_benchmark
+    from openamp_foundry.utils.io import write_json
+
+    result = run_expert_ablation_benchmark(
+        amp_csv=args.amp_csv,
+        decoy_csv=args.decoy_csv,
+        config_path=args.config,
+        n_bootstrap=args.n_bootstrap,
+    )
+    if args.out:
+        write_json(args.out, result)
+    summary = {
+        "status": "ok",
+        "benchmark": "expert_ablation",
+        "n_positives": result["n_positives"],
+        "n_negatives": result["n_negatives"],
+        "ensemble_auroc": result["ensemble_auroc"],
+        "ensemble_ci95": f"{result['ensemble_ci95_lo']}-{result['ensemble_ci95_hi']}",
+        "expert_auroc": result["expert_auroc"],
+        "expert_ci95": f"{result['expert_ci95_lo']}-{result['expert_ci95_hi']}",
+        "delta_auroc": result["delta_auroc"],
+        "signal_bearing_components": result["signal_bearing_components"],
+        "near_zero_components": result["near_zero_components"],
+        "anti_signal_components": result["anti_signal_components"],
+        "verdict": result["verdict"],
+        "out": args.out,
+    }
+    print(_json.dumps(summary, indent=2))
+    return 0

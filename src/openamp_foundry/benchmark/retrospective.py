@@ -555,3 +555,204 @@ def run_cluster_split_benchmark(
             "Wet-lab validation remains mandatory."
         ),
     }
+
+
+def run_expert_ablation_benchmark(
+    amp_csv: str | Path,
+    decoy_csv: str | Path,
+    config_path: str | Path = "configs/pipeline.yaml",
+    n_bootstrap: int = 2000,
+) -> dict:
+    """Expert-vs-ensemble ablation: does the expert composite beat the simple ensemble?
+
+    The expert composite (scoring/expert.py) adds four components beyond the simple
+    ensemble: selectivity, serum stability, helix-hinge, and k-mer motif novelty.
+    The simple ensemble uses only activity, safety, synthesis, novelty, and Boman.
+
+    If the expert composite does not outperform the simple ensemble on AUROC, the
+    added complexity is not earning its keep — it may be noise dressed as sophistication.
+
+    This benchmark also computes per-component AUROC (each component score alone vs
+    the label) to identify which axes carry discriminative signal and which do not.
+
+    Per AGENTS.md §7 (Benchmarks must be adversarial) and §7.5 (No simulation theater):
+    every added modeling layer must justify itself against simpler baselines.
+
+    Args:
+        amp_csv: CSV of known AMPs (id, sequence, ...).
+        decoy_csv: CSV of decoy peptides.
+        config_path: Pipeline config for the simple ensemble weights.
+        n_bootstrap: Bootstrap resample count for CIs.
+
+    Returns:
+        Dict with AUROC for ensemble and expert composite, per-component AUROCs,
+        delta, bootstrap CIs, and an honest verdict.
+    """
+    from openamp_foundry.config import load_config
+    from openamp_foundry.features.physchem import compute_features
+    from openamp_foundry.scoring.activity import activity_likeness_score
+    from openamp_foundry.scoring.boman import boman_activity_score, model_disagreement
+    from openamp_foundry.scoring.ensemble import ensemble_score
+    from openamp_foundry.scoring.expert import EXPERT_WEIGHTS, expert_score
+    from openamp_foundry.scoring.novelty import novelty_score
+    from openamp_foundry.scoring.safety import safety_score
+    from openamp_foundry.scoring.stability import serum_stability_score
+    from openamp_foundry.scoring.synthesis import synthesis_feasibility_score
+
+    config = load_config(config_path)
+    weights = config["weights"]
+
+    rows = []
+    for path, label in [(amp_csv, 1), (decoy_csv, 0)]:
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                seq = row["sequence"].strip().upper()
+                features = compute_features(seq)
+                act = activity_likeness_score(features)
+                safe = safety_score(features)
+                valid = all(aa in "ACDEFGHIKLMNPQRSTVWY" for aa in seq)
+                synth = synthesis_feasibility_score(features, valid_sequence=valid)
+                nov, _ = novelty_score(seq, [])
+                boman_act = boman_activity_score(seq)
+                stability = serum_stability_score(features)
+                raw = {
+                    "activity": act, "safety": safe,
+                    "synthesis": synth, "novelty": nov,
+                    "boman_activity": boman_act,
+                    "disagreement": model_disagreement(act, boman_act),
+                    "serum_stability": stability,
+                    "selectivity_proxy": features.get("selectivity_proxy", 1.0),
+                }
+                ens = ensemble_score(raw, weights)
+
+                # Expert composite — no k-mer index (benchmark measures composition-based
+                # signal only; motif novelty defaults to 1.0 for all sequences equally,
+                # which correctly removes it as a discriminator and tests the other 6 axes).
+                exp = expert_score(seq, features=features)
+
+                rows.append({
+                    "id": row["id"],
+                    "label": label,
+                    "ensemble": ens,
+                    "expert_composite": exp.composite,
+                    # Per-component scores for signal attribution
+                    "activity": act,
+                    "safety": safe,
+                    "synthesis": synth,
+                    "novelty": nov,
+                    "boman_activity": boman_act,
+                    "serum_stability": stability,
+                    "selectivity_proxy": features.get("selectivity_proxy", 1.0),
+                    "hinge_selectivity": exp.components["hinge_selectivity"],
+                    "motif_novelty": exp.components["motif_novelty"],
+                })
+
+    pos = [r for r in rows if r["label"] == 1]
+    neg = [r for r in rows if r["label"] == 0]
+
+    ens_auroc = round(_auc_wilcoxon(
+        [r["ensemble"] for r in pos], [r["ensemble"] for r in neg]
+    ), 4)
+    exp_auroc = round(_auc_wilcoxon(
+        [r["expert_composite"] for r in pos], [r["expert_composite"] for r in neg]
+    ), 4)
+
+    ens_ci = _bootstrap_auroc_ci(
+        [r["ensemble"] for r in pos], [r["ensemble"] for r in neg],
+        n_bootstrap=n_bootstrap,
+    )
+    exp_ci = _bootstrap_auroc_ci(
+        [r["expert_composite"] for r in pos], [r["expert_composite"] for r in neg],
+        n_bootstrap=n_bootstrap,
+    )
+
+    delta = round(exp_auroc - ens_auroc, 4)
+
+    # Per-component AUROC: which individual axes discriminate AMPs from decoys?
+    component_cols = [
+        "activity", "safety", "synthesis", "novelty",
+        "boman_activity", "serum_stability", "selectivity_proxy",
+        "hinge_selectivity", "motif_novelty",
+    ]
+    per_component = {}
+    for col in component_cols:
+        pos_vals = [r[col] for r in pos]
+        neg_vals = [r[col] for r in neg]
+        auroc = round(_auc_wilcoxon(pos_vals, neg_vals), 4)
+        per_component[col] = {
+            "auroc": auroc,
+            "above_random": round(auroc - 0.5, 4),
+        }
+
+    # Honest verdict: does the expert composite earn its complexity?
+    if delta > 0.02 and exp_ci["ci_lo"] > ens_ci["ci_lo"]:
+        verdict = (
+            f"Expert composite outperforms ensemble by {delta:+.4f} AUROC. "
+            "Added complexity is justified by improved discrimination."
+        )
+    elif abs(delta) <= 0.02:
+        verdict = (
+            f"Expert composite ({exp_auroc:.4f}) and ensemble ({ens_auroc:.4f}) "
+            f"are within ±0.02 AUROC. The expert composite's additional components "
+            "(selectivity, serum stability, helix hinge, motif novelty) do NOT "
+            "materially improve AMP-vs-decoy discrimination on this benchmark. "
+            "They may still add value for candidate selection within the AMP-like "
+            "envelope (e.g. safety ranking), but they are not better at the binary "
+            "AMP/non-AMP task. The simple ensemble remains the primary synthesis gate."
+        )
+    else:
+        verdict = (
+            f"Expert composite ({exp_auroc:.4f}) scores LOWER than ensemble "
+            f"({ens_auroc:.4f}) by {delta:+.4f} AUROC. The added components "
+            "degrade discrimination on this benchmark. The expert composite should "
+            "NOT replace the ensemble for AMP/non-AMP triage without further evidence."
+        )
+
+    # Component signal summary: which axes carry the discrimination?
+    sorted_components = sorted(
+        per_component.items(), key=lambda x: x[1]["above_random"], reverse=True
+    )
+    signal_bearing = [
+        name for name, info in sorted_components if info["above_random"] > 0.05
+    ]
+    noise_components = [
+        name for name, info in sorted_components if abs(info["above_random"]) <= 0.05
+    ]
+    anti_signal = [
+        name for name, info in sorted_components if info["above_random"] < -0.05
+    ]
+
+    return {
+        "benchmark": "expert_ablation",
+        "n_positives": len(pos),
+        "n_negatives": len(neg),
+        "n_total": len(rows),
+        "config_path": str(config_path),
+        "expert_weights": EXPERT_WEIGHTS,
+        "ensemble_auroc": ens_auroc,
+        "ensemble_ci95_lo": ens_ci["ci_lo"],
+        "ensemble_ci95_hi": ens_ci["ci_hi"],
+        "expert_auroc": exp_auroc,
+        "expert_ci95_lo": exp_ci["ci_lo"],
+        "expert_ci95_hi": exp_ci["ci_hi"],
+        "delta_auroc": delta,
+        "per_component_auroc": per_component,
+        "signal_bearing_components": signal_bearing,
+        "near_zero_components": noise_components,
+        "anti_signal_components": anti_signal,
+        "verdict": verdict,
+        "design_note": (
+            "The expert composite (scoring/expert.py) adds selectivity, serum stability, "
+            "hinge selectivity, and k-mer motif novelty on top of the ensemble axes. "
+            "This ablation measures whether those additions improve binary AMP-vs-decoy "
+            "discrimination. No k-mer index is used (motif_novelty = 1.0 for all), "
+            "isolating the composition-based components. AUROC > 0.70 does NOT imply "
+            "nominated candidates are antimicrobial."
+        ),
+        "disclaimer": (
+            "Ablation results are computational only. A negative result does not mean "
+            "the expert components are useless — they may improve within-AMP ranking "
+            "(safety, selectivity) even if they do not improve AMP-vs-decoy separation. "
+            "Wet-lab validation remains mandatory."
+        ),
+    }

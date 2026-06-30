@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-baseline bench-hidden-active generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter
+.PHONY: help demo test lint ci clean bench-leakage bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -28,6 +28,8 @@ help:
 	@echo "  make validate-scoring-strict  AUROC with scrambled-decoy strict benchmark"
 	@echo "  make bench-leakage            Check for near-duplicates between candidates and refs"
 	@echo "  make bench-baseline           Hidden-positive recovery benchmark (demo set)"
+	@echo "  make bench-cluster-split      Cluster-aware bootstrap CI (de-inflates near-duplicates)"
+	@echo "  make bench-expert-ablation    Expert composite vs ensemble ablation (honesty check)"
 	@echo "  make bench-hidden-active      Hidden-positive recovery on mixed benchmark set"
 	@echo ""
 	@echo "  make wave0-5-gate-check     Run Wave 0.5 gates W0.5-1 through W0.5-7"
@@ -133,6 +135,18 @@ validate-scoring-phase3:
 		--config configs/phase3.yaml \
 		--benchmark-type standard \
 		--out outputs/validate_scoring_report_phase3.json
+
+bench-cluster-split:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench cluster-split 
+		--amp-csv examples/validation/known_amps.csv 
+		--decoy-csv examples/validation/random_background.csv 
+		--out outputs/cluster_split_report.json
+
+bench-expert-ablation:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench expert-ablation 
+		--amp-csv examples/validation/known_amps.csv 
+		--decoy-csv examples/validation/random_background.csv 
+		--out outputs/expert_ablation_report.json
 
 validate-scoring-strict:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli validate-scoring \

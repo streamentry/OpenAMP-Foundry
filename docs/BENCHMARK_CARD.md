@@ -72,6 +72,43 @@ indolicidin/analog/lys-analog, BMAP-27/PMAP-36/bmap-fragment, aurein-1/3, cecrop
 apidaecin-Ia/Ib, RsAFP-1/2, plectasin/eurocin, piscidin-1/3, buforin/buforin-II,
 dermaseptin-S1/S3-fragment, KWK-template/WKL.
 
+
+## Expert Ablation (added 2026-07-01)
+
+> Run: `make bench-expert-ablation`
+
+The expert composite scorer (`scoring/expert.py`, 7 components) was benchmarked
+against the simple ensemble to test whether its additional complexity earns its keep.
+
+| Scorer | AUROC | CI₉₅ | Delta vs ensemble |
+|--------|:-----:|:----:|:-----------------:|
+| **Ensemble** (pipeline.yaml) | **0.7832** | 0.717–0.8423 | — |
+| Expert composite | 0.7360 | 0.6604–0.8037 | **−0.0472** |
+| **Ensemble** (phase3.yaml) | **0.7448** | 0.6741–0.8118 | — |
+| Expert composite | 0.7360 | 0.6604–0.8037 | −0.0088 |
+
+**Per-component AUROC:**
+
+| Component | AUROC | Signal class |
+|-----------|:-----:|:------------:|
+| activity | 0.8137 | Signal-bearing |
+| selectivity_proxy | 0.7729 | Signal-bearing |
+| hinge_selectivity | 0.5180 | Near-zero |
+| boman_activity | 0.4620 | Near-zero |
+| synthesis | 0.4228 | Anti-signal |
+| safety | 0.3487 | Anti-signal |
+| serum_stability | 0.2231 | Anti-signal |
+
+**Verdict:** Expert composite does NOT improve AMP-vs-decoy discrimination. Three
+components (safety, serum_stability, synthesis) are anti-signal: known AMPs score
+worse than random decoys on these axes because real AMPs have extreme biophysical
+properties (high charge, high hydrophobic moment, many protease sites) that these
+scorers penalise. The ensemble remains the primary synthesis gate.
+
+**Caveat:** This tests binary AMP/non-AMP discrimination only. The expert components
+may add value for within-AMP ranking (selective vs hemolytic) — a within-AMP benchmark
+is the appropriate next test.
+
 ## Known Biases
 
 | Bias | Impact | Mitigation |
