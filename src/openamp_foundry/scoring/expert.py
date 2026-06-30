@@ -203,7 +203,7 @@ EXPERT_WEIGHTS: dict[str, float] = {
     "serum_stability":    0.05,   # proteolytic longevity (informational, low weight)
     "hinge_selectivity":  0.08,   # central helix-hinge bonus (expert motif)
     "motif_novelty":      0.10,   # k-mer prior-art (local novelty beyond global identity)
-    "hemolysis_safety":   0.10,   # dedicated hemolysis risk triage (detection AUROC=0.92)
+    "hemolysis_safety":   0.10,   # dedicated hemolysis risk triage (expanded n=179: AUROC=0.565, CI 0.47-0.66, not significant)
 }
 
 

@@ -146,12 +146,27 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - `make bench-cluster-split` Makefile target added (was missing despite CLI command existing)
 - 14 new tests in `test_expert_ablation.py`; 1435 total tests
 
+## v0.5.11 — Hemolysis Benchmark Expansion (DBAASP) ✓ (2026-07-01)
+
+- Expanded hemolysis reference from 42 to 238 peptides using DBAASP v3 human erythrocyte data
+- 196 new peptides with 50% hemolysis (HC50) values, converted to µg/ml using peptide MW
+- Binary task: 54 hemolytic (HC50 < 25 µg/ml) vs 125 selective (HC50 >= 100 µg/ml) = 179 total (was 14 vs 21 = 35)
+- **Critical honesty correction:** hemolysis risk scorer detection AUROC drops from 0.9218 (CI 0.82-0.99) to 0.5650 (CI 0.47-0.66)
+  - Original n=35 performance was **small-sample inflation**
+  - Direction still correct (hemolytic mean=0.204 > selective mean=0.154) but NOT statistically significant
+  - Safety scorer detection improves slightly: 0.3844 → 0.5116 (still not significant)
+  - Selectivity proxy: detection AUROC=0.5744 (CI 0.50-0.66) — borderline significant
+- Extraction script: `scripts/expand_hemolysis_benchmark.py`
+- Tests updated: `test_selectivity_benchmark.py` test renamed from `test_hemolysis_risk_is_significant_detector` to `test_hemolysis_risk_direction_correct`
+- Docs updated: METRICS_CURRENT.md, hemolysis.py, expert.py comments corrected to reflect expanded-set reality
+- **Lesson:** A 0.92 AUROC on n=35 is not robust. The project's adversarial benchmark philosophy caught this.
+
 ## v0.5.10 — Dedicated Hemolysis Risk Scorer ✓ (2026-07-01)
 
 - `scoring/hemolysis.py` — standalone 4-component hemolysis risk score (synth difficulty + aromatic density + face cationic leakage + cysteine content)
-- Combined detection AUROC=0.9218 (CI₉₅: 0.82-0.99) — first statistically significant hemolysis detector
+- Combined detection AUROC=0.9218 (CI₉₅: 0.82-0.99) on original 42-peptide reference — **CORRECTED in v0.5.11: small-sample inflation; expanded n=179 gives 0.5650 (CI 0.47-0.66)**
 - Integrated into selectivity benchmark as risk-direction score; integrated into expert composite as `hemolysis_safety` (weight 0.10)
-- Expert composite hemolysis detection improved: 0.5119 → 0.6429 (not significant, but trend correct)
+- Expert composite hemolysis detection improved: 0.5119 → 0.6429 on n=35 — **expanded n=179 gives 0.5459 (CI 0.46-0.63)**
 - Safety scorer UNCHANGED — standard AUROC remains 0.7832; hemolysis risk is complementary, not replacement
 - Expert ablation: hemolysis_safety is anti-signal on AMP-vs-decoy (AUROC=0.3285) — confirms it measures within-AMP property
 - 15 new tests in `test_hemolysis_risk.py`; 3 new tests in `test_selectivity_benchmark.py`; 1471 total tests

@@ -40,14 +40,19 @@ Components (detection AUROC from leave-one-out on n=14 vs n=21):
      aromatic fraction by construction (chymotrypsin cleaves after F/W/Y)
      and is excluded to avoid double-counting.
 
-Combined 4-component weighted score achieves detection AUROC=0.8912
-(bootstrap CI₉₅: 0.77-0.97), a substantial improvement over the safety
-scorer's 0.3844. The CI lower bound (0.77) clears the 0.5 significance
-threshold with margin — the first pipeline score to do so on hemolysis.
+Combined 4-component weighted score achieved detection AUROC=0.8912
+(bootstrap CI₉₅: 0.77-0.97) on the original 42-peptide reference set.
+However, expansion to 238 peptides (v0.5.11, DBAASP data) revealed this
+was small-sample inflation: on n=179 (54 hemolytic vs 125 selective),
+detection AUROC drops to 0.5650 (CI 0.47-0.66) — direction correct but
+NOT statistically significant. The scorer retains weak directional signal
+but should not be trusted as a standalone hemolysis detector.
 
 IMPORTANT LIMITATIONS:
-  - The reference set is small (14 hemolytic vs 21 selective, n=35).
-    The CI is wide. A larger reference set would tighten confidence.
+  - The original reference set was small (14 hemolytic vs 21 selective, n=35).
+    The expanded set (54 hemolytic vs 125 selective, n=179) revealed that the
+    original AUROC=0.92 was small-sample inflation. On the expanded set,
+    detection AUROC=0.565 (CI 0.47-0.66) — direction correct but not significant.
   - HC50 values are approximate literature values with high inter-assay
     variability (RBC source, buffer, incubation time, concentration range).
   - This is a triage signal, NOT a hemolysis predictor. Every candidate

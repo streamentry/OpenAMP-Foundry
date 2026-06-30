@@ -7,6 +7,13 @@ This is the complementary benchmark to the expert ablation: the ablation tested
 AMP-vs-decoy discrimination (where safety/synthesis were anti-signal); this tests
 within-AMP selectivity, the task those scorers were designed for.
 
+Reference set expanded from 42 to 238 peptides (54 hemolytic vs 125 selective)
+in v0.5.11 using DBAASP human erythrocyte hemolysis data. The expanded set
+revealed that the hemolysis risk scorer's original detection AUROC=0.9218
+(CI 0.82-0.99) on n=35 was small-sample inflation; on n=179 the detection
+AUROC drops to 0.5650 (CI 0.47-0.66) — no longer statistically significant.
+This is exactly the kind of self-deception the project is designed to catch.
+
 All results are computational. No biological activity is implied.
 """
 from __future__ import annotations
@@ -85,10 +92,26 @@ class TestSelectivityBenchmark:
     def test_hemolysis_risk_verdict_present(self, result):
         assert "hemolysis risk" in result["hemolysis_risk_verdict"].lower()
 
-    def test_hemolysis_risk_is_significant_detector(self, result):
-        """The dedicated hemolysis risk scorer should be a significant risk detector."""
-        assert "hemolysis_risk" in result["risk_detectors"]
-        assert result["per_score_auroc"]["hemolysis_risk"]["detection_ci95_lo"] > 0.5
+    def test_hemolysis_risk_direction_correct(self, result):
+        """The hemolysis risk scorer should rank hemolytic AMPs higher than selective on average.
+
+        On the expanded reference set (n=179 binary), the detection AUROC is 0.5650
+        (CI 0.47-0.66) — direction is correct but not statistically significant.
+        The original n=35 AUROC=0.9218 was small-sample inflation, corrected by
+        the DBAASP expansion. This test verifies the direction survives expansion.
+        """
+        info = result["per_score_auroc"]["hemolysis_risk"]
+        # Direction: hemolytic should score higher (more risk) than selective
+        assert info["mean_hemolytic"] is not None
+        assert info["mean_selective"] is not None
+        assert info["mean_hemolytic"] > info["mean_selective"], (
+            f'Hemolysis risk mean_hemolytic={info["mean_hemolytic"]} should exceed '
+            f'mean_selective={info["mean_selective"]} - direction must be correct'
+        )
+        # Detection AUROC should be above 0.5 (direction correct)
+        assert info["hemolysis_detection_auroc"] > 0.50, (
+            f'Detection AUROC={info["hemolysis_detection_auroc"]} should be > 0.50'
+        )
 
     def test_hemolysis_risk_scores_present(self, result):
         """Per-peptide hemolysis risk scores should be available for inspection."""

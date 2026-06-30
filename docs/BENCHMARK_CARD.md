@@ -1,7 +1,7 @@
 # Benchmark Card — OpenAMP Foundry v0.5.x
 
 > **Purpose:** Single-page summary of benchmark methodology, data, and metrics.
-> **Last updated:** 2026-07-01 (cluster-split benchmark added)
+> **Last updated:** 2026-07-01 (hemolysis benchmark expanded to 238 peptides)
 
 ---
 
@@ -38,6 +38,32 @@
 | Recall@43 | 0.4211 | 0.4000 | — |
 | Bootstrap | 2000 resamples | 2000 resamples | — |
 | **Interpretation** | **STRONG** | **STRONG** | Below random (expected) |
+
+## Within-AMP Selectivity Benchmark
+
+> Tests whether scorers can distinguish hemolytic AMPs (HC50 < 25 µg/ml) from
+> selective AMPs (HC50 >= 100 µg/ml). Run: `make bench-selectivity`
+
+| Set | Count | Description |
+|-----|:-----:|-------------|
+| Hemolytic | **54** | HC50 < 25 µg/ml (literature + DBAASP v3) |
+| Selective | **125** | HC50 >= 100 µg/ml |
+| Border | **59** | 25 <= HC50 < 100 (excluded from binary AUROC) |
+| **Total** | **238** | Expanded from 42 in v0.5.11 using DBAASP data |
+
+| Score | Detection AUROC | CI₉₅ | Significant? |
+|-------|:--------------:|:----:|:------------:|
+| hemolysis_risk | 0.5650 | 0.47–0.66 | No (direction correct) |
+| safety | 0.5116 | 0.43–0.60 | No |
+| selectivity_proxy | 0.5744 | 0.50–0.66 | Borderline |
+| ensemble | 0.4201 | 0.33–0.51 | No (wrong direction) |
+| expert_composite | 0.5459 | 0.46–0.63 | No |
+| serum_stability | 0.5873 | 0.51–0.66 | Yes (risk detector) |
+
+**Key finding:** The hemolysis risk scorer's original AUROC=0.9218 (CI 0.82-0.99)
+on n=35 was small-sample inflation. On the expanded n=179, no scorer achieves
+strong hemolysis detection. Hemolysis remains unpredictable by 1D
+physicochemical features and must be assayed experimentally.
 
 ## Method
 

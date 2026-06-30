@@ -6,7 +6,13 @@ component thresholds, not back-fitted to the implementation.
 
 Key finding being tested: the safety scorer fails hemolysis detection
 (AUROC=0.3844), but the dedicated hemolysis risk scorer achieves
-detection AUROC=0.9218 (CI=[0.82, 0.99]) on the same reference set.
+detection AUROC=0.9218 (CI=[0.82, 0.99]) on the original 42-peptide reference set.
+
+IMPORTANT: The expanded 238-peptide reference set (v0.5.11, DBAASP data) revealed
+this was small-sample inflation. On n=179 (54 hemolytic vs 125 selective), the
+detection AUROC drops to 0.5650 (CI 0.47-0.66) — direction correct but no longer
+statistically significant. The scorer retains weak directional signal but should
+NOT be trusted as a hemolysis detector without further improvement.
 """
 from __future__ import annotations
 

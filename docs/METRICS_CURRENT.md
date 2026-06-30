@@ -3,7 +3,7 @@
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-01 (cluster-split benchmark added)
+> **Last updated:** 2026-07-01 (hemolysis benchmark expanded to 238 peptides)
 > **Pipeline version:** v0.5.x
 > **Branch:** main
 
@@ -312,56 +312,66 @@ upon as a hemolysis predictor.
 > hemolysis detection (AUROC=0.3844). A dedicated hemolysis risk scorer was
 > built from empirically-validated components identified in that benchmark.
 >
+> **v0.5.11 correction:** The original 42-peptide reference set (14 hemolytic
+> vs 21 selective, n=35) produced detection AUROC=0.9218 (CI 0.82-0.99). This
+> was **small-sample inflation**. Expansion to 238 peptides using DBAASP human
+> erythrocyte data (54 hemolytic vs 125 selective, n=179) dropped the detection
+> AUROC to 0.5650 (CI 0.47-0.66) — direction correct but NOT statistically
+> significant. The scorer retains weak directional signal but should not be
+> trusted as a standalone hemolysis detector.
+>
 > Run: `make bench-selectivity` (hemolysis_risk column in the output)
 
 **Module:** `src/openamp_foundry/scoring/hemolysis.py`
 
-**Components** (detection AUROC from leave-one-out on n=14 hemolytic vs n=21 selective):
+**Components** (individual AUROC from original n=14 vs n=21; may not replicate on expanded set):
 
-| Component | Individual AUROC | Weight | Signal source |
-|-----------|:----------------:|:------:|---------------|
+| Component | Individual AUROC (n=35) | Weight | Signal source |
+|-----------|:-----------------------:|:------:|---------------|
 | Synthesis difficulty (1 - synth_feasibility) | 0.8027 | 0.30 | Incidental: hemolytic AMPs harder to synthesize |
 | Aromatic fraction (F/W/Y density) | 0.8299 | 0.30 | Trp/Phe intercalation in both membrane types |
 | Cationic-on-hydrophobic-face fraction | 0.7585 | 0.20 | Poor amphipathic face segregation |
 | Cysteine fraction | 0.7500 | 0.20 | Beta-sheet defensin/protegrin class |
 
-**Combined performance:**
+**Combined performance (expanded n=179):**
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| **Detection AUROC** | **0.9218** | Bootstrap CI₉₅: 0.82-0.99 (n_bootstrap=2000) |
-| Mean hemolytic risk | 0.4064 | n=14 |
-| Mean selective risk | 0.1501 | n=21 |
-| Risk threshold > 0.40 | Enriched in hemolytic | 10/14 hemolytic vs 2/21 selective |
-| Safety scorer (comparison) | 0.3844 | FAILS — all 14 hemolytic AMPs score safety >= 0.94 |
+| Metric | Original (n=35) | Expanded (n=179) | Notes |
+|--------|:---------------:|:-----------------:|-------|
+| **Detection AUROC** | **0.9218** | **0.5650** | Small-sample inflation corrected |
+| CI₉₅ lower bound | 0.82 | 0.47 | No longer > 0.5 — not significant |
+| CI₉₅ upper bound | 0.99 | 0.66 | |
+| Mean hemolytic risk | 0.4064 (n=14) | 0.2042 (n=54) | Direction still correct |
+| Mean selective risk | 0.1501 (n=21) | 0.1535 (n=125) | |
+| Safety scorer detection | 0.3844 | 0.5116 | Safety also improves slightly with more data |
 
-**Expert composite integration:**
+**Expert composite integration (expanded n=179):**
 
-| Metric | Before (v0.5.9) | After (v0.5.10) |
-|--------|:---------------:|:----------------:|
-| Expert composite detection AUROC | 0.5119 | 0.6429 |
-| Expert composite CI lo | 0.3129 | 0.4490 |
-| Ensemble detection AUROC | 0.3486 | 0.3486 (unchanged) |
+| Metric | Before (v0.5.9, n=35) | After (v0.5.10, n=35) | Expanded (n=179) |
+|--------|:---------------------:|:---------------------:|:-----------------:|
+| Expert composite detection AUROC | 0.5119 | 0.6429 | 0.5459 |
+| Expert composite CI lo | 0.3129 | 0.4490 | 0.4562 |
+| Ensemble detection AUROC | 0.3486 | 0.3486 | 0.4201 |
 
-**Expert ablation (AMP-vs-decoy):**
+**Expert ablation (AMP-vs-decoy, unchanged):**
 
 | Metric | Value | Classification |
 |--------|:-----:|:--------------:|
 | hemolysis_safety AUROC | 0.3285 | **Anti-signal** (above_random = -0.1715) |
 | Expert composite AUROC | 0.7119 | Down from 0.7360 (delta -0.0713 vs ensemble) |
 
-**Key finding:** The dedicated hemolysis risk scorer is the first pipeline score
-with a statistically significant hemolysis detection signal (CI lo = 0.82 > 0.5).
-It complements (not replaces) the safety scorer, which retains its role for
-AMP-vs-decoy discrimination. The hemolysis_safety component is anti-signal on
-AMP-vs-decoy (AUROC=0.3285) — expected, since real AMPs have higher hemolysis
-risk than random decoys. This confirms the component measures a within-AMP
-property, not an AMP-vs-non-AMP property.
+**Key finding (corrected):** The hemolysis risk scorer's original detection
+AUROC=0.9218 on n=35 was small-sample inflation. On the expanded n=179
+reference set, detection AUROC=0.5650 (CI 0.47-0.66) — direction is correct
+(hemolytic > selective on average) but not statistically significant. The
+scorer should NOT be described as a "statistically significant hemolysis
+detector." It provides weak directional signal that may be useful as one
+factor in a composite but cannot be relied upon for hemolysis triage. Hemolysis
+must still be assayed experimentally for every candidate.
 
-**Honest limitation:** The reference set is small (n=35). The CI is wide.
-Melittin's risk score (0.13) remains modest because its bent-helix hemolysis
-mechanism is not fully captured by 1D features. Hemolysis must still be assayed
-experimentally for every candidate.
+**Honest limitation:** The expanded reference set (n=179) provides a more honest
+estimate, but HC50 values are approximate literature values with high inter-assay
+variability. Melittin's risk score (0.13) remains modest because its bent-helix
+hemolysis mechanism is not fully captured by 1D features.
 
 ---
 
@@ -369,7 +379,7 @@ experimentally for every candidate.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1471 |
+| Total tests | 1471+ |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 
@@ -398,6 +408,7 @@ experimentally for every candidate.
 | 2026-06-29 | External predictor results filled from wave05_combined_consensus.csv; all 7 gates PASS | OpenAMP Wave 0.5 |
 | 2026-06-29 | Wave 0.5 scaffold diversification — 24-candidate Wave 1 panel across 14 families | OpenAMP Wave 0.5 |
 | 2026-07-01 | Expert ablation benchmark added: expert composite AUROC 0.736 vs ensemble 0.7832 (delta −0.0472); 3 components anti-signal; ensemble remains primary gate | OpenAMP loop |
+| 2026-07-01 | **Hemolysis benchmark expanded:** 42 -> 238 peptides using DBAASP human erythrocyte data (54 hemolytic vs 125 selective, n=179 binary). Hemolysis risk scorer detection AUROC drops 0.9218 -> 0.5650 (CI 0.47-0.66) — original performance was small-sample inflation. Direction correct, not significant. Safety scorer detection improves 0.3844 -> 0.5116 (still not significant). 196 new peptides from DBAASP v3. | OpenAMP loop |
 | 2026-07-01 | Dedicated hemolysis risk scorer: 4-component score (synth+aromatic+face+cys) achieves detection AUROC=0.9218 (CI: 0.82-0.99); integrated into expert composite (detection 0.5119→0.6429); safety scorer unchanged; 1471 tests | OpenAMP loop |
 | 2026-07-01 | Within-AMP selectivity benchmark added: safety scorer FAILS hemolysis detection (AUROC=0.3844); synthesis is only significant risk detector (AUROC=0.8027); expert composite better than ensemble but not significant (0.5119 vs 0.3486) | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |
