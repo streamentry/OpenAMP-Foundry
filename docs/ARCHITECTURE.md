@@ -15,6 +15,21 @@ CSV/JSONL candidates
   -> report
 ```
 
+This is the **current production architecture**: a deterministic dry-lab candidate foundry.
+
+The repo’s longer-range architecture is a layered system:
+
+```text
+candidate generation / import
+  -> dry-lab filtering and ranking
+  -> higher-fidelity virtual assay proxies
+  -> small real assay batch
+  -> calibration / active learning
+  -> next-round candidate selection
+```
+
+The purpose of the added layers is not simulation theater. It is to improve which experiments are chosen next.
+
 ## Package map
 
 | Package | Role |
@@ -26,6 +41,14 @@ CSV/JSONL candidates
 | `openamp_foundry.evidence` | JSON certificate generation and validation |
 | `openamp_foundry.benchmark` | leakage checks and evaluation scaffolding |
 | `openamp_foundry.generators` | safe, bounded toy candidate generation |
+
+Potential future packages, only if benchmarked honestly:
+
+| Future package | Intended role |
+|---|---|
+| `openamp_foundry.simulation` | membrane/selectivity/stability proxy modeling |
+| `openamp_foundry.calibration` | learning from assay results and recalibrating scores |
+| `openamp_foundry.active_learning` | choosing informative next experiments under uncertainty |
 
 ## Threat model
 
@@ -39,6 +62,7 @@ The system is designed to reduce these failures:
 | Model self-confirmation | Separate generator and judges |
 | Dataset leakage | Cluster/time split plan and leakage checks |
 | Overclaiming | Explicit confidence and failure modes |
+| Simulation theater | Require calibration, abstention rules, and baseline comparisons |
 | Misuse by unsafe forks | Controlled release policy for high-capability components |
 
 ## Data flow
@@ -53,6 +77,19 @@ The system is designed to reduce these failures:
 8. Write JSONL results.
 9. Generate one certificate per selected candidate.
 10. Generate a human-readable report.
+
+## Target future data flow
+
+When the project is mature enough, the extended loop should look like:
+
+1. Generate or import candidate sequences.
+2. Run the current dry-lab validation, feature extraction, scoring, novelty, and diversity pipeline.
+3. Send a smaller frontier set to higher-fidelity selectivity and stability proxy models.
+4. Estimate uncertainty and identify where the model is likely wrong.
+5. Select a very small assay batch that balances likely winners with high-information probes.
+6. Ingest qualified wet-lab outcomes through versioned schemas.
+7. Recalibrate decision rules without rewriting success definitions after the fact.
+8. Measure whether the added modeling layer actually reduced wasted experiments.
 
 ## Extension points
 
@@ -69,3 +106,20 @@ Later external predictors should be added as adapters. Each adapter must return:
 ```
 
 Adapters must not silently download model weights or send sequences to third-party services without explicit user consent.
+
+Any future simulation or emulator module should also return:
+
+```json
+{
+  "module": "virtual-assay-name",
+  "version": "x.y.z",
+  "scope": ["bacterial_membrane", "rbc_membrane", "stability"],
+  "scores": {},
+  "uncertainty": 0.0,
+  "calibration_set": "dataset-or-batch-id",
+  "validated_against": [],
+  "notes": []
+}
+```
+
+If calibration data is absent or weak, that fact must surface directly in outputs.

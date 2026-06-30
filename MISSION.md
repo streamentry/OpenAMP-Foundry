@@ -4,6 +4,8 @@
 
 **Build the world’s most rigorous open, safety-first AI antimicrobial peptide foundry: a reproducible dry-lab system that generates, filters, documents, and prepares novel antimicrobial candidates for qualified experimental validation through evidence rather than hype.**
 
+The deeper legacy mission is to turn that foundry into an open **wet-lab compression engine** for antimicrobial discovery: a system that helps qualified scientists ask fewer, smarter experimental questions and learn from every answer.
+
 ## Ultimate goal
 
 OpenAMP Foundry exists to discover whether an AI-directed, open, auditable candidate-selection pipeline can identify novel antimicrobial peptide families that later survive real laboratory validation.
@@ -13,6 +15,21 @@ The desired long-term result is:
 > An open AI pipeline discovers a novel antimicrobial peptide family, independently validated in qualified lab testing, with the full computational evidence trail released for scientific review.
 
 This project must never claim that a computational prediction is a drug, cure, therapy, or proven antimicrobial result. The lab is the judge.
+
+## Strategic wedge
+
+The project should be understood in two layers:
+
+1. **Immediate wedge**
+   Build a dry-lab system that can generate, score, falsify, rank, and document AMP candidates honestly enough to deserve lab budget.
+2. **Breakthrough wedge**
+   Build a calibrated virtual assay stack that improves experiment selection by modeling bacterial selectivity, mammalian membrane risk, and stability better than cheap heuristics alone.
+
+The near-term goal is not full biological simulation.
+
+The near-term goal is experimental compression:
+
+> use computation to reduce the number of real experiments needed to find a real, safe-enough signal.
 
 ## Why this matters
 
@@ -38,6 +55,12 @@ OpenAMP Foundry is a dry-lab pipeline for:
 8. Ranking diverse candidate batches.
 9. Producing machine-readable evidence certificates.
 10. Preparing qualified, safety-reviewed candidate batches for external experimental validation.
+
+Over time, it should also become a platform for:
+
+11. Benchmarking virtual membrane and selectivity proxies.
+12. Learning from wet-lab outcomes through active feedback loops.
+13. Measuring whether new modeling layers actually save experiments.
 
 ## What the project is not
 
@@ -73,6 +96,20 @@ valid sequence
 ```
 
 Computational evidence can justify testing. It cannot prove biological efficacy.
+
+The higher bar beyond dry-lab credibility is not prettier scoring.
+
+It is this:
+
+```text
+design
+→ simulate
+→ test
+→ learn
+→ improve experiment selection
+```
+
+If simulation layers are added, they must be judged by whether they improve real decision quality, not by whether they sound advanced.
 
 ## Headline-grade result
 
@@ -201,6 +238,16 @@ Phase 3 is successful when the project has a lab-ready candidate pack with:
 9. External expert review.
 10. Dual-use safety review.
 
+Phase 4 is successful when the project can responsibly begin calibrating a virtual assay layer using qualified wet-lab outcomes.
+
+That phase requires:
+
+1. A written scope for what the emulator does and does not model.
+2. A benchmark separating bacterial-selective references from clearly hemolytic references.
+3. Confidence and abstention rules for simulator outputs.
+4. A pre-registered active-learning policy for choosing informative experiments.
+5. Evidence that the added layer improves prioritization relative to simpler baselines.
+
 ## Kill criteria
 
 Stop, downgrade, or redesign the project if:
@@ -223,5 +270,9 @@ Failure is allowed. Unverifiable success is not.
 The project should work toward this headline and no weaker hype version:
 
 > **Open AI pipeline discovers a new antimicrobial peptide family, independently validated in lab tests, with full reproducible evidence trail released for scientific review.**
+
+The deeper systems headline, if the work truly earns it, would be:
+
+> **OpenAMP built an open wet-lab compression engine for AMP discovery, showing that small, honest AI-guided experiment loops can find validated candidates with far less wasted assay effort.**
 
 Everything in this repository should move the project closer to that standard.

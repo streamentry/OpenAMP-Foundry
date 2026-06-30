@@ -14,6 +14,34 @@ The goal is stronger and more honest:
 
 A headline-grade result requires **independent wet-lab confirmation**. Computational scores alone are never enough.
 
+## Legacy Ambition
+
+The deepest ambition of this project is larger than finding one good peptide.
+
+The long-range contribution worth building a legacy around is:
+
+> **Make wet-lab antimicrobial discovery partially computable by building an open, reproducible system that learns which experiments are worth running.**
+
+That means OpenAMP should evolve from a dry-lab ranking pipeline into a **wet-lab compression engine**:
+
+```text
+design
+→ falsify
+→ simulate
+→ prioritize
+→ test
+→ learn
+→ redesign
+```
+
+The near-term promise is not “replace biology.”
+
+The near-term promise is:
+
+> **Use computation to reduce the number of wet-lab experiments needed to find a real antimicrobial signal by 10x, if the evidence honestly supports that claim.**
+
+This ambition does not weaken the repo’s current safety posture. It raises the bar for what the project should eventually become.
+
 ---
 
 # North Star
@@ -68,6 +96,34 @@ AI is being used for:
 The lab remains the judge.
 
 The computer pipeline is the triage engine.
+
+## Second-Horizon Scientific Bet
+
+The current pipeline is the first layer, not the endpoint.
+
+The next serious scientific leap is to build a **multi-resolution virtual assay layer** that predicts which candidates are worth spending lab budget on:
+
+```text
+peptide sequence
+↓
+structure / conformation proxies
+↓
+bacterial membrane interaction model
+↓
+RBC / mammalian membrane interaction model
+↓
+stability / protease / serum model
+↓
+learned surrogate for assay outcomes
+↓
+selection of the few most informative real experiments
+```
+
+This is not a claim that OpenAMP can simulate a whole organism or replace qualified assay work.
+
+It is a claim that, over time, the project may become good at **experimental compression**:
+
+> asking fewer, smarter wet-lab questions while preserving scientific honesty.
 
 ---
 
@@ -142,6 +198,22 @@ Required tests:
 | Reproducibility         | Another machine can reproduce rankings from the same inputs                               |
 
 If the pipeline cannot beat simple baselines honestly, do not proceed to lab testing.
+
+## Definition of Done: Phase 2.5
+
+Phase 2.5 begins when the dry-lab system is credible enough to support a higher-fidelity virtual assay roadmap.
+
+Required deliverables:
+
+| Deliverable | Required result |
+| ----------- | --------------- |
+| Simulator specification | Written scope for what is and is not being modeled |
+| Membrane proxy benchmark | Distinguishes bacterial-selective vs clearly hemolytic reference peptides better than naive heuristics |
+| Calibration plan | Explicit plan for learning from small real assay batches |
+| Uncertainty policy | Simulator outputs include confidence and “do not trust” conditions |
+| Safety policy | No release of high-capability components without human review |
+
+If a virtual-assay module cannot outperform simple heuristics for triage, it must remain experimental and must not be presented as a scientific breakthrough.
 
 ---
 
@@ -322,6 +394,20 @@ Agents must actively search for ways the pipeline may be fooling itself:
 
 If the result is easy to attack, fix the pipeline before claiming progress.
 
+## 7.5. No simulation theater
+
+Agents must not present speculative modeling layers as if they were validated assay surrogates.
+
+If a membrane model, structure proxy, or learned emulator is added, agents must clearly state:
+
+* what it actually models;
+* what evidence supports it;
+* where calibration data came from;
+* what failure modes remain;
+* whether it has shown better triage performance than simpler baselines.
+
+An impressive-looking simulator that does not improve real decision quality is noise, not progress.
+
 ## 8. Human review is mandatory
 
 AI agents may propose, implement, score, rank, and report.
@@ -380,7 +466,20 @@ Build:
 * failure-mode reports;
 * pre-registered selection rules.
 
-## Priority 4 — Make outputs scientifically reviewable
+## Priority 4 — Build the wet-lab compression roadmap
+
+Build:
+
+* virtual assay design docs;
+* membrane interaction proxy modules;
+* calibration datasets and benchmark scaffolding;
+* uncertainty-aware surrogate models;
+* active-learning candidate selection logic;
+* evaluation against “cheap predictor only” baselines.
+
+Do not oversell these modules before they are benchmarked honestly.
+
+## Priority 5 — Make outputs scientifically reviewable
 
 Build:
 
@@ -392,7 +491,7 @@ Build:
 * safety review templates;
 * release decision logs.
 
-## Priority 5 — Prepare for external validation
+## Priority 6 — Prepare for external validation
 
 Prepare:
 
@@ -402,6 +501,15 @@ Prepare:
 * pre-registered pass/fail criteria;
 * independent replication plan;
 * publication-quality methods description.
+
+## Priority 7 — Learn from reality
+
+After qualified assay data exists, build:
+
+* lab-result ingestion;
+* hit/failure calibration;
+* retrospective analysis of why the model was right or wrong;
+* updated selection policies that improve efficiency without changing success definitions after the fact.
 
 ---
 

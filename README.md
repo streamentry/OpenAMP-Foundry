@@ -6,6 +6,12 @@ It is designed around a strict principle:
 
 > Computers can triage, falsify, rank, and document candidates. They do **not** prove biological efficacy. Wet-lab assays are still required before any scientific claim of activity.
 
+The current repository is a rigorous **dry-lab foundry**.
+
+The larger mission is more ambitious:
+
+> Build an open **wet-lab compression engine** for AMP discovery: a system that helps qualified scientists decide which small number of experiments are most worth running next, then learns from those outcomes.
+
 This repo gives you a safe starting point for:
 
 - building AMP candidate datasets;
@@ -16,6 +22,8 @@ This repo gives you a safe starting point for:
 - generating auditable JSON evidence certificates;
 - running a demo pipeline without downloading external biological datasets;
 - expanding later with real predictors and CRO/lab validation.
+
+It also establishes the architecture and governance needed for a future **virtual assay layer** that can improve experiment selection without pretending to replace biology.
 
 ## What this repo is
 
@@ -33,6 +41,14 @@ candidate sequences
   -> evidence certificate
   -> lab-ready shortlist, if human review approves
 ```
+
+The present repo answers:
+
+> Can we build a reproducible, leakage-aware, safety-first ranking pipeline that earns the right to guide real experiments?
+
+The next-horizon repo should answer:
+
+> Can we compress wet-lab cost by learning which peptide experiments are worth running, better than cheap predictors alone?
 
 ## What this repo is not
 
@@ -56,6 +72,17 @@ The default repo contains only toy/demo data and transparent baseline scorers. I
 - trained generator weights.
 
 See [`SAFETY.md`](SAFETY.md), [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md), and [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md).
+
+## Vision ladder
+
+OpenAMP now operates on two connected horizons:
+
+1. **Current horizon — trustworthy dry lab**
+   Build deterministic ranking, evidence certificates, leakage-resistant benchmarks, novelty auditing, synthesis checks, and reviewable shortlist generation.
+2. **Next horizon — wet-lab compression**
+   Add higher-fidelity membrane, selectivity, stability, and learned-surrogate layers that improve which 8-12 experiments a qualified lab should run next.
+
+The second horizon only matters if the first one stays honest. Better simulation without calibration is not a breakthrough.
 
 ## Quick start
 
@@ -90,13 +117,20 @@ python -m openamp_foundry.cli validate \
 
 ```text
 openamp-foundry/
+  AGENTS.md                            # agent operating contract and safety mission
+  CLAUDE.md                            # concise collaborator guidance
+  MISSION.md                           # project mission and claim boundaries
   .github/workflows/ci.yml             # CI checks
   configs/pipeline.yaml                # scoring weights and thresholds
+  configs/phase3.yaml                  # wet-lab-ready batch configuration
   data/README.md                       # data policy and external data notes
-  docs/PLAN.md                         # detailed execution plan
   docs/ARCHITECTURE.md                 # architecture and threat model
   docs/BENCHMARKING.md                 # leakage-resistant benchmark plan
   docs/EVIDENCE_CERTIFICATE.md         # candidate certificate spec
+  docs/LEGACY_LOOP_PROMPT.md           # reusable execution loop prompt for continued progress
+  docs/METRICS_CURRENT.md              # current benchmark summary
+  docs/PLAN.md                         # detailed execution plan
+  docs/ROADMAP.md                      # shipped milestones and next horizons
   examples/                            # toy datasets only
   models/README.md                     # model-release rules; no weights shipped
   outputs/.gitkeep                     # generated files ignored by git
@@ -126,6 +160,10 @@ The first serious milestone is not “AI discovered an antibiotic.”
 The first serious milestone is:
 
 > A reproducible pipeline can recover known AMP positives, reject weak controls, avoid leakage, and generate a small shortlist of candidates that survive independent wet-lab validation.
+
+The longer-range milestone is:
+
+> A calibrated virtual assay layer helps the project choose fewer, smarter wet-lab experiments and improves hit-rate or safety-adjusted yield relative to cheap predictors alone.
 
 ## License strategy
 

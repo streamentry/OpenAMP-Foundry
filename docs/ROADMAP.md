@@ -144,6 +144,20 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - active-learning batch 2 (D-amino variants, MDR strain panel);
 - public reproducibility report.
 
+## v1.1 — Virtual assay scaffold
+
+- write the first explicit simulator scope document: what OpenAMP will model and what it will not;
+- add membrane/selectivity/stability proxy interfaces with uncertainty fields;
+- benchmark candidate triage against a reference panel that includes selective AMPs, hemolytic positives, inactive peptides, and random controls;
+- require every proxy module to justify itself against cheap heuristic baselines before it affects selection.
+
+## v2.x — Wet-lab compression engine
+
+- calibrate virtual assay layers on qualified assay outcomes;
+- implement active-learning experiment selection for small 8-12 peptide batches;
+- track cost per confirmed hit, safety-adjusted hit rate, and wet-lab tests saved;
+- publish honest evidence on whether OpenAMP is actually reducing assay waste rather than merely generating more candidates.
+
 ## Beyond v1.0 — What is still needed for a major breakthrough
 
 The following are not implemented in this pipeline. Each is a known gap flagged in external

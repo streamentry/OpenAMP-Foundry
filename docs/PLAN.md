@@ -10,6 +10,10 @@ Core thesis:
 
 > AI generation is cheap. Trusted candidate selection is scarce.
 
+Longer term:
+
+> Wet-lab time is expensive. The project should learn how to spend it only where the evidence says it matters most.
+
 ## 2. World-history ambition, narrowed to a tractable wedge
 
 The world-scale problem is antimicrobial resistance. The tractable wedge is not “solve AMR.” The tractable wedge is:
@@ -23,6 +27,10 @@ The first historical-grade contribution would be a reproducible pipeline that:
 3. sends a small, pre-registered shortlist to independent assay;
 4. publishes both hits and failures;
 5. improves through active learning without cherry-picking.
+
+The next historical-grade contribution would be stronger:
+
+> Build an open wet-lab compression engine for AMPs that measurably improves experiment selection using calibrated virtual assay layers and small, honest feedback loops.
 
 ## 3. Non-negotiable scientific principles
 
@@ -80,6 +88,19 @@ Candidate source
   -> generate evidence certificate
   -> human review
   -> optional lab batch decision
+```
+
+Future architecture extension:
+
+```text
+candidate source
+  -> current dry-lab foundry
+  -> membrane/selectivity/stability proxy models
+  -> uncertainty estimation
+  -> informative assay batch selection
+  -> lab result ingestion
+  -> calibration / active learning
+  -> next-round candidate source
 ```
 
 ## 6. Scoring model in v0.1
@@ -229,6 +250,23 @@ Exit criterion:
 
 ```text
 At least one candidate family survives independent validation and is documented with computational and lab evidence.
+```
+
+### Phase 7 — Wet-lab compression
+
+Deliverables:
+
+- virtual assay specification with explicit scope limits;
+- membrane/selectivity proxy benchmark set;
+- calibration harness for ingesting wet-lab outcomes;
+- uncertainty-aware simulator outputs;
+- active-learning selection policy;
+- experiment-saved evaluation metric.
+
+Exit criterion:
+
+```text
+The project shows that the added modeling layer improves which experiments are chosen next better than cheap-predictor-only baselines.
 ```
 
 ## 9. Governance and release model
