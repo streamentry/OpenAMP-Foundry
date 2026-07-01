@@ -1,0 +1,162 @@
+{
+  "benchmark_inputs": {
+    "amp_csv": "examples/validation/known_amps.csv",
+    "cluster_threshold": 0.7,
+    "decoy_csv": "examples/validation/random_background.csv",
+    "hemolysis_csv": "examples/validation/hemolysis_reference.csv",
+    "n_bootstrap": 2000,
+    "phase3_config": "configs/phase3.yaml",
+    "standard_config": "configs/pipeline.yaml"
+  },
+  "cluster_split": {
+    "cluster_aware_ci95": [
+      0.7061,
+      0.8526
+    ],
+    "full_auroc": 0.7832,
+    "held_out_auroc": 0.8734,
+    "interpretation": "STRONG — AUROC > 0.70 and cluster-aware CI lower bound > 0.65. Signal survives near-duplicate de-inflation.",
+    "n_amps_in_multi_member_clusters": 33,
+    "n_clusters": 76,
+    "n_multi_member_clusters": 14,
+    "representative_auroc": 0.7607,
+    "representative_ci95": [
+      0.6854,
+      0.8301
+    ],
+    "standard_ci95": [
+      0.717,
+      0.8423
+    ]
+  },
+  "expert_ablation": {
+    "anti_signal_components": [
+      "synthesis",
+      "safety",
+      "hemolysis_safety",
+      "serum_stability"
+    ],
+    "delta_auroc": -0.0713,
+    "ensemble_auroc": 0.7832,
+    "expert_auroc": 0.7119,
+    "near_zero_components": [
+      "hinge_selectivity",
+      "novelty",
+      "motif_novelty",
+      "boman_activity"
+    ],
+    "signal_bearing_components": [
+      "activity",
+      "selectivity_proxy"
+    ],
+    "verdict": "Expert composite (0.7119) scores LOWER than ensemble (0.7832) by -0.0713 AUROC. The added components degrade discrimination on this benchmark. The expert composite should NOT replace the ensemble for AMP/non-AMP triage without further evidence."
+  },
+  "phase3": {
+    "auprc": 0.7933,
+    "auroc": 0.7448,
+    "interpretation": "STRONG — model has meaningful discriminative power (AUROC > 0.70)",
+    "n_negatives": 96,
+    "n_positives": 95,
+    "n_total": 191
+  },
+  "schema_version": 1,
+  "selectivity": {
+    "expert_composite_verdict": "Expert composite detects hemolysis risk better than ensemble (detection AUROC 0.5459 vs 0.4201). The added selectivity/safety components earn their keep on within-AMP ranking.",
+    "n_border": 59,
+    "n_hemolytic": 54,
+    "n_selective": 125,
+    "risk_detectors": [
+      "serum_stability"
+    ],
+    "risk_indicators": [
+      "expert_composite",
+      "safety",
+      "synthesis",
+      "boman_activity",
+      "selectivity_proxy",
+      "hemolysis_risk"
+    ],
+    "safety_verdict": "Safety scorer shows weak hemolysis detection (detection AUROC=0.5116, CI lo=0.4321 < 0.5). Signal is present but not statistically significant. The melittin blind spot remains: 1D hydrophobic moment cannot capture all hemolysis mechanisms.",
+    "selectivity_proxy_verdict": "Selectivity proxy shows weak hemolysis detection (detection AUROC=0.5744, CI lo=0.4954). Trend is correct but not significant at this sample size."
+  },
+  "standard": {
+    "auprc": 0.8164,
+    "auroc": 0.7832,
+    "interpretation": "STRONG — model has meaningful discriminative power (AUROC > 0.70)",
+    "n_negatives": 96,
+    "n_positives": 95,
+    "n_total": 191,
+    "recall_at_10": 0.1053,
+    "recall_at_20": 0.2105,
+    "recall_at_43": 0.4211
+  },
+  "triage": {
+    "best_scorer": "selectivity_proxy",
+    "per_scorer": {
+      "activity": {
+        "hemolytic_vs_decoy": 0.934,
+        "selective_vs_decoy": 0.8846,
+        "selective_vs_hemolytic": 0.43,
+        "triages_correctly": false
+      },
+      "ensemble": {
+        "hemolytic_vs_decoy": 0.8911,
+        "selective_vs_decoy": 0.8481,
+        "selective_vs_hemolytic": 0.4661,
+        "triages_correctly": false
+      },
+      "hemolysis_risk": {
+        "hemolytic_vs_decoy": 0.4924,
+        "selective_vs_decoy": 0.485,
+        "selective_vs_hemolytic": 0.4876,
+        "triages_correctly": false
+      },
+      "safe_weighted_ensemble": {
+        "hemolytic_vs_decoy": 0.8904,
+        "selective_vs_decoy": 0.849,
+        "selective_vs_hemolytic": 0.483,
+        "triages_correctly": false
+      },
+      "safety": {
+        "hemolytic_vs_decoy": 0.3,
+        "selective_vs_decoy": 0.344,
+        "selective_vs_hemolytic": 0.5384,
+        "triages_correctly": false
+      },
+      "selectivity_proxy": {
+        "hemolytic_vs_decoy": 0.7955,
+        "selective_vs_decoy": 0.782,
+        "selective_vs_hemolytic": 0.6095,
+        "triages_correctly": true
+      },
+      "serum_stability": {
+        "hemolytic_vs_decoy": 0.1604,
+        "selective_vs_decoy": 0.2174,
+        "selective_vs_hemolytic": 0.5686,
+        "triages_correctly": false
+      },
+      "synthesis": {
+        "hemolytic_vs_decoy": 0.6336,
+        "selective_vs_decoy": 0.5898,
+        "selective_vs_hemolytic": 0.4692,
+        "triages_correctly": false
+      },
+      "triage_score": {
+        "hemolytic_vs_decoy": 0.9019,
+        "selective_vs_decoy": 0.8629,
+        "selective_vs_hemolytic": 0.4622,
+        "triages_correctly": false
+      }
+    },
+    "top_20_by_ensemble": {
+      "DECOY": 0,
+      "HEMOLYTIC": 6,
+      "SELECTIVE": 14
+    },
+    "top_20_by_triage_score": {
+      "DECOY": 0,
+      "HEMOLYTIC": 4,
+      "SELECTIVE": 16
+    }
+  }
+}

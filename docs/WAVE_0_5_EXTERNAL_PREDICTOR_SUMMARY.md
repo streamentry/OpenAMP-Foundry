@@ -7,17 +7,20 @@
 > HemoFinder predicts hemolysis risk, NOT antimicrobial activity.
 
 Generated: 2026-06-29
-Status: **PENDING — External predictor submissions required**
+Updated: 2026-07-02
+Status: **HISTORICAL TEMPLATE ONLY — retained as the pre-submission plan**
 
 ---
 
 ## Purpose
 
-This document describes the external predictor screen for the Wave 0.5 shortlist
-(60 candidates across 10 new seed families). Results are PENDING because these
-predictors require manual web submission to published servers.
+This document describes the original pre-submission external predictor plan for the
+Wave 0.5 shortlist (60 candidates across 10 new seed families). It is preserved as
+historical process context, not as the current result state.
 
-The screen must be completed before final Wave 1 panel selection (Phase 7).
+The external screen was completed later and the authoritative current-state summary
+now lives in [`docs/METRICS_CURRENT.md`](/Users/james/.codex/worktrees/9f2e/openamp-foundry/docs/METRICS_CURRENT.md)
+and [`docs/ROADMAP.md`](/Users/james/.codex/worktrees/9f2e/openamp-foundry/docs/ROADMAP.md).
 
 ---
 
@@ -108,24 +111,25 @@ confirmation required before synthesis.
 
 ---
 
-## How to Fill In
+## Historical Submission Procedure
 
 1. Export `outputs/wave0_5_internal_shortlist.csv` → extract sequences column
 2. Create FASTA file from all 60 sequences
 3. Submit to each tool's web interface (see URLs above)
 4. Record Y/N (or probability score) per candidate per tool
 5. Fill in `outputs/wave0_5_external_predict_results.csv`
-6. Run: `make wave0-5-external-consensus` (Makefile target — to be added in Phase 10)
+6. Run `make wave0-5-fill-external` to derive the Wave 0.5 result files when
+   `outputs/wave05_combined_consensus.csv` is available in the local checkout.
 
 ---
 
-## Machine-Readable Status
+## Historical Artifact Expectations
 
 | File | Status |
 |---|---|
-| `outputs/wave0_5_external_predict_results.csv` | PENDING (60 rows, all PENDING) |
-| `outputs/wave0_5_external_consensus.csv` | PENDING (internal OpenAMP scores available) |
-| `outputs/wave0_5_safety_consensus.csv` | PENDING (internal estimates in internal_safety_estimate column) |
+| `outputs/wave0_5_external_predict_results.csv` | Generated only after running `make wave0-5-fill-external` with local source data |
+| `outputs/wave0_5_external_consensus.csv` | Generated only after running `make wave0-5-fill-external` with local source data |
+| `outputs/wave0_5_safety_consensus.csv` | Generated only after running `make wave0-5-fill-external` with local source data |
 
 ---
 

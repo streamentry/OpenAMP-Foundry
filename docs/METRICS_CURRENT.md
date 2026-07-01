@@ -161,7 +161,9 @@ representative of diverse AMP classes not covered by the helic-centric scorer.
 AntiCP 2.0 detects anticancer peptide (ACP) patterns, not antimicrobial activity directly.
 Mitigation: Wave 0.5b designs avoid aromatic residues and pure amphipathic helix.
 
-Machine-readable: `outputs/wave0_5_external_predict_results.csv`, `outputs/wave0_5_external_consensus.csv`
+Current-state summary is documented here. Wave 0.5 machine-readable CSV outputs are
+generated locally via `make wave0-5-fill-external` when `outputs/wave05_combined_consensus.csv`
+is present; they are not guaranteed to be committed in every checkout.
 
 ---
 

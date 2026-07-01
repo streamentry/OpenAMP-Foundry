@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import re
 import json
+import re
 from pathlib import Path
 
 
@@ -19,6 +19,11 @@ CURRENT_N_TOTAL = 191
 EXPANDED_PR_REF = "PR #110"
 ORIGINAL_DEMO_AUROC = "0.8420"
 SNAPSHOT_PATH = REPO_ROOT / "outputs" / "metrics_snapshot.json"
+WAVE05_GENERATED_OUTPUTS = [
+    REPO_ROOT / "outputs" / "wave0_5_external_predict_results.csv",
+    REPO_ROOT / "outputs" / "wave0_5_external_consensus.csv",
+    REPO_ROOT / "outputs" / "wave0_5_safety_consensus.csv",
+]
 
 # Patterns that indicate stale "current" usage (not historical context)
 _STALE_CURRENT_PATTERNS: list[str] = [
@@ -144,3 +149,17 @@ class TestDocsConsistent:
         assert "55–80%" in text or "55-80" in text or "honest" in text.lower(), (
             "WET_LAB_PROBABILITY.md missing honest correction range"
         )
+
+    def test_doc_wave05_generated_outputs_claimed_only_if_present(self):
+        """Docs must not present missing Wave 0.5 generated CSVs as committed facts."""
+        files_present = all(path.exists() for path in WAVE05_GENERATED_OUTPUTS)
+
+        metrics_text = (DOCS_DIR / "METRICS_CURRENT.md").read_text(encoding="utf-8")
+        summary_text = (DOCS_DIR / "WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md").read_text(
+            encoding="utf-8"
+        )
+
+        if not files_present:
+            assert "Machine-readable: `outputs/wave0_5_external_predict_results.csv`" not in metrics_text
+            assert "PENDING (60 rows, all PENDING)" not in summary_text
+            assert "Generated only after running `make wave0-5-fill-external`" in summary_text
