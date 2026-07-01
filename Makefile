@@ -138,20 +138,20 @@ validate-scoring-phase3:
 		--out outputs/validate_scoring_report_phase3.json
 
 bench-cluster-split:
-	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench cluster-split 
-		--amp-csv examples/validation/known_amps.csv 
-		--decoy-csv examples/validation/random_background.csv 
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench cluster-split \
+		--amp-csv examples/validation/known_amps.csv \
+		--decoy-csv examples/validation/random_background.csv \
 		--out outputs/cluster_split_report.json
 
 bench-expert-ablation:
-	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench expert-ablation 
-		--amp-csv examples/validation/known_amps.csv 
-		--decoy-csv examples/validation/random_background.csv 
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench expert-ablation \
+		--amp-csv examples/validation/known_amps.csv \
+		--decoy-csv examples/validation/random_background.csv \
 		--out outputs/expert_ablation_report.json
 
 bench-selectivity:
-	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench selectivity 
-		--hemolysis-csv examples/validation/hemolysis_reference.csv 
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench selectivity \
+		--hemolysis-csv examples/validation/hemolysis_reference.csv \
 		--out outputs/selectivity_benchmark_report.json
 
 

@@ -15,17 +15,19 @@ Common artifacts:
 
 ## Required benchmarks
 
-| Benchmark | Purpose |
-|---|---|
-| Random baseline | Prove the pipeline is not noise |
-| Simple physicochemical baseline | Prove models beat charge/hydrophobicity alone |
-| Cluster split | Prevent near-duplicate leakage |
-| Cluster-aware CI | Honest bootstrap when positives contain near-duplicate families |
-| Time split | Test future generalization where metadata allows |
-| Hidden-positive recovery | Check whether known actives are ranked high |
-| Toxicity down-ranking | Ensure predicted risky candidates are penalized |
-| Novelty stress test | Avoid near-clones of references |
-| Within-AMP selectivity | Test whether scorers distinguish hemolytic from selective AMPs |
+| Benchmark | Purpose | Status |
+|---|---|---|
+| Random baseline | Prove the pipeline is not noise | Implemented |
+| Simple physicochemical baseline | Prove models beat charge/hydrophobicity alone | Implemented |
+| Cluster split | Prevent near-duplicate leakage | Implemented (`bench cluster-split`) |
+| Cluster-aware CI | Honest bootstrap when positives contain near-duplicate families | Implemented (cluster-aware bootstrap in `bench cluster-split`) |
+| Time split | Test future generalization where metadata allows | Deferred (metadata not available) |
+| Hidden-positive recovery | Check whether known actives are ranked high | Implemented |
+| Toxicity down-ranking | Ensure predicted risky candidates are penalized | Implemented |
+| Novelty stress test | Avoid near-clones of references | Implemented |
+| Within-AMP selectivity | Test whether scorers distinguish hemolytic from selective AMPs | Implemented (`bench selectivity`) |
+| Expert ablation | Test whether expert composite adds value over ensemble | Implemented (`bench expert-ablation`) |
+| Multi-class triage | Test selective > hemolytic > decoy ranking in one panel | Implemented (`bench triage`) |
 
 ## Minimum report fields
 
