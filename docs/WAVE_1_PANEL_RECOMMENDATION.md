@@ -40,8 +40,8 @@ All candidates have:
 - Synthesis risk flags
 - Machine-readable evidence certificates (Phase 8)
 
-External predictor results (CAMPR4, AMPScanner, Macrel, AMPActiPred, HemoFinder, AntiCP) are
-PENDING and must be completed before wet-lab synthesis submission.
+External predictor review for Wave 0.5 was completed after this panel recommendation was first drafted.
+Treat this file as the panel-selection record; use `docs/METRICS_CURRENT.md` for the current external-consensus state.
 
 No antimicrobial activity is claimed until qualified wet-lab validation.
 

@@ -6,21 +6,19 @@
 > **Current status:** 53/100 breakthrough potential.
 > After completing this checklist: 55–65/100.
 >
-> **Estimated time:** 2–4 hours (all manual web submissions).
+> **Estimated time:** Historical estimate for the original manual-submission pass.
+> The external predictor portion has since been completed; remaining blockers are novelty/legal/expert review and wet-lab execution.
 
 ---
 
 ## Quick Start
 
 ```text
-1. Submit FASTA to 5 web tools           (~30 min)
-2. Record results in results CSV          (~10 min)
-3. Generate consensus report              (~1 min)
-4. APD3/DRAMP novelty BLAST               (~30 min)
-5. Invite expert reviewer                 (~1 week)
-6. Generate reviewer questionnaires       (~1 min)
-7. Lock pre-registration                  (~10 min)
-8. Order synthesis                        (vendor lead time)
+1. Review current external predictor evidence   (done historically; see current-state docs)
+2. Confirm full novelty / FTO posture           (~30-90 min depending on scope)
+3. Invite expert reviewer                       (~1 week)
+4. Lock pre-registration                        (~10 min)
+5. Order synthesis                              (vendor lead time)
 ```
 
 ---
@@ -371,8 +369,8 @@ make lint
 
 | Step | Score | Gate 6 | Gate 7 | Synthesis ready? |
 |------|:-----:|:------:|:------:|:----------------:|
-| Current | 53 | PENDING | PENDING | ❌ |
-| After Step 1 (predictors filled) | 56–58 | PASS/FAIL | PENDING | ❌ |
+| Historical baseline before external predictor completion | 53 | PENDING | PENDING | ❌ |
+| After external predictor completion | 56–58 | PASS/FAIL | PENDING | ❌ |
 | After Step 3 (expert review) | 60–65 | PASS/FAIL | PASS | ⚠️ conditional |
 | After Steps 4–6 (all gates pass) | 65–70 | PASS | PASS | ✅ |
 

@@ -29,7 +29,7 @@ correlated-failure risk. The goal is not more candidates — it is more independ
 | 2 — Scaffold Search | Defined 10 new independent families | (design parameters in `scripts/generate_wave0_5_candidates.py`) |
 | 3 — Candidate Generation | Generated 118 raw candidates | `outputs/wave0_5_raw_candidates.csv` |
 | 4 — Internal Filter | Shortlisted 60 at internal gates | `outputs/wave0_5_internal_shortlist.csv` |
-| 5 — External Predictors | Created PENDING submission templates | `outputs/wave0_5_external_predict_results.csv`, `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md` |
+| 5 — External Predictors | Planned manual submissions; later completed and summarized in current-state docs | `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md`, `docs/METRICS_CURRENT.md` |
 | 6 — Novelty Audit | Classified 60 shortlist vs 92 references | `outputs/wave0_5_novelty_audit.csv`, `docs/WAVE_0_5_NOVELTY_AUDIT.md` |
 | 7 — Panel Selection | Selected 24-candidate Wave 1 panel | `outputs/wave1_final_panel.csv`, `docs/WAVE_1_PANEL_RECOMMENDATION.md` |
 | 8 — Evidence Certificates | Generated machine-readable certs | `outputs/evidence_wave0_5/*.json` |
@@ -70,9 +70,9 @@ correlated-failure risk. The goal is not more candidates — it is more independ
 
 | Task | Status | Blocker |
 |---|---|---|
-| External predictor screen (all 60 shortlist) | PENDING | Manual web submissions to CAMPR4, AMPScanner, Macrel, AMPActiPred, HemoFinder, AntiCP |
-| Wave 0.5 Gate W0.5-3 (activity consensus) | PENDING | Requires external predictor results |
-| Wave 0.5 Gate W0.5-4 (safety annotation) | PENDING | Requires external predictor results |
+| External predictor screen (all 60 shortlist) | COMPLETE | Reflected in `docs/METRICS_CURRENT.md` and `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md` |
+| Wave 0.5 Gate W0.5-3 (activity consensus) | COMPLETE | Gate result recorded after external screen |
+| Wave 0.5 Gate W0.5-4 (safety annotation) | COMPLETE | Gate result recorded after external screen |
 | FTO (freedom-to-operate) for CLOSE_RELATIVE candidates | PENDING | Legal review |
 | Expert review of HIGH_UPSIDE_RISKY candidates | PENDING | Wet-lab collaborator |
 
@@ -107,9 +107,9 @@ activity_score >= 0.80 AND safety_score >= 0.65 → PASS_HIGH_UPSIDE
 | `outputs/wave0_5_raw_candidates.csv` | 118 raw generated candidates |
 | `outputs/wave0_5_internal_shortlist.csv` | 60 shortlisted candidates |
 | `outputs/wave0_5_internal_excluded.csv` | 58 excluded with reasons |
-| `outputs/wave0_5_external_predict_results.csv` | 60 rows, external columns PENDING |
-| `outputs/wave0_5_external_consensus.csv` | 60 rows, consensus columns PENDING |
-| `outputs/wave0_5_safety_consensus.csv` | 60 rows, safety columns PENDING |
+| `outputs/wave0_5_external_predict_results.csv` | Optional locally generated artifact from the completed external screen; not committed in every checkout |
+| `outputs/wave0_5_external_consensus.csv` | Optional locally generated artifact from the completed external screen; not committed in every checkout |
+| `outputs/wave0_5_safety_consensus.csv` | Optional locally generated artifact from the completed external screen; not committed in every checkout |
 | `outputs/wave0_5_novelty_audit.csv` | 60 rows with novelty classes |
 | `outputs/wave1_final_panel.csv` | 24 final panel candidates |
 | `outputs/wave1_reserve_panel.csv` | Reserve candidates |

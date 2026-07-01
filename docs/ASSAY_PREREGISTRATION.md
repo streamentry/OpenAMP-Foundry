@@ -28,7 +28,7 @@ non-reporting of negative results.
 | Selection algorithm | `pilot-panel` with similarity_threshold=0.75, max_per_seed=4 |
 | Selection date | [date of `make pilot` run] |
 | Selection locked at manifest | `outputs/phase3_manifest.json` |
-| Confident panel (post-external-predictor filter) | TBD after running CAMPR4 / AMPScanner / dbAMP |
+| Confident panel (post-external-predictor filter) | Historical placeholder; external predictor review later completed and summarized in `docs/METRICS_CURRENT.md` |
 
 ---
 

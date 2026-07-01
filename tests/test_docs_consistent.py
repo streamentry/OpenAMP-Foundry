@@ -163,3 +163,21 @@ class TestDocsConsistent:
             assert "Machine-readable: `outputs/wave0_5_external_predict_results.csv`" not in metrics_text
             assert "PENDING (60 rows, all PENDING)" not in summary_text
             assert "Generated only after running `make wave0-5-fill-external`" in summary_text
+
+    def test_doc_wave05_historical_docs_do_not_pose_as_live_pending_state(self):
+        """Historical Wave 0.5 docs must label superseded pending steps as historical."""
+        baseline_text = (DOCS_DIR / "WAVE_0_5_BASELINE.md").read_text(encoding="utf-8")
+        scaffold_text = (DOCS_DIR / "WAVE_0_5_SCAFFOLD_DIVERSIFICATION_PLAN.md").read_text(
+            encoding="utf-8"
+        )
+        prereg_text = (DOCS_DIR / "ASSAY_PREREGISTRATION.md").read_text(encoding="utf-8")
+        checklist_text = (DOCS_DIR / "PRE_WET_LAB_CHECKLIST.md").read_text(encoding="utf-8")
+        wave1_text = (DOCS_DIR / "WAVE_1_PANEL_RECOMMENDATION.md").read_text(encoding="utf-8")
+
+        assert "Historical note: this baseline freeze predates the completed Wave 0.5 external screen." in baseline_text
+        assert "Historical baseline state only" in baseline_text
+        assert "External predictor screen (all 60 shortlist) | COMPLETE" in scaffold_text
+        assert "Wave 0.5 Gate W0.5-3 (activity consensus) | COMPLETE" in scaffold_text
+        assert "Historical placeholder; external predictor review later completed" in prereg_text
+        assert "The external predictor portion has since been completed" in checklist_text
+        assert "External predictor review for Wave 0.5 was completed after this panel recommendation was first drafted." in wave1_text

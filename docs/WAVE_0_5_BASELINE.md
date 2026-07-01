@@ -5,7 +5,8 @@
 > Wet-lab validation by qualified collaborators is required before any biological claim.
 > Known/control candidates are not novelty claims.
 > High-risk candidates are labeled explicitly.
-> External predictor columns are PENDING — they require manual web-tool submission.
+> Historical note: this baseline freeze predates the completed Wave 0.5 external screen.
+> Current external-predictor status now lives in `docs/METRICS_CURRENT.md` and `docs/ROADMAP.md`.
 
 Generated: 2026-06-29
 
@@ -51,7 +52,7 @@ and classifies each candidate into a role that guides Wave 1 panel construction.
 |---|---|
 | LEAD | Novel scaffold with strong activity/safety balance. Priority for synthesis. |
 | HIGH_UPSIDE_RISKY | High predicted activity, but hemolysis or off-target risk flag present. |
-| PENDING | External predictor or safety data needed to finalize role. |
+| PENDING | Historical placeholder at the baseline-freeze date; superseded by later Wave 0.5 panel decisions. |
 | CONTROL | Known AMP (KWKLFKK/magainin class). Positive control for assay calibration. |
 | SAR_CONTROL | Known-variant (tachyplesin-like). SAR anchor, not a novelty lead. |
 | LOW_PRIORITY | Close relative to known AMPs. Useful but weak novelty position. |
@@ -66,16 +67,18 @@ and classifies each candidate into a role that guides Wave 1 panel construction.
 | SEED-003 | 2 | Tachyplesin-like — KNOWN_VARIANT | Retain as SAR_CONTROL |
 | SEED-005 | 1 | KWKLFKK-family close relative | CLOSE_RELATIVE, LOW_PRIORITY |
 | SEED-006 | 4 | Balanced novel helices — strongest current leads | Retain all 4 as LEAD |
-| SEED-007 | 4 | Temporin-G analogs — activity/safety mixed | PENDING: requires external predictor screen |
+| SEED-007 | 4 | Temporin-G analogs — activity/safety mixed | Historical baseline note; final Wave 1 disposition is recorded elsewhere |
 | SEED-008 | 4 | Trp-rich high-aromatic — high activity, HemoFinder risk | HIGH_UPSIDE_RISKY |
-| SEED-009 | 4 | Pro-rich intracellular-style — AntiCP off-target risk | PENDING: off-target concern |
+| SEED-009 | 4 | Pro-rich intracellular-style — AntiCP off-target risk | Historical baseline note; final Wave 1 disposition is recorded elsewhere |
 
 ---
 
 ## External Predictor Status
 
-All external predictor columns are currently PENDING.
-Manual web submission is required for:
+Historical baseline state only: at the time this file was frozen, external predictor fields had not yet been filled.
+That is no longer the current repo state. The completed Wave 0.5 external screen is summarized in `docs/METRICS_CURRENT.md`, `docs/ROADMAP.md`, and `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md`.
+
+The original manual-submission tool stack was:
 
 | Tool | URL | Notes |
 |---|---|---|
