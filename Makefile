@@ -260,6 +260,10 @@ wave0-5-panel: wave0-5-fill-external
 wave0-5-evidence:
 	PYTHONPATH=src $(PYTHON) scripts/generate_wave0_5_evidence_certs.py
 
+metrics-snapshot:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench metrics-snapshot \
+		--out outputs/metrics_snapshot.json
+
 wave0-5b-generate:
 	PYTHONPATH=src $(PYTHON) scripts/generate_wave0_5b_candidates.py
 

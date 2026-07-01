@@ -109,9 +109,9 @@ against the simple ensemble to test whether its additional complexity earns its 
 | Scorer | AUROC | CI₉₅ | Delta vs ensemble |
 |--------|:-----:|:----:|:-----------------:|
 | **Ensemble** (pipeline.yaml) | **0.7832** | 0.717–0.8423 | — |
-| Expert composite | 0.7360 | 0.6604–0.8037 | **−0.0472** |
+| Expert composite | 0.7119 | 0.6295–0.7865 | **−0.0713** |
 | **Ensemble** (phase3.yaml) | **0.7448** | 0.6741–0.8118 | — |
-| Expert composite | 0.7360 | 0.6604–0.8037 | −0.0088 |
+| Expert composite | 0.7119 | 0.6295–0.7865 | −0.0329 |
 
 **Per-component AUROC:**
 

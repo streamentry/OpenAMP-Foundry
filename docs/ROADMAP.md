@@ -141,7 +141,7 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - `run_expert_ablation_benchmark()` in `benchmark/retrospective.py` — scores all 95 AMPs + 96 decoys with both the simple ensemble and the 7-component expert composite
 - `bench expert-ablation` CLI command + `make bench-expert-ablation` target
 - Per-component AUROC attribution: identifies signal-bearing (activity 0.814, selectivity 0.773), near-zero (hinge, novelty, boman, motif), and anti-signal (safety 0.349, serum_stability 0.223, synthesis 0.423) components
-- **Key finding:** Expert composite AUROC 0.736 < ensemble AUROC 0.783 (delta −0.047). The added complexity does NOT improve AMP-vs-decoy discrimination. Three components are anti-signal because real AMPs have extreme biophysical properties that safety/stability/synthesis scorers penalise.
+- **Key finding:** Expert composite AUROC 0.7119 < ensemble AUROC 0.7832 (delta −0.0713). The added complexity does NOT improve AMP-vs-decoy discrimination. Several added components are anti-signal because real AMPs have extreme biophysical properties that safety, stability, and synthesis scorers penalise.
 - Ensemble remains primary synthesis gate. Expert composite may add value for within-AMP ranking (tested in v0.5.9 — see selectivity benchmark; expert composite detection AUROC 0.5119 vs ensemble 0.3486, but not significant at n=14 vs n=21).
 - `make bench-cluster-split` Makefile target added (was missing despite CLI command existing)
 - 14 new tests in `test_expert_ablation.py`; 1435 total tests

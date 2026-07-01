@@ -219,3 +219,24 @@ def _run_triage(args: argparse.Namespace) -> int:
     }
     print(json.dumps(summary, indent=2))
     return 0
+
+
+def _run_metrics_snapshot(args: argparse.Namespace) -> int:
+    import json
+
+    from openamp_foundry.benchmark.metrics_snapshot import build_metrics_snapshot
+    from openamp_foundry.utils.io import write_json
+
+    result = build_metrics_snapshot(
+        amp_csv=args.amp_csv,
+        decoy_csv=args.decoy_csv,
+        hemolysis_csv=args.hemolysis_csv,
+        standard_config=args.config,
+        phase3_config=args.phase3_config,
+        cluster_threshold=args.threshold,
+        n_bootstrap=args.n_bootstrap,
+    )
+    if args.out:
+        write_json(args.out, result)
+    print(json.dumps(result, indent=2))
+    return 0

@@ -1,5 +1,7 @@
 # Current Pipeline Metrics — Single Source of Truth
 
+Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `make metrics-snapshot`.
+
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
@@ -178,7 +180,7 @@ Machine-readable: `outputs/wave0_5_external_predict_results.csv`, `outputs/wave0
 |--------|:-----------------------:|:-------------------:|
 | Ensemble AUROC | 0.7832 | 0.7448 |
 | Ensemble CI₉₅ | 0.717–0.8423 | 0.6741–0.8118 |
-| Expert composite AUROC | 0.7360 | 0.7360 |
+| Expert composite AUROC | 0.7119 | 0.7119 |
 | Expert CI₉₅ | 0.6604–0.8037 | 0.6604–0.8037 |
 | **Delta (expert − ensemble)** | **−0.0472** | **−0.0088** |
 | Verdict | Expert LOWER | Within ±0.02 |
@@ -471,7 +473,7 @@ The MODERATE class (HC50 25-100, n=68) is excluded from the binary task.
 | 2026-06-29 | Wave 0.5b: 23-candidate safety-optimized shortlist (SEED-020–024, no aromatics) | OpenAMP Wave 0.5b |
 | 2026-06-29 | External predictor results filled from wave05_combined_consensus.csv; all 7 gates PASS | OpenAMP Wave 0.5 |
 | 2026-06-29 | Wave 0.5 scaffold diversification — 24-candidate Wave 1 panel across 14 families | OpenAMP Wave 0.5 |
-| 2026-07-01 | Expert ablation benchmark added: expert composite AUROC 0.736 vs ensemble 0.7832 (delta −0.0472); 3 components anti-signal; ensemble remains primary gate | OpenAMP loop |
+| 2026-07-01 | Expert ablation benchmark added: expert composite AUROC 0.7119 vs ensemble 0.7832 (delta −0.0713); anti-signal components documented; ensemble remains primary gate | OpenAMP loop |
 | 2026-07-01 | **Hemolysis benchmark expanded:** 42 -> 238 peptides using DBAASP human erythrocyte data (54 hemolytic vs 125 selective, n=179 binary). Hemolysis risk scorer detection AUROC drops 0.9218 -> 0.5650 (CI 0.47-0.66) — original performance was small-sample inflation. Direction correct, not significant. Safety scorer detection improves 0.3844 -> 0.5116 (still not significant). 196 new peptides from DBAASP v3. | OpenAMP loop |
 | 2026-07-01 | Dedicated hemolysis risk scorer: 4-component score (synth+aromatic+face+cys) achieves detection AUROC=0.9218 (CI: 0.82-0.99); integrated into expert composite (detection 0.5119→0.6429); safety scorer unchanged; 1471 tests | OpenAMP loop |
 | 2026-07-01 | Within-AMP selectivity benchmark added: safety scorer FAILS hemolysis detection (AUROC=0.3844); synthesis is only significant risk detector (AUROC=0.8027); expert composite better than ensemble but not significant (0.5119 vs 0.3486) | OpenAMP loop |

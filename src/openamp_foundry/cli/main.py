@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from openamp_foundry.cli.commands.core import _run_generate_batch
-from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage
+from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
@@ -202,6 +202,35 @@ def build_parser() -> argparse.ArgumentParser:
     triage.add_argument("--config", default="configs/pipeline.yaml")
     triage.add_argument("--n-bootstrap", type=int, default=2000)
     triage.add_argument(
+        "--out",
+        required=False,
+        help="Optional JSON output path.",
+    )
+
+    metrics_snapshot = bench_sub.add_parser(
+        "metrics-snapshot",
+        help=(
+            "Build a machine-readable snapshot of the repo's current benchmark truth. "
+            "Use this to refresh docs/METRICS_CURRENT.md evidence and catch number drift."
+        ),
+    )
+    metrics_snapshot.add_argument(
+        "--amp-csv",
+        default="examples/validation/known_amps.csv",
+    )
+    metrics_snapshot.add_argument(
+        "--decoy-csv",
+        default="examples/validation/random_background.csv",
+    )
+    metrics_snapshot.add_argument(
+        "--hemolysis-csv",
+        default="examples/validation/hemolysis_reference.csv",
+    )
+    metrics_snapshot.add_argument("--config", default="configs/pipeline.yaml")
+    metrics_snapshot.add_argument("--phase3-config", default="configs/phase3.yaml")
+    metrics_snapshot.add_argument("--threshold", type=float, default=0.70)
+    metrics_snapshot.add_argument("--n-bootstrap", type=int, default=2000)
+    metrics_snapshot.add_argument(
         "--out",
         required=False,
         help="Optional JSON output path.",
@@ -659,6 +688,8 @@ def main(argv: list[str] | None = None) -> int:
             return _run_selectivity_bench(args)
         if args.bench_command == "triage":
             return _run_triage(args)
+        if args.bench_command == "metrics-snapshot":
+            return _run_metrics_snapshot(args)
         return _run_bench(args)
 
     if args.command == "generate-batch":
@@ -712,5 +743,4 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
 

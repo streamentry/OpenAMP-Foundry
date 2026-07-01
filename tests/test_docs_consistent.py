@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import json
 from pathlib import Path
 
 
@@ -17,6 +18,7 @@ CURRENT_N_NEGATIVES = 96
 CURRENT_N_TOTAL = 191
 EXPANDED_PR_REF = "PR #110"
 ORIGINAL_DEMO_AUROC = "0.8420"
+SNAPSHOT_PATH = REPO_ROOT / "outputs" / "metrics_snapshot.json"
 
 # Patterns that indicate stale "current" usage (not historical context)
 _STALE_CURRENT_PATTERNS: list[str] = [
@@ -90,6 +92,16 @@ class TestDocsConsistent:
         assert str(CURRENT_N_TOTAL) in text, (
             f"METRICS_CURRENT.md missing n={CURRENT_N_TOTAL}"
         )
+
+    def test_doc_metrics_snapshot_matches_authoritative_values(self):
+        """Machine-readable metrics snapshot must agree with docs' current truth."""
+        assert SNAPSHOT_PATH.exists(), "outputs/metrics_snapshot.json not found"
+        payload = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
+        assert payload["standard"]["auroc"] == float(CURRENT_AUROC)
+        assert payload["phase3"]["auroc"] == float(CURRENT_PHASE3_AUROC)
+        assert payload["standard"]["n_positives"] == CURRENT_N_POSITIVES
+        assert payload["standard"]["n_negatives"] == CURRENT_N_NEGATIVES
+        assert payload["standard"]["n_total"] == CURRENT_N_TOTAL
 
     def test_doc_no_breaking_news_terminology(self):
         """'breaking news' must be replaced with 'high-impact scenario' in all docs."""
