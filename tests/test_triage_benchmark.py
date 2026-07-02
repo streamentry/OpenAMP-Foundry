@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pytest
 
-from openamp_foundry.benchmark.triage import run_triage_benchmark
+from openamp_foundry.benchmark.triage import run_strict_triage_benchmark, run_triage_benchmark
 
 
 HEMOLYSIS_CSV = "examples/validation/hemolysis_reference.csv"
@@ -191,3 +191,134 @@ class TestTriageBenchmarkFindings:
             f"triage_score top-20 selective={tri_sel} should be >= "
             f"ensemble top-20 selective={ens_sel}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Strict triage benchmark: composition-matched decoys
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="class")
+def strict_result():
+    """Run the strict triage benchmark once for all tests in this class."""
+    hemo = Path(HEMOLYSIS_CSV)
+    if not hemo.exists():
+        pytest.skip("Hemolysis benchmark data not found — run from project root")
+    return run_strict_triage_benchmark(hemo, n_bootstrap=200)
+
+
+class TestStrictTriageBenchmarkStructure:
+    """Verify the strict triage benchmark returns well-formed results."""
+
+    def test_returns_required_keys(self, strict_result):
+        for key in ["benchmark", "decoy_type", "n_selective", "n_hemolytic",
+                     "n_decoy", "n_total", "per_scorer", "best_scorer",
+                     "top_20_by_ensemble", "top_20_by_triage_score",
+                     "top_20_by_expert_composite",
+                     "known_blind_spots", "disclaimer"]:
+            assert key in strict_result, f"Missing key: {key}"
+
+    def test_benchmark_name(self, strict_result):
+        assert strict_result["benchmark"] == "strict_multi_class_triage"
+
+    def test_decoy_type(self, strict_result):
+        assert strict_result["decoy_type"] == "composition_matched_scrambled"
+
+    def test_class_counts_positive(self, strict_result):
+        assert strict_result["n_selective"] > 0
+        assert strict_result["n_hemolytic"] > 0
+        assert strict_result["n_decoy"] > 0
+        assert strict_result["n_total"] == (
+            strict_result["n_selective"]
+            + strict_result["n_hemolytic"]
+            + strict_result["n_decoy"]
+        )
+
+    def test_decoy_count_equals_selective_count(self, strict_result):
+        """Each selective AMP generates exactly one scrambled decoy."""
+        assert strict_result["n_decoy"] == strict_result["n_selective"]
+
+
+class TestStrictTriageBenchmarkFindings:
+    """Test the key honest findings from the strict triage benchmark."""
+
+    def test_no_scorer_triages_correctly(self, strict_result):
+        """With composition-matched decoys, no scorer should triage correctly.
+
+        This is the central honest finding: the standard triage benchmark
+        appears to show that selectivity_proxy and expert_composite triage
+        correctly, but this is an illusion created by trivially distinguishable
+        random decoys. When decoys have the same composition as selective AMPs,
+        the apparent triage signal vanishes.
+        """
+        triaging = [
+            s for s, info in strict_result["per_scorer"].items()
+            if info["triages_correctly"]
+        ]
+        assert len(triaging) == 0, (
+            f"Scorers that triage correctly with composition-matched decoys: {triaging}. "
+            "Expected none — if any scorer now triages correctly, the pipeline "
+            "has genuine order-dependent triage signal and this test should be updated."
+        )
+
+    def test_selectivity_proxy_collapses_on_selective_vs_decoy(self, strict_result):
+        """The selectivity_proxy should be ~0.5 on selective vs scrambled decoys.
+
+        This confirms it is purely composition-driven: charge and GRAVY are
+        identical between a sequence and its scrambled version.
+        """
+        sel_vs_dec = strict_result["per_scorer"]["selectivity_proxy"]["selective_vs_decoy"]["auroc"]
+        assert abs(sel_vs_dec - 0.5) < 0.02, (
+            f"selectivity_proxy selective_vs_decoy={sel_vs_dec:.4f}: "
+            "expected ~0.5 (composition-matched decoy has identical charge/GRAVY). "
+            "If this has changed, selectivity_proxy may have order-dependent signal."
+        )
+
+    def test_ensemble_drops_on_selective_vs_decoy(self, strict_result):
+        """The ensemble should drop dramatically vs standard triage on selective_vs_decoy.
+
+        Standard triage: ensemble sel_vs_decoy ~0.85 (trivially distinguishes AMPs
+        from random protein sequences).
+        Strict triage: ensemble sel_vs_decoy should be near 0.5 because most
+        ensemble signal is composition-based.
+        """
+        ens_sel_vs_dec = strict_result["per_scorer"]["ensemble"]["selective_vs_decoy"]["auroc"]
+        assert ens_sel_vs_dec < 0.65, (
+            f"ensemble selective_vs_decoy={ens_sel_vs_dec:.4f}: "
+            "expected < 0.65 (composition-matched decoys remove most signal). "
+            "If this has improved, the ensemble has order-dependent signal."
+        )
+
+    def test_selective_vs_hemolytic_unchanged(self, strict_result, result):
+        """The selective_vs_hemolytic AUROC should be identical between standard and strict.
+
+        Both selective and hemolytic are real AMP sequences in both benchmarks.
+        Only the decoy class changes, so this pairwise comparison should be stable.
+        """
+        std_sv = result["per_scorer"]["ensemble"]["selective_vs_hemolytic"]["auroc"]
+        strict_sv = strict_result["per_scorer"]["ensemble"]["selective_vs_hemolytic"]["auroc"]
+        assert abs(std_sv - strict_sv) < 0.001, (
+            f"standard sel_vs_hemo={std_sv:.4f} vs strict={strict_sv:.4f}: "
+            "expected identical (same AMP sequences, only decoy class changes)."
+        )
+
+    def test_ensemble_admits_decoys_into_top_20(self, strict_result):
+        """The ensemble should admit scrambled decoys into top-20.
+
+        In standard triage, ensemble admits 0 decoys into top-20 because
+        random background peptides are compositionally unlike AMPs. With
+        composition-matched decoys, the ensemble cannot distinguish real AMPs
+        from scrambled versions, so decoys leak into top-k.
+        """
+        n_decoys = strict_result["top_20_by_ensemble"]["DECOY"]
+        assert n_decoys > 0, (
+            "Ensemble should admit composition-matched decoys into top-20. "
+            "If 0, the ensemble has strong order-dependent signal."
+        )
+
+    def test_disclaimer_present(self, strict_result):
+        assert "composition-matched" in strict_result["disclaimer"].lower()
+        assert "wet-lab" in strict_result["disclaimer"].lower()
+
+    def test_known_blind_spots_documented(self, strict_result):
+        assert len(strict_result["known_blind_spots"]) >= 3

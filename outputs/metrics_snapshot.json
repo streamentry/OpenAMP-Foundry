@@ -90,6 +90,90 @@
     "recall_at_20": 0.2105,
     "recall_at_43": 0.4211
   },
+  "strict_triage": {
+    "best_scorer": "triage_score",
+    "decoy_type": "composition_matched_scrambled",
+    "n_decoy": 125,
+    "n_hemolytic": 45,
+    "n_selective": 125,
+    "per_scorer": {
+      "activity": {
+        "hemolytic_vs_decoy": 0.6974,
+        "selective_vs_decoy": 0.6167,
+        "selective_vs_hemolytic": 0.43,
+        "triages_correctly": false
+      },
+      "ensemble": {
+        "hemolytic_vs_decoy": 0.6156,
+        "selective_vs_decoy": 0.5716,
+        "selective_vs_hemolytic": 0.4661,
+        "triages_correctly": false
+      },
+      "expert_composite": {
+        "hemolytic_vs_decoy": 0.4755,
+        "selective_vs_decoy": 0.5102,
+        "selective_vs_hemolytic": 0.5449,
+        "triages_correctly": false
+      },
+      "hemolysis_risk": {
+        "hemolytic_vs_decoy": 0.6199,
+        "selective_vs_decoy": 0.6173,
+        "selective_vs_hemolytic": 0.4876,
+        "triages_correctly": false
+      },
+      "safe_weighted_ensemble": {
+        "hemolytic_vs_decoy": 0.6857,
+        "selective_vs_decoy": 0.6405,
+        "selective_vs_hemolytic": 0.483,
+        "triages_correctly": false
+      },
+      "safety": {
+        "hemolytic_vs_decoy": 0.348,
+        "selective_vs_decoy": 0.3882,
+        "selective_vs_hemolytic": 0.5384,
+        "triages_correctly": false
+      },
+      "selectivity_proxy": {
+        "hemolytic_vs_decoy": 0.3905,
+        "selective_vs_decoy": 0.5,
+        "selective_vs_hemolytic": 0.6095,
+        "triages_correctly": false
+      },
+      "serum_stability": {
+        "hemolytic_vs_decoy": 0.4281,
+        "selective_vs_decoy": 0.4908,
+        "selective_vs_hemolytic": 0.5686,
+        "triages_correctly": false
+      },
+      "synthesis": {
+        "hemolytic_vs_decoy": 0.6096,
+        "selective_vs_decoy": 0.5672,
+        "selective_vs_hemolytic": 0.4692,
+        "triages_correctly": false
+      },
+      "triage_score": {
+        "hemolytic_vs_decoy": 0.7346,
+        "selective_vs_decoy": 0.6737,
+        "selective_vs_hemolytic": 0.4622,
+        "triages_correctly": false
+      }
+    },
+    "top_20_by_ensemble": {
+      "DECOY": 7,
+      "HEMOLYTIC": 5,
+      "SELECTIVE": 8
+    },
+    "top_20_by_expert_composite": {
+      "DECOY": 7,
+      "HEMOLYTIC": 0,
+      "SELECTIVE": 13
+    },
+    "top_20_by_triage_score": {
+      "DECOY": 2,
+      "HEMOLYTIC": 4,
+      "SELECTIVE": 14
+    }
+  },
   "triage": {
     "best_scorer": "selectivity_proxy",
     "per_scorer": {

@@ -242,6 +242,40 @@ Expert ranking is a safety-aware alternative, not a validated safety guarantee o
 a replacement for activity-gated ensemble selection. Wet-lab hemolysis assay remains
 mandatory.
 
+## v0.5.14 — Strict Triage Benchmark: Composition-Matched Decoys ✓ (2026-07-02)
+
+The standard triage benchmark (v0.5.12) uses random background peptides as
+decoys. These are trivially distinguishable from AMPs because their amino acid
+composition is protein-like, not AMP-like. This inflates selective_vs_decoy and
+hemolytic_vs_decoy AUROCs, making scorers appear to triage well when they are
+really only solving the easy "AMP vs random" problem.
+
+The strict triage benchmark replaces random decoys with **composition-matched
+scrambled versions** of the selective AMPs — same amino acids, permuted order.
+This destroys amphipathic helical phase, hydrophobic moment, and charge
+distribution patterns while preserving all composition-based features.
+
+Changes:
+- `benchmark/triage.py`: `run_strict_triage_benchmark()` — generates scrambled
+  decoys, runs the same 10-scorer pairwise triage comparison
+- `benchmark/metrics_snapshot.py`: strict_triage section added to snapshot
+- `tests/test_triage_benchmark.py`: 12 new tests for strict triage (structure
+  + findings)
+- `outputs/metrics_snapshot.json`: regenerated with strict triage results
+- `docs/METRICS_CURRENT.md`: strict triage results table and interpretation
+
+Key honest finding: **No scorer triages correctly with composition-matched
+decoys.** The standard triage "success" of selectivity_proxy and
+expert_composite was an artifact of trivially distinguishable decoys.
+selectivity_proxy collapses to exactly 0.5000 on selective_vs_decoy (confirming
+it is purely composition-driven), and the ensemble drops from 0.848 to 0.572.
+
+The selective_vs_hemolytic AUROC is identical between standard and strict
+(expected: both classes are real AMPs, only the decoy class changes). This
+confirms the real bottleneck — selective-vs-hemolytic discrimination — is
+unchanged and requires structural or contextual features beyond current 1D
+physicochemical scorers.
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);
@@ -255,7 +289,7 @@ mandatory.
 
 - ~~write the first explicit simulator scope document: what OpenAMP will model and what it will not;~~
 - ~~add membrane/selectivity/stability proxy interfaces with uncertainty fields;~~
-- ~~benchmark candidate triage against a reference panel that includes selective AMPs, hemolytic positives, inactive peptides, and random controls;~~ (v0.5.12: triage benchmark added — ensemble fails, selectivity_proxy only correct triager)
+- ~~benchmark candidate triage against a reference panel that includes selective AMPs, hemolytic positives, inactive peptides, and random controls;~~ (v0.5.12: standard triage added — selectivity_proxy and expert_composite pass; v0.5.14: strict triage with composition-matched decoys added — **no scorer passes**, standard triage success was inflated by trivially distinguishable random decoys)
 - require every proxy module to justify itself against cheap heuristic baselines before it affects selection.
 
 ## v2.x — Wet-lab compression engine

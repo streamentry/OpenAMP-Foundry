@@ -10,7 +10,7 @@ from openamp_foundry.benchmark.retrospective import (
     run_retrospective_benchmark,
     run_selectivity_benchmark,
 )
-from openamp_foundry.benchmark.triage import run_triage_benchmark
+from openamp_foundry.benchmark.triage import run_strict_triage_benchmark, run_triage_benchmark
 
 
 def build_metrics_snapshot(
@@ -59,6 +59,10 @@ def build_metrics_snapshot(
         hemolysis_csv=hemolysis_csv,
         decoy_csv=decoy_csv,
         config_path=standard_config,
+        n_bootstrap=n_bootstrap,
+    )
+    strict_triage = run_strict_triage_benchmark(
+        hemolysis_csv=hemolysis_csv,
         n_bootstrap=n_bootstrap,
     )
 
@@ -149,6 +153,25 @@ def build_metrics_snapshot(
                     "triages_correctly": info["triages_correctly"],
                 }
                 for scorer, info in triage["per_scorer"].items()
+            },
+        },
+        "strict_triage": {
+            "decoy_type": strict_triage["decoy_type"],
+            "n_selective": strict_triage["n_selective"],
+            "n_hemolytic": strict_triage["n_hemolytic"],
+            "n_decoy": strict_triage["n_decoy"],
+            "best_scorer": strict_triage["best_scorer"],
+            "top_20_by_ensemble": strict_triage["top_20_by_ensemble"],
+            "top_20_by_triage_score": strict_triage["top_20_by_triage_score"],
+            "top_20_by_expert_composite": strict_triage["top_20_by_expert_composite"],
+            "per_scorer": {
+                scorer: {
+                    "selective_vs_decoy": info["selective_vs_decoy"]["auroc"],
+                    "hemolytic_vs_decoy": info["hemolytic_vs_decoy"]["auroc"],
+                    "selective_vs_hemolytic": info["selective_vs_hemolytic"]["auroc"],
+                    "triages_correctly": info["triages_correctly"],
+                }
+                for scorer, info in strict_triage["per_scorer"].items()
             },
         },
     }

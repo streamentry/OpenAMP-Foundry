@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-01 (triage benchmark added)
+> **Last updated:** 2026-07-02 (strict triage benchmark added)
 > **Pipeline version:** v0.5.x
 > **Branch:** main
 
@@ -452,11 +452,61 @@ top-20. A successful virtual assay must avoid both failures.
 inter-assay variability. The binary thresholds (25 / 100 µg/mL) are coarse.
 The MODERATE class (HC50 25-100, n=68) is excluded from the binary task.
 
+### Strict Triage: Composition-Matched Decoys (v0.5.14 — added 2026-07-02)
+
+> The standard triage benchmark uses random background peptides as decoys.
+> These are trivially distinguishable from AMPs because their composition is
+> protein-like, not AMP-like. This inflates selective_vs_decoy and
+> hemolytic_vs_decoy AUROCs, making scorers appear to triage well.
+>
+> The strict triage benchmark replaces random decoys with **composition-matched
+> scrambled versions** of the selective AMPs — same amino acids, permuted order.
+> This destroys amphipathic helical phase, hydrophobic moment, and charge
+> distribution patterns while preserving all composition-based features.
+
+**Key finding: standard triage success was partly an illusion.**
+
+| Scorer | Std sel_vs_dec | Strict sel_vs_dec | Std sel_vs_hemo | Strict sel_vs_hemo | Std correct | Strict correct |
+|-------|-----------------|-------------------|------------------|---------------------|--------------|----------------|
+| ensemble | 0.848 | **0.572** | 0.466 | 0.466 | NO | NO |
+| activity | 0.885 | **0.617** | 0.430 | 0.430 | NO | NO |
+| selectivity_proxy | 0.782 | **0.500** | 0.610 | 0.610 | YES | **NO** |
+| expert_composite | 0.757 | **0.510** | 0.545 | 0.545 | YES | **NO** |
+| triage_score | 0.863 | **0.674** | 0.462 | 0.462 | NO | NO |
+| hemolysis_risk | 0.485 | 0.617 | 0.488 | 0.488 | NO | NO |
+
+**What this reveals:**
+
+1. **selectivity_proxy collapses to exactly 0.5000** on selective_vs_decoy —
+   confirming it is purely composition-driven (charge and GRAVY are identical
+   between a sequence and its scrambled version).
+
+2. **The ensemble drops from 0.848 to 0.572** — most of its apparent triage
+   power was composition-based, not order-based.
+
+3. **No scorer triages correctly** with composition-matched decoys. The standard
+   triage "success" of selectivity_proxy and expert_composite was an artifact
+   of trivially distinguishable decoys.
+
+4. **selective_vs_hemolytic is stable** across both benchmarks (identical AUROCs)
+   — as expected, since both classes are real AMP sequences and only the decoy
+   class changes.
+
+5. **The ensemble admits 7 scrambled decoys into top-20** (vs 0 with random
+   decoys) — it cannot distinguish real AMPs from scrambled versions of themselves.
+
+**Implication:** The pipeline's triage signal is almost entirely composition-driven.
+The real bottleneck is selective-vs-hemolytic discrimination, which requires
+structural or contextual features beyond what current 1D physicochemical scorers
+can capture. Any future virtual assay layer must demonstrate order-dependent
+triage signal on this strict benchmark before claiming to improve candidate
+selection.
+
 ## Test Suite
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1471+ |
+| Total tests | 1515+ |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 
@@ -489,4 +539,5 @@ The MODERATE class (HC50 25-100, n=68) is excluded from the binary task.
 | 2026-07-01 | Dedicated hemolysis risk scorer: 4-component score (synth+aromatic+face+cys) achieves detection AUROC=0.9218 (CI: 0.82-0.99); integrated into expert composite (detection 0.5119→0.6429); safety scorer unchanged; 1471 tests | OpenAMP loop |
 | 2026-07-01 | Within-AMP selectivity benchmark added: safety scorer FAILS hemolysis detection (AUROC=0.3844); synthesis is only significant risk detector (AUROC=0.8027); expert composite better than ensemble but not significant (0.5119 vs 0.3486) | OpenAMP loop |
 | 2026-07-01 | Expert composite ranking integration: `score_candidates()` now computes `expert_composite` and `hemolysis_risk`; `--ranking-mode expert` CLI flag; expert-ranked top-5 have lower mean hemolysis_risk than ensemble | OpenAMP loop |
+| 2026-07-02 | **Strict triage benchmark added:** composition-matched scrambled decoys replace random background. No scorer triages correctly — standard triage "success" of selectivity_proxy (0.782 sel_vs_dec) and expert_composite (0.757) was inflated by trivially distinguishable decoys. selectivity_proxy collapses to 0.500 (purely composition-driven), ensemble drops to 0.572. Real bottleneck (selective_vs_hemolytic) unchanged. | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |
