@@ -18,6 +18,9 @@ def test_metrics_snapshot_matches_current_benchmark_truth(tmp_path):
     assert snapshot["expert_ablation"]["expert_auroc"] == 0.7119
     assert snapshot["selectivity"]["n_hemolytic"] == 54
     assert snapshot["triage"]["best_scorer"] == "selectivity_proxy"
+    assert "expert_composite" in snapshot["triage"]["per_scorer"]
+    assert snapshot["triage"]["per_scorer"]["expert_composite"]["triages_correctly"] is True
+    assert snapshot["triage"]["top_20_by_expert_composite"]["DECOY"] > 0
 
     out = tmp_path / "metrics_snapshot.json"
     out.write_text(json.dumps(snapshot, indent=2, sort_keys=True), encoding="utf-8")

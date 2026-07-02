@@ -44,6 +44,7 @@ class TestTriageBenchmarkStructure:
         for key in ["benchmark", "n_selective", "n_hemolytic", "n_decoy",
                      "n_total", "per_scorer", "best_scorer",
                      "top_20_by_ensemble", "top_20_by_triage_score",
+                     "top_20_by_expert_composite",
                      "known_blind_spots", "disclaimer"]:
             assert key in result, f"Missing key: {key}"
 
@@ -60,7 +61,7 @@ class TestTriageBenchmarkStructure:
         expected = {
             "ensemble", "activity", "safety", "synthesis",
             "selectivity_proxy", "hemolysis_risk", "serum_stability",
-            "triage_score", "safe_weighted_ensemble",
+            "expert_composite", "triage_score", "safe_weighted_ensemble",
         }
         assert expected.issubset(set(result["per_scorer"].keys()))
 
@@ -163,6 +164,18 @@ class TestTriageBenchmarkFindings:
         """The triage_score top-20 should also contain no decoys."""
         assert result["top_20_by_triage_score"]["DECOY"] == 0, (
             "Triage score top-20 should contain no decoys"
+        )
+
+    def test_expert_composite_is_benchmarked_before_selection_authority(self, result):
+        """The selectable expert ranking mode must face the mixed-panel benchmark."""
+        expert = result["per_scorer"]["expert_composite"]
+        assert "selective_vs_decoy" in expert
+        assert "hemolytic_vs_decoy" in expert
+        assert "selective_vs_hemolytic" in expert
+        assert expert["triages_correctly"] is True
+        assert result["top_20_by_expert_composite"]["DECOY"] > 0, (
+            "Expert composite passes pairwise triage but admits decoys into top-k; "
+            "do not treat it as a replacement for the ensemble activity gate."
         )
 
     def test_top_20_by_triage_has_more_selective_than_ensemble(self, result):

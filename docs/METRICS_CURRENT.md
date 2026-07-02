@@ -390,8 +390,8 @@ hemolysis mechanism is not fully captured by 1D features.
 >
 > Run: `make bench-triage`
 
-**Dataset:** 125 selective AMPs (HC50 >= 100 µg/mL) + 45 hemolytic AMPs (HC50 < 25 µg/mL)
-+ 96 random background decoys = 266 total.
+**Dataset:** 125 selective AMPs (HC50 >= 100 µg/mL) + 54 hemolytic AMPs (HC50 < 25 µg/mL)
++ 96 random background decoys = 275 total.
 
 ### Per-scorer pairwise AUROCs
 
@@ -405,6 +405,7 @@ A scorer that triages correctly should have all three AUROCs > 0.5:
 | ensemble | 0.848 | 0.891 | 0.466 | **NO** (anti-selective) |
 | activity | 0.885 | 0.934 | 0.430 | NO |
 | selectivity_proxy | 0.782 | 0.795 | 0.610 | **YES** |
+| expert_composite | 0.757 | 0.746 | 0.545 | **YES** |
 | triage_score (activity × (1 - hemo_risk)) | 0.863 | 0.902 | 0.462 | NO |
 | safe_weighted_ensemble | 0.849 | 0.890 | 0.483 | NO |
 | safety | 0.344 | 0.300 | 0.538 | NO |
@@ -419,9 +420,10 @@ A scorer that triages correctly should have all three AUROCs > 0.5:
    bias documented in the selectivity benchmark, now confirmed in the combined
    triage context.
 
-2. **Only selectivity_proxy triages correctly** (all three AUROCs > 0.5). It
-   sacrifices some decoy discrimination (0.782 vs ensemble's 0.848) but is the
-   only scorer that prefers selective AMPs over hemolytic ones.
+2. **selectivity_proxy and expert_composite triage correctly by pairwise AUROC**
+   (all three AUROCs > 0.5). selectivity_proxy remains the best scorer because it
+   has stronger selective-vs-hemolytic separation (0.610 vs expert_composite 0.545)
+   while keeping slightly better selective-vs-decoy discrimination (0.782 vs 0.757).
 
 3. **The naive triage_score (activity × (1 - hemolysis_risk)) does NOT fix the
    anti-selective bias** (sel_vs_hem = 0.462). This is because hemolysis_risk
@@ -433,11 +435,18 @@ A scorer that triages correctly should have all three AUROCs > 0.5:
    The shift is in the right direction but modest — the hemolysis_risk penalty
    is weak.
 
+5. **Expert-composite top-k failure:** The expert_composite removes hemolytic
+   AMPs from its top-20 (15 selective / 0 hemolytic), but admits 5 random decoys.
+   That is a useful negative result: expert ranking is not a replacement for the
+   ensemble activity gate, even when its pairwise AUROCs clear 0.5.
+
 **Implication for the virtual assay layer:** Any future virtual assay module
 must beat this triage benchmark baseline. The minimum bar is: triage correctly
-(all three AUROCs > 0.5) while maintaining ensemble-level decoy discrimination
-(sel_vs_decoy > 0.80). The selectivity_proxy achieves correct triage but at
-the cost of decoy discrimination. A successful virtual assay must achieve both.
+(all three AUROCs > 0.5), keep decoys out of the top-k selection surface, and
+maintain near-ensemble decoy discrimination (sel_vs_decoy > 0.80). The
+selectivity_proxy achieves correct triage but loses decoy-discrimination margin.
+The expert_composite achieves correct pairwise triage but admits decoys into its
+top-20. A successful virtual assay must avoid both failures.
 
 **Honest limitation:** The benchmark uses literature HC50 values with high
 inter-assay variability. The binary thresholds (25 / 100 µg/mL) are coarse.

@@ -189,7 +189,7 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 
 - **Multi-class triage benchmark** (`benchmark/triage.py`): tests whether the
   pipeline can rank selective AMPs > hemolytic AMPs > random decoys in a single
-  combined panel (125 selective + 45 hemolytic + 96 decoys = 266 total).
+  combined panel (125 selective + 54 hemolytic + 96 decoys = 275 total).
 - Addresses the v1.1 ROADMAP item: "benchmark candidate triage against a
   reference panel that includes selective AMPs, hemolytic positives, inactive
   peptides, and random controls."
@@ -198,8 +198,12 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
   anti-selective bias. Hemolytic AMPs have stronger amphipathic helices, higher
   hydrophobic moment, and higher charge — exactly the features the activity
   scorer rewards.
-- **Key finding:** Only `selectivity_proxy` triages correctly (all three pairwise
-  AUROCs > 0.5), but at the cost of decoy discrimination (0.782 vs ensemble 0.848).
+- **Key finding:** `selectivity_proxy` triages best (all three pairwise AUROCs > 0.5),
+  but at the cost of decoy discrimination (0.782 vs ensemble 0.848).
+- **Key finding:** `expert_composite` now faces the same mixed-panel benchmark:
+  it clears the pairwise triage rule (sel>decoy 0.757, hem>decoy 0.746,
+  sel>hem 0.545), but its top-20 includes 5 decoys. It must not replace the
+  ensemble activity gate.
 - **Key finding:** The naive `triage_score` (activity × (1 - hemolysis_risk))
   does NOT fix the anti-selective bias because hemolysis_risk is too weak
   (detection AUROC 0.565, not significant on expanded benchmark).
@@ -226,14 +230,17 @@ Changes:
 Why this matters:
 The triage benchmark (v0.5.12) showed the ensemble has an anti-selective bias
 (sel_vs_hem AUROC=0.466). The expert composite incorporates selectivity_proxy,
-hemolysis risk, helix-hinge analysis, and motif novelty — partially correcting
-this bias. Expert-ranked top-5 candidates have lower mean hemolysis_risk than
-ensemble-ranked top-5 on the mixed benchmark set (verified by test).
+hemolysis risk, helix-hinge analysis, and motif novelty. It partially improves
+selective-vs-hemolytic ordering (triage benchmark: 0.545 vs ensemble 0.466), but
+it also weakens top-k decoy exclusion (top-20 includes 5 decoys vs 0 for ensemble).
+Expert-ranked top-5 candidates have lower mean hemolysis_risk than ensemble-ranked
+top-5 on the mixed benchmark set (verified by test).
 
 Honest limitation: The expert composite's hemolysis components are not statistically
 significant detectors on the expanded n=179 benchmark (AUROC=0.565, CI 0.47-0.66).
-Expert ranking is a safety-aware alternative, not a validated safety guarantee.
-Wet-lab hemolysis assay remains mandatory.
+Expert ranking is a safety-aware alternative, not a validated safety guarantee or
+a replacement for activity-gated ensemble selection. Wet-lab hemolysis assay remains
+mandatory.
 
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 

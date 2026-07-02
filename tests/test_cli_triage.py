@@ -31,5 +31,6 @@ def test_bench_triage_cli(tmp_path, capsys):
     assert data["n_hemolytic"] > 0
     assert data["n_decoy"] > 0
     assert "ensemble" in data["per_scorer"]
+    assert "expert_composite" in data["per_scorer"]
     assert "triage_score" in data["per_scorer"]
     assert "selective_vs_hemolytic" in data["per_scorer"]["ensemble"]

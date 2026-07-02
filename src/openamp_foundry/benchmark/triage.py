@@ -42,6 +42,7 @@ from openamp_foundry.features.physchem import compute_features
 from openamp_foundry.scoring.activity import activity_likeness_score
 from openamp_foundry.scoring.boman import boman_activity_score, model_disagreement
 from openamp_foundry.scoring.ensemble import ensemble_score
+from openamp_foundry.scoring.expert import expert_score
 from openamp_foundry.scoring.hemolysis import hemolysis_risk_score
 from openamp_foundry.scoring.novelty import novelty_score
 from openamp_foundry.scoring.safety import safety_score
@@ -101,6 +102,7 @@ def _score_all(rows: list[dict[str, Any]], weights: dict[str, float]) -> list[di
         stability = serum_stability_score(features)
         sel_proxy = float(features.get("selectivity_proxy", 0.0))
         hemo_risk = hemolysis_risk_score(features)
+        exp = expert_score(seq, features=features)
         raw = {
             "activity": act, "safety": safe,
             "synthesis": synth, "novelty": nov,
@@ -130,6 +132,7 @@ def _score_all(rows: list[dict[str, Any]], weights: dict[str, float]) -> list[di
             "serum_stability": round(stability, 4),
             "selectivity_proxy": round(sel_proxy, 4),
             "hemolysis_risk": round(hemo_risk, 4),
+            "expert_composite": exp.composite,
             "triage_score": triage_score,
             "safe_weighted_ensemble": round(safe_weighted_ens, 4),
         })
@@ -192,7 +195,7 @@ def run_triage_benchmark(
     scorers = [
         "ensemble", "activity", "safety", "synthesis",
         "selectivity_proxy", "hemolysis_risk", "serum_stability",
-        "triage_score", "safe_weighted_ensemble",
+        "expert_composite", "triage_score", "safe_weighted_ensemble",
     ]
 
     per_scorer = {}
@@ -267,6 +270,14 @@ def run_triage_benchmark(
         "DECOY": top_20_triage_classes.count("DECOY"),
     }
 
+    by_expert = sorted(all_scored, key=lambda x: x["expert_composite"], reverse=True)
+    top_20_expert_classes = [r["triage_class"] for r in by_expert[:20]]
+    top_20_expert_dist = {
+        "SELECTIVE": top_20_expert_classes.count("SELECTIVE"),
+        "HEMOLYTIC": top_20_expert_classes.count("HEMOLYTIC"),
+        "DECOY": top_20_expert_classes.count("DECOY"),
+    }
+
     return {
         "benchmark": "multi_class_triage",
         "n_selective": len(selective_scored),
@@ -277,6 +288,7 @@ def run_triage_benchmark(
         "best_scorer": best_scorer,
         "top_20_by_ensemble": top_20_dist,
         "top_20_by_triage_score": top_20_triage_dist,
+        "top_20_by_expert_composite": top_20_expert_dist,
         "known_blind_spots": [
             "The ensemble ranks hemolytic AMPs above selective AMPs "
             "(anti-selective bias) because hemolytic AMPs have stronger "
@@ -289,6 +301,9 @@ def run_triage_benchmark(
             "The triage_score (activity * (1 - hemolysis_risk)) is a simple "
             "composite that may not outperform the ensemble on selective_vs_decoy "
             "because hemolysis_risk is not a significant detector.",
+            "The expert_composite is now included in this benchmark because it is "
+            "available as a ranking mode. It must earn selection authority on the "
+            "same mixed-panel task as simpler scorers.",
         ],
         "disclaimer": (
             "These are computational benchmark results on literature-curated "

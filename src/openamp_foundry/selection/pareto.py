@@ -13,9 +13,9 @@ def rank_candidates(
         candidates: List of ScoredCandidate objects.
         ranking_mode: "ensemble" (default) or "expert". The expert mode
             ranks by the expert composite score, which incorporates
-            selectivity, hemolysis risk, and helix-hinge analysis —
-            partially correcting the ensemble's anti-selective bias
-            (triage benchmark: ensemble ranks hemolytic > selective).
+            selectivity, hemolysis risk, and helix-hinge analysis. It is a
+            safety-aware alternative ranking, not a validated safety predictor;
+            benchmark evidence must be checked before giving it selection authority.
 
     Returns:
         Candidates sorted by the chosen score, highest first.
