@@ -276,6 +276,33 @@ confirms the real bottleneck — selective-vs-hemolytic discrimination — is
 unchanged and requires structural or contextual features beyond current 1D
 physicochemical scorers.
 
+## v0.5.15 — Feature Decomposition Benchmark ✓ (2026-07-03)
+
+The strict triage benchmark (v0.5.14) proved no composite scorer passes
+selective_vs_hemolytic discrimination (AUROC 0.43-0.54). But it did not explain
+*why* — only that the aggregate fails. This benchmark decomposes the failure
+into per-feature contributions: which individual physicochemical features have
+statistically significant signal for distinguishing hemolytic from selective AMPs?
+
+Changes:
+- `benchmark/feature_decomp.py`: `run_feature_decomposition_benchmark()` — tests
+  all 30 scalar features from `compute_features()` individually for selective_vs_hemolytic
+  AUROC with bootstrap CIs, direction, significance, and selectivity-proxy usage flags
+- `benchmark/metrics_snapshot.py`: feature_decomposition section added to snapshot
+- `cli/commands/benchmark.py`: `bench feature-decomp` CLI command
+- `Makefile`: `bench-feature-decomp` target
+- `tests/test_feature_decomp.py`: 20 tests covering structure, findings, and snapshot integration
+- `outputs/metrics_snapshot.json`: regenerated with feature decomposition results
+- `docs/METRICS_CURRENT.md`: feature decomposition results table and interpretation
+
+Key honest finding: **The selectivity proxy ignores the strongest discriminative
+features.** `hydrophobic_fraction` (AUROC 0.6745, CI 0.58-0.77) is the single best
+feature for selective_vs_hemolytic discrimination, yet the proxy uses only charge
+and GRAVY. 8 of 30 features have significant signal; 6 of those 8 are NOT used
+by the current selectivity model. This converts the v0.5.14 aggregate failure
+into actionable diagnostic information: the next loop knows exactly which feature
+axes to combine into a richer selectivity scorer.
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);

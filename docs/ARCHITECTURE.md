@@ -40,7 +40,7 @@ The purpose of the added layers is not simulation theater. It is to improve whic
 | `openamp_foundry.selection` | ranking (ensemble or expert composite) and diversity selection |
 | `openamp_foundry.evidence` | JSON certificate generation and validation |
 | `openamp_foundry.reports` | human-readable and machine-readable batch, calibration, and wet-lab review reports |
-| `openamp_foundry.benchmark` | leakage checks, cluster-split benchmark, expert ablation benchmark, within-AMP selectivity benchmark, triage benchmark, and evaluation scaffolding |
+| `openamp_foundry.benchmark` | leakage checks, cluster-split benchmark, expert ablation benchmark, within-AMP selectivity benchmark, triage benchmark, per-feature selectivity decomposition, and evaluation scaffolding |
 | `openamp_foundry.generators` | safe, bounded toy candidate generation |
 | `openamp_foundry.simulation` | membrane/selectivity/stability proxy modeling (scaffolded) |
 

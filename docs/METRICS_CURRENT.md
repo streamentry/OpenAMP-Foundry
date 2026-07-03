@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-02 (strict triage benchmark added)
+> **Last updated:** 2026-07-03 (feature decomposition benchmark added)
 > **Pipeline version:** v0.5.x
 > **Branch:** main
 
@@ -502,6 +502,61 @@ can capture. Any future virtual assay layer must demonstrate order-dependent
 triage signal on this strict benchmark before claiming to improve candidate
 selection.
 
+## Feature Decomposition: Per-Feature Selective vs Hemolytic (v0.5.15 — added 2026-07-03)
+
+> The strict triage benchmark (v0.5.14) proved that NO composite scorer passes
+> selective_vs_hemolytic discrimination (AUROC 0.43-0.54). But it did not explain
+> *why*. This benchmark tests every scalar physicochemical feature individually
+> for selective_vs_hemolytic AUROC, with bootstrap confidence intervals.
+
+**Key finding: the selectivity proxy ignores the strongest discriminative features.**
+
+The selectivity proxy uses only `net_charge_ph74` and `gravy`. The top feature,
+`hydrophobic_fraction` (AUROC 0.6745, CI 0.58-0.77), is NOT used by the proxy.
+Six of eight significant features are not used by the current selectivity model.
+
+| Feature | Detection AUROC | CI 95% | Direction | Used by proxy? |
+|---------|-----------------|--------|-----------|----------------|
+| hydrophobic_fraction | **0.6745** | 0.58-0.77 | risk | **NO** |
+| helix_propensity | **0.6489** | 0.54-0.75 | risk | **NO** |
+| net_charge_proxy | **0.6394** | 0.54-0.73 | risk | **NO** |
+| net_charge_ph74 | **0.6332** | 0.54-0.73 | risk | YES |
+| selectivity_proxy | **0.6095** | 0.52-0.70 | protective | YES |
+| interior_trypsin_sites | **0.6089** | 0.51-0.70 | risk | **NO** |
+| longest_repeat_run | **0.5946** | 0.52-0.68 | risk | **NO** |
+| length | **0.5785** | 0.51-0.66 | risk | **NO** |
+
+**What this reveals:**
+
+1. **`hydrophobic_fraction` is the strongest single discriminative feature**
+   (AUROC 0.6745), yet the selectivity proxy does not use it. The proxy relies
+   on charge and overall hydrophobicity (GRAVY), but the *fraction* of
+   hydrophobic residues carries more signal.
+
+2. **All significant risk indicators point in the expected direction**
+   (higher = more hemolytic). The features the pipeline already tracks (charge,
+   hydrophobicity, helix propensity) have real signal for hemolysis, but the
+   composite scorers cancel it out.
+
+3. **The selectivity proxy itself has weak but significant signal** (0.6095)
+   as a protective indicator. It is doing the right thing but is underpowered
+   because it ignores the strongest axes.
+
+4. **22 of 30 features tested have NO significant signal** for selective vs
+   hemolytic discrimination. This confirms the strict triage finding: 1D
+   physicochemical descriptors alone cannot solve this task well.
+
+**Implication for next steps:**
+
+A richer selectivity scorer combining `hydrophobic_fraction`, `helix_propensity`,
+`net_charge`, and `interior_trypsin_sites` in a learned or hand-tuned model
+could plausibly improve selective_vs_hemolytic AUROC above the current 0.55
+ceiling. However, the best single feature (0.6745) is still modest, and
+the CI is wide. 3D structural modelling or sequence-pattern features may
+ultimately be needed for clinically meaningful discrimination.
+
+Run: `make bench-feature-decomp` or `python -m openamp_foundry.cli bench feature-decomp`
+
 ## Test Suite
 
 | Metric | Value |
@@ -540,4 +595,5 @@ selection.
 | 2026-07-01 | Within-AMP selectivity benchmark added: safety scorer FAILS hemolysis detection (AUROC=0.3844); synthesis is only significant risk detector (AUROC=0.8027); expert composite better than ensemble but not significant (0.5119 vs 0.3486) | OpenAMP loop |
 | 2026-07-01 | Expert composite ranking integration: `score_candidates()` now computes `expert_composite` and `hemolysis_risk`; `--ranking-mode expert` CLI flag; expert-ranked top-5 have lower mean hemolysis_risk than ensemble | OpenAMP loop |
 | 2026-07-02 | **Strict triage benchmark added:** composition-matched scrambled decoys replace random background. No scorer triages correctly — standard triage "success" of selectivity_proxy (0.782 sel_vs_dec) and expert_composite (0.757) was inflated by trivially distinguishable decoys. selectivity_proxy collapses to 0.500 (purely composition-driven), ensemble drops to 0.572. Real bottleneck (selective_vs_hemolytic) unchanged. | OpenAMP loop |
+| 2026-07-03 | **Feature decomposition benchmark added:** per-feature selective_vs_hemolytic AUROC for all 30 scalar physicochemical features. hydrophobic_fraction is the strongest single discriminative feature (0.6745, CI 0.58-0.77) but is NOT used by the selectivity proxy. 8/30 features have significant signal; 6 of those are unused. Provides actionable diagnostic for why composite scorers fail selective_vs_hemolytic discrimination. | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |

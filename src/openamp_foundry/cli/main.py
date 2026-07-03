@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from openamp_foundry.cli.commands.core import _run_generate_batch
-from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot
+from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot, _run_feature_decomp
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
@@ -202,6 +202,26 @@ def build_parser() -> argparse.ArgumentParser:
     triage.add_argument("--config", default="configs/pipeline.yaml")
     triage.add_argument("--n-bootstrap", type=int, default=2000)
     triage.add_argument(
+        "--out",
+        required=False,
+        help="Optional JSON output path.",
+    )
+
+    feature_decomp = bench_sub.add_parser(
+        "feature-decomp",
+        help=(
+            "Per-feature selective_vs_hemolytic decomposition: tests every "
+            "physicochemical feature individually for hemolysis discrimination. "
+            "Identifies which features carry signal the composite scorers miss."
+        ),
+    )
+    feature_decomp.add_argument(
+        "--hemolysis-csv",
+        default="examples/validation/hemolysis_reference.csv",
+        help="Hemolysis reference CSV (id,sequence,family,hc50_ugml,hemolysis_class,reference).",
+    )
+    feature_decomp.add_argument("--n-bootstrap", type=int, default=2000)
+    feature_decomp.add_argument(
         "--out",
         required=False,
         help="Optional JSON output path.",
@@ -711,6 +731,8 @@ def main(argv: list[str] | None = None) -> int:
             return _run_selectivity_bench(args)
         if args.bench_command == "triage":
             return _run_triage(args)
+        if args.bench_command == "feature-decomp":
+            return _run_feature_decomp(args)
         if args.bench_command == "metrics-snapshot":
             return _run_metrics_snapshot(args)
         return _run_bench(args)

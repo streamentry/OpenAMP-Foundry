@@ -10,6 +10,9 @@ from openamp_foundry.benchmark.retrospective import (
     run_retrospective_benchmark,
     run_selectivity_benchmark,
 )
+from openamp_foundry.benchmark.feature_decomp import (
+    run_feature_decomposition_benchmark,
+)
 from openamp_foundry.benchmark.triage import run_strict_triage_benchmark, run_triage_benchmark
 
 
@@ -62,6 +65,10 @@ def build_metrics_snapshot(
         n_bootstrap=n_bootstrap,
     )
     strict_triage = run_strict_triage_benchmark(
+        hemolysis_csv=hemolysis_csv,
+        n_bootstrap=n_bootstrap,
+    )
+    feature_decomp = run_feature_decomposition_benchmark(
         hemolysis_csv=hemolysis_csv,
         n_bootstrap=n_bootstrap,
     )
@@ -173,5 +180,17 @@ def build_metrics_snapshot(
                 }
                 for scorer, info in strict_triage["per_scorer"].items()
             },
+        },
+        "feature_decomposition": {
+            "n_hemolytic": feature_decomp["n_hemolytic"],
+            "n_selective": feature_decomp["n_selective"],
+            "n_features_tested": feature_decomp["n_features_tested"],
+            "n_significant": feature_decomp["n_significant"],
+            "best_feature": feature_decomp["best_feature"],
+            "best_detection_auroc": feature_decomp["best_detection_auroc"],
+            "significant_features": feature_decomp["significant_features"],
+            "unused_signal_features": feature_decomp["unused_signal_features"],
+            "per_feature": feature_decomp["per_feature"],
+            "verdict": feature_decomp["verdict"],
         },
     }

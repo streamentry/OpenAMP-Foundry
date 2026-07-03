@@ -240,3 +240,34 @@ def _run_metrics_snapshot(args: argparse.Namespace) -> int:
         write_json(args.out, result)
     print(json.dumps(result, indent=2))
     return 0
+
+
+def _run_feature_decomp(args: argparse.Namespace) -> int:
+    """Run per-feature selective_vs_hemolytic decomposition benchmark."""
+    from openamp_foundry.benchmark.feature_decomp import (
+        run_feature_decomposition_benchmark,
+    )
+    from openamp_foundry.utils.io import write_json
+
+    result = run_feature_decomposition_benchmark(
+        hemolysis_csv=args.hemolysis_csv,
+        n_bootstrap=args.n_bootstrap,
+    )
+    if args.out:
+        write_json(args.out, result)
+
+    summary = {
+        "benchmark": result["benchmark"],
+        "n_hemolytic": result["n_hemolytic"],
+        "n_selective": result["n_selective"],
+        "n_features_tested": result["n_features_tested"],
+        "n_significant": result["n_significant"],
+        "best_feature": result["best_feature"],
+        "best_detection_auroc": result["best_detection_auroc"],
+        "significant_features": result["significant_features"],
+        "unused_signal_features": result["unused_signal_features"],
+        "verdict": result["verdict"],
+        "out": args.out,
+    }
+    print(json.dumps(summary, indent=2))
+    return 0

@@ -51,6 +51,417 @@
     ],
     "verdict": "Expert composite (0.7119) scores LOWER than ensemble (0.7832) by -0.0713 AUROC. The added components degrade discrimination on this benchmark. The expert composite should NOT replace the ensemble for AMP/non-AMP triage without further evidence."
   },
+  "feature_decomposition": {
+    "best_detection_auroc": 0.6745,
+    "best_feature": "hydrophobic_fraction",
+    "n_features_tested": 30,
+    "n_hemolytic": 45,
+    "n_selective": 125,
+    "n_significant": 8,
+    "per_feature": {
+      "aggregation_propensity": {
+        "ci_hi": 0.6096,
+        "ci_lo": 0.445,
+        "detection_auroc": 0.5251,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5251,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "aromatic_fraction": {
+        "ci_hi": 0.6007,
+        "ci_lo": 0.4179,
+        "detection_auroc": 0.507,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.507,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "boman_index": {
+        "ci_hi": 0.6443,
+        "ci_lo": 0.4525,
+        "detection_auroc": 0.5485,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.4515,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "charge_density": {
+        "ci_hi": 0.6692,
+        "ci_lo": 0.4831,
+        "detection_auroc": 0.5776,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5776,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "charge_density_ph74": {
+        "ci_hi": 0.6787,
+        "ci_lo": 0.4967,
+        "detection_auroc": 0.589,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.589,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "chymotrypsin_site_density": {
+        "ci_hi": 0.614,
+        "ci_lo": 0.4284,
+        "detection_auroc": 0.5185,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5185,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "cysteine_fraction": {
+        "ci_hi": 0.5678,
+        "ci_lo": 0.4315,
+        "detection_auroc": 0.5002,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.4998,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "elastase_site_density": {
+        "ci_hi": 0.6848,
+        "ci_lo": 0.4799,
+        "detection_auroc": 0.5839,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5839,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "glycine_fraction": {
+        "ci_hi": 0.6866,
+        "ci_lo": 0.498,
+        "detection_auroc": 0.5924,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.4076,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "gravy": {
+        "ci_hi": 0.6825,
+        "ci_lo": 0.4974,
+        "detection_auroc": 0.5882,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5882,
+        "significant": false,
+        "used_by_selectivity_proxy": true
+      },
+      "helix_propensity": {
+        "ci_hi": 0.7461,
+        "ci_lo": 0.5439,
+        "detection_auroc": 0.6489,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.6489,
+        "significant": true,
+        "used_by_selectivity_proxy": false
+      },
+      "helix_wheel_amphipathic_score": {
+        "ci_hi": 0.6493,
+        "ci_lo": 0.4695,
+        "detection_auroc": 0.5573,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.4427,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "helix_wheel_face_contrast": {
+        "ci_hi": 0.6484,
+        "ci_lo": 0.4692,
+        "detection_auroc": 0.5564,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.4436,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "helix_wheel_h_face_cationic_fraction": {
+        "ci_hi": 0.6277,
+        "ci_lo": 0.4497,
+        "detection_auroc": 0.5408,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5408,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "helix_wheel_hydrophilic_face_mean_h": {
+        "ci_hi": 0.6417,
+        "ci_lo": 0.4558,
+        "detection_auroc": 0.5476,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5476,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "helix_wheel_hydrophobic_face_mean_h": {
+        "ci_hi": 0.6122,
+        "ci_lo": 0.4393,
+        "detection_auroc": 0.5277,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.4723,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "helix_wheel_ph_face_cationic_fraction": {
+        "ci_hi": 0.6356,
+        "ci_lo": 0.4417,
+        "detection_auroc": 0.5379,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5379,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "hydrophobic_fraction": {
+        "ci_hi": 0.77,
+        "ci_lo": 0.5777,
+        "detection_auroc": 0.6745,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.6745,
+        "significant": true,
+        "used_by_selectivity_proxy": false
+      },
+      "hydrophobic_moment": {
+        "ci_hi": 0.606,
+        "ci_lo": 0.4231,
+        "detection_auroc": 0.5152,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5152,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "interior_chymotrypsin_sites": {
+        "ci_hi": 0.6299,
+        "ci_lo": 0.4519,
+        "detection_auroc": 0.5372,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5372,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "interior_elastase_sites": {
+        "ci_hi": 0.6709,
+        "ci_lo": 0.481,
+        "detection_auroc": 0.5796,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5796,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "interior_trypsin_sites": {
+        "ci_hi": 0.7016,
+        "ci_lo": 0.5115,
+        "detection_auroc": 0.6089,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.6089,
+        "significant": true,
+        "used_by_selectivity_proxy": false
+      },
+      "length": {
+        "ci_hi": 0.6769,
+        "ci_lo": 0.5011,
+        "detection_auroc": 0.59,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.59,
+        "significant": true,
+        "used_by_selectivity_proxy": false
+      },
+      "longest_repeat_run": {
+        "ci_hi": 0.6712,
+        "ci_lo": 0.5203,
+        "detection_auroc": 0.5946,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5946,
+        "significant": true,
+        "used_by_selectivity_proxy": false
+      },
+      "max_hydrophobic_moment": {
+        "ci_hi": 0.6066,
+        "ci_lo": 0.4078,
+        "detection_auroc": 0.5054,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.4946,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "net_charge_ph74": {
+        "ci_hi": 0.7288,
+        "ci_lo": 0.5323,
+        "detection_auroc": 0.6332,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.6332,
+        "significant": true,
+        "used_by_selectivity_proxy": true
+      },
+      "net_charge_proxy": {
+        "ci_hi": 0.7319,
+        "ci_lo": 0.5413,
+        "detection_auroc": 0.6394,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.6394,
+        "significant": true,
+        "used_by_selectivity_proxy": false
+      },
+      "proline_fraction": {
+        "ci_hi": 0.5797,
+        "ci_lo": 0.4264,
+        "detection_auroc": 0.5071,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.4929,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      },
+      "selectivity_proxy": {
+        "ci_hi": 0.6969,
+        "ci_lo": 0.5282,
+        "detection_auroc": 0.6095,
+        "direction": "protective_indicator",
+        "raw_auroc": 0.3905,
+        "significant": true,
+        "used_by_selectivity_proxy": true
+      },
+      "trypsin_site_density": {
+        "ci_hi": 0.662,
+        "ci_lo": 0.4694,
+        "detection_auroc": 0.5668,
+        "direction": "risk_indicator",
+        "raw_auroc": 0.5668,
+        "significant": false,
+        "used_by_selectivity_proxy": false
+      }
+    },
+    "significant_features": [
+      {
+        "ci": [
+          0.5777,
+          0.77
+        ],
+        "detection_auroc": 0.6745,
+        "direction": "risk_indicator",
+        "feature": "hydrophobic_fraction"
+      },
+      {
+        "ci": [
+          0.5439,
+          0.7461
+        ],
+        "detection_auroc": 0.6489,
+        "direction": "risk_indicator",
+        "feature": "helix_propensity"
+      },
+      {
+        "ci": [
+          0.5413,
+          0.7319
+        ],
+        "detection_auroc": 0.6394,
+        "direction": "risk_indicator",
+        "feature": "net_charge_proxy"
+      },
+      {
+        "ci": [
+          0.5323,
+          0.7288
+        ],
+        "detection_auroc": 0.6332,
+        "direction": "risk_indicator",
+        "feature": "net_charge_ph74"
+      },
+      {
+        "ci": [
+          0.5282,
+          0.6969
+        ],
+        "detection_auroc": 0.6095,
+        "direction": "protective_indicator",
+        "feature": "selectivity_proxy"
+      },
+      {
+        "ci": [
+          0.5115,
+          0.7016
+        ],
+        "detection_auroc": 0.6089,
+        "direction": "risk_indicator",
+        "feature": "interior_trypsin_sites"
+      },
+      {
+        "ci": [
+          0.5203,
+          0.6712
+        ],
+        "detection_auroc": 0.5946,
+        "direction": "risk_indicator",
+        "feature": "longest_repeat_run"
+      },
+      {
+        "ci": [
+          0.5011,
+          0.6769
+        ],
+        "detection_auroc": 0.59,
+        "direction": "risk_indicator",
+        "feature": "length"
+      }
+    ],
+    "unused_signal_features": [
+      {
+        "ci": [
+          0.5777,
+          0.77
+        ],
+        "detection_auroc": 0.6745,
+        "direction": "risk_indicator",
+        "feature": "hydrophobic_fraction"
+      },
+      {
+        "ci": [
+          0.5439,
+          0.7461
+        ],
+        "detection_auroc": 0.6489,
+        "direction": "risk_indicator",
+        "feature": "helix_propensity"
+      },
+      {
+        "ci": [
+          0.5413,
+          0.7319
+        ],
+        "detection_auroc": 0.6394,
+        "direction": "risk_indicator",
+        "feature": "net_charge_proxy"
+      },
+      {
+        "ci": [
+          0.5115,
+          0.7016
+        ],
+        "detection_auroc": 0.6089,
+        "direction": "risk_indicator",
+        "feature": "interior_trypsin_sites"
+      },
+      {
+        "ci": [
+          0.5203,
+          0.6712
+        ],
+        "detection_auroc": 0.5946,
+        "direction": "risk_indicator",
+        "feature": "longest_repeat_run"
+      },
+      {
+        "ci": [
+          0.5011,
+          0.6769
+        ],
+        "detection_auroc": 0.59,
+        "direction": "risk_indicator",
+        "feature": "length"
+      }
+    ],
+    "verdict": "8 features have significant selective_vs_hemolytic signal (best: hydrophobic_fraction at 0.6745). The selectivity proxy uses only 3 of these (net_charge_ph74, gravy, selectivity_proxy). 6 significant feature(s) are NOT used. A richer selectivity scorer combining these axes could outperform the current proxy."
+  },
   "phase3": {
     "auprc": 0.7933,
     "auroc": 0.7448,

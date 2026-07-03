@@ -205,3 +205,23 @@ class TestDocsConsistent:
         assert "web submissions pending" not in roadmap_text
         assert "Wave 0.5 complete; generic future-panel Gate 6 remains panel-specific" in roadmap_text
         assert "CAMPR4 was excluded" in expert_text
+
+
+class TestFeatureDecompositionDocsConsistent:
+    """Guard against drift between feature decomposition docs and reality."""
+
+    def test_metrics_current_has_feature_decomposition_section(self):
+        text = (DOCS_DIR / "METRICS_CURRENT.md").read_text(encoding="utf-8")
+        assert "Feature Decomposition" in text
+        assert "hydrophobic_fraction" in text
+        assert "0.6745" in text
+
+    def test_roadmap_has_v0515_entry(self):
+        text = (DOCS_DIR / "ROADMAP.md").read_text(encoding="utf-8")
+        assert "v0.5.15" in text
+        assert "Feature Decomposition Benchmark" in text
+        assert "feature_decomp.py" in text
+
+    def test_metrics_current_last_updated_is_2026_07_03(self):
+        text = (DOCS_DIR / "METRICS_CURRENT.md").read_text(encoding="utf-8")
+        assert "2026-07-03" in text
