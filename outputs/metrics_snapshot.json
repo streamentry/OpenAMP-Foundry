@@ -33,12 +33,12 @@
     "anti_signal_components": [
       "synthesis",
       "safety",
-      "hemolysis_safety",
-      "serum_stability"
+      "serum_stability",
+      "rich_selectivity"
     ],
-    "delta_auroc": -0.0713,
+    "delta_auroc": -0.0735,
     "ensemble_auroc": 0.7832,
-    "expert_auroc": 0.7119,
+    "expert_auroc": 0.7097,
     "near_zero_components": [
       "hinge_selectivity",
       "novelty",
@@ -49,7 +49,7 @@
       "activity",
       "selectivity_proxy"
     ],
-    "verdict": "Expert composite (0.7119) scores LOWER than ensemble (0.7832) by -0.0713 AUROC. The added components degrade discrimination on this benchmark. The expert composite should NOT replace the ensemble for AMP/non-AMP triage without further evidence."
+    "verdict": "Expert composite (0.7097) scores LOWER than ensemble (0.7832) by -0.0735 AUROC. The added components degrade discrimination on this benchmark. The expert composite should NOT replace the ensemble for AMP/non-AMP triage without further evidence."
   },
   "feature_decomposition": {
     "best_detection_auroc": 0.6745,
@@ -472,7 +472,7 @@
   },
   "schema_version": 1,
   "selectivity": {
-    "expert_composite_verdict": "Expert composite detects hemolysis risk better than ensemble (detection AUROC 0.5459 vs 0.4201). The added selectivity/safety components earn their keep on within-AMP ranking.",
+    "expert_composite_verdict": "Expert composite detects hemolysis risk better than ensemble (detection AUROC 0.5419 vs 0.4201). The added selectivity/safety components earn their keep on within-AMP ranking.",
     "n_border": 59,
     "n_hemolytic": 54,
     "n_selective": 125,
@@ -511,15 +511,15 @@
         "mean_selective": 0.8395
       },
       "expert_composite": {
-        "auroc": 0.4541,
-        "ci95_hi": 0.5438,
-        "ci95_lo": 0.3695,
-        "detection_ci95_hi": 0.6305,
-        "detection_ci95_lo": 0.4562,
+        "auroc": 0.4581,
+        "ci95_hi": 0.5479,
+        "ci95_lo": 0.3677,
+        "detection_ci95_hi": 0.6323,
+        "detection_ci95_lo": 0.4521,
         "direction": "higher_is_safe",
-        "hemolysis_detection_auroc": 0.5459,
-        "mean_hemolytic": 0.7646,
-        "mean_selective": 0.7704
+        "hemolysis_detection_auroc": 0.5419,
+        "mean_hemolytic": 0.7424,
+        "mean_selective": 0.7494
       },
       "hemolysis_risk": {
         "auroc": 0.565,
@@ -657,9 +657,9 @@
         "triages_correctly": false
       },
       "expert_composite": {
-        "hemolytic_vs_decoy": 0.4755,
-        "selective_vs_decoy": 0.5102,
-        "selective_vs_hemolytic": 0.5449,
+        "hemolytic_vs_decoy": 0.4246,
+        "selective_vs_decoy": 0.4915,
+        "selective_vs_hemolytic": 0.5745,
         "triages_correctly": false
       },
       "hemolysis_risk": {
@@ -717,9 +717,9 @@
       "SELECTIVE": 8
     },
     "top_20_by_expert_composite": {
-      "DECOY": 7,
+      "DECOY": 9,
       "HEMOLYTIC": 0,
-      "SELECTIVE": 13
+      "SELECTIVE": 11
     },
     "top_20_by_triage_score": {
       "DECOY": 2,
@@ -743,9 +743,9 @@
         "triages_correctly": false
       },
       "expert_composite": {
-        "hemolytic_vs_decoy": 0.7461,
-        "selective_vs_decoy": 0.7567,
-        "selective_vs_hemolytic": 0.5449,
+        "hemolytic_vs_decoy": 0.697,
+        "selective_vs_decoy": 0.7358,
+        "selective_vs_hemolytic": 0.5745,
         "triages_correctly": true
       },
       "hemolysis_risk": {

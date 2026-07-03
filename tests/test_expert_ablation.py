@@ -26,7 +26,7 @@ DECOY_CSV = "examples/validation/random_background.csv"
 EXPECTED_COMPONENTS = [
     "activity", "safety", "synthesis", "novelty",
     "boman_activity", "serum_stability", "selectivity_proxy",
-    "hinge_selectivity", "motif_novelty", "hemolysis_safety",
+    "hinge_selectivity", "motif_novelty", "rich_selectivity",
 ]
 
 

@@ -15,7 +15,7 @@ def test_metrics_snapshot_matches_current_benchmark_truth(tmp_path):
     assert snapshot["standard"]["auroc"] == 0.7832
     assert snapshot["phase3"]["auroc"] == 0.7448
     assert snapshot["cluster_split"]["full_auroc"] == 0.7832
-    assert snapshot["expert_ablation"]["expert_auroc"] == 0.7119
+    assert snapshot["expert_ablation"]["expert_auroc"] == 0.7097
     assert snapshot["selectivity"]["n_hemolytic"] == 54
     assert snapshot["triage"]["best_scorer"] == "selectivity_proxy"
     assert "expert_composite" in snapshot["triage"]["per_scorer"]

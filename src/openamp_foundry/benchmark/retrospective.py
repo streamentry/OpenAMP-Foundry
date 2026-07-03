@@ -645,7 +645,7 @@ def run_expert_ablation_benchmark(
                     "selectivity_proxy": features.get("selectivity_proxy", 1.0),
                     "hinge_selectivity": exp.components["hinge_selectivity"],
                     "motif_novelty": exp.components["motif_novelty"],
-                    "hemolysis_safety": exp.components["hemolysis_safety"],
+                    "rich_selectivity": exp.components["rich_selectivity"],
                 })
 
     pos = [r for r in rows if r["label"] == 1]
@@ -673,7 +673,7 @@ def run_expert_ablation_benchmark(
     component_cols = [
         "activity", "safety", "synthesis", "novelty",
         "boman_activity", "serum_stability", "selectivity_proxy",
-        "hinge_selectivity", "motif_novelty", "hemolysis_safety",
+        "hinge_selectivity", "motif_novelty", "rich_selectivity",
     ]
     per_component = {}
     for col in component_cols:

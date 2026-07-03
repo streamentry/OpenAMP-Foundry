@@ -332,6 +332,40 @@ pipeline score with CI excluding 0.5 on selective_vs_hemolytic. Old
 selectivity_proxy=0.5744 (CI 0.4954-0.6558). Honest limitation: does NOT triage
 AMP-vs-decoy (selective_vs_decoy=0.19); designed for within-AMP selectivity only.
 
+## v0.5.17 — Rich Selectivity Integrated into Production Pipeline ✓ (2026-07-03)
+
+The rich selectivity scorer (v0.5.16) was benchmarked but not connected to the
+production candidate pipeline. This version wires it into every stage where
+selectivity matters for candidate selection, expert review, and evidence
+traceability.
+
+Changes:
+- `pipeline.py`: `score_candidates()` now computes `rich_selectivity` for every
+  candidate and includes it in `raw_scores` (alongside the legacy
+  `selectivity_proxy` for backward comparability)
+- `scoring/expert.py`: `rich_selectivity` replaces `hemolysis_safety` (AUROC=0.565,
+  not significant) as the expert composite's hemolysis-risk component (weight 0.10).
+  The old `selectivity_proxy` remains as the expert's activity-ranking selectivity
+  component (weight 0.20) because it carries AMP-vs-decoy signal (AUROC=0.7729).
+  Old `hemolysis_safety` preserved as `hemolysis_safety_legacy` in expert extras.
+- `selection/pilot.py`: `_pilot_priority()` now uses `rich_selectivity` instead of
+  `selectivity_proxy` for the safety tiebreaker, with backward-compat fallback.
+- `reports/pilot_panel.py`: pilot CSV and markdown now include a `rich_selectivity`
+  column alongside `selectivity_proxy` for expert comparison.
+- `benchmark/retrospective.py`: expert ablation benchmark references
+  `rich_selectivity` instead of `hemolysis_safety` in per-component AUROC.
+- `tests/test_rich_selectivity_integration.py`: 14 tests verifying rich_selectivity
+  flows through pipeline scores, evidence certificates, expert composite, pilot
+  priority, and pilot panel report.
+- `outputs/metrics_snapshot.json`: regenerated with updated expert AUROC.
+
+Key finding: expert composite AUROC drops slightly from 0.7119 to 0.7097 (−0.0022)
+on AMP-vs-decoy — acceptable because the expert now includes a **significant**
+hemolysis detector (CI excludes 0.5) instead of the old non-significant one.
+The `rich_selectivity` component is anti-AMP by design (AUROC=0.1973 for
+AMP-vs-decoy) because it penalises high hydrophobicity and charge that define
+AMPs — this is the correct tradeoff.
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);

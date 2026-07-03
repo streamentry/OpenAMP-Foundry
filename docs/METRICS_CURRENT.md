@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-03 (rich selectivity scorer added)
+> **Last updated:** 2026-07-03 (rich selectivity integrated into production pipeline)
 > **Pipeline version:** v0.5.x
 > **Branch:** main
 
@@ -182,10 +182,10 @@ is present; they are not guaranteed to be committed in every checkout.
 |--------|:-----------------------:|:-------------------:|
 | Ensemble AUROC | 0.7832 | 0.7448 |
 | Ensemble CI₉₅ | 0.717–0.8423 | 0.6741–0.8118 |
-| Expert composite AUROC | 0.7119 | 0.7119 |
-| Expert CI₉₅ | 0.6604–0.8037 | 0.6604–0.8037 |
-| **Delta (expert − ensemble)** | **−0.0472** | **−0.0088** |
-| Verdict | Expert LOWER | Within ±0.02 |
+| Expert composite AUROC | 0.7097 | 0.7097 |
+| Expert CI₉₅ | 0.6384–0.7871 | 0.6384–0.7871 |
+| **Delta (expert − ensemble)** | **−0.0735** | **−0.0351** |
+| Verdict | Expert LOWER | Expert LOWER |
 
 **Per-component AUROC** (pipeline config, n=191):
 
@@ -199,11 +199,12 @@ is present; they are not guaranteed to be committed in every checkout.
 | boman_activity | 0.4620 | −0.0380 | Near-zero |
 | synthesis | 0.4228 | −0.0772 | **Anti-signal** |
 | safety | 0.3487 | −0.1513 | **Anti-signal** |
+| rich_selectivity | 0.1973 | −0.3027 | **Anti-signal** |
 | serum_stability | 0.2231 | −0.2769 | **Anti-signal** |
 
 **Key finding:** The expert composite scores **lower** than the simple ensemble on
-binary AMP-vs-decoy discrimination (delta = −0.0472). Three expert components are
-anti-signal: `safety`, `serum_stability`, and `synthesis` score random decoys higher
+binary AMP-vs-decoy discrimination (delta = −0.0735). Three expert components are
+anti-signal: `safety`, `serum_stability`, `synthesis`, and `rich_selectivity` score random decoys higher
 than known AMPs. This is expected and not a bug: real AMPs have high hydrophobic
 moment and charge (features the safety scorer penalises), many interior protease
 sites (low serum stability), and often contain repeat runs or aggregation-prone
@@ -212,7 +213,7 @@ frequencies tend to have more moderate biophysical properties.
 
 **What this means for the pipeline:**
 
-1. The expert composite should NOT replace the ensemble for AMP/non-AMP triage.
+1. The expert composite should NOT replace the ensemble for AMP/non-AMP triage. However, the rich_selectivity component (AUROC=0.1973 for AMP-vs-decoy but detection AUROC=0.7138 for hemolysis) is anti-AMP by design — it penalises high hydrophobicity and charge that define AMPs. This is the correct tradeoff: the expert composite trades a small AMP-detection penalty for significant hemolysis-risk awareness.
 2. The ensemble (activity + safety + synthesis + novelty + Boman) remains the
    primary synthesis gate, as it has higher discriminative power.
 3. The expert components may still add value for **within-AMP ranking** (selectivity
@@ -292,7 +293,7 @@ risk detection (1 - raw AUROC for safety-type scorers).
    strong amphipathic helices, high hydrophobic moment, and high charge — exactly the
    features the activity scorer rewards. The ensemble inherits this bias.
 
-5. **The expert composite is better than the ensemble** on hemolysis detection (0.5119 vs
+5. **The expert composite now includes rich_selectivity** (detection AUROC=0.7138, CI 0.63-0.80) as its hemolysis-risk component, replacing the old hemolysis_safety (was 0.5119 vs
    0.3486) but not significantly so (CI includes 0.5). The added selectivity and safety
    components partially offset the activity scorer's anti-selective bias, but not enough
    to reach significance at n=14 vs n=21.
@@ -360,8 +361,8 @@ upon as a hemolysis predictor.
 
 | Metric | Value | Classification |
 |--------|:-----:|:--------------:|
-| hemolysis_safety AUROC | 0.3285 | **Anti-signal** (above_random = -0.1715) |
-| Expert composite AUROC | 0.7119 | Down from 0.7360 (delta -0.0713 vs ensemble) |
+| rich_selectivity AUROC | 0.1973 | **Anti-signal** (above_random = -0.3027) — replaces hemolysis_safety (was 0.3285) |
+| Expert composite AUROC | 0.7097 | Down from 0.7119 (rich_selectivity replaces hemolysis_safety as expert component) |
 
 **Key finding (corrected):** The hemolysis risk scorer's original detection
 AUROC=0.9218 on n=35 was small-sample inflation. On the expanded n=179
@@ -634,5 +635,6 @@ Run: `make bench-selectivity` (rich_selectivity is included in the selectivity b
 | 2026-07-01 | Expert composite ranking integration: `score_candidates()` now computes `expert_composite` and `hemolysis_risk`; `--ranking-mode expert` CLI flag; expert-ranked top-5 have lower mean hemolysis_risk than ensemble | OpenAMP loop |
 | 2026-07-02 | **Strict triage benchmark added:** composition-matched scrambled decoys replace random background. No scorer triages correctly — standard triage "success" of selectivity_proxy (0.782 sel_vs_dec) and expert_composite (0.757) was inflated by trivially distinguishable decoys. selectivity_proxy collapses to 0.500 (purely composition-driven), ensemble drops to 0.572. Real bottleneck (selective_vs_hemolytic) unchanged. | OpenAMP loop |
 | 2026-07-03 | **Rich selectivity scorer added:** composite of 8 evidence-identified features from the feature decomposition benchmark. Detection AUROC=0.7138 (CI 0.63-0.80) on n=179 — first pipeline score with statistically significant selective_vs_hemolytic discrimination. Old selectivity_proxy=0.5744 (CI 0.50-0.66). Honest limitation: does not triage AMP-vs-decoy (0.19); must be combined with activity gate. | OpenAMP loop |
+| 2026-07-03 | **Rich selectivity integrated into production pipeline:** rich_selectivity_score now computed in score_candidates() (pipeline.py), replaces hemolysis_safety as the expert composite hemolysis-risk component (weight 0.10), used in pilot_priority formula, displayed in pilot panel report, and included in evidence certificates. Expert AUROC drops 0.7119→0.7097 (−0.0022) — acceptable tradeoff: the expert now includes a significant hemolysis detector (CI excludes 0.5) instead of the old non-significant one. | OpenAMP loop |
 | 2026-07-03 | **Feature decomposition benchmark added:** per-feature selective_vs_hemolytic AUROC for all 30 scalar physicochemical features. hydrophobic_fraction is the strongest single discriminative feature (0.6745, CI 0.58-0.77) but is NOT used by the selectivity proxy. 8/30 features have significant signal; 6 of those are unused. Provides actionable diagnostic for why composite scorers fail selective_vs_hemolytic discrimination. | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |

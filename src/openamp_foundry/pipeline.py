@@ -18,6 +18,7 @@ from openamp_foundry.scoring.safety import safety_score
 from openamp_foundry.scoring.stability import serum_stability_score
 from openamp_foundry.scoring.synthesis import synthesis_feasibility_score
 from openamp_foundry.scoring.hemolysis import hemolysis_risk_score
+from openamp_foundry.scoring.selectivity_rich import rich_selectivity_score
 from openamp_foundry.selection.diversity import greedy_diverse_select
 from openamp_foundry.selection.pareto import rank_candidates
 from openamp_foundry.types import ScoredCandidate
@@ -69,6 +70,12 @@ def score_candidates(
             # Stored in scores (not just features) so pilot_priority can use it for ranking.
             "selectivity_proxy": features.get("selectivity_proxy", 1.0),
             "hemolysis_risk": hemolysis_risk_score(features) if valid else 1.0,
+            # rich_selectivity: evidence-based composite of 8 significant features
+            # (feature decomposition benchmark v0.5.15). Detection AUROC=0.7138 (CI 0.63-0.80)
+            # — first pipeline score with CI excluding 0.5 for selective_vs_hemolytic.
+            # Old selectivity_proxy (AUROC=0.5744, CI 0.50-0.66) is retained for backward
+            # comparability but rich_selectivity is the primary selectivity signal.
+            "rich_selectivity": rich_selectivity_score(features) if valid else 0.5,
         }
         raw_scores["ensemble"] = ensemble_score(raw_scores, weights)
         # Expert composite: safety-aware multi-component score that addresses

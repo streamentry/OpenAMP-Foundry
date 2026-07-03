@@ -38,6 +38,7 @@ from openamp_foundry.scoring.activity import activity_likeness_score, clamp01
 from openamp_foundry.scoring.boman import boman_activity_score, model_disagreement
 from openamp_foundry.scoring.safety import safety_score
 from openamp_foundry.scoring.hemolysis import hemolysis_safety_component
+from openamp_foundry.scoring.selectivity_rich import rich_selectivity_score
 from openamp_foundry.scoring.stability import serum_stability_score
 from openamp_foundry.scoring.synthesis import synthesis_feasibility_score
 
@@ -197,13 +198,13 @@ def kmer_prior_art(sequence: str, kmer_index: set[str], k: int = 5) -> dict:
 # predictors are easy to satisfy on "is it an AMP", hard on "will it spare host cells".
 EXPERT_WEIGHTS: dict[str, float] = {
     "activity_consensus": 0.20,   # physchem ∩ Boman agreement (penalised by disagreement)
-    "selectivity":        0.20,   # charge/GRAVY therapeutic-window proxy
+    "selectivity":        0.20,   # charge/GRAVY therapeutic-window proxy (AMP-vs-decoy signal)
     "safety":             0.15,   # hemolysis-risk proxy (μH, hydrophobicity, charge density)
     "synthesis":          0.12,   # SPPS feasibility (length, repeats, aggregation, Pro)
     "serum_stability":    0.05,   # proteolytic longevity (informational, low weight)
     "hinge_selectivity":  0.08,   # central helix-hinge bonus (expert motif)
     "motif_novelty":      0.10,   # k-mer prior-art (local novelty beyond global identity)
-    "hemolysis_safety":   0.10,   # dedicated hemolysis risk triage (expanded n=179: AUROC=0.565, CI 0.47-0.66, not significant)
+    "rich_selectivity":   0.10,   # evidence-based 8-feature hemolysis detector (AUROC=0.7138, CI 0.63-0.80, significant)
 }
 
 
@@ -258,7 +259,15 @@ def expert_score(
     disagreement = model_disagreement(act_physchem, act_boman)
     activity_consensus = clamp01((act_physchem + act_boman) / 2.0 - 0.5 * disagreement)
 
+    # selectivity_proxy: charge/GRAVY therapeutic-window proxy. Not significant for
+    # hemolysis detection (AUROC=0.5744, CI 0.50-0.66) but contributes to AMP-vs-decoy
+    # ranking (strict triage AUROC=0.500 — composition-driven, not harmful).
     selectivity = float(feats.get("selectivity_proxy", 0.0))
+    # Rich selectivity (v0.5.16): evidence-based composite of 8 significant features.
+    # Detection AUROC=0.7138 (CI 0.63-0.80) — first pipeline score with CI excluding
+    # 0.5 for selective_vs_hemolytic. Replaces hemolysis_safety (AUROC=0.565, not
+    # significant) as the primary hemolysis-risk component in the expert composite.
+    rich_sel = rich_selectivity_score(feats)
     safety = safety_score(feats)
     synthesis = synthesis_feasibility_score(feats, valid_sequence=True)
     serum = serum_stability_score(feats)
@@ -282,7 +291,7 @@ def expert_score(
         "serum_stability":    round(serum, 4),
         "hinge_selectivity":  round(hinge_selectivity, 4),
         "motif_novelty":      round(motif_novelty, 4),
-        "hemolysis_safety":   round(hemo_safety, 4),
+        "rich_selectivity":   round(rich_sel, 4),
     }
 
     total_w = sum(w.values()) or 1.0
@@ -302,6 +311,7 @@ def expert_score(
         "central_breakers": hinge["central_breakers"],
         "motif_known_kmers": motif["n_known"],
         "motif_max_known_run": motif["max_run_known"],
+        "hemolysis_safety_legacy": round(hemo_safety, 4),
     }
 
     flags: list[str] = []

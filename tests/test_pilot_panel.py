@@ -413,7 +413,7 @@ class TestWritePilotCsv:
         expected = {"pilot_rank", "candidate_id", "sequence", "length", "seed",
                     "ensemble", "activity", "boman_activity", "disagreement",
                     "safety", "synthesis", "novelty", "serum_stability",
-                    "selectivity_proxy", "pilot_priority",
+                    "selectivity_proxy", "rich_selectivity", "pilot_priority",
                     "amphipathic_score", "charge_ph74"}
         assert set(fields) == expected
 

@@ -18,10 +18,10 @@ def _pilot_priority(scores: dict) -> float:
 
     Formula:
         ensemble − 0.30×disagreement + 0.05×serum_stability + 0.05×novelty
-                 + 0.05×selectivity_proxy − cytotox_penalty
+                 + 0.05×rich_selectivity − cytotox_penalty
 
     The cytotox_penalty is non-zero only for candidates in the HIGH_CYTOTOX_RISK tier
-    (selectivity_proxy < 0.5). It applies an additional −0.05 × (0.5 − proxy) / 0.5
+    (rich_selectivity < 0.5). It applies an additional −0.05 × (0.5 − rich_sel) / 0.5
     penalty on top of the reduced bonus, totalling a max additional demerit of −0.05 vs
     the soft-bonus formulation.
 
@@ -29,27 +29,23 @@ def _pilot_priority(scores: dict) -> float:
     physicochemical axis dominates over the ensemble activity prediction. The ensemble
     score remains the dominant term.
 
-    selectivity_proxy [0,1]: likelihood of selective bacterial killing without mammalian
-    cytotoxicity (Dathe & Wieprecht 1999 BBA). Low-selectivity candidates (proxy < 0.5,
-    e.g. temporin-like temporins with charge=+1.0, GRAVY > +1.0) are doubly penalised:
-    they receive less bonus (0.05 × 0.30 = +0.015 for SEED-004) AND a cytotox_penalty
-    (−0.05 × 0.40 = −0.02 for proxy=0.30), for a net swing of −0.055 vs fully selective
-    candidates. This better reflects that Stage 2 failure (hemolysis/cytotoxicity) is the
-    largest single contributor to missed "breaking news" candidates in the current panel.
-    Literature: Dathe & Wieprecht (1999) BBA 1462:71-87; Carotenuto et al. (2008) J Med Chem.
+    rich_selectivity [0,1]: evidence-based composite of 8 physicochemical features
+    identified as statistically significant for selective_vs_hemolytic discrimination
+    (feature decomposition benchmark v0.5.15). Detection AUROC=0.7138 (CI 0.63-0.80)
+    — the first pipeline score with CI excluding 0.5. Replaces the old
+    selectivity_proxy (AUROC=0.5744, CI 0.50-0.66, not significant). Falls back to
+    selectivity_proxy when rich_selectivity is absent (backward compatibility).
 
-    Example impact:
-      proxy=1.00: +0.05 bonus, 0.00 penalty → net +0.050
-      proxy=0.50: +0.025 bonus, 0.00 penalty → net +0.025
-      proxy=0.30: +0.015 bonus, −0.020 penalty → net −0.005  (HIGH_CYTOTOX_RISK)
-      proxy=0.00: +0.000 bonus, −0.050 penalty → net −0.050  (most toxic)
+    Literature: Dathe & Wieprecht (1999) BBA 1462:71-87; Carotenuto et al. (2008) J Med Chem.
     """
     ensemble = scores.get("ensemble", 0.0)
     disagreement = scores.get("disagreement", 0.5)
     stability = scores.get("serum_stability", 0.5)
     novelty = scores.get("novelty", 0.0)
-    selectivity = scores.get("selectivity_proxy", 1.0)
-    # Additional penalty for HIGH_CYTOTOX_RISK tier (proxy < 0.5)
+    selectivity = scores.get("rich_selectivity")
+    if selectivity is None:
+        selectivity = scores.get("selectivity_proxy", 1.0)
+    # Additional penalty for HIGH_CYTOTOX_RISK tier (selectivity < 0.5)
     cytotox_penalty = 0.0 if selectivity >= 0.5 else 0.05 * (0.5 - selectivity) / 0.5
     return round(
         ensemble - 0.3 * disagreement + 0.05 * stability + 0.05 * novelty
