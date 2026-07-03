@@ -143,9 +143,11 @@ def build_metrics_snapshot(
             "n_border": selectivity["n_border"],
             "safety_verdict": selectivity["safety_verdict"],
             "selectivity_proxy_verdict": selectivity["selectivity_proxy_verdict"],
+            "rich_selectivity_verdict": selectivity["rich_selectivity_verdict"],
             "expert_composite_verdict": selectivity["expert_composite_verdict"],
             "risk_detectors": selectivity["risk_detectors"],
             "risk_indicators": selectivity["risk_indicators"],
+            "per_score_auroc": selectivity["per_score_auroc"],
         },
         "triage": {
             "best_scorer": triage["best_scorer"],

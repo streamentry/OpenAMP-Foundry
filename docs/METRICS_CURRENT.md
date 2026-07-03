@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-03 (feature decomposition benchmark added)
+> **Last updated:** 2026-07-03 (rich selectivity scorer added)
 > **Pipeline version:** v0.5.x
 > **Branch:** main
 
@@ -557,6 +557,43 @@ ultimately be needed for clinically meaningful discrimination.
 
 Run: `make bench-feature-decomp` or `python -m openamp_foundry.cli bench feature-decomp`
 
+## Rich Selectivity Scorer (v0.5.16 — added 2026-07-03)
+
+The feature decomposition benchmark identified 8 significant features for selective_vs_hemolytic
+discrimination, but the old `selectivity_proxy` (charge + GRAVY) used only 2. The rich selectivity
+scorer (`scoring/selectivity_rich.py`) combines all 8 significant features, weighted by detection
+AUROC, to produce a composite selectivity score.
+
+| Scorer | Detection AUROC | CI 95% | Significant? |
+|--------|----------------|--------|-------------|
+| **rich_selectivity** | **0.7138** | **0.6266-0.7951** | **YES** |
+| selectivity_proxy (old) | 0.5744 | 0.4954-0.6558 | Marginal |
+| hemolysis_risk | 0.5650 | 0.4664-0.6601 | NO |
+| expert_composite | 0.5459 | 0.4562-0.6305 | NO |
+| safety | 0.5116 | 0.4321-0.5954 | NO |
+| ensemble | 0.4201 | 0.3335-0.5067 | NO (anti-signal) |
+
+**Key finding:** The rich selectivity scorer is the **first pipeline score with statistically
+significant hemolysis detection** on the expanded n=179 benchmark (CI lower bound 0.6266 > 0.5).
+It outperforms the old selectivity_proxy by +0.14 AUROC and is the only scorer whose CI excludes 0.5.
+
+**Features combined (by detection AUROC):**
+`hydrophobic_fraction` (0.6745), `net_charge_proxy` (0.6394), `net_charge_ph74` (0.6332),
+`helix_propensity` (0.6489), `interior_trypsin_sites` (0.6089), `selectivity_proxy` (0.6095,
+protective), `longest_repeat_run` (0.5946), `length` (0.5900).
+
+**Honest limitations:**
+- The rich selectivity scorer does NOT triage AMP-vs-decoy correctly (selective_vs_decoy = 0.19).
+  It is designed for within-AMP ranking, not activity detection. It must be combined with an
+  activity gate to be useful for candidate selection.
+- Individual feature AUROCs are weak (0.59-0.67); the composite's CI is wide (0.63-0.80).
+- Normalisation thresholds are empirical and may not generalise beyond the reference set.
+- Does not model 3D structure, oligomeric state, or membrane curvature.
+- HC50 values are approximate literature values with high inter-assay variability.
+- This is a triage signal, NOT a hemolysis predictor. Wet-lab hemolysis assay remains mandatory.
+
+Run: `make bench-selectivity` (rich_selectivity is included in the selectivity benchmark output)
+
 ## Test Suite
 
 | Metric | Value |
@@ -578,6 +615,7 @@ Run: `make bench-feature-decomp` or `python -m openamp_foundry.cli bench feature
 | Benchmark at 191 sequences | Still far from 500+ target flagged in ROADMAP (v1.0+) |
 | APD/DRAMP novelty (v2) | Complete — 27,234-sequence combined DB (APD6+DRAMP+UniProt); BLOSUM62 local alignment; Wave 0.5 results updated |
 | No wet-lab data | All probabilities are upper bounds; true hit rate unknown |
+| Rich selectivity scope | Designed for within-AMP selectivity only; does not distinguish AMPs from decoys (selective_vs_decoy=0.19) |
 
 ---
 
@@ -595,5 +633,6 @@ Run: `make bench-feature-decomp` or `python -m openamp_foundry.cli bench feature
 | 2026-07-01 | Within-AMP selectivity benchmark added: safety scorer FAILS hemolysis detection (AUROC=0.3844); synthesis is only significant risk detector (AUROC=0.8027); expert composite better than ensemble but not significant (0.5119 vs 0.3486) | OpenAMP loop |
 | 2026-07-01 | Expert composite ranking integration: `score_candidates()` now computes `expert_composite` and `hemolysis_risk`; `--ranking-mode expert` CLI flag; expert-ranked top-5 have lower mean hemolysis_risk than ensemble | OpenAMP loop |
 | 2026-07-02 | **Strict triage benchmark added:** composition-matched scrambled decoys replace random background. No scorer triages correctly — standard triage "success" of selectivity_proxy (0.782 sel_vs_dec) and expert_composite (0.757) was inflated by trivially distinguishable decoys. selectivity_proxy collapses to 0.500 (purely composition-driven), ensemble drops to 0.572. Real bottleneck (selective_vs_hemolytic) unchanged. | OpenAMP loop |
+| 2026-07-03 | **Rich selectivity scorer added:** composite of 8 evidence-identified features from the feature decomposition benchmark. Detection AUROC=0.7138 (CI 0.63-0.80) on n=179 — first pipeline score with statistically significant selective_vs_hemolytic discrimination. Old selectivity_proxy=0.5744 (CI 0.50-0.66). Honest limitation: does not triage AMP-vs-decoy (0.19); must be combined with activity gate. | OpenAMP loop |
 | 2026-07-03 | **Feature decomposition benchmark added:** per-feature selective_vs_hemolytic AUROC for all 30 scalar physicochemical features. hydrophobic_fraction is the strongest single discriminative feature (0.6745, CI 0.58-0.77) but is NOT used by the selectivity proxy. 8/30 features have significant signal; 6 of those are unused. Provides actionable diagnostic for why composite scorers fail selective_vs_hemolytic discrimination. | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |

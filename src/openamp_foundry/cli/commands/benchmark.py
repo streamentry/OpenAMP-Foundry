@@ -176,6 +176,7 @@ def _run_selectivity_bench(args: argparse.Namespace) -> int:
         "risk_indicators": result["risk_indicators"],
         "safety_verdict": result["safety_verdict"],
         "selectivity_proxy_verdict": result["selectivity_proxy_verdict"],
+        "rich_selectivity_verdict": result["rich_selectivity_verdict"],
         "expert_composite_verdict": result["expert_composite_verdict"],
         "n_blind_spots": len(result["blind_spots"]),
         "out": args.out,

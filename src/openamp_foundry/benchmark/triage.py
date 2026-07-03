@@ -46,6 +46,7 @@ from openamp_foundry.scoring.expert import expert_score
 from openamp_foundry.scoring.hemolysis import hemolysis_risk_score
 from openamp_foundry.scoring.novelty import novelty_score
 from openamp_foundry.scoring.safety import safety_score
+from openamp_foundry.scoring.selectivity_rich import rich_selectivity_score
 from openamp_foundry.scoring.stability import serum_stability_score
 from openamp_foundry.scoring.synthesis import synthesis_feasibility_score
 
@@ -101,6 +102,7 @@ def _score_all(rows: list[dict[str, Any]], weights: dict[str, float]) -> list[di
         boman_act = boman_activity_score(seq)
         stability = serum_stability_score(features)
         sel_proxy = float(features.get("selectivity_proxy", 0.0))
+        rich_sel = rich_selectivity_score(features)
         hemo_risk = hemolysis_risk_score(features)
         exp = expert_score(seq, features=features)
         raw = {
@@ -131,6 +133,7 @@ def _score_all(rows: list[dict[str, Any]], weights: dict[str, float]) -> list[di
             "boman_activity": round(boman_act, 4),
             "serum_stability": round(stability, 4),
             "selectivity_proxy": round(sel_proxy, 4),
+            "rich_selectivity": round(rich_sel, 4),
             "hemolysis_risk": round(hemo_risk, 4),
             "expert_composite": exp.composite,
             "triage_score": triage_score,
@@ -193,7 +196,7 @@ def run_triage_benchmark(
 
     scorers = [
         "ensemble", "activity", "safety", "synthesis",
-        "selectivity_proxy", "hemolysis_risk", "serum_stability",
+        "selectivity_proxy", "rich_selectivity", "hemolysis_risk", "serum_stability",
         "expert_composite", "triage_score", "safe_weighted_ensemble",
     ]
 
@@ -430,7 +433,7 @@ def run_strict_triage_benchmark(
 
     scorers = [
         "ensemble", "activity", "safety", "synthesis",
-        "selectivity_proxy", "hemolysis_risk", "serum_stability",
+        "selectivity_proxy", "rich_selectivity", "hemolysis_risk", "serum_stability",
         "expert_composite", "triage_score", "safe_weighted_ensemble",
     ]
 

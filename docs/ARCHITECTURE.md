@@ -36,7 +36,7 @@ The purpose of the added layers is not simulation theater. It is to improve whic
 |---|---|
 | `openamp_foundry.data` | loading and normalizing candidate/reference data |
 | `openamp_foundry.features` | physicochemical feature extraction |
-| `openamp_foundry.scoring` | activity, safety, hemolysis risk, novelty, synthesis, ensemble, expert composite scoring |
+| `openamp_foundry.scoring` | activity, safety, hemolysis risk, novelty, synthesis, ensemble, expert composite, rich selectivity scoring |
 | `openamp_foundry.selection` | ranking (ensemble or expert composite) and diversity selection |
 | `openamp_foundry.evidence` | JSON certificate generation and validation |
 | `openamp_foundry.reports` | human-readable and machine-readable batch, calibration, and wet-lab review reports |

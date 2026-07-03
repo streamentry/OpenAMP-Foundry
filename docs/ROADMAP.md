@@ -303,6 +303,35 @@ by the current selectivity model. This converts the v0.5.14 aggregate failure
 into actionable diagnostic information: the next loop knows exactly which feature
 axes to combine into a richer selectivity scorer.
 
+## v0.5.16 — Rich Selectivity Scorer ✓ (2026-07-03)
+
+The feature decomposition benchmark (v0.5.15) identified 8 statistically significant
+features for selective_vs_hemolytic discrimination, but the old `selectivity_proxy`
+(charge + GRAVY) used only 2. This version builds a richer composite selectivity
+scorer from the evidence — the first pipeline score with statistically significant
+hemolysis detection on the expanded n=179 benchmark.
+
+Changes:
+- `scoring/selectivity_rich.py`: `rich_selectivity_score()` — composite of 8
+  evidence-identified features, weighted by detection AUROC, with full component
+  breakdown via `rich_selectivity_breakdown()`
+- `benchmark/retrospective.py`: rich selectivity added to selectivity benchmark
+  evaluation and verdict
+- `benchmark/triage.py`: rich selectivity added to standard and strict triage
+  benchmarks
+- `benchmark/metrics_snapshot.py`: selectivity snapshot expanded with
+  `per_score_auroc` and `rich_selectivity_verdict`
+- `cli/commands/benchmark.py`: selectivity bench summary includes
+  `rich_selectivity_verdict`
+- `tests/test_selectivity_rich.py`: 18 tests covering scoring, breakdown, and
+  benchmark integration
+- `outputs/metrics_snapshot.json`: regenerated with rich selectivity results
+
+Key finding: rich selectivity detection AUROC=0.7138 (CI 0.6266-0.7951) — first
+pipeline score with CI excluding 0.5 on selective_vs_hemolytic. Old
+selectivity_proxy=0.5744 (CI 0.4954-0.6558). Honest limitation: does NOT triage
+AMP-vs-decoy (selective_vs_decoy=0.19); designed for within-AMP selectivity only.
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);

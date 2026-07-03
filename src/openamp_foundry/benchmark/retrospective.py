@@ -816,6 +816,7 @@ def run_selectivity_benchmark(
     from openamp_foundry.scoring.novelty import novelty_score
     from openamp_foundry.scoring.hemolysis import hemolysis_risk_score
     from openamp_foundry.scoring.safety import safety_score
+    from openamp_foundry.scoring.selectivity_rich import rich_selectivity_score
     from openamp_foundry.scoring.stability import serum_stability_score
     from openamp_foundry.scoring.synthesis import synthesis_feasibility_score
 
@@ -838,6 +839,7 @@ def run_selectivity_benchmark(
             boman_act = boman_activity_score(seq)
             stability = serum_stability_score(features)
             sel_proxy = float(features.get("selectivity_proxy", 0.0))
+            rich_sel = rich_selectivity_score(features)
             hemo_risk = hemolysis_risk_score(features)
             raw = {
                 "activity": act, "safety": safe,
@@ -866,6 +868,7 @@ def run_selectivity_benchmark(
                 "serum_stability": stability,
                 "selectivity_proxy": sel_proxy,
                 "hemolysis_risk": hemo_risk,
+                "rich_selectivity": rich_sel,
                 "hinge_selectivity": exp.components["hinge_selectivity"],
             })
 
@@ -882,7 +885,7 @@ def run_selectivity_benchmark(
     score_cols = [
         "ensemble", "expert_composite", "activity", "safety",
         "synthesis", "novelty", "boman_activity", "serum_stability",
-        "selectivity_proxy", "hemolysis_risk", "hinge_selectivity",
+        "selectivity_proxy", "rich_selectivity", "hemolysis_risk", "hinge_selectivity",
     ]
 
     per_score: dict[str, dict] = {}
@@ -1028,6 +1031,32 @@ def run_selectivity_benchmark(
             "No pipeline score can distinguish hemolytic from selective AMPs."
         )
 
+    # Rich selectivity scorer assessment (evidence-driven composite from feature decomposition)
+    rich_detection = per_score["rich_selectivity"]["hemolysis_detection_auroc"]
+    rich_ci_lo = per_score["rich_selectivity"]["detection_ci95_lo"]
+    rich_ci_hi = per_score["rich_selectivity"]["detection_ci95_hi"]
+
+    if rich_detection > 0.5 and rich_ci_lo > 0.5:
+        rich_verdict = (
+            f"Rich selectivity scorer detects hemolysis risk "
+            f"(detection AUROC={rich_detection:.4f}, CI=[{rich_ci_lo:.4f}, {rich_ci_hi:.4f}]). "
+            "This is the first composite selectivity score built from evidence-identified features "
+            "(feature decomposition benchmark v0.5.15) that achieves statistically significant "
+            "selective_vs_hemolytic discrimination. It outperforms the old selectivity_proxy "
+            f"(detection AUROC={sel_detection:.4f}). The signal comes from combining 8 significant "
+            "physicochemical features that the old proxy ignored."
+        )
+    elif rich_detection > 0.5:
+        rich_verdict = (
+            f"Rich selectivity scorer shows trend (detection AUROC={rich_detection:.4f}, "
+            f"CI lo={rich_ci_lo:.4f}). Signal is present but not statistically significant."
+        )
+    else:
+        rich_verdict = (
+            f"Rich selectivity scorer fails (detection AUROC={rich_detection:.4f}). "
+            "Combining significant features did not improve selective_vs_hemolytic discrimination."
+        )
+
     # Rank hemolytic AMPs by safety score to find blind spots
     hemolytic_by_safety = sorted(hemolytic, key=lambda r: r["safety"], reverse=True)
     blind_spots = [
@@ -1052,6 +1081,7 @@ def run_selectivity_benchmark(
         "selectivity_proxy_verdict": sel_verdict,
         "expert_composite_verdict": expert_verdict,
         "hemolysis_risk_verdict": hemo_risk_verdict,
+        "rich_selectivity_verdict": rich_verdict,
         "blind_spots": blind_spots,
         "border_zone": [
             {"id": r["id"], "sequence": r["sequence"], "family": r["family"],

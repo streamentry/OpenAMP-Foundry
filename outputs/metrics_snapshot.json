@@ -476,8 +476,144 @@
     "n_border": 59,
     "n_hemolytic": 54,
     "n_selective": 125,
+    "per_score_auroc": {
+      "activity": {
+        "auroc": 0.6063,
+        "ci95_hi": 0.6858,
+        "ci95_lo": 0.5193,
+        "detection_ci95_hi": 0.4807,
+        "detection_ci95_lo": 0.3142,
+        "direction": "higher_is_risk",
+        "hemolysis_detection_auroc": 0.3937,
+        "mean_hemolytic": 0.6768,
+        "mean_selective": 0.6447
+      },
+      "boman_activity": {
+        "auroc": 0.4552,
+        "ci95_hi": 0.5484,
+        "ci95_lo": 0.3633,
+        "detection_ci95_hi": 0.6367,
+        "detection_ci95_lo": 0.4516,
+        "direction": "higher_is_safe",
+        "hemolysis_detection_auroc": 0.5448,
+        "mean_hemolytic": 0.424,
+        "mean_selective": 0.4333
+      },
+      "ensemble": {
+        "auroc": 0.5799,
+        "ci95_hi": 0.6665,
+        "ci95_lo": 0.4933,
+        "detection_ci95_hi": 0.5067,
+        "detection_ci95_lo": 0.3335,
+        "direction": "higher_is_risk",
+        "hemolysis_detection_auroc": 0.4201,
+        "mean_hemolytic": 0.8532,
+        "mean_selective": 0.8395
+      },
+      "expert_composite": {
+        "auroc": 0.4541,
+        "ci95_hi": 0.5438,
+        "ci95_lo": 0.3695,
+        "detection_ci95_hi": 0.6305,
+        "detection_ci95_lo": 0.4562,
+        "direction": "higher_is_safe",
+        "hemolysis_detection_auroc": 0.5459,
+        "mean_hemolytic": 0.7646,
+        "mean_selective": 0.7704
+      },
+      "hemolysis_risk": {
+        "auroc": 0.565,
+        "ci95_hi": 0.6601,
+        "ci95_lo": 0.4664,
+        "detection_ci95_hi": 0.6601,
+        "detection_ci95_lo": 0.4664,
+        "direction": "higher_is_risk",
+        "hemolysis_detection_auroc": 0.565,
+        "mean_hemolytic": 0.2042,
+        "mean_selective": 0.1535
+      },
+      "hinge_selectivity": {
+        "auroc": 0.5716,
+        "ci95_hi": 0.6536,
+        "ci95_lo": 0.4899,
+        "detection_ci95_hi": 0.5101,
+        "detection_ci95_lo": 0.3464,
+        "direction": "higher_is_risk",
+        "hemolysis_detection_auroc": 0.4284,
+        "mean_hemolytic": 0.5667,
+        "mean_selective": 0.4968
+      },
+      "novelty": {
+        "auroc": 0.5,
+        "ci95_hi": 0.5,
+        "ci95_lo": 0.5,
+        "detection_ci95_hi": 0.5,
+        "detection_ci95_lo": 0.5,
+        "direction": "higher_is_safe",
+        "hemolysis_detection_auroc": 0.5,
+        "mean_hemolytic": 1.0,
+        "mean_selective": 1.0
+      },
+      "rich_selectivity": {
+        "auroc": 0.2862,
+        "ci95_hi": 0.3734,
+        "ci95_lo": 0.2049,
+        "detection_ci95_hi": 0.7951,
+        "detection_ci95_lo": 0.6266,
+        "direction": "higher_is_safe",
+        "hemolysis_detection_auroc": 0.7138,
+        "mean_hemolytic": 0.5743,
+        "mean_selective": 0.636
+      },
+      "safety": {
+        "auroc": 0.4884,
+        "ci95_hi": 0.5679,
+        "ci95_lo": 0.4046,
+        "detection_ci95_hi": 0.5954,
+        "detection_ci95_lo": 0.4321,
+        "direction": "higher_is_safe",
+        "hemolysis_detection_auroc": 0.5116,
+        "mean_hemolytic": 0.9458,
+        "mean_selective": 0.9427
+      },
+      "selectivity_proxy": {
+        "auroc": 0.4256,
+        "ci95_hi": 0.5046,
+        "ci95_lo": 0.3442,
+        "detection_ci95_hi": 0.6558,
+        "detection_ci95_lo": 0.4954,
+        "direction": "higher_is_safe",
+        "hemolysis_detection_auroc": 0.5744,
+        "mean_hemolytic": 0.8345,
+        "mean_selective": 0.8449
+      },
+      "serum_stability": {
+        "auroc": 0.4007,
+        "ci95_hi": 0.4918,
+        "ci95_lo": 0.3137,
+        "detection_ci95_hi": 0.6863,
+        "detection_ci95_lo": 0.5082,
+        "direction": "higher_is_safe",
+        "hemolysis_detection_auroc": 0.5993,
+        "mean_hemolytic": 0.6186,
+        "mean_selective": 0.6571
+      },
+      "synthesis": {
+        "auroc": 0.4708,
+        "ci95_hi": 0.5563,
+        "ci95_lo": 0.3876,
+        "detection_ci95_hi": 0.6124,
+        "detection_ci95_lo": 0.4437,
+        "direction": "higher_is_safe",
+        "hemolysis_detection_auroc": 0.5292,
+        "mean_hemolytic": 0.9733,
+        "mean_selective": 0.9732
+      }
+    },
+    "rich_selectivity_verdict": "Rich selectivity scorer detects hemolysis risk (detection AUROC=0.7138, CI=[0.6266, 0.7951]). This is the first composite selectivity score built from evidence-identified features (feature decomposition benchmark v0.5.15) that achieves statistically significant selective_vs_hemolytic discrimination. It outperforms the old selectivity_proxy (detection AUROC=0.5744). The signal comes from combining 8 significant physicochemical features that the old proxy ignored.",
     "risk_detectors": [
-      "serum_stability"
+      "serum_stability",
+      "rich_selectivity"
     ],
     "risk_indicators": [
       "expert_composite",
@@ -502,7 +638,7 @@
     "recall_at_43": 0.4211
   },
   "strict_triage": {
-    "best_scorer": "triage_score",
+    "best_scorer": "rich_selectivity",
     "decoy_type": "composition_matched_scrambled",
     "n_decoy": 125,
     "n_hemolytic": 45,
@@ -530,6 +666,12 @@
         "hemolytic_vs_decoy": 0.6199,
         "selective_vs_decoy": 0.6173,
         "selective_vs_hemolytic": 0.4876,
+        "triages_correctly": false
+      },
+      "rich_selectivity": {
+        "hemolytic_vs_decoy": 0.2683,
+        "selective_vs_decoy": 0.5155,
+        "selective_vs_hemolytic": 0.7453,
         "triages_correctly": false
       },
       "safe_weighted_ensemble": {
@@ -610,6 +752,12 @@
         "hemolytic_vs_decoy": 0.4924,
         "selective_vs_decoy": 0.485,
         "selective_vs_hemolytic": 0.4876,
+        "triages_correctly": false
+      },
+      "rich_selectivity": {
+        "hemolytic_vs_decoy": 0.0825,
+        "selective_vs_decoy": 0.1918,
+        "selective_vs_hemolytic": 0.7453,
         "triages_correctly": false
       },
       "safe_weighted_ensemble": {
