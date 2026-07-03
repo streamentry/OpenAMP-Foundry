@@ -413,6 +413,7 @@ A scorer that triages correctly should have all three AUROCs > 0.5:
 | synthesis | 0.590 | 0.634 | 0.469 | NO |
 | hemolysis_risk (inverted) | 0.485 | 0.492 | 0.488 | NO |
 | serum_stability | 0.217 | 0.160 | 0.569 | NO |
+| **gate_triage** (activity × rich_sel) | **0.779** | **0.686** | **0.666** | **YES** |
 
 **Key findings:**
 
@@ -430,6 +431,16 @@ A scorer that triages correctly should have all three AUROCs > 0.5:
    anti-selective bias** (sel_vs_hem = 0.462). This is because hemolysis_risk
    is too weak (detection AUROC 0.565, not significant on expanded benchmark).
    A naive virtual-assay composite does not outperform the ensemble.
+
+6. **The gate_triage scorer (activity × rich_selectivity) is the first scorer
+   to triage correctly with strong selective_vs_hemolytic separation** (0.666).
+   Unlike the old triage_score, it uses rich_selectivity (detection AUROC 0.714,
+   significant) instead of hemolysis_risk (not significant). It also achieves
+   selective_vs_decoy 0.779 and hemolytic_vs_decoy 0.686, and ranks 16 selective
+   / 1 hemolytic / 3 decoys in its top-20 — the best distribution of any benchmarked
+   scorer. However, its AMP-vs-decoy discrimination is weaker than the ensemble
+   (0.779 vs 0.848) because the rich_selectivity gate penalizes AMP-like features.
+   It must NOT replace the ensemble activity gate; it is a complementary signal.
 
 4. **Top-20 distribution shift:** The triage_score moves 2 more selective AMPs
    into the top-20 (16 vs 14 for ensemble), removing 2 hemolytic AMPs (4 vs 6).
@@ -475,6 +486,7 @@ The MODERATE class (HC50 25-100, n=68) is excluded from the binary task.
 | expert_composite | 0.757 | **0.510** | 0.545 | 0.545 | YES | **NO** |
 | triage_score | 0.863 | **0.674** | 0.462 | 0.462 | NO | NO |
 | hemolysis_risk | 0.485 | 0.617 | 0.488 | 0.488 | NO | NO |
+| gate_triage | 0.779 | **0.624** | 0.666 | 0.666 | YES | **NO** |
 
 **What this reveals:**
 
@@ -495,6 +507,13 @@ The MODERATE class (HC50 25-100, n=68) is excluded from the binary task.
 
 5. **The ensemble admits 7 scrambled decoys into top-20** (vs 0 with random
    decoys) — it cannot distinguish real AMPs from scrambled versions of themselves.
+
+6. **gate_triage retains partial order-dependent signal** (sel_vs_dec 0.624,
+   hem_vs_dec 0.489). It fails strict triage because rich_selectivity penalizes
+   the AMP-like composition that hemolytic AMPs share with their scrambled
+   versions. But its selective_vs_decoy remains above 0.5, unlike selectivity_proxy
+   which collapses to exactly 0.500 — suggesting the activity gate contributes
+   order-dependent signal that the selectivity gate alone lacks.
 
 **Implication:** The pipeline's triage signal is almost entirely composition-driven.
 The real bottleneck is selective-vs-hemolytic discrimination, which requires
@@ -595,6 +614,62 @@ protective), `longest_repeat_run` (0.5946), `length` (0.5900).
 
 Run: `make bench-selectivity` (rich_selectivity is included in the selectivity benchmark output)
 
+## Two-Gate Triage Composite (v0.5.17 — added 2026-07-03)
+
+> The triage benchmark showed that no scorer could pass all three pairwise
+> AUROC conditions (selective_vs_decoy, hemolytic_vs_decoy, selective_vs_hemolytic)
+> with strong selective-vs-hemolytic separation. selectivity_proxy passed but
+> had weak separation (0.610). expert_composite passed but admitted 5 decoys
+> into top-20. The old triage_score used hemolysis_risk (not significant).
+>
+> This scorer combines two complementary signals as a multiplicative gate:
+> activity (strong AMP-vs-decoy, AUROC 0.885-0.934) × rich_selectivity
+> (strong selective-vs-hemolytic, AUROC 0.745, significant).
+>
+> Run: `make bench-triage`
+
+**Key result: gate_triage is the first scorer to pass all three standard triage conditions
+with selective_vs_hemolytic > 0.65.**
+
+| Scorer | sel > decoy | hem > decoy | sel > hem | Top-20 (sel/hem/dec) | Correct? |
+|--------|:-----------:|:-----------:|:---------:|:---------------------:|:--------:|
+| ensemble | 0.848 | 0.891 | 0.466 | 14/6/0 | NO |
+| selectivity_proxy | 0.782 | 0.795 | 0.610 | — | YES (weak) |
+| expert_composite | 0.757 | 0.746 | 0.545 | 15/0/5 | YES (decoy leak) |
+| triage_score (old) | 0.863 | 0.902 | 0.462 | 16/4/0 | NO |
+| **gate_triage** | **0.779** | **0.686** | **0.666** | **16/1/3** | **YES** |
+
+**Design rationale:**
+
+The two gates solve complementary problems:
+- activity gate: detects AMP-likeness (composition + amphipathicity) —
+  strong vs random decoys but anti-selective (rewards hemolytic AMPs)
+- rich_selectivity gate: detects hemolysis risk from 8 evidence-identified
+  features — strong vs hemolytic AMPs but anti-AMP (penalizes AMP-like composition)
+
+Their product leverages both: a candidate must score high on BOTH AMP-likeness
+AND selectivity. Hemolytic AMPs score high on activity but low on rich_selectivity.
+Decoys score low on activity. Selective AMPs score moderately on both.
+
+**Honest limitations:**
+
+1. gate_triage does NOT pass strict triage (composition-matched decoys).
+   Its hemolytic_vs_decoy drops to 0.489 because rich_selectivity penalizes
+   the AMP-like composition that hemolytic AMPs share with their scrambled
+   versions. It retains partial order-dependent signal (sel_vs_dec 0.624),
+   but this is from the activity gate, not the selectivity gate.
+
+2. gate_triage is weaker than ensemble on pure AMP-vs-decoy detection
+   (0.779 vs 0.848). It must NOT replace the ensemble activity gate.
+   It is a complementary triage signal, not a replacement.
+
+3. A decoy leaks into the top-20 (3 decoys vs 0 for ensemble). The
+   selectivity gate removes some hemolytic AMPs but admits some decoys
+   that happen to have moderate activity and moderate selectivity.
+
+4. This is still a dry-lab triage signal. Wet-lab hemolysis assay
+   remains mandatory for all candidates.
+
 ## Test Suite
 
 | Metric | Value |
@@ -636,5 +711,6 @@ Run: `make bench-selectivity` (rich_selectivity is included in the selectivity b
 | 2026-07-02 | **Strict triage benchmark added:** composition-matched scrambled decoys replace random background. No scorer triages correctly — standard triage "success" of selectivity_proxy (0.782 sel_vs_dec) and expert_composite (0.757) was inflated by trivially distinguishable decoys. selectivity_proxy collapses to 0.500 (purely composition-driven), ensemble drops to 0.572. Real bottleneck (selective_vs_hemolytic) unchanged. | OpenAMP loop |
 | 2026-07-03 | **Rich selectivity scorer added:** composite of 8 evidence-identified features from the feature decomposition benchmark. Detection AUROC=0.7138 (CI 0.63-0.80) on n=179 — first pipeline score with statistically significant selective_vs_hemolytic discrimination. Old selectivity_proxy=0.5744 (CI 0.50-0.66). Honest limitation: does not triage AMP-vs-decoy (0.19); must be combined with activity gate. | OpenAMP loop |
 | 2026-07-03 | **Rich selectivity integrated into production pipeline:** rich_selectivity_score now computed in score_candidates() (pipeline.py), replaces hemolysis_safety as the expert composite hemolysis-risk component (weight 0.10), used in pilot_priority formula, displayed in pilot panel report, and included in evidence certificates. Expert AUROC drops 0.7119→0.7097 (−0.0022) — acceptable tradeoff: the expert now includes a significant hemolysis detector (CI excludes 0.5) instead of the old non-significant one. | OpenAMP loop |
+| 2026-07-03 | **Two-gate triage composite added:** gate_triage = activity × rich_selectivity, added to triage benchmark. First scorer to pass all three standard triage conditions with strong selective_vs_hemolytic separation (0.666). Top-20: 16 selective / 1 hemolytic / 3 decoy — best distribution. Does NOT pass strict triage (hem_vs_dec 0.489) — honest limitation. Must not replace ensemble activity gate. | OpenAMP loop |
 | 2026-07-03 | **Feature decomposition benchmark added:** per-feature selective_vs_hemolytic AUROC for all 30 scalar physicochemical features. hydrophobic_fraction is the strongest single discriminative feature (0.6745, CI 0.58-0.77) but is NOT used by the selectivity proxy. 8/30 features have significant signal; 6 of those are unused. Provides actionable diagnostic for why composite scorers fail selective_vs_hemolytic discrimination. | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |

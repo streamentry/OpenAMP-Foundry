@@ -124,6 +124,13 @@ def _score_all(rows: list[dict[str, Any]], weights: dict[str, float]) -> list[di
         raw_adjusted = dict(raw)
         raw_adjusted["safety"] = safe_adjusted
         safe_weighted_ens = ensemble_score(raw_adjusted, weights)
+        # Two-gate triage: activity (AMP detection) * rich_selectivity (hemolysis separation).
+        # activity is strong at AMP-vs-decoy (AUROC ~0.88-0.93) but anti-selective
+        # (penalizes hydrophobicity/charge that hemolytic AMPs have).
+        # rich_selectivity is strong at selective-vs-hemolytic (AUROC ~0.74, significant)
+        # but anti-AMP (penalizes features that make AMPs look AMP-like vs decoys).
+        # Their product should leverage both: reward AMP-likeness AND selectivity.
+        gate_triage = round(act * rich_sel, 4)
         scored.append({
             **row,
             "ensemble": round(ens, 4),
@@ -138,6 +145,7 @@ def _score_all(rows: list[dict[str, Any]], weights: dict[str, float]) -> list[di
             "expert_composite": exp.composite,
             "triage_score": triage_score,
             "safe_weighted_ensemble": round(safe_weighted_ens, 4),
+            "gate_triage": gate_triage,
         })
     return scored
 
@@ -198,6 +206,7 @@ def run_triage_benchmark(
         "ensemble", "activity", "safety", "synthesis",
         "selectivity_proxy", "rich_selectivity", "hemolysis_risk", "serum_stability",
         "expert_composite", "triage_score", "safe_weighted_ensemble",
+        "gate_triage",
     ]
 
     per_scorer = {}
@@ -280,6 +289,14 @@ def run_triage_benchmark(
         "DECOY": top_20_expert_classes.count("DECOY"),
     }
 
+    by_gate = sorted(all_scored, key=lambda x: x["gate_triage"], reverse=True)
+    top_20_gate_classes = [r["triage_class"] for r in by_gate[:20]]
+    top_20_gate_dist = {
+        "SELECTIVE": top_20_gate_classes.count("SELECTIVE"),
+        "HEMOLYTIC": top_20_gate_classes.count("HEMOLYTIC"),
+        "DECOY": top_20_gate_classes.count("DECOY"),
+    }
+
     return {
         "benchmark": "multi_class_triage",
         "n_selective": len(selective_scored),
@@ -291,6 +308,7 @@ def run_triage_benchmark(
         "top_20_by_ensemble": top_20_dist,
         "top_20_by_triage_score": top_20_triage_dist,
         "top_20_by_expert_composite": top_20_expert_dist,
+        "top_20_by_gate_triage": top_20_gate_dist,
         "known_blind_spots": [
             "The ensemble ranks hemolytic AMPs above selective AMPs "
             "(anti-selective bias) because hemolytic AMPs have stronger "
@@ -435,6 +453,7 @@ def run_strict_triage_benchmark(
         "ensemble", "activity", "safety", "synthesis",
         "selectivity_proxy", "rich_selectivity", "hemolysis_risk", "serum_stability",
         "expert_composite", "triage_score", "safe_weighted_ensemble",
+        "gate_triage",
     ]
 
     per_scorer = {}
@@ -510,6 +529,14 @@ def run_strict_triage_benchmark(
         "DECOY": top_20_expert_classes.count("DECOY"),
     }
 
+    by_gate = sorted(all_scored, key=lambda x: x["gate_triage"], reverse=True)
+    top_20_gate_classes = [r["triage_class"] for r in by_gate[:20]]
+    top_20_gate_dist = {
+        "SELECTIVE": top_20_gate_classes.count("SELECTIVE"),
+        "HEMOLYTIC": top_20_gate_classes.count("HEMOLYTIC"),
+        "DECOY": top_20_gate_classes.count("DECOY"),
+    }
+
     return {
         "benchmark": "strict_multi_class_triage",
         "decoy_type": "composition_matched_scrambled",
@@ -524,6 +551,7 @@ def run_strict_triage_benchmark(
         "top_20_by_ensemble": top_20_dist,
         "top_20_by_triage_score": top_20_triage_dist,
         "top_20_by_expert_composite": top_20_expert_dist,
+        "top_20_by_gate_triage": top_20_gate_dist,
         "known_blind_spots": [
             "Composition-matched decoys control for amino acid composition, "
             "so only order-dependent features (hydrophobic moment, amphipathic "

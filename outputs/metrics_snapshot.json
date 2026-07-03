@@ -638,7 +638,7 @@
     "recall_at_43": 0.4211
   },
   "strict_triage": {
-    "best_scorer": "rich_selectivity",
+    "best_scorer": "gate_triage",
     "decoy_type": "composition_matched_scrambled",
     "n_decoy": 125,
     "n_hemolytic": 45,
@@ -660,6 +660,12 @@
         "hemolytic_vs_decoy": 0.4246,
         "selective_vs_decoy": 0.4915,
         "selective_vs_hemolytic": 0.5745,
+        "triages_correctly": false
+      },
+      "gate_triage": {
+        "hemolytic_vs_decoy": 0.4887,
+        "selective_vs_decoy": 0.6242,
+        "selective_vs_hemolytic": 0.6663,
         "triages_correctly": false
       },
       "hemolysis_risk": {
@@ -721,6 +727,11 @@
       "HEMOLYTIC": 0,
       "SELECTIVE": 11
     },
+    "top_20_by_gate_triage": {
+      "DECOY": 4,
+      "HEMOLYTIC": 1,
+      "SELECTIVE": 15
+    },
     "top_20_by_triage_score": {
       "DECOY": 2,
       "HEMOLYTIC": 4,
@@ -728,7 +739,7 @@
     }
   },
   "triage": {
-    "best_scorer": "selectivity_proxy",
+    "best_scorer": "gate_triage",
     "per_scorer": {
       "activity": {
         "hemolytic_vs_decoy": 0.934,
@@ -746,6 +757,12 @@
         "hemolytic_vs_decoy": 0.697,
         "selective_vs_decoy": 0.7358,
         "selective_vs_hemolytic": 0.5745,
+        "triages_correctly": true
+      },
+      "gate_triage": {
+        "hemolytic_vs_decoy": 0.6863,
+        "selective_vs_decoy": 0.779,
+        "selective_vs_hemolytic": 0.6663,
         "triages_correctly": true
       },
       "hemolysis_risk": {
@@ -806,6 +823,11 @@
       "DECOY": 5,
       "HEMOLYTIC": 0,
       "SELECTIVE": 15
+    },
+    "top_20_by_gate_triage": {
+      "DECOY": 3,
+      "HEMOLYTIC": 1,
+      "SELECTIVE": 16
     },
     "top_20_by_triage_score": {
       "DECOY": 0,

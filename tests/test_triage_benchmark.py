@@ -44,7 +44,7 @@ class TestTriageBenchmarkStructure:
         for key in ["benchmark", "n_selective", "n_hemolytic", "n_decoy",
                      "n_total", "per_scorer", "best_scorer",
                      "top_20_by_ensemble", "top_20_by_triage_score",
-                     "top_20_by_expert_composite",
+                     "top_20_by_expert_composite", "top_20_by_gate_triage",
                      "known_blind_spots", "disclaimer"]:
             assert key in result, f"Missing key: {key}"
 
@@ -62,6 +62,7 @@ class TestTriageBenchmarkStructure:
             "ensemble", "activity", "safety", "synthesis",
             "selectivity_proxy", "hemolysis_risk", "serum_stability",
             "expert_composite", "triage_score", "safe_weighted_ensemble",
+            "gate_triage",
         }
         assert expected.issubset(set(result["per_scorer"].keys()))
 
@@ -214,7 +215,7 @@ class TestStrictTriageBenchmarkStructure:
         for key in ["benchmark", "decoy_type", "n_selective", "n_hemolytic",
                      "n_decoy", "n_total", "per_scorer", "best_scorer",
                      "top_20_by_ensemble", "top_20_by_triage_score",
-                     "top_20_by_expert_composite",
+                     "top_20_by_expert_composite", "top_20_by_gate_triage",
                      "known_blind_spots", "disclaimer"]:
             assert key in strict_result, f"Missing key: {key}"
 
@@ -322,3 +323,99 @@ class TestStrictTriageBenchmarkFindings:
 
     def test_known_blind_spots_documented(self, strict_result):
         assert len(strict_result["known_blind_spots"]) >= 3
+
+class TestGateTriageFindings:
+    """Test the two-gate triage composite: activity * rich_selectivity.
+
+    This scorer combines two complementary signals:
+    - activity: strong at AMP-vs-decoy (AUROC ~0.88-0.93) but anti-selective
+    - rich_selectivity: strong at selective-vs-hemolytic (AUROC ~0.74, significant)
+      but anti-AMP (penalizes AMP-like features vs decoys)
+
+    Their product should pass all three triage conditions in the standard
+    benchmark, which no previous scorer has achieved.
+    """
+
+    def test_gate_triage_is_present(self, result):
+        assert "gate_triage" in result["per_scorer"]
+
+    def test_gate_triage_triages_correctly(self, result):
+        """The gate_triage scorer should pass all three pairwise AUROC > 0.5.
+
+        This is the first scorer to achieve all-three-pass triage in the
+        standard benchmark. It leverages activity (AMP detection) and
+        rich_selectivity (hemolysis separation) as multiplicative gates.
+        """
+        info = result["per_scorer"]["gate_triage"]
+        assert info["triages_correctly"] is True, (
+            f"gate_triage should triage correctly. "
+            f"sel_vs_dec={info['selective_vs_decoy']['auroc']:.4f}, "
+            f"hem_vs_dec={info['hemolytic_vs_decoy']['auroc']:.4f}, "
+            f"sel_vs_hem={info['selective_vs_hemolytic']['auroc']:.4f}"
+        )
+
+    def test_gate_triage_selective_vs_hemolytic_above_threshold(self, result):
+        """gate_triage should achieve selective_vs_hemolytic > 0.60.
+
+        The old triage_score (activity * (1 - hemolysis_risk)) fails this
+        condition because hemolysis_risk is not significant. gate_triage
+        uses rich_selectivity (AUROC=0.74, significant) instead.
+        """
+        svh = result["per_scorer"]["gate_triage"]["selective_vs_hemolytic"]["auroc"]
+        assert svh > 0.60, (
+            f"gate_triage selective_vs_hemolytic={svh:.4f}: expected > 0.60"
+        )
+
+    def test_gate_triage_beats_triage_score_on_selective_vs_hemolytic(self, result):
+        """gate_triage should beat the old triage_score on selective_vs_hemolytic.
+
+        This validates that rich_selectivity (significant) is a better
+        hemolysis separator than hemolysis_risk (not significant).
+        """
+        gate_svh = result["per_scorer"]["gate_triage"]["selective_vs_hemolytic"]["auroc"]
+        old_svh = result["per_scorer"]["triage_score"]["selective_vs_hemolytic"]["auroc"]
+        assert gate_svh > old_svh, (
+            f"gate_triage svh={gate_svh:.4f} should beat triage_score svh={old_svh:.4f}"
+        )
+
+    def test_gate_triage_top_20_majority_selective(self, result):
+        """gate_triage top-20 should have majority selective AMPs."""
+        dist = result["top_20_by_gate_triage"]
+        assert dist["SELECTIVE"] > 10, (
+            f"gate_triage top-20 selective={dist['SELECTIVE']}: expected > 10"
+        )
+
+    def test_gate_triage_fewer_hemolytic_than_ensemble(self, result):
+        """gate_triage should rank fewer hemolytic AMPs in top-20 than ensemble.
+
+        The ensemble has an anti-selective bias (ranks hemolytic AMPs highly).
+        gate_triage should correct this by penalizing hemolytic candidates
+        through the rich_selectivity gate.
+        """
+        gate_hem = result["top_20_by_gate_triage"]["HEMOLYTIC"]
+        ens_hem = result["top_20_by_ensemble"]["HEMOLYTIC"]
+        assert gate_hem <= ens_hem, (
+            f"gate_triage hemolytic in top-20={gate_hem} should be <= "
+            f"ensemble hemolytic in top-20={ens_hem}"
+        )
+
+    def test_gate_triage_is_best_scorer(self, result):
+        """gate_triage should be the best scorer by the composite metric."""
+        assert result["best_scorer"] == "gate_triage", (
+            f"Expected gate_triage as best scorer, got {result['best_scorer']}"
+        )
+
+    def test_gate_triage_does_not_pass_strict(self, strict_result):
+        """gate_triage should NOT pass strict triage (composition-matched decoys).
+
+        In strict triage, hemolytic_vs_decoy drops below 0.5 because
+        rich_selectivity penalizes the AMP-like composition that hemolytic
+        AMPs share with their scrambled decoys. This is an honest limitation:
+        the gate_triage has no order-dependent signal for the hemolytic-vs-decoy
+        pair when composition is controlled.
+        """
+        info = strict_result["per_scorer"]["gate_triage"]
+        assert info["triages_correctly"] is False, (
+            "gate_triage should not pass strict triage. "
+            "If it does, it has order-dependent signal beyond composition."
+        )

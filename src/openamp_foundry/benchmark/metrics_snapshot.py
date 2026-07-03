@@ -154,6 +154,7 @@ def build_metrics_snapshot(
             "top_20_by_ensemble": triage["top_20_by_ensemble"],
             "top_20_by_triage_score": triage["top_20_by_triage_score"],
             "top_20_by_expert_composite": triage["top_20_by_expert_composite"],
+            "top_20_by_gate_triage": triage["top_20_by_gate_triage"],
             "per_scorer": {
                 scorer: {
                     "selective_vs_decoy": info["selective_vs_decoy"]["auroc"],
@@ -173,6 +174,7 @@ def build_metrics_snapshot(
             "top_20_by_ensemble": strict_triage["top_20_by_ensemble"],
             "top_20_by_triage_score": strict_triage["top_20_by_triage_score"],
             "top_20_by_expert_composite": strict_triage["top_20_by_expert_composite"],
+            "top_20_by_gate_triage": strict_triage["top_20_by_gate_triage"],
             "per_scorer": {
                 scorer: {
                     "selective_vs_decoy": info["selective_vs_decoy"]["auroc"],

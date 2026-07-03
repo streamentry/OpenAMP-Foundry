@@ -366,6 +366,36 @@ The `rich_selectivity` component is anti-AMP by design (AUROC=0.1973 for
 AMP-vs-decoy) because it penalises high hydrophobicity and charge that define
 AMPs — this is the correct tradeoff.
 
+## v0.5.18 — Two-Gate Triage Composite ✓ (2026-07-03)
+
+The triage benchmark (v0.5.12) showed no scorer could pass all three pairwise
+AUROC conditions with strong selective-vs-hemolytic separation. The old
+`triage_score` (activity × (1 - hemolysis_risk)) used a non-significant
+hemolysis detector. This version adds `gate_triage` = activity ×
+rich_selectivity, combining the two strongest complementary signals.
+
+Changes:
+- `benchmark/triage.py`: `gate_triage` added to `_score_all()` and the scorer
+  list in both `run_triage_benchmark()` and `run_strict_triage_benchmark()`.
+  Top-20 class distribution breakdowns added.
+- `benchmark/metrics_snapshot.py`: `top_20_by_gate_triage` added to both triage
+  and strict_triage snapshot sections.
+- `tests/test_triage_benchmark.py`: 8 new tests in `TestGateTriageFindings`
+  covering structure, standard triage success, selective-vs-hemolytic threshold,
+  improvement over old triage_score, top-20 distribution, hemolytic reduction vs
+  ensemble, best-scorer assertion, and strict triage honest-failure test.
+- `outputs/metrics_snapshot.json`: regenerated with gate_triage results.
+
+Key result: **gate_triage is the first scorer to pass all three standard triage
+conditions with selective_vs_hemolytic > 0.65** (sel_vs_dec=0.779,
+hem_vs_dec=0.686, sel_vs_hem=0.666). Top-20: 16 selective / 1 hemolytic / 3 decoy.
+
+Honest limitation: gate_triage does NOT pass strict triage (composition-matched
+decoys). Its hemolytic_vs_decoy drops to 0.489 because rich_selectivity
+penalizes the AMP-like composition that hemolytic AMPs share with their
+scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
+It must NOT replace the ensemble activity gate — it is a complementary signal.
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);
