@@ -1,0 +1,20 @@
+{
+  "result_id": "RES-SYN-005",
+  "candidate_id": "SEED-001_VAR_064",
+  "assay_type": "MIC",
+  "organism_or_cell_line": "SYNTHETIC EXAMPLE - S. aureus ATCC 25923",
+  "result_value": 16.0,
+  "result_unit": "µg/mL",
+  "result_qualitative": "active",
+  "positive_control_passed": false,
+  "negative_control_passed": true,
+  "positive_control_id": "vancomycin 1.0 µg/mL",
+  "negative_control_id": "PBS",
+  "assay_date": "2026-07-04",
+  "replicate_count": 2,
+  "performed_by_lab": "SYNTHETIC EXAMPLE - University Test Lab",
+  "raw_data_sha256": null,
+  "computational_candidate_certificate_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "notes": "SYNTHETIC DATA: not a real wet-lab result. Positive control did NOT pass expected range; result must NOT be used for activity claims until retested with valid controls.",
+  "disclaimer": "SYNTHETIC EXAMPLE. This is not a real experimental result on a computationally nominated candidate and does not constitute a drug or clinical claim."
+}

@@ -41,7 +41,9 @@ help:
 	@echo "  make wave0-5-evidence       Re-generate evidence certificates"
 	@echo "  make wave0-5b-generate      Generate Wave 0.5b candidates (safety-optimized, no aromatics)"
 	@echo "  make wave0-5b-filter        Filter Wave 0.5b shortlist (depends on wave0-5b-generate)"
-	@echo "  make test               Run full test suite (1287 tests, ≥80% coverage)"
+	@echo "  make lab-result-intake      Join a pilot panel CSV with lab result JSON files"
+	@echo "  make lab-result-intake-example  Run intake on the synthetic example data"
+	@echo "  make test               Run full test suite (1614 tests, >=80% coverage)"
 	@echo "  make coverage           Test suite with per-module coverage report"
 	@echo "  make lint               Ruff lint check on src/ tests/ scripts/"
 	@echo "  make typecheck          mypy type check on src/"
@@ -241,6 +243,27 @@ novelty-broad: pilot
 		--panel-csv outputs/pilot_panel.csv \
 		--references-csv examples/known_reference/amp_curated_references.csv \
 		--out outputs/novelty_broad_report.md
+
+lab-result-intake-example:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli calibration-intake \
+		--panel examples/lab_results_panel.csv \
+		--results-dir examples/lab_results \
+		--out-json outputs/calibration_intake_example.json \
+		--out-md outputs/calibration_intake_example.md
+
+lab-result-intake:
+	@if [ -z "$(PANEL)" ] || [ -z "$(RESULTS_DIR)" ]; then \
+		echo "Usage: make lab-result-intake PANEL=<panel.csv> RESULTS_DIR=<lab_results_dir>"; \
+		echo ""; \
+		echo "Or run the synthetic example without arguments:"; \
+		echo "  make lab-result-intake-example"; \
+		exit 1; \
+	fi
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli calibration-intake \
+		--panel "$(PANEL)" \
+		--results-dir "$(RESULTS_DIR)" \
+		--out-json outputs/calibration_intake.json \
+		--out-md outputs/calibration_intake.md
 
 clean:
 	rm -rf outputs/*.jsonl outputs/*.md outputs/*.json outputs/evidence outputs/phase3_evidence .pytest_cache .ruff_cache

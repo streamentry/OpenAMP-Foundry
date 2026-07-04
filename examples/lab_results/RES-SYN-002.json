@@ -1,0 +1,20 @@
+{
+  "result_id": "RES-SYN-002",
+  "candidate_id": "SEED-005_VAR_049",
+  "assay_type": "hemolysis_RBC",
+  "organism_or_cell_line": "SYNTHETIC EXAMPLE - hRBC",
+  "result_value": 3.5,
+  "result_unit": "%",
+  "result_qualitative": "inactive",
+  "positive_control_passed": true,
+  "negative_control_passed": true,
+  "positive_control_id": "melittin 10 µM",
+  "negative_control_id": "PBS",
+  "assay_date": "2026-07-04",
+  "replicate_count": 3,
+  "performed_by_lab": "SYNTHETIC EXAMPLE - University Test Lab",
+  "raw_data_sha256": null,
+  "computational_candidate_certificate_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "notes": "SYNTHETIC DATA: not a real wet-lab result. Included only to exercise the calibration intake workflow.",
+  "disclaimer": "SYNTHETIC EXAMPLE. This is not a real experimental result on a computationally nominated candidate and does not constitute a drug or clinical claim."
+}

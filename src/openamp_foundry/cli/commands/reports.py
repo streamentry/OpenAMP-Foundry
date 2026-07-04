@@ -620,3 +620,42 @@ def _run_novelty_check_broad(args: argparse.Namespace) -> int:
     }
     print(json.dumps(summary, indent=2))
     return 0
+
+
+def _run_calibration_intake(args: argparse.Namespace) -> int:
+    """Build a calibration intake report from a pilot panel CSV + lab results."""
+    from openamp_foundry.calibration.intake import (
+        build_calibration_intake_report,
+        write_calibration_intake_json,
+        write_calibration_intake_markdown,
+    )
+
+    report = build_calibration_intake_report(args.panel, args.results_dir)
+    write_calibration_intake_json(report, args.out_json)
+    if args.out_md:
+        write_calibration_intake_markdown(report, args.out_md)
+
+    cohort_summary = {}
+    for key, metric in report["cohort_metrics"].items():
+        cohort_summary[key] = {
+            "n": metric["n"],
+            "insufficient_data": metric["insufficient_data"],
+        }
+
+    print(
+        json.dumps(
+            {
+                "status": "ok",
+                "n_panel_candidates": report["n_panel_candidates"],
+                "n_lab_results": report["n_lab_results"],
+                "n_matched_candidates": report["n_matched_candidates"],
+                "n_orphan_lab_results": report["n_orphan_lab_results"],
+                "cohort_metrics": cohort_summary,
+                "out_json": args.out_json,
+                "out_md": args.out_md,
+                "disclaimer_excerpt": report["report_disclaimer"][:80] + "...",
+            },
+            indent=2,
+        )
+    )
+    return 0

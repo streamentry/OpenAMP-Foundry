@@ -433,3 +433,62 @@ review (2026-06-28). Progress on these would materially raise breakthrough proba
 | Wet-lab result integration (active-learning round 2) | Required to move from 15–30% to 50%+ credible probability | Requires wet-lab |
 | ~~Pre-registration of assay protocol before synthesis~~ | ~~Strengthens causal inference; reduces reporting bias~~ | **Done** (docs/ASSAY_PREREGISTRATION.md — PRs #83; includes MRSA USA300, serum stability, Gate P3 aligned) |
 | Public benchmark paper (replicable, cluster-split, open datasets) | Sets community standard; enables external validation | Large |
+
+## v0.5.19 — Calibration Intake Module ✓ (2026-07-04)
+
+The lab-result ingestion layer (`data/lab_results.py`, `reports/lab_result_report.py`,
+`lab-result-report` CLI) was already in place, but there was no way to **join the
+pilot panel predictions with the lab-result actuals** to see whether the pipeline's
+predictions matched reality. Without that join, the wet-lab feedback loop has no
+intake valve, and any future recalibration would be operating on raw assay data
+without the prediction-vs-actual contrast it needs.
+
+This version adds the first step of the closed wet-lab feedback loop: a
+calibration-intake report that joins a pilot panel CSV with a directory of
+validated lab result JSON files. It is descriptive only — it does not rewrite
+selection rules, does not modify scoring weights, and does not upgrade assay
+readouts into biological claims.
+
+Changes:
+- `src/openamp_foundry/calibration/__init__.py`: new package
+- `src/openamp_foundry/calibration/intake.py`: new module
+  - `build_calibration_intake_report(panel_csv, results_dir)` — joins predictions
+    with actuals on `candidate_id`, produces a machine-readable report
+  - `write_calibration_intake_json(report, out_path)` and
+    `write_calibration_intake_markdown(report, out_path)` — output writers
+  - **Honest minimum-cohort-size gate**: aggregate cohort metrics are NOT
+    reported when `n < 5`. Below the gate the metric is marked
+    `insufficient_data: True` and no point estimate is produced. This prevents
+    small-sample theater where 2-3 MIC readouts could swing an "AUROC" by 0.30.
+  - Two pilot cohort metrics: `activity_vs_active_mic` (MIC ≤ 32 µg/mL active)
+    and `rich_selectivity_vs_high_hemolysis` (hemolysis ≥ 10% high-risk).
+  - Per-candidate join rows expose every prediction column plus the
+    aggregated actual outcomes.
+  - Control failures and orphan lab results (results with no matching
+    candidate) are surfaced as separate audit fields.
+- `src/openamp_foundry/cli/commands/reports.py`: `_run_calibration_intake`
+- `src/openamp_foundry/cli/main.py`: `calibration-intake` subcommand registered
+- `examples/lab_results/`: 5 clearly-labeled SYNTHETIC JSON files demonstrating
+  the workflow (active hit, inactive candidate, low hemolysis, high hemolysis,
+  control failure). Disclaimer required in every file's `disclaimer` field.
+- `examples/lab_results/README.md`: explicitly disclaims real-world use
+- `examples/lab_results_panel.csv`: 8-candidate synthetic pilot panel
+- `tests/test_calibration_intake.py`: 29 tests covering empty panels, missing
+  columns, orphan detection, control failure surfacing, cohort metric gating
+  (below/equal/above `MIN_COHORT_SIZE`), hemolysis direction logic,
+  synthetic-example schema validation, and threshold constants
+- `Makefile`: `lab-result-intake` and `lab-result-intake-example` targets
+- Total tests: 1614 passing (was 1585)
+
+Key honest limitation: this module does NOT trigger recalibration. It is the
+intake valve that produces a review artifact for a separate, human-reviewed
+recalibration workflow (see `docs/DECISION_RULES.md` and `docs/WAVE2_PLAN.md`).
+Cohort metrics are descriptive only; they do not validate the pipeline, do not
+control for selection bias from the pre-registered shortlist, and must not be
+used to rewrite scoring weights after the fact.
+
+The synthetic example data is clearly labeled in every JSON file's `disclaimer`
+field and in `examples/lab_results/README.md`. It exists solely to exercise the
+intake workflow end-to-end so future agents and reviewers can verify the code
+path without real wet-lab data. When real validated lab results arrive, replace
+the example directory — the pipeline itself does not change.

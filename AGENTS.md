@@ -515,6 +515,8 @@ Prepare:
 
 After qualified assay data exists, build:
 
+**v0.5.19 progress:** `openamp-foundry calibration-intake` joins pilot panel predictions with validated lab result actuals and produces a per-candidate report. Cohort metrics are gated by `MIN_COHORT_SIZE=5` to prevent small-sample theater. The module is descriptive only — recalibration requires a separate human-reviewed decision log (`docs/DECISION_RULES.md`). Synthetic-but-clearly-labeled example data is in `examples/lab_results/`. 29 new tests, total 1614 passing.
+
 * lab-result ingestion;
 * hit/failure calibration;
 * retrospective analysis of why the model was right or wrong;

@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -658,6 +658,37 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional output path for markdown review report.",
     )
 
+    calibration_intake = sub.add_parser(
+        "calibration-intake",
+        help=(
+            "Join a pilot panel CSV (computational predictions) with a directory of "
+            "validated lab result JSON files (experimental outcomes) and produce a "
+            "calibration intake report. Descriptive only. Does NOT trigger "
+            "recalibration, weight updates, or selection-rule changes. Below the "
+            "minimum cohort size no aggregate point estimate is reported."
+        ),
+    )
+    calibration_intake.add_argument(
+        "--panel",
+        required=True,
+        help="Pilot panel CSV (candidate_id + score columns).",
+    )
+    calibration_intake.add_argument(
+        "--results-dir",
+        required=True,
+        help="Directory containing lab result JSON files matching schemas/lab_result.schema.json.",
+    )
+    calibration_intake.add_argument(
+        "--out-json",
+        required=True,
+        help="Output path for machine-readable calibration intake JSON.",
+    )
+    calibration_intake.add_argument(
+        "--out-md",
+        required=False,
+        help="Optional output path for markdown calibration intake summary.",
+    )
+
     novelty_broad = sub.add_parser(
         "novelty-check-broad",
         help=(
@@ -769,6 +800,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "lab-result-report":
         return _run_lab_result_report(args)
+
+    if args.command == "calibration-intake":
+        return _run_calibration_intake(args)
 
     if args.command == "synthesis-order":
         return _run_synthesis_order(args)

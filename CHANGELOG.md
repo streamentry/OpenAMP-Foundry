@@ -235,3 +235,52 @@ improvements made before committing the ~$10k wet-lab synthesis budget.
 - Ensemble scoring with configurable weights
 - JSONL output with per-candidate `selected` field
 - `pipeline.yaml` and `phase3.yaml` configs
+
+---
+
+## [Unreleased — Calibration Intake Module] — 2026-07-04
+
+### v0.5.19 — Calibration Intake Module
+
+- **`openamp_foundry/calibration/intake.py`**: new module
+  - `build_calibration_intake_report(panel_csv, results_dir)` joins a pilot
+    panel CSV (computational predictions) with a directory of validated lab
+    result JSON files (experimental actuals) on `candidate_id`.
+  - `write_calibration_intake_json` and `write_calibration_intake_markdown`
+    produce machine-readable and human-readable review artifacts.
+  - **Honest minimum-cohort-size gate (`MIN_COHORT_SIZE=5`)**: aggregate
+    cohort metrics are NOT reported when `n < 5`. Below the gate the metric
+    is marked `insufficient_data: True` and no point estimate is produced.
+    This prevents small-sample theater.
+  - Two pilot cohort metrics: `activity_vs_active_mic` (MIC ≤ 32 µg/mL active)
+    and `rich_selectivity_vs_high_hemolysis` (hemolysis ≥ 10% high-risk).
+  - Per-candidate join rows expose every prediction column plus aggregated
+    actual outcomes. Control failures and orphan lab results surfaced.
+- **`cli/commands/reports.py`**: new `_run_calibration_intake` command.
+- **`cli/main.py`**: new `calibration-intake` subcommand registered.
+- **`examples/lab_results/`**: 5 SYNTHETIC JSON files demonstrating the
+  workflow (active hit, inactive candidate, low hemolysis, high hemolysis,
+  control failure). All files include a `disclaimer` field that explicitly
+  states they are synthetic examples. README in the directory repeats the
+  warning prominently.
+- **`examples/lab_results_panel.csv`**: 8-candidate synthetic pilot panel.
+- **`tests/test_calibration_intake.py`**: 29 tests covering empty panels,
+  missing columns, orphan detection, control failure surfacing, cohort
+  metric gating (below/equal/above `MIN_COHORT_SIZE`), hemolysis direction
+  logic, synthetic-example schema validation, threshold constants.
+- **`Makefile`**: `lab-result-intake` and `lab-result-intake-example`
+  targets added. Test-count help text updated.
+- **Total tests:** 1614 passing (was 1585).
+
+#### Honest limitations
+
+- This module does **NOT** trigger recalibration. It is the intake valve that
+  produces a review artifact for a separate, human-reviewed recalibration
+  workflow (see `docs/DECISION_RULES.md` and `docs/WAVE2_PLAN.md`).
+- Cohort metrics are descriptive only; they do not validate the pipeline, do
+  not control for selection bias from the pre-registered shortlist, and must
+  not be used to rewrite scoring weights after the fact.
+- Synthetic example data is clearly labeled in every JSON file's `disclaimer`
+  field and in `examples/lab_results/README.md`. It exists solely to exercise
+  the intake workflow end-to-end. When real validated lab results arrive,
+  replace the example directory — the pipeline itself does not change.

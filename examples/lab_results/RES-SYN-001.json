@@ -1,0 +1,20 @@
+{
+  "result_id": "RES-SYN-001",
+  "candidate_id": "SEED-005_VAR_049",
+  "assay_type": "MIC",
+  "organism_or_cell_line": "SYNTHETIC EXAMPLE - E. coli ATCC 25922",
+  "result_value": 8.0,
+  "result_unit": "µg/mL",
+  "result_qualitative": "active",
+  "positive_control_passed": true,
+  "negative_control_passed": true,
+  "positive_control_id": "ciprofloxacin 0.25 µg/mL",
+  "negative_control_id": "PBS",
+  "assay_date": "2026-07-04",
+  "replicate_count": 3,
+  "performed_by_lab": "SYNTHETIC EXAMPLE - University Test Lab",
+  "raw_data_sha256": null,
+  "computational_candidate_certificate_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "notes": "SYNTHETIC DATA: not a real wet-lab result. Included only to exercise the calibration intake workflow.",
+  "disclaimer": "SYNTHETIC EXAMPLE. This is not a real experimental result on a computationally nominated candidate and does not constitute a drug or clinical claim."
+}

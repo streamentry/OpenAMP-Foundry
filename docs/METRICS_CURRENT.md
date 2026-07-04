@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-03 (rich selectivity integrated into production pipeline)
+> **Last updated:** 2026-07-04 (calibration intake module added)
+> **New in v0.5.19:** `openamp-foundry calibration-intake` joins pilot panel predictions with lab result actuals. Descriptive only; does NOT trigger recalibration.
 > **Pipeline version:** v0.5.x
 > **Branch:** main
 
@@ -713,4 +714,5 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 | 2026-07-03 | **Rich selectivity integrated into production pipeline:** rich_selectivity_score now computed in score_candidates() (pipeline.py), replaces hemolysis_safety as the expert composite hemolysis-risk component (weight 0.10), used in pilot_priority formula, displayed in pilot panel report, and included in evidence certificates. Expert AUROC drops 0.7119→0.7097 (−0.0022) — acceptable tradeoff: the expert now includes a significant hemolysis detector (CI excludes 0.5) instead of the old non-significant one. | OpenAMP loop |
 | 2026-07-03 | **Two-gate triage composite added:** gate_triage = activity × rich_selectivity, added to triage benchmark. First scorer to pass all three standard triage conditions with strong selective_vs_hemolytic separation (0.666). Top-20: 16 selective / 1 hemolytic / 3 decoy — best distribution. Does NOT pass strict triage (hem_vs_dec 0.489) — honest limitation. Must not replace ensemble activity gate. | OpenAMP loop |
 | 2026-07-03 | **Feature decomposition benchmark added:** per-feature selective_vs_hemolytic AUROC for all 30 scalar physicochemical features. hydrophobic_fraction is the strongest single discriminative feature (0.6745, CI 0.58-0.77) but is NOT used by the selectivity proxy. 8/30 features have significant signal; 6 of those are unused. Provides actionable diagnostic for why composite scorers fail selective_vs_hemolytic discrimination. | OpenAMP loop |
+| 2026-07-04 | **Calibration intake module added:** `openamp-foundry calibration-intake` joins a pilot panel CSV with a directory of validated lab result JSON files, produces a per-candidate prediction-vs-actual report with cohort metrics gated by `MIN_COHORT_SIZE=5`. Descriptive only — does NOT trigger recalibration, weight updates, or selection-rule changes. Synthetic example data in `examples/lab_results/` is clearly labeled in every file and in `examples/lab_results/README.md`. 29 new tests; total 1614 passing. | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |
