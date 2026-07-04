@@ -284,3 +284,95 @@ improvements made before committing the ~$10k wet-lab synthesis budget.
   field and in `examples/lab_results/README.md`. It exists solely to exercise
   the intake workflow end-to-end. When real validated lab results arrive,
   replace the example directory — the pipeline itself does not change.
+
+---
+
+## [Unreleased — Recalibration Policy + Gate] — 2026-07-04
+
+### v0.5.20 — Recalibration Policy + Gate
+
+Pre-registered, machine-readable policy that gates any pipeline recalibration.
+This is the missing piece between v0.5.19 calibration-intake (descriptive
+join) and a future recalibration engine: the gate now answers the binary
+question "may recalibration proceed from this intake report?" with a
+verdict that no agent can silently bypass.
+
+**New policy contract — `configs/recalibration_policy.yaml`**
+
+- `minimum_conditions` (7 rules): MIN_COHORT_SIZE, MIN_POSITIVES_IN_COHORT,
+  MIN_NEGATIVES_IN_COHORT, POSITIVE_CONTROLS_ALL_PASS,
+  NEGATIVE_CONTROLS_ALL_PASS, NO_ORPHAN_LAB_RESULTS, COHORT_METRICS_AVAILABLE.
+- `prohibited_actions` (5 permanent floors): NO_TOXICITY_RELAXATION,
+  NO_HEMOLYSIS_RELAXATION, NO_NOVELTY_RELAXATION,
+  NO_DANGEROUS_PATHGEN_OPTIMIZATION, NO_POST_HOC_SUCCESS_REDEFINITION.
+- `rate_limits` (2 rules): WEIGHT_CHANGE_L1_BUDGET (0.10), COOLDOWN_DAYS (14).
+- `required_reviewer_artefacts` (3 artefacts): intake JSON, intake
+  Markdown, dated decision log entry.
+- `locked_changes` records the lock date for every enforced rule. The
+  validator rejects a policy file that lists an enforced rule without a
+  matching `locked_changes` entry.
+
+**New modules**
+
+- `openamp_foundry/calibration/policy.py`: `load_recalibration_policy`
+  parses, validates, and exposes the policy. Removes or relocations of
+  any canonical prohibited action cause `PolicyLoadError` at load time.
+- `openamp_foundry/calibration/recalibration_gate.py`:
+  `evaluate_recalibration_gate` consumes an intake report + a loaded
+  policy and returns a `GateVerdict`. Writes JSON and Markdown via
+  `write_gate_verdict_json` and `write_gate_verdict_markdown`.
+- `openamp_foundry/cli/commands/reports.py`: `_run_recalibration_gate`.
+- `cli/main.py`: `recalibration-gate` subcommand registered.
+  Exit code 0 when `may_recalibrate=true`, 3 when false, 2 on input error.
+
+**Makefile targets**
+
+- `recalibration-gate-example`: runs the gate on the synthetic intake
+  report. Expect exit code 3 (cohort size too small, one positive
+  control failed, all required reviewer artefacts missing).
+- `recalibration-gate INTAKE=... [DATE=YYYY-MM-DD] [PREV=YYYY-MM-DD] [L1=float]`
+  for real intake reports.
+
+**Tests — 39 new, total 1647 passing (was 1614)**
+
+- `tests/test_recalibration_gate.py` covers:
+  - policy loader happy path + every rejection mode (missing fields,
+    duplicate ids, unlocked rules, missing canonical prohibited
+    actions, missing locked_changes entries, bad types);
+  - gate evaluator with synthetic intake reports for every minimum
+    condition (cohort size, positives, negatives, controls, orphans,
+    insufficient metrics);
+  - prohibited-action audit always in force;
+  - rate-limit status (unknown / ok / exceeded for cooldown + L1 budget);
+  - reviewer-artefact status (missing / present based on disk);
+  - JSON + Markdown writers produce non-empty, schema-valid output;
+  - end-to-end smoke test of the CLI (exit code 3 on synthetic example).
+
+**Documentation**
+
+- `docs/CALIBRATION_POLICY.md` (new): explains the policy, the gate, the
+  prohibited-action floor, the rate limits, how to update the policy,
+  and how the policy fits the wet-lab compression roadmap.
+- `docs/ARCHITECTURE.md`: links the calibration package into the
+  wet-lab compression loop.
+- `docs/PLAN.md`: marks Phase 5 (active-learning) as gated by this policy.
+- `docs/ROADMAP.md`: new v0.5.20 milestone entry.
+- `docs/METRICS_CURRENT.md`: new entry in the change log.
+
+**Honest limitations (must read before relying on the gate)**
+
+- The gate **does NOT trigger any weight update**. It only emits a verdict.
+- A `may_recalibrate=true` verdict is a **permission**, not a command.
+  The decision to apply a weight change still belongs to a human reviewer
+  with a dated decision log entry (`docs/DECISION_LOG_<date>.md`).
+- The gate evaluates **cohort evidence**, not pipeline calibration
+  health. Benchmark regressions are caught by `make validate-scoring`,
+  `make bench-triage`, and the selectivity benchmark — not by this
+  policy. These checks must keep running independently.
+- The synthetic example correctly yields `may_recalibrate=false`. That
+  is the expected outcome on tiny synthetic data and is itself a
+  useful sanity check that the gate is enforcing the cohort floor.
+- The five canonical prohibited actions are duplicated from
+  `AGENTS.md` and `MISSION.md`. The validator rejects a policy file
+  that drops any of them; the human source documents must be updated
+  in lockstep before the policy file can be edited.

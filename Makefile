@@ -43,7 +43,9 @@ help:
 	@echo "  make wave0-5b-filter        Filter Wave 0.5b shortlist (depends on wave0-5b-generate)"
 	@echo "  make lab-result-intake      Join a pilot panel CSV with lab result JSON files"
 	@echo "  make lab-result-intake-example  Run intake on the synthetic example data"
-	@echo "  make test               Run full test suite (1614 tests, >=80% coverage)"
+	@echo "  make recalibration-gate-example  Evaluate recalibration gate on synthetic intake example"
+	@echo "  make recalibration-gate         Evaluate recalibration gate on a real intake report"
+	@echo "  make test               Run full test suite (1647 passing tests, >=80% coverage)"
 	@echo "  make coverage           Test suite with per-module coverage report"
 	@echo "  make lint               Ruff lint check on src/ tests/ scripts/"
 	@echo "  make typecheck          mypy type check on src/"
@@ -264,6 +266,29 @@ lab-result-intake:
 		--results-dir "$(RESULTS_DIR)" \
 		--out-json outputs/calibration_intake.json \
 		--out-md outputs/calibration_intake.md
+
+recalibration-gate-example: lab-result-intake-example
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli recalibration-gate \
+		--intake-report outputs/calibration_intake_example.json \
+		--intake-report-date 2026-07-04 \
+		--out-json outputs/recalibration_gate_example.json \
+		--out-md outputs/recalibration_gate_example.md
+
+recalibration-gate:
+	@if [ -z "$(INTAKE)" ]; then \
+		echo "Usage: make recalibration-gate INTAKE=<intake.json> [DATE=<YYYY-MM-DD>] [PREV=<YYYY-MM-DD>] [L1=<float>]"; \
+		echo ""; \
+		echo "Or run the synthetic example without arguments:"; \
+		echo "  make recalibration-gate-example"; \
+		exit 1; \
+	fi
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli recalibration-gate \
+		--intake-report "$(INTAKE)" \
+		$$(if [ -n "$(DATE)" ]; then echo --intake-report-date "$(DATE)"; fi) \
+		$$(if [ -n "$(PREV)" ]; then echo --previous-recalibration-at "$(PREV)"; fi) \
+		$$(if [ -n "$(L1)" ]; then echo --weight-l1-distance "$(L1)"; fi) \
+		--out-json outputs/recalibration_gate.json \
+		--out-md outputs/recalibration_gate.md
 
 clean:
 	rm -rf outputs/*.jsonl outputs/*.md outputs/*.json outputs/evidence outputs/phase3_evidence .pytest_cache .ruff_cache

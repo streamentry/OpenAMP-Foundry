@@ -659,3 +659,123 @@ def _run_calibration_intake(args: argparse.Namespace) -> int:
         )
     )
     return 0
+
+
+def _run_recalibration_gate(args: argparse.Namespace) -> int:
+    """Evaluate the recalibration gate against an intake report + policy."""
+    import json
+    from pathlib import Path
+
+    from openamp_foundry.calibration.policy import load_recalibration_policy
+    from openamp_foundry.calibration.recalibration_gate import (
+        evaluate_recalibration_gate,
+        write_gate_verdict_json,
+        write_gate_verdict_markdown,
+    )
+
+    intake_path = Path(args.intake_report)
+    if not intake_path.exists():
+        print(
+            json.dumps(
+                {
+                    "status": "error",
+                    "error": f"intake report not found: {intake_path}",
+                },
+                indent=2,
+            )
+        )
+        return 2
+
+    with intake_path.open() as f:
+        intake_report = json.load(f)
+
+    try:
+        policy = load_recalibration_policy(args.policy)
+    except Exception as exc:  # noqa: BLE001
+        print(
+            json.dumps(
+                {
+                    "status": "error",
+                    "error": f"failed to load policy {args.policy!r}: {exc}",
+                },
+                indent=2,
+            )
+        )
+        return 2
+
+    previous_recalibration_at = args.previous_recalibration_at
+    candidate_weight_l1_distance = args.weight_l1_distance
+    if candidate_weight_l1_distance is not None:
+        try:
+            candidate_weight_l1_distance = float(candidate_weight_l1_distance)
+        except (TypeError, ValueError):
+            print(
+                json.dumps(
+                    {
+                        "status": "error",
+                        "error": (
+                            "weight-l1-distance must be a float, got "
+                            f"{args.weight_l1_distance!r}"
+                        ),
+                    },
+                    indent=2,
+                )
+            )
+            return 2
+
+    project_root = Path(args.project_root) if args.project_root else Path.cwd()
+
+    verdict = evaluate_recalibration_gate(
+        intake_report,
+        policy,
+        intake_report_date=args.intake_report_date,
+        previous_recalibration_at=previous_recalibration_at,
+        candidate_weight_l1_distance=candidate_weight_l1_distance,
+        project_root=project_root,
+    )
+
+    if args.out_json:
+        write_gate_verdict_json(verdict, args.out_json)
+    if args.out_md:
+        write_gate_verdict_markdown(
+            verdict,
+            args.out_md,
+            intake_report_path=str(intake_path),
+            policy_path=str(args.policy),
+        )
+
+    # Avoid dumping nested arrays into the CLI stdout twice. Keep stdout concise.
+    cli_summary = {
+        "status": "ok",
+        "may_recalibrate": verdict.may_recalibrate,
+        "policy_version": verdict.policy_version,
+        "policy_locked_at": verdict.policy_locked_at,
+        "intake_report": str(intake_path),
+        "policy": str(args.policy),
+        "n_panel_candidates": verdict.n_panel_candidates,
+        "n_lab_results": verdict.n_lab_results,
+        "n_matched_candidates": verdict.n_matched_candidates,
+        "rule_results": [
+            {"rule_id": r.rule_id, "passed": r.passed, "observed": r.observed,
+             "threshold": r.threshold, "reason": r.reason}
+            for r in verdict.rule_results
+        ],
+        "rate_limit_status": [
+            {"rule_id": s.rule_id, "status": s.status, "observed": s.observed,
+             "threshold": s.threshold, "note": s.note}
+            for s in verdict.rate_limit_status
+        ],
+        "reviewer_artefact_status": [
+            {"artefact_id": s.artefact_id, "present": s.present,
+             "expected_path": s.expected_path, "note": s.note}
+            for s in verdict.reviewer_artefact_status
+        ],
+        "prohibited_action_count": len(verdict.prohibited_action_audit),
+        "reasons": list(verdict.reasons),
+        "summary": verdict.summary,
+        "out_json": args.out_json,
+        "out_md": args.out_md,
+    }
+    print(json.dumps(cli_summary, indent=2))
+    # Exit code: 0 if may_recalibrate, 3 otherwise.
+    return 0 if verdict.may_recalibrate else 3

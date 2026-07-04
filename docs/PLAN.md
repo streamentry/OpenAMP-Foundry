@@ -224,10 +224,14 @@ A microbiologist can review the batch and say whether it is worth assay money.
 
 Deliverables:
 
-- lab result ingestion schema;
-- hit/failure learning module;
-- model update report;
-- second-batch selection;
+- lab result ingestion schema; **(shipped v0.5.18)**
+- lab result intake report that joins predictions with actuals; **(shipped v0.5.19)**
+- **pre-registered recalibration policy + gate (shipped v0.5.20)** that
+  evaluates every intake report against `configs/recalibration_policy.yaml`
+  and emits a binary `may_recalibrate` verdict before any weight update;
+- hit/failure learning module (gated by v0.5.20);
+- model update report (gated by v0.5.20);
+- second-batch selection (gated by v0.5.20);
 - public negative-result archive where safe.
 
 Exit criterion:
@@ -235,6 +239,10 @@ Exit criterion:
 ```text
 Second-batch hit rate improves over first-batch hit rate without changing success definitions after the fact.
 ```
+
+Phase 5 is deliberately staged: the policy + gate ship before any
+recalibration engine exists, so the engine cannot be silently
+applied. See `docs/CALIBRATION_POLICY.md` for the exact gate contract.
 
 ### Phase 6 — Scientific credibility
 

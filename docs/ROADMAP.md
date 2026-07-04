@@ -492,3 +492,88 @@ field and in `examples/lab_results/README.md`. It exists solely to exercise the
 intake workflow end-to-end so future agents and reviewers can verify the code
 path without real wet-lab data. When real validated lab results arrive, replace
 the example directory — the pipeline itself does not change.
+
+## v0.5.20 — Recalibration Policy + Gate ✓ (2026-07-04)
+
+The v0.5.19 calibration-intake module joins pilot-panel predictions with
+validated lab-result actuals and produces a per-candidate review report.
+It is intentionally descriptive only. The obvious next step would be to
+"act on" those intake reports by adjusting scoring weights. Without a
+machine-readable policy that gates that action, the most dangerous
+failure mode is silent recalibration: an agent sees real wet-lab data,
+decides the scorer "needs improvement," and rewrites weights to fit.
+That is the textbook cherry-picking this project exists to prevent.
+
+This version adds the **gate that protects** any future recalibration.
+It is the missing permission layer between v0.5.19 intake and a
+recalibration engine that does not yet exist.
+
+Changes:
+- `configs/recalibration_policy.yaml`: human-authored, machine-readable
+  pre-registered policy.
+  - 7 `minimum_conditions` (cohort size, controls, orphans, positives,
+    negatives, metrics availability) — every rule also listed in
+    `locked_changes` so removal requires a documented decision log entry.
+  - 5 `prohibited_actions` (toxicity relaxation, hemolysis relaxation,
+    novelty relaxation, pathogen optimization, post-hoc success
+    redefinition) — permanent floor, mirrors `AGENTS.md` and
+    `MISSION.md`. Validator rejects any policy file that drops them.
+  - 2 `rate_limits` (L1 weight budget 0.10; cooldown 14 days) — evaluated
+    when the corresponding CLI inputs are supplied; `unknown` status
+    when not evaluable.
+  - 3 `required_reviewer_artefacts` (intake JSON, intake Markdown, dated
+    decision log entry) — surfaced as reasons when missing but not
+    blocking on their own; the human review IS the final step.
+  - 12 `locked_changes` entries, one per enforced rule.
+- `src/openamp_foundry/calibration/policy.py`: `load_recalibration_policy`
+  loads, validates, and exposes the policy. Raises `PolicyLoadError` on
+  missing fields, duplicate ids, unlocked rules, or missing canonical
+  prohibited actions.
+- `src/openamp_foundry/calibration/recalibration_gate.py`:
+  - `evaluate_recalibration_gate(intake_report, policy, ...)` returns a
+    `GateVerdict` with `may_recalibrate` (bool), per-rule results, audit,
+    rate-limit status, reviewer-artefact status, reasons, and summary.
+  - `write_gate_verdict_json` and `write_gate_verdict_markdown` produce
+    JSON and Markdown outputs.
+- `cli/commands/reports.py`: `_run_recalibration_gate`.
+- `cli/main.py`: `recalibration-gate` subcommand registered.
+  Exit code 0 when `may_recalibrate=true`, 3 when false, 2 on input error.
+- `Makefile`: `recalibration-gate-example` and `recalibration-gate`
+  targets added.
+- `tests/test_recalibration_gate.py`: 39 new tests covering policy
+  loader (happy + every rejection mode), gate evaluator (every minimum
+  condition), prohibited-action audit, rate-limit status, reviewer-
+  artefact status, writers, end-to-end CLI smoke. Total 1647 passing.
+- `docs/CALIBRATION_POLICY.md`: human-readable overview of the policy,
+  the gate, the permanent floor, rate limits, and how to update.
+
+Key honest limitations (must read before relying on the gate):
+
+1. The gate does NOT trigger any weight update. It only emits a verdict.
+2. A `may_recalibrate=true` verdict is a permission, not a command.
+   The decision to apply a weight change still belongs to a human
+   reviewer with a dated decision log entry.
+3. The gate evaluates cohort evidence, not pipeline calibration health.
+   Benchmark regressions are caught by `make validate-scoring`,
+   `make bench-triage`, and the selectivity benchmark — not by this
+   policy. These checks must keep running independently.
+4. The synthetic example correctly yields `may_recalibrate=false` (cohort
+   size 4 < 5, one positive control failed, all reviewer artefacts
+   missing). That is the expected outcome on tiny synthetic data and is
+   itself a useful sanity check that the gate is enforcing the cohort
+   floor honestly.
+5. The five canonical prohibited actions are duplicated from `AGENTS.md`
+   and `MISSION.md`. The validator rejects a policy file that drops any
+   of them. Any relaxation of the source documents must happen in
+   lockstep with the policy file.
+
+Next-loop candidates that depend on v0.5.20:
+
+- **Recalibration engine**: implement the actual weight-update code,
+  gated by this policy. Will be safe to ship because the gate
+  pre-emptively rejects recalibration attempts that violate the floor.
+- **Per-seed recalibration audit**: extend the policy with seed-specific
+  rules once Wave 1 results are in.
+- **Policy version bump workflow**: codify the exact decision-log format
+  and add CI guard that a `policy_version` bump requires a non-empty
+  decision log entry dated within the past 30 days.

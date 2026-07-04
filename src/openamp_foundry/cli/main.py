@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -689,6 +689,71 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional output path for markdown calibration intake summary.",
     )
 
+    recalibration_gate = sub.add_parser(
+        "recalibration-gate",
+        help=(
+            "Evaluate the recalibration gate against a calibration intake "
+            "report and the pre-registered policy. Descriptive only -- does "
+            "NOT trigger any weight update or scoring change. Returns "
+            "may_recalibrate=true only when every minimum_condition rule "
+            "passes. Exit code is 0 when may_recalibrate is true and 3 "
+            "otherwise."
+        ),
+    )
+    recalibration_gate.add_argument(
+        "--intake-report",
+        required=True,
+        help="Path to calibration-intake JSON (output of `calibration-intake`).",
+    )
+    recalibration_gate.add_argument(
+        "--policy",
+        default="configs/recalibration_policy.yaml",
+        help="Path to the pre-registered recalibration policy YAML.",
+    )
+    recalibration_gate.add_argument(
+        "--intake-report-date",
+        default=None,
+        help=(
+            "ISO date (YYYY-MM-DD) for the intake report; used to evaluate "
+            "the COOLDOWN_DAYS rate limit."
+        ),
+    )
+    recalibration_gate.add_argument(
+        "--previous-recalibration-at",
+        default=None,
+        help=(
+            "ISO date (YYYY-MM-DD) of the previous successful recalibration "
+            "for the same scoring config. Omit if no prior recalibration."
+        ),
+    )
+    recalibration_gate.add_argument(
+        "--weight-l1-distance",
+        default=None,
+        help=(
+            "Optional float for the L1 distance between current and proposed "
+            "scoring weights. When set, the WEIGHT_CHANGE_L1_BUDGET rate "
+            "limit becomes evaluable."
+        ),
+    )
+    recalibration_gate.add_argument(
+        "--project-root",
+        default=None,
+        help=(
+            "Optional path used to resolve relative reviewer-artefact paths. "
+            "Defaults to the current working directory."
+        ),
+    )
+    recalibration_gate.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional output path for the gate verdict JSON.",
+    )
+    recalibration_gate.add_argument(
+        "--out-md",
+        default=None,
+        help="Optional output path for the gate verdict Markdown report.",
+    )
+
     novelty_broad = sub.add_parser(
         "novelty-check-broad",
         help=(
@@ -803,6 +868,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "calibration-intake":
         return _run_calibration_intake(args)
+
+    if args.command == "recalibration-gate":
+        return _run_recalibration_gate(args)
 
     if args.command == "synthesis-order":
         return _run_synthesis_order(args)

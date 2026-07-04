@@ -517,6 +517,8 @@ After qualified assay data exists, build:
 
 **v0.5.19 progress:** `openamp-foundry calibration-intake` joins pilot panel predictions with validated lab result actuals and produces a per-candidate report. Cohort metrics are gated by `MIN_COHORT_SIZE=5` to prevent small-sample theater. The module is descriptive only — recalibration requires a separate human-reviewed decision log (`docs/DECISION_RULES.md`). Synthetic-but-clearly-labeled example data is in `examples/lab_results/`. 29 new tests, total 1614 passing.
 
+**v0.5.20 progress:** `openamp-foundry recalibration-gate` evaluates a calibration-intake report against the pre-registered policy in `configs/recalibration_policy.yaml` and emits a binary `may_recalibrate` verdict. The policy encodes 7 minimum conditions (cohort size, controls, orphans, positives, negatives, metrics availability), 5 permanent prohibited actions (toxicity, hemolysis, novelty, pathogen enhancement, post-hoc success redefinition), and 2 rate limits (L1 weight budget, cooldown). The validator rejects policy files that omit any canonical prohibited action or any `locked_changes` entry. The gate does NOT trigger weight updates; it is the missing permission layer between v0.5.19 intake and a future recalibration engine. Exit code 0 when `may_recalibrate=true`, 3 when false. 39 new tests, total 1647 passing. See `docs/CALIBRATION_POLICY.md`.
+
 * lab-result ingestion;
 * hit/failure calibration;
 * retrospective analysis of why the model was right or wrong;
