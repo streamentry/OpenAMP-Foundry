@@ -122,6 +122,27 @@ python -m openamp_foundry.cli lab-result-report \
   --out-md outputs/lab_result_report.md
 ```
 
+Join panel predictions with validated lab result actuals:
+
+```bash
+python -m openamp_foundry.cli calibration-intake \
+  --predictions outputs/predictions.csv \
+  --results-dir outputs/lab_results \
+  --panel-name "wave1" \
+  --out-json outputs/calibration_intake_report.json
+```
+
+Evaluate whether a calibration-intake report satisfies the pre-registered recalibration policy:
+
+```bash
+python -m openamp_foundry.cli recalibration-gate \
+  --intake outputs/calibration_intake_report.json \
+  --policy configs/recalibration_policy.yaml \
+  --out-json outputs/gate_verdict.json
+```
+
+Exit code 0 means the gate allows recalibration; exit code 3 means the policy rejects it.
+
 ## Repository map
 
 ```text
@@ -132,12 +153,17 @@ openamp-foundry/
   .github/workflows/ci.yml             # CI checks
   configs/pipeline.yaml                # scoring weights and thresholds
   configs/phase3.yaml                  # wet-lab-ready batch configuration
+  configs/recalibration_policy.yaml    # pre-registered recalibration policy
   data/README.md                       # data policy and external data notes
+  docs/50_LOOP_PLAN.md                 # 50-loop strategic execution plan
   docs/ARCHITECTURE.md                 # architecture and threat model
   docs/BENCHMARKING.md                 # leakage-resistant benchmark plan
+  docs/CALIBRATION_POLICY.md           # pre-registered recalibration policy
+  docs/DECISION_RULES.md               # pre-registered pass/fail gates
   docs/EVIDENCE_CERTIFICATE.md         # candidate certificate spec
-  docs/LEGACY_LOOP_PROMPT.md           # reusable execution loop prompt for continued progress
+  docs/LEGACY_LOOP_PROMPT.md           # reusable execution loop prompt
   docs/METRICS_CURRENT.md              # current benchmark summary
+  docs/NEW_VISION.md                   # next-horizon wet-lab compression vision
   docs/PLAN.md                         # detailed execution plan
   docs/ROADMAP.md                      # shipped milestones and next horizons
   docs/WET_LAB_HANDOFF.md              # assay package and wet-lab review notes
