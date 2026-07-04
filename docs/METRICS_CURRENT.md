@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-04 (recalibration policy + gate module added)
-> **New in v0.5.19:** `openamp-foundry calibration-intake` joins pilot panel predictions with lab result actuals. Descriptive only; does NOT trigger recalibration.
-> **Pipeline version:** v0.5.20
+> **Last updated:** 2026-07-05 (subpackage public API surface, v0.5.25)
+> **New in v0.5.25:** 11 subpackages now publish a curated `__all__` so `from openamp_foundry.benchmark import run_triage_benchmark` works cleanly. `tests/test_public_api_imports.py` (7 tests) locks in the public surface. No benchmark numbers changed.
+> **Pipeline version:** v0.5.25
 > **Branch:** main
 
 ---

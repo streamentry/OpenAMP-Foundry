@@ -1,12 +1,24 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
 import unittest.mock
 from pathlib import Path
 
-from scripts.benchmark_gate import run_benchmark_gate
+# scripts/ is not part of the openamp_foundry package, so we load the
+# benchmark_gate module by file path. This avoids depending on whether
+# scripts/ is on PYTHONPATH in a given environment (local dev, CI,
+# editable install, etc.).
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
+_spec = importlib.util.spec_from_file_location(
+    "_scripts_benchmark_gate", _SCRIPTS_DIR / "benchmark_gate.py"
+)
+_benchmark_gate = importlib.util.module_from_spec(_spec)
+assert _spec.loader is not None
+_spec.loader.exec_module(_benchmark_gate)
+run_benchmark_gate = _benchmark_gate.run_benchmark_gate
 
 
 def _snapshot(auroc: float) -> dict:
@@ -102,7 +114,8 @@ class TestBenchmarkGateCLI:
             "openamp_foundry.benchmark.metrics_snapshot.build_metrics_snapshot",
             return_value=current,
         ):
-            from scripts.benchmark_gate import main
+            # _benchmark_gate is loaded at module scope above via importlib.util
+            main = _benchmark_gate.main
             rc = main(["--baseline", str(low), "--tolerance", "0.0"])
             assert rc == 1
 
@@ -116,7 +129,8 @@ class TestBenchmarkGateCLI:
             return_value=snap,
         ):
             report = tmp_path / "gate.md"
-            from scripts.benchmark_gate import main
+            # _benchmark_gate is loaded at module scope above via importlib.util
+            main = _benchmark_gate.main
             rc = main(["--baseline", str(baseline_file), "--out", str(report)])
             assert rc == 0
             assert report.exists()

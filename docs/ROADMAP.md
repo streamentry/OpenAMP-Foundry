@@ -567,6 +567,8 @@ Key honest limitations (must read before relying on the gate):
    of them. Any relaxation of the source documents must happen in
    lockstep with the policy file.
 
+## v0.5.24 — Benchmark Regression Gate for CI ✓ (2026-07-04)
+
 Next-loop candidates that depend on v0.5.20:
 
 - **Recalibration engine**: implement the actual weight-update code,
@@ -577,3 +579,41 @@ Next-loop candidates that depend on v0.5.20:
 - **Policy version bump workflow**: codify the exact decision-log format
   and add CI guard that a `policy_version` bump requires a non-empty
   decision log entry dated within the past 30 days.
+
+## v0.5.25 — Subpackage Public API & Import Discipline ✓ (2026-07-05)
+
+Eleven subpackages previously had empty `__init__.py` files. Every
+external caller had to reach into module-level imports
+(`from openamp_foundry.scoring.activity import activity_likeness_score`)
+or, worse, guess which module owned which function. The Phase 0 exit
+criterion (`from openamp_foundry.benchmark import ...` works cleanly)
+was not met. This release curates a public API per package so callers
+can write `from openamp_foundry.benchmark import run_triage_benchmark`
+and `from openamp_foundry.scoring import activity_likeness_score` etc.
+
+Changes:
+- `src/openamp_foundry/{benchmark,scoring,selection,features,evidence,data,qc,reports,generators,analysis,utils,gates}/__init__.py` —
+  each populated with a module-level docstring, ordered re-exports of
+  every non-underscore public function/class, and an `__all__` list.
+  Total ~120 public names now reachable from package root.
+- `src/openamp_foundry/features/physchem.py`: deferred the `boman`
+  import to function scope inside `compute_features`. The top-level
+  import cycled through the new `scoring` package `__init__` →
+  `scoring.expert` → `features.physchem` on every fresh interpreter.
+  The lazy import resolves it without changing observable behaviour.
+- `tests/test_public_api_imports.py` (7 tests) — locks in the public
+  surface so accidental export removals are caught at PR time. Includes
+  regression checks for the Phase 0 exit criteria.
+
+Key honest limitations:
+
+1. The public surface is curated but not yet linted by CI. Future loops
+   can add a `ruff` or custom rule that fails PRs which introduce new
+   top-level imports of private names from these subpackages, if drift
+   becomes a problem.
+2. macrel_local functions are re-exported with the `macrel_` prefix
+   (`macrel_available`, `macrel_score_batch`, `macrel_score_one`)
+   to avoid collisions with common names in other scoring modules.
+3. No benchmark, scoring, or behavioural number changed. This is a
+   pure architectural-clarity release.
+

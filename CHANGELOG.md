@@ -4,6 +4,100 @@ All notable changes to OpenAMP Foundry are documented here.
 
 ---
 
+## [Unreleased — Subpackage Public API] — 2026-07-05
+
+### v0.5.25 — Subpackage Public API & Import Discipline
+
+Eleven subpackages previously had empty `__init__.py` files, forcing every
+caller to reach into module-level imports (e.g. `from openamp_foundry.scoring.activity import
+activity_likeness_score`). This release curates a public API per package
+so `from openamp_foundry.benchmark import run_triage_benchmark` works
+cleanly, in line with the Phase 0 exit criterion.
+
+**API surface added (re-exports + `__all__` for each):**
+
+- `openamp_foundry.benchmark` — `run_triage_benchmark`, `run_strict_triage_benchmark`,
+  `run_retrospective_benchmark`, `run_cluster_split_benchmark`,
+  `run_expert_ablation_benchmark`, `run_selectivity_benchmark`,
+  `run_feature_decomposition_benchmark`, `find_near_duplicates`,
+  `find_contaminated_references`, `build_metrics_snapshot`,
+  `deterministic_split`, `cluster_by_similarity`, `cluster_split`,
+  `top_k_ids`, `recall_at_k`, `random_recall_at_k`, `enrichment_factor`,
+  `benchmark_summary`
+- `openamp_foundry.scoring` — `activity_likeness_score`, `boman_index`,
+  `boman_activity_score`, `gravy_score`, `model_disagreement`,
+  `ensemble_score`, `selection_reasons`, `known_failure_modes`,
+  `EXPERT_WEIGHTS`, `ExpertScore`, `expert_score`, `helix_hinge_analysis`,
+  `build_kmer_index`, `kmer_prior_art`, `hemolysis_risk_score`,
+  `hemolysis_safety_component`, `MacrelResult`, `macrel_available`,
+  `macrel_score_batch`, `macrel_score_one`, `levenshtein`,
+  `normalized_similarity`, `novelty_score`, `safety_score`,
+  `rich_selectivity_score`, `rich_selectivity_breakdown`,
+  `serum_stability_score`, `synthesis_feasibility_score`
+- `openamp_foundry.selection` — `greedy_diverse_select`, `rank_candidates`,
+  `select_top`, `select_pilot_panel`
+- `openamp_foundry.features` — `compute_features`, `fraction`,
+  `helix_propensity_score`, `helix_wheel_faces`, `hydrophobic_moment`,
+  `longest_repeat_run`, `max_windowed_hydrophobic_moment`,
+  `net_charge_at_ph74`, `net_charge_proxy`
+- `openamp_foundry.evidence` — `build_certificate`, `validate_json_schema`
+- `openamp_foundry.data` — `is_valid_sequence`, `load_candidates_csv`,
+  `normalize_sequence`, `load_lab_result`, `load_lab_results_dir`,
+  `summarise_lab_results`, `candidate_result_map`,
+  `summarise_candidate_outcomes`
+- `openamp_foundry.qc` — `SynthQC`, `check_sequence`, `check_panel`,
+  `generate_synthesis_order`, `write_order_csv`, `write_synthesis_checklist`
+- `openamp_foundry.reports` — `diversity_clustering_report`, `novelty_report`,
+  `scorer_consensus_report`, `synthesis_feasibility_report`,
+  `toxicity_hemolysis_risk_report`, `ConsensusResult`, `compute_consensus`,
+  `consensus_report_to_dict`, `write_consensus_report`,
+  `write_confident_panel`, `write_external_predict_checklist`,
+  `write_pilot_fasta`, `build_lab_result_report`,
+  `write_lab_result_json`, `write_lab_result_markdown`,
+  `write_pilot_csv`, `write_pilot_markdown`
+- `openamp_foundry.generators` — `mutate_sequence`,
+  `generate_single_substitution_variants`,
+  `generate_double_substitution_variants`,
+  `generate_aggregation_safe_double_variants`,
+  `generate_charge_enhanced_variants`,
+  `generate_balanced_charge_variants`, `generate_all_variants`
+- `openamp_foundry.analysis` — `levenshtein_similarity`,
+  `pairwise_similarity_matrix`, `cluster_panel`,
+  `recommend_minimal_diverse_panel`, `diversity_stats`,
+  `family_structural_warnings`
+- `openamp_foundry.utils` — `stable_json_hash`, `file_sha256`,
+  `read_json`, `write_json`, `write_jsonl`
+- `openamp_foundry.gates` — `GateResult`, `check_gate_1_auroc`
+  through `check_gate_5_interpretation`, `check_all_gates`,
+  `W05GateResult`, `check_w05_1_family_diversity` through
+  `check_w05_7_claim_safety`, `run_all_gates`
+
+**Internal change — circular-import fix in features.physchem**
+
+`compute_features` deferred its `boman` import to function scope because
+`openamp_foundry.scoring.expert` imports from this module at package
+init time, which would now cycle through the new scoring `__init__`.
+
+**Tests — 7 new, total 1682 passing (was 1675)**
+
+- `tests/test_public_api_imports.py` verifies every entry in every
+  subpackage `__all__` is actually importable from the package root;
+  guards against accidental export removal; ensures no `_`-prefixed
+  private names leak into the public surface; regression checks for
+  the Phase 0 exit criteria (`from openamp_foundry.calibration import
+  GateVerdict`, top-level benchmark + scoring imports).
+
+**Honest limitations**
+
+- The public surface is curated but not yet linted. Future loops can
+  add a CI rule that fails PRs which introduce new top-level imports
+  of private names from these subpackages, if drift becomes a problem.
+- macrel_local functions are re-exported with `macrel_` prefix
+  (`macrel_available`, `macrel_score_batch`, `macrel_score_one`)
+  to avoid colliding with common names in other scoring modules.
+
+---
+
 ## [Unreleased — Dedicated Hemolysis Risk Scorer] — 2026-07-01
 
 ### v0.5.10 — Dedicated Hemolysis Risk Scorer

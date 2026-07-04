@@ -3,8 +3,7 @@ from __future__ import annotations
 import math
 from collections import Counter
 
-from openamp_foundry.scoring.boman import boman_index, gravy_score
-
+# Deferred import: see compute_features for rationale (circular-import safety).
 HYDROPHOBIC = set("AILMFWVY")
 POSITIVE = set("KRH")
 NEGATIVE = set("DE")
@@ -394,6 +393,9 @@ def aggregation_propensity(sequence: str) -> float:
 
 
 def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
+    # Lazy import: openamp_foundry.scoring.boman pulls in this module via
+    # scoring.expert at package init time, so top-level imports would cycle.
+    from openamp_foundry.scoring.boman import boman_index, gravy_score
     counts = Counter(sequence)
     length = len(sequence)
     charge = net_charge_proxy(sequence)
