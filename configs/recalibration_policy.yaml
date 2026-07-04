@@ -1,0 +1,281 @@
+# Pre-registered recalibration policy for OpenAMP Foundry.
+#
+# This file is the MACHINE-READABLE CONTRACT that gates any pipeline recalibration.
+# It is intentionally HUMAN-WRITTEN and REVIEWED before any wet-lab data arrives.
+#
+# Load order:
+#   - calibration-intake   (builds a report JSON from panel + lab results)
+#   - recalibration-gate   (loads THIS file, evaluates intake report, returns verdict)
+#
+# Honesty rules:
+#   - All `pre_registered: true` rules are PERMANENT until the policy_version
+#     itself is bumped AND a human reviewer commits a `decision_log` entry that
+#     documents the change. The validator REJECTS policy files where a previously
+#     enforced rule disappears or relaxes without a recorded decision.
+#   - `prohibited_actions` is the permanent floor. These rules CANNOT be
+#     disabled. They encode the project's non-negotiable safety constraints
+#     (no activity-only optimization, no hemolysis relaxation, no novelty
+#     lowering) so they are duplicated from AGENTS.md / MISSION.md.
+#   - This policy does NOT itself trigger any weight updates, scoring changes,
+#     or selection rule modifications. It only answers the binary question:
+#     "may recalibration proceed from this intake report?" A "no" verdict is
+#     always the safe default.
+
+policy_version: 1
+locked_at: "2026-07-04"  # ISO 8601 date when a human reviewed this policy
+human_reviewer: "OpenAMP Foundry maintainers (v0.5.20 recalibration policy ratification)"
+
+# ----------------------------------------------------------------------
+# Minimum conditions -- ALL must pass for the gate to return
+# may_recalibrate=true. Each condition lists the threshold and rationale.
+# ----------------------------------------------------------------------
+minimum_conditions:
+
+  - id: "MIN_COHORT_SIZE"
+    description: >
+      Cohort must have at least N validated lab results that successfully
+      joined to a pilot-panel candidate.
+    threshold: 5
+    applies_to: "report.n_matched_candidates"
+    rationale: >
+      Smaller cohorts produce unstable AUROC estimates and would make any
+      weight update indistinguishable from overfitting to noise. This
+      matches the gate already used in calibration-intake cohort metrics.
+
+  - id: "MIN_POSITIVES_IN_COHORT"
+    description: >
+      The matched cohort must contain at least N candidates with a confirmed
+      ACTIVE antimicrobial signal (MIC <= cutoff or equivalent).
+    threshold: 2
+    applies_to: "cohort.activity_vs_active_mic.n_positive_lab"
+    rationale: >
+      A recalibration dataset with zero or one active hit cannot distinguish
+      a well-tuned scorer from one that simply ignores activity. The
+      pipeline needs at least two confirmed hits to learn anything useful.
+
+  - id: "MIN_NEGATIVES_IN_COHORT"
+    description: >
+      The matched cohort must contain at least N candidates with a confirmed
+      INACTIVE result.
+    threshold: 2
+    applies_to: "cohort.activity_vs_active_mic.n_negative_lab"
+    rationale: >
+      Same logic as MIN_POSITIVES: without confirmed inactive results we
+      cannot measure false positive rate, so any weight update would only
+      reward activity and would erode the safety floor.
+
+  - id: "POSITIVE_CONTROLS_ALL_PASS"
+    description: >
+      Every positive control in the cohort must have passed.
+    threshold: true
+    applies_to: "report.control_failures"
+    rationale: >
+      A single failed positive control invalidates the entire assay batch
+      for that result. Recalibration on contaminated data is forbidden.
+
+  - id: "NEGATIVE_CONTROLS_ALL_PASS"
+    description: >
+      Every negative control in the cohort must have passed.
+    threshold: true
+    applies_to: "report.control_failures"
+    rationale: >
+      Same as positive controls. Both directions must be clean before
+      trusting the assay for any direction.
+
+  - id: "NO_ORPHAN_LAB_RESULTS"
+    description: >
+      The number of orphan lab results (results whose candidate_id does
+      not appear in the pilot panel) must be zero, OR a documented
+      explanation must be present in the intake report.
+    threshold: 0
+    applies_to: "report.n_orphan_lab_results"
+    rationale: >
+      Orphan results suggest either a mismatched candidate_id, a candidate
+      that was never officially selected for assay, or a data-entry bug.
+      All three are reasons to halt recalibration.
+
+  - id: "COHORT_METRICS_AVAILABLE"
+    description: >
+      Cohort metrics must be present (not flagged insufficient_data).
+      Calibration-intake flags cohort metrics as insufficient_data when
+      the matched cohort is below MIN_COHORT_SIZE.
+    threshold: false
+    applies_to: "cohort.activity_vs_active_mic.insufficient_data"
+    rationale: >
+      We will not compute or act on AUROC values flagged by intake as
+      insufficient_data. This rule is double-defensive with MIN_COHORT_SIZE.
+
+# ----------------------------------------------------------------------
+# Prohibited actions -- permanent floor. These CANNOT be relaxed by
+# future policy edits without bumping policy_version and recording a
+# human decision log entry. They duplicate AGENTS.md / MISSION.md.
+# ----------------------------------------------------------------------
+prohibited_actions:
+
+  - id: "NO_TOXICITY_RELAXATION"
+    description: >
+      Recalibration may NOT modify scoring weights, scorer coefficients,
+      or filter thresholds in any way that REDUCES the toxicity penalty
+      applied to candidate ranking.
+    rationale: >
+      Activity without safety is not valuable. AGENTS.md explicitly
+      forbids objectives that optimize for mammalian toxicity in any
+      direction. This rule is permanent.
+
+  - id: "NO_HEMOLYSIS_RELAXATION"
+    description: >
+      Recalibration may NOT modify any hemolysis-related weight,
+      threshold, or scorer coefficient downward. The hemolysis risk
+      penalty floor may only stay flat or grow stronger.
+    rationale: >
+      Hemolysis safety is non-negotiable. MISSION.md lists dual-use
+      review as a required gate. This rule is permanent.
+
+  - id: "NO_NOVELTY_RELAXATION"
+    description: >
+      Recalibration may NOT lower novelty thresholds or weights below
+      their currently shipped values. Novelty is the primary safeguard
+      against rediscovery of known AMPs.
+    rationale: >
+      A candidate that is essentially a known AMP is not a discovery.
+      AGENTS.md identifies "rediscovering known AMPs" as a primary
+      threat. This rule is permanent.
+
+  - id: "NO_DANGEROUS_PATHGEN_OPTIMIZATION"
+    description: >
+      Recalibration may NOT add, restore, or strengthen any objective
+      function, scorer weight, or filter that targets pathogen
+      enhancement, immune evasion, virulence increase, or delivery of
+      harmful biological agents.
+    rationale: >
+      AGENTS.md identifies "dangerous operational content" as the
+      primary dual-use failure mode. This rule is permanent.
+
+  - id: "NO_POST_HOC_SUCCESS_REDEFINITION"
+    description: >
+      Recalibration may NOT change the success criteria, gate thresholds,
+      or minimum AUROC floor that were used to select the cohort being
+      analysed.
+    rationale: >
+      Cherry-picking the success definition to fit the observed data is
+      the textbook failure mode this policy exists to prevent.
+
+# ----------------------------------------------------------------------
+# Rate limits -- soft caps on how often recalibration may proceed.
+# ----------------------------------------------------------------------
+rate_limits:
+
+  - id: "WEIGHT_CHANGE_L1_BUDGET"
+    description: >
+      Maximum total L1 distance (sum of absolute weight changes) across
+      all scoring weights per recalibration event.
+    threshold: 0.10
+    applies_to: "candidate_weights_post_minus_pre_l1"
+    rationale: >
+      Prevents large jumps that look like overfitting to a single
+      batch. Combined with the cooldown rule below, this forces
+      incremental adjustments whose cumulative drift is auditable.
+
+  - id: "COOLDOWN_DAYS"
+    description: >
+      Minimum elapsed days between the date of this intake report and
+      the date of the previous successful recalibration event for the
+      same scoring config.
+    threshold: 14
+    applies_to: "previous_recalibration_at"
+    rationale: >
+      Time-separated batches expose cumulative drift that back-to-back
+      batches hide. 14 days is a deliberately conservative floor that
+      allows at most ~2 recalibration events per month per config.
+
+# ----------------------------------------------------------------------
+# Required reviewer artefacts for any recalibration to be considered
+# scientifically valid. These do not block the gate on their own (the
+# gate is binary) but they ARE checked and surfaced in the verdict so
+# reviewers cannot claim the gate passed without producing them.
+# ----------------------------------------------------------------------
+required_reviewer_artefacts:
+
+  - id: "INTAKE_REPORT_JSON"
+    description: "Machine-readable intake report produced by calibration-intake."
+    expected_path: "outputs/calibration_intake.json"
+    kind: "machine"
+
+  - id: "INTAKE_REPORT_MARKDOWN"
+    description: "Human-readable intake report for the same cohort."
+    expected_path: "outputs/calibration_intake.md"
+    kind: "human"
+
+  - id: "DECISION_LOG_ENTRY"
+    description: >
+      A dated, human-authored decision log entry (Markdown or YAML)
+      explaining why this cohort justifies recalibration and what
+      proposed weight changes are recommended.
+    expected_path: "docs/DECISION_LOG_<YYYY-MM-DD>.md"
+    kind: "human"
+
+# ----------------------------------------------------------------------
+# Pre-registration lock. The presence of this block is itself checked
+# by the validator. Editing this policy without bumping policy_version
+# or recording a human decision log entry causes the gate to FAIL.
+# ----------------------------------------------------------------------
+locked_changes:
+
+  - rule_id: "MIN_COHORT_SIZE"
+    locked_at: "2026-07-04"
+    reason: "Anti-cherry-picking floor below which AUROC is unstable."
+
+  - rule_id: "MIN_POSITIVES_IN_COHORT"
+    locked_at: "2026-07-04"
+    reason: "Anti-cherry-picking floor for confirmed active hits."
+
+  - rule_id: "MIN_NEGATIVES_IN_COHORT"
+    locked_at: "2026-07-04"
+    reason: "Anti-cherry-picking floor for confirmed inactive results."
+
+  - rule_id: "POSITIVE_CONTROLS_ALL_PASS"
+    locked_at: "2026-07-04"
+    reason: "Assay batch validity floor."
+
+  - rule_id: "NEGATIVE_CONTROLS_ALL_PASS"
+    locked_at: "2026-07-04"
+    reason: "Assay batch validity floor."
+
+  - rule_id: "NO_ORPHAN_LAB_RESULTS"
+    locked_at: "2026-07-04"
+    reason: "Prevents hidden candidate_id mismatches."
+
+  - rule_id: "COHORT_METRICS_AVAILABLE"
+    locked_at: "2026-07-04"
+    reason: "Double-defensive guard against acting on insufficient_data."
+
+  - rule_id: "NO_TOXICITY_RELAXATION"
+    locked_at: "2026-07-04"
+    reason: "Permanent safety floor (AGENTS.md)."
+
+  - rule_id: "NO_HEMOLYSIS_RELAXATION"
+    locked_at: "2026-07-04"
+    reason: "Permanent safety floor (MISSION.md)."
+
+  - rule_id: "NO_NOVELTY_RELAXATION"
+    locked_at: "2026-07-04"
+    reason: "Permanent novelty safeguard (AGENTS.md)."
+
+  - rule_id: "NO_DANGEROUS_PATHGEN_OPTIMIZATION"
+    locked_at: "2026-07-04"
+    reason: "Permanent dual-use safeguard (AGENTS.md)."
+
+  - rule_id: "NO_POST_HOC_SUCCESS_REDEFINITION"
+    locked_at: "2026-07-04"
+    reason: "Permanent anti-cherry-picking safeguard (AGENTS.md)."
+
+notes:
+  - "This policy is the human-authored contract that gates recalibration."
+  - "It does NOT itself trigger any weight update. It only answers the question"
+  - "  'may recalibration proceed from this intake report?' with a binary verdict"
+  - "  plus a list of reasons when the verdict is no."
+  - "Bumping policy_version requires writing a dated decision log entry"
+  - "  (docs/DECISION_LOG_<date>.md) that documents what changed and why."
+  - "Every prohibited_action is permanent and CANNOT be relaxed by any future"
+  -  "policy edit. Removing one would require deleting the entire policy file"
+  -  "and replacing it with a new file at a new path."

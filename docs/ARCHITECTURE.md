@@ -48,7 +48,7 @@ Potential future packages, only if benchmarked honestly:
 
 | Future package | Intended role |
 |---|---|
-| `openamp_foundry.calibration` | learning from assay results and recalibrating scores |
+| `openamp_foundry.calibration` | lab-result intake (v0.5.19), pre-registered recalibration policy + gate (v0.5.20); future recalibration engine goes here, gated by `recalibration_gate` |
 | `openamp_foundry.active_learning` | choosing informative next experiments under uncertainty |
 
 ## Threat model
@@ -90,6 +90,11 @@ When the project is mature enough, the extended loop should look like:
 5. Select a very small assay batch that balances likely winners with high-information probes.
 6. Ingest qualified wet-lab outcomes through versioned schemas.
 7. Convert raw result JSON into a control-aware review artifact before any recalibration decision.
+8. **Pre-registered recalibration gate (v0.5.20)**: evaluate the intake
+   report against `configs/recalibration_policy.yaml` and obtain a binary
+   `may_recalibrate` verdict. If `false`, recalibration is forbidden
+   regardless of what the report says. If `true`, a human reviewer may
+   propose a weight change that respects every prohibited action.
 8. Recalibrate decision rules without rewriting success definitions after the fact.
 9. Measure whether the added modeling layer actually reduced wasted experiments.
 
