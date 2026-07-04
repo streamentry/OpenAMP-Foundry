@@ -186,12 +186,12 @@ Phase 4: Not started
 | 2 ✅ | README doesn't document calibration CLI or policy files; no 50-loop strategic plan exists | Updated README with calibration flow and repo map; 50-LOOP_PLAN.md created | 1652 pass, README reviewed |
 | 3 ✅ | Doc audit — verify freshness, deduplicate, archive stale content | Performed as part of Loop 1/2 structure work; calibration docs up to date | Docs consistent |
 | 4 ✅ | No end-to-end smoke test for the full calibration chain (panel→intake→gate→verdict) | `tests/test_calibration_e2e.py`: 14 new tests exercising Python API, CLI, and Makefile targets for both passing and failing paths | 1669 pass, full calibration flow verified |
+| 5 ✅ | No CI benchmark regression gate — AUROC can silently degrade | `scripts/benchmark_gate.py`, `tests/test_benchmark_gate.py` (13 tests), `make bench-gate` target, CI step that fails on AUROC drop >0.02 | 1682 pass, `make bench-gate` exits 0, CI gate committed |
 
 ### Remaining (Phase 0)
 
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
-| 5 | No CI job that runs `make demo` + `make validate-scoring` + `make bench-triage` on every PR | `.github/workflows/ci.yml` expanded with benchmark gate workflow. PRs that regress AUROC >0.02 are flagged | CI passes, benchmark gate enforced |
 | 6 | No script to regenerate all derived outputs (metrics_snapshot, evidence certs, etc.) deterministically | `make regenerate-all` target that runs full pipeline, benchmarks, and evidence generation from versioned inputs | Deterministic: `git diff --stat` shows zero unexpected changes |
 | 7 | Some `__init__.py` files in subpackages (benchmark, scoring, selection) may be empty or incomplete | Audit and populate all subpackage `__init__.py` exports; add `__all__` everywhere | `from openamp_foundry.benchmark import ...` works cleanly |
 | 8 | No contributor onboarding guide that specifically calls out safety review and claim policy | `CONTRIBUTING.md` updated with safety-first contribution checklist; PR template added | New contributor can open a safe first PR in <30 min |
@@ -201,4 +201,4 @@ Phase 4: Not started
 - `make ci` passes with benchmark gate
 - A new agent can read README → run demo → understand calibration flow → contribute safely in one session
 
-**Next loop:** Loop 5 — CI benchmark gate workflow (protect against scoring regressions).
+**Next loop:** Loop 6 — deterministic regenerate-all script.

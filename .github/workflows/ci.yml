@@ -37,6 +37,9 @@ jobs:
       - name: Leakage check (informational)
         run: make bench-leakage
 
+      - name: Benchmark regression gate (AUROC drop <= 0.02 vs committed baseline)
+        run: make bench-gate
+
       - name: Hidden-active benchmark (require EF >= 1.5 at k=5)
         run: |
           PYTHONPATH=src python -c "
