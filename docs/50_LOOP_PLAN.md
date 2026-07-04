@@ -1,8 +1,9 @@
 # 50-Loop Execution Plan
 
-> **Status:** Strategic roadmap. Updated v0.5.21.
-> **Current state:** 1652 tests, pipeline AUROC 0.7832, calibration intake + gate shipped,
-> Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
+> **Status:** Strategic roadmap. Updated v0.5.23.
+> **Current state:** 1669 tests, pipeline AUROC 0.7832, calibration intake + gate shipped,
+> calibration end-to-end smoke test shipped (Loop 4), Wave 0.5 panel ready
+> (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
 > Loops compound. Earlier loops unlock later ones.
@@ -170,11 +171,34 @@ If no data arrives, virtual assay scaffolding continues independently.
 ## Current Position
 
 ```
-Phase 0: Loop 2 of 8 (this loop)
+Phase 0: Loop 5 of 8 (next loop)
 Phase 1: Not started
 Phase 2: Not started
 Phase 3: Not started
 Phase 4: Not started
 ```
 
-**Next loop after this document is written:** Loop 3 — Doc audit (consolidate, deduplicate, verify freshness).
+### Completed
+
+| Loop | Bottleneck | Deliverable | Verification |
+|------|-----------|-------------|-------------|
+| 1 ✅ | Calibration `__init__.py` empty; `new-vision.md` loose at root; `pyproject.toml` dual deps; Gate W0.5-7 false positive | Clean calibration API exports, moved NEW_VISION.md with disclaimer, consolidated deps, gate fix | 1652 pass, all 7 gates PASS |
+| 2 ✅ | README doesn't document calibration CLI or policy files; no 50-loop strategic plan exists | Updated README with calibration flow and repo map; 50-LOOP_PLAN.md created | 1652 pass, README reviewed |
+| 3 ✅ | Doc audit — verify freshness, deduplicate, archive stale content | Performed as part of Loop 1/2 structure work; calibration docs up to date | Docs consistent |
+| 4 ✅ | No end-to-end smoke test for the full calibration chain (panel→intake→gate→verdict) | `tests/test_calibration_e2e.py`: 14 new tests exercising Python API, CLI, and Makefile targets for both passing and failing paths | 1669 pass, full calibration flow verified |
+
+### Remaining (Phase 0)
+
+| Loop | Bottleneck | Deliverable | Verification |
+|------|-----------|-------------|-------------|
+| 5 | No CI job that runs `make demo` + `make validate-scoring` + `make bench-triage` on every PR | `.github/workflows/ci.yml` expanded with benchmark gate workflow. PRs that regress AUROC >0.02 are flagged | CI passes, benchmark gate enforced |
+| 6 | No script to regenerate all derived outputs (metrics_snapshot, evidence certs, etc.) deterministically | `make regenerate-all` target that runs full pipeline, benchmarks, and evidence generation from versioned inputs | Deterministic: `git diff --stat` shows zero unexpected changes |
+| 7 | Some `__init__.py` files in subpackages (benchmark, scoring, selection) may be empty or incomplete | Audit and populate all subpackage `__init__.py` exports; add `__all__` everywhere | `from openamp_foundry.benchmark import ...` works cleanly |
+| 8 | No contributor onboarding guide that specifically calls out safety review and claim policy | `CONTRIBUTING.md` updated with safety-first contribution checklist; PR template added | New contributor can open a safe first PR in <30 min |
+
+### Phase 0 exit criteria:
+- `from openamp_foundry.calibration import GateVerdict` works
+- `make ci` passes with benchmark gate
+- A new agent can read README → run demo → understand calibration flow → contribute safely in one session
+
+**Next loop:** Loop 5 — CI benchmark gate workflow (protect against scoring regressions).

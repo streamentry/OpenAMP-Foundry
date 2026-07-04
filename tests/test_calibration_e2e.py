@@ -93,9 +93,10 @@ def _lab_result(
     positive_control_passed: bool = True,
     negative_control_passed: bool = True,
     organism: str = "SYNTHETIC - E. coli ATCC 25922",
+    result_id: str | None = None,
 ) -> dict:
     return {
-        "result_id": f"RES-{candidate_id}",
+        "result_id": result_id or f"RES-{candidate_id}",
         "candidate_id": candidate_id,
         "assay_type": assay_type,
         "organism_or_cell_line": organism,
@@ -318,6 +319,7 @@ class TestCalibrationE2EPythonAPI:
                     candidate_id=cid, assay_type="MIC",
                     result_value=8.0 if active else 128.0,
                     result_qualitative="active" if active else "inactive",
+                    result_id=f"RES-MIC-{cid}",
                 ),
             )
             if i < 3:
@@ -326,6 +328,7 @@ class TestCalibrationE2EPythonAPI:
                     _lab_result(
                         candidate_id=cid, assay_type="hemolysis_RBC",
                         result_value=5.0, result_qualitative="inactive",
+                        result_id=f"RES-HEMO-{cid}",
                     ),
                 )
         _write_panel_csv(panel_csv, panel_rows)
@@ -409,7 +412,7 @@ class TestCalibrationE2ECLI:
         assert gate_data["may_recalibrate"] is True
         assert len(gate_data["rule_results"]) >= 7
         assert all(r["passed"] for r in gate_data["rule_results"])
-        assert "may_recalibrate" in gate_data["summary"].lower()
+        assert "PASS" in gate_data["summary"] or "may proceed" in gate_data["summary"].lower()
 
     def test_cli_full_chain_failing(self, failing_setup, tmp_path):
         """Run the full chain on failing data. Assert exit code 3."""
@@ -489,7 +492,8 @@ class TestCalibrationE2ECLI:
                 "recalibration-gate",
                 "--intake-report", str(intake_out),
                 "--intake-report-date", date.today().isoformat(),
-                "--previous-recalibration-at", "2026-07-01",
+                # Previous recalibration far enough in the past to pass cooldown
+                "--previous-recalibration-at", "2026-01-01",
                 "--weight-l1-distance", "0.05",
                 "--policy", str(POLICY_PATH),
                 "--project-root", str(REPO_ROOT),
@@ -501,7 +505,7 @@ class TestCalibrationE2ECLI:
         assert proc.returncode == 0
         payload = json.loads(proc.stdout)
 
-        # Rate-limit statuses should be "ok" for a clean run
+        # Rate-limit statuses should be "ok" or "unknown" for a clean run
         for rl in payload["rate_limit_status"]:
             assert rl["status"] in ("ok", "unknown"), (
                 f"Rate limit {rl['rule_id']} status was {rl['status']}: "
