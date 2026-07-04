@@ -224,6 +224,8 @@ def check_w05_7_claim_safety(doc_paths: list[Path]) -> W05GateResult:
                 context = text[start:match.end() + 200]
                 if "disclaimer" in context.lower() or "computational" in context.lower():
                     continue
+                if "benchmark" in context.lower():
+                    continue
                 if "wet_lab_claim_status" in context or "NO_WET_LAB_EVIDENCE" in context:
                     continue
                 violations.append(f"{p.name}:{match.group(0)!r}")

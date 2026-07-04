@@ -28,7 +28,13 @@ Read these first:
 - docs/PLAN.md
 - docs/ROADMAP.md
 - docs/METRICS_CURRENT.md
+- docs/CALIBRATION_POLICY.md (if present — pre-registered recalibration gate)
 - docs/SAFE_SCOPE.md
+
+Agent-friendly package note: The calibration module (`src/openamp_foundry/calibration/`)
+now exposes its public API at the package level. Use
+`from openamp_foundry.calibration import build_calibration_intake_report,
+GateVerdict, RecalibrationPolicy` etc. instead of reaching into submodules.
 
 Then run one focused execution loop with this objective:
 
