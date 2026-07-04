@@ -1,0 +1,614 @@
+"""End-to-end smoke test for the calibration chain.
+
+Exercises the full flow:
+    synthetic pilot panel CSV
+        + synthetic lab result JSON files
+        → calibration-intake report
+        → recalibration-gate verdict
+        → correct exit code + output structure
+
+This is THE critical safety path for the wet-lab feedback loop.
+If this test breaks, the calibration pipeline cannot be trusted.
+
+Honest limitation: All data is synthetic. Tests never rely on real
+wet-lab numbers. They verify code-path integrity, not biological signal.
+"""
+from __future__ import annotations
+
+import csv
+import json
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+
+import pytest
+
+from openamp_foundry.calibration import (
+    MIN_COHORT_SIZE,
+    build_calibration_intake_report,
+    evaluate_recalibration_gate,
+    load_recalibration_policy,
+    write_calibration_intake_json,
+    write_gate_verdict_json,
+)
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+POLICY_PATH = REPO_ROOT / "configs" / "recalibration_policy.yaml"
+EXAMPLES_PANEL = REPO_ROOT / "examples" / "lab_results_panel.csv"
+EXAMPLES_RESULTS_DIR = REPO_ROOT / "examples" / "lab_results"
+
+
+# ── Helpers ────────────────────────────────────────────────────────────
+
+_PANEL_FIELDS = [
+    "pilot_rank", "candidate_id", "sequence", "length", "seed",
+    "ensemble", "activity", "boman_activity", "disagreement",
+    "safety", "synthesis", "novelty", "serum_stability",
+    "selectivity_proxy", "rich_selectivity", "pilot_priority",
+    "amphipathic_score", "charge_ph74",
+]
+
+
+def _panel_row(candidate_id: str, sequence: str, seed: str,
+               ensemble: float = 0.80, activity: float = 0.82,
+               rich_selectivity: float = 0.70, **kw) -> dict:
+    row = {
+        "pilot_rank": "1",
+        "candidate_id": candidate_id,
+        "sequence": sequence,
+        "length": str(len(sequence)),
+        "seed": seed,
+        "ensemble": f"{ensemble:.2f}",
+        "activity": f"{activity:.2f}",
+        "boman_activity": "0.75",
+        "disagreement": "0.05",
+        "safety": "0.90",
+        "synthesis": "0.85",
+        "novelty": "0.70",
+        "serum_stability": "0.65",
+        "selectivity_proxy": "0.60",
+        "rich_selectivity": f"{rich_selectivity:.2f}",
+        "pilot_priority": "0.75",
+        "amphipathic_score": "1.5",
+        "charge_ph74": "4.0",
+    }
+    row.update(kw)
+    return row
+
+
+def _write_panel_csv(panel_csv: Path, rows: list[dict]) -> None:
+    with panel_csv.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=_PANEL_FIELDS)
+        w.writeheader()
+        for r in rows:
+            w.writerow(r)
+
+
+def _lab_result(
+    candidate_id: str = "CAND-001",
+    assay_type: str = "MIC",
+    result_value: float = 8.0,
+    result_qualitative: str = "active",
+    positive_control_passed: bool = True,
+    negative_control_passed: bool = True,
+    organism: str = "SYNTHETIC - E. coli ATCC 25922",
+) -> dict:
+    return {
+        "result_id": f"RES-{candidate_id}",
+        "candidate_id": candidate_id,
+        "assay_type": assay_type,
+        "organism_or_cell_line": organism,
+        "result_value": result_value,
+        "result_unit": "µg/mL" if assay_type == "MIC" else "%",
+        "result_qualitative": result_qualitative,
+        "positive_control_passed": positive_control_passed,
+        "negative_control_passed": negative_control_passed,
+        "positive_control_id": "ciprofloxacin 0.25 µg/mL",
+        "negative_control_id": "PBS",
+        "assay_date": "2026-07-05",
+        "replicate_count": 3,
+        "performed_by_lab": "SYNTHETIC - E2E Test",
+        "raw_data_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "computational_candidate_certificate_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "notes": "SYNTHETIC DATA - e2e test",
+        "disclaimer": (
+            "SYNTHETIC TEST. This is not a real experimental result "
+            "and does not constitute a drug or clinical claim."
+        ),
+    }
+
+
+def _write_lab_result(results_dir: Path, result: dict) -> Path:
+    p = results_dir / f"{result['result_id']}.json"
+    p.write_text(json.dumps(result))
+    return p
+
+
+def _build_passing_data(tmp_path: Path, n: int = 5):
+    """Create synthetic data where all candidates have complete,
+    control-passing lab results. n must be >= MIN_COHORT_SIZE."""
+    panel_rows = []
+    results_dir = tmp_path / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    panel_csv = tmp_path / "panel.csv"
+    for i in range(n):
+        cid = f"PASS-CAND-{i:03d}"
+        active = i % 2 == 0
+        panel_rows.append(
+            _panel_row(
+                candidate_id=cid,
+                sequence=f"AAAKKKFFF{i}" if len(str(i)) <= 1 else "AAAKKKFFFI",
+                seed=f"SEED-P{i}",
+                ensemble=0.82 if active else 0.55,
+                activity=0.85 if active else 0.45,
+                rich_selectivity=0.75 if active else 0.35,
+            )
+        )
+        _write_lab_result(
+            results_dir,
+            _lab_result(
+                candidate_id=cid,
+                assay_type="MIC",
+                result_value=8.0 if active else 128.0,
+                result_qualitative="active" if active else "inactive",
+            ),
+        )
+    _write_panel_csv(panel_csv, panel_rows)
+
+
+# ── Fixtures ───────────────────────────────────────────────────────────
+
+
+@pytest.fixture
+def passing_setup(tmp_path):
+    """Create a passing calibration dataset with >= MIN_COHORT_SIZE
+    candidates, all with complete, control-passing lab results."""
+    _build_passing_data(tmp_path, n=MIN_COHORT_SIZE)
+    return tmp_path
+
+
+@pytest.fixture
+def failing_setup(tmp_path):
+    """Create a failing dataset: too few matched candidates,
+    and one control failure."""
+    results_dir = tmp_path / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    panel_csv = tmp_path / "panel.csv"
+    # 4 candidates
+    panel_rows = [
+        _panel_row(candidate_id="FAIL-CAND-001", sequence="AAAKKK", seed="SEED-F1"),
+        _panel_row(candidate_id="FAIL-CAND-002", sequence="BBBLLL", seed="SEED-F2"),
+        _panel_row(candidate_id="FAIL-CAND-003", sequence="CCCMNN", seed="SEED-F3"),
+        _panel_row(candidate_id="FAIL-CAND-004", sequence="DDDOOP", seed="SEED-F4"),
+    ]
+    _write_panel_csv(panel_csv, panel_rows)
+    _write_lab_result(
+        results_dir,
+        _lab_result(candidate_id="FAIL-CAND-001", result_value=8.0, result_qualitative="active"),
+    )
+    # Control failure (positive control failed)
+    _write_lab_result(
+        results_dir,
+        _lab_result(
+            candidate_id="FAIL-CAND-002", result_value=128.0,
+            result_qualitative="inactive", positive_control_passed=False,
+        ),
+    )
+    return tmp_path
+
+
+# ── Full-chain Python API test ─────────────────────────────────────────
+
+
+class TestCalibrationE2EPythonAPI:
+    """Test the full chain using the Python API directly."""
+
+    def test_passing_chain_returns_may_recalibrate(self, passing_setup):
+        """Happy path: cohort >= MIN_COHORT_SIZE, all controls pass
+        → intake → gate → may_recalibrate=True."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        assert intake["n_matched_candidates"] >= MIN_COHORT_SIZE
+        assert len(intake["control_failures"]) == 0
+
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+        assert verdict.may_recalibrate is True, (
+            f"Expected may_recalibrate=True on passing data, got False.\n"
+            f"Failed rules: {[r.rule_id for r in verdict.rule_results if not r.passed]}"
+        )
+        assert verdict.n_matched_candidates >= MIN_COHORT_SIZE
+
+    def test_failing_chain_returns_may_recalibrate_false(self, failing_setup):
+        """Sad path: cohort < MIN_COHORT_SIZE, control failure
+        → intake → gate → may_recalibrate=False."""
+        panel_csv = failing_setup / "panel.csv"
+        results_dir = failing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        assert intake["n_matched_candidates"] < MIN_COHORT_SIZE
+        assert len(intake["control_failures"]) >= 1
+
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+        assert verdict.may_recalibrate is False
+        failed_ids = [r.rule_id for r in verdict.rule_results if not r.passed]
+        assert "MIN_COHORT_SIZE" in failed_ids
+
+    def test_failing_chain_reports_control_failure(self, failing_setup):
+        """The failing setup's control failure must be surfaced in
+        the gate verdict."""
+        panel_csv = failing_setup / "panel.csv"
+        results_dir = failing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        assert len(intake["control_failures"]) >= 1
+        cf = intake["control_failures"][0]
+        assert cf["positive_control_passed"] is False
+
+    def test_passing_chain_produces_valid_json_output(self, passing_setup, tmp_path):
+        """The full chain produces valid, schema-conformant JSON output."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+
+        intake_out = tmp_path / "intake.json"
+        write_calibration_intake_json(intake, intake_out)
+        assert intake_out.exists() and intake_out.stat().st_size > 200
+        reloaded = json.loads(intake_out.read_text())
+        assert reloaded["n_matched_candidates"] >= MIN_COHORT_SIZE
+
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(reloaded, policy)
+
+        gate_out = tmp_path / "gate.json"
+        write_gate_verdict_json(verdict, gate_out)
+        assert gate_out.exists() and gate_out.stat().st_size > 200
+        gate_data = json.loads(gate_out.read_text())
+        assert gate_data["may_recalibrate"] is True
+        assert gate_data["policy_version"] == 1
+
+    def test_all_minimum_conditions_satisfied(self, passing_setup):
+        """Verify every minimum_condition rule passes on clean data."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        for rule in verdict.rule_results:
+            assert rule.passed, (
+                f"Rule {rule.rule_id} failed on passing data: "
+                f"{rule.reason}"
+            )
+
+    def test_prohibited_actions_always_in_force(self, passing_setup):
+        """Prohibited actions must always be in_force=true regardless of data."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        for audit in verdict.prohibited_action_audit:
+            assert audit.in_force is True, (
+                f"Prohibited action {audit.action_id} is NOT in force"
+            )
+
+    def test_passing_data_with_multiple_assays(self, tmp_path):
+        """A candidate with both MIC and hemolysis results still passes."""
+        (tmp_path / "results").mkdir(parents=True, exist_ok=True)
+        panel_csv = tmp_path / "panel.csv"
+        panel_rows = []
+        for i in range(MIN_COHORT_SIZE):
+            cid = f"MULTI-CAND-{i:03d}"
+            active = i % 2 == 0
+            panel_rows.append(
+                _panel_row(
+                    candidate_id=cid, sequence=f"MMMNNN{i}", seed=f"SEED-M{i}",
+                    ensemble=0.82 if active else 0.55,
+                    activity=0.85 if active else 0.45,
+                )
+            )
+            _write_lab_result(
+                tmp_path / "results",
+                _lab_result(
+                    candidate_id=cid, assay_type="MIC",
+                    result_value=8.0 if active else 128.0,
+                    result_qualitative="active" if active else "inactive",
+                ),
+            )
+            if i < 3:
+                _write_lab_result(
+                    tmp_path / "results",
+                    _lab_result(
+                        candidate_id=cid, assay_type="hemolysis_RBC",
+                        result_value=5.0, result_qualitative="inactive",
+                    ),
+                )
+        _write_panel_csv(panel_csv, panel_rows)
+
+        intake = build_calibration_intake_report(panel_csv, tmp_path / "results")
+        assert intake["n_matched_candidates"] == MIN_COHORT_SIZE
+
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+        assert verdict.may_recalibrate is True
+
+
+# ── Full-chain CLI integration test ────────────────────────────────────
+
+
+class TestCalibrationE2ECLI:
+    """Test the full calibration chain via CLI subprocess.
+
+    This is the closest we get to "user runs the commands" without
+    shelling out to make.
+    """
+
+    def test_cli_full_chain_passing(self, passing_setup, tmp_path):
+        """Run calibration-intake + recalibration-gate via CLI
+        on passing data. Assert both exit codes and output structure."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake_out = tmp_path / "intake.json"
+        gate_out = tmp_path / "gate.json"
+
+        # Step 1: calibration-intake
+        intake_cmd = [
+            sys.executable, "-m", "openamp_foundry.cli",
+            "calibration-intake",
+            "--panel", str(panel_csv),
+            "--results-dir", str(results_dir),
+            "--out-json", str(intake_out),
+        ]
+        proc = subprocess.run(
+            intake_cmd,
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 0, (
+            f"calibration-intake failed:\n"
+            f"stdout: {proc.stdout[:500]}\nstderr: {proc.stderr[:500]}"
+        )
+        intake_payload = json.loads(proc.stdout)
+        assert intake_payload["status"] == "ok"
+        assert intake_payload["n_matched_candidates"] >= MIN_COHORT_SIZE
+        assert intake_out.exists()
+
+        # Step 2: recalibration-gate
+        gate_cmd = [
+            sys.executable, "-m", "openamp_foundry.cli",
+            "recalibration-gate",
+            "--intake-report", str(intake_out),
+            "--intake-report-date", date.today().isoformat(),
+            "--policy", str(POLICY_PATH),
+            "--project-root", str(REPO_ROOT),
+            "--out-json", str(gate_out),
+        ]
+        proc = subprocess.run(
+            gate_cmd,
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 0, (
+            f"recalibration-gate expected exit 0, got {proc.returncode}\n"
+            f"stdout: {proc.stdout[:500]}\nstderr: {proc.stderr[:500]}"
+        )
+        gate_payload = json.loads(proc.stdout)
+        assert gate_payload["status"] == "ok"
+        assert gate_payload["may_recalibrate"] is True
+        assert gate_payload["policy_version"] == 1
+        assert gate_payload["n_matched_candidates"] >= MIN_COHORT_SIZE
+        assert gate_out.exists()
+
+        # Step 3: verify gate output JSON
+        gate_data = json.loads(gate_out.read_text())
+        assert gate_data["may_recalibrate"] is True
+        assert len(gate_data["rule_results"]) >= 7
+        assert all(r["passed"] for r in gate_data["rule_results"])
+        assert "may_recalibrate" in gate_data["summary"].lower()
+
+    def test_cli_full_chain_failing(self, failing_setup, tmp_path):
+        """Run the full chain on failing data. Assert exit code 3."""
+        panel_csv = failing_setup / "panel.csv"
+        results_dir = failing_setup / "results"
+        intake_out = tmp_path / "intake_fail.json"
+        gate_out = tmp_path / "gate_fail.json"
+
+        # Step 1: calibration-intake
+        proc = subprocess.run(
+            [
+                sys.executable, "-m", "openamp_foundry.cli",
+                "calibration-intake",
+                "--panel", str(panel_csv),
+                "--results-dir", str(results_dir),
+                "--out-json", str(intake_out),
+            ],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 0
+        assert intake_out.exists()
+
+        # Step 2: recalibration-gate (expect exit 3)
+        proc = subprocess.run(
+            [
+                sys.executable, "-m", "openamp_foundry.cli",
+                "recalibration-gate",
+                "--intake-report", str(intake_out),
+                "--intake-report-date", date.today().isoformat(),
+                "--policy", str(POLICY_PATH),
+                "--project-root", str(REPO_ROOT),
+                "--out-json", str(gate_out),
+            ],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 3, (
+            f"expected exit 3 (gate failed), got {proc.returncode}\n"
+            f"stdout: {proc.stdout[:500]}"
+        )
+        payload = json.loads(proc.stdout)
+        assert payload["may_recalibrate"] is False
+        assert gate_out.exists()
+
+        gate_data = json.loads(gate_out.read_text())
+        failed_ids = [r["rule_id"] for r in gate_data["rule_results"] if not r["passed"]]
+        assert "MIN_COHORT_SIZE" in failed_ids
+        assert any(
+            "POSITIVE_CONTROLS" in r["rule_id"]
+            for r in gate_data["rule_results"] if not r["passed"]
+        ), f"expected POSITIVE_CONTROLS failure; failed: {failed_ids}"
+
+    def test_cli_chain_with_rate_limits(self, passing_setup, tmp_path):
+        """Pass full chain with rate-limit inputs: verify they appear in output."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake_out = tmp_path / "intake_rl.json"
+        gate_out = tmp_path / "gate_rl.json"
+
+        proc = subprocess.run(
+            [
+                sys.executable, "-m", "openamp_foundry.cli",
+                "calibration-intake",
+                "--panel", str(panel_csv),
+                "--results-dir", str(results_dir),
+                "--out-json", str(intake_out),
+            ],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 0
+
+        proc = subprocess.run(
+            [
+                sys.executable, "-m", "openamp_foundry.cli",
+                "recalibration-gate",
+                "--intake-report", str(intake_out),
+                "--intake-report-date", date.today().isoformat(),
+                "--previous-recalibration-at", "2026-07-01",
+                "--weight-l1-distance", "0.05",
+                "--policy", str(POLICY_PATH),
+                "--project-root", str(REPO_ROOT),
+                "--out-json", str(gate_out),
+            ],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 0
+        payload = json.loads(proc.stdout)
+
+        # Rate-limit statuses should be "ok" for a clean run
+        for rl in payload["rate_limit_status"]:
+            assert rl["status"] in ("ok", "unknown"), (
+                f"Rate limit {rl['rule_id']} status was {rl['status']}: "
+                f"{rl['note']}"
+            )
+
+    def test_cli_chain_missing_intake_rejected(self, tmp_path):
+        """CLI should return exit 2 when intake file doesn't exist."""
+        proc = subprocess.run(
+            [
+                sys.executable, "-m", "openamp_foundry.cli",
+                "recalibration-gate",
+                "--intake-report", str(tmp_path / "nonexistent.json"),
+                "--policy", str(POLICY_PATH),
+                "--project-root", str(REPO_ROOT),
+            ],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 2
+        payload = json.loads(proc.stdout)
+        assert payload["status"] == "error"
+
+    def test_cli_chain_with_synthetic_example(self, tmp_path):
+        """The shipped synthetic example must produce a consistent
+        failing chain: cohort < 5, one positive control failed."""
+        intake_out = tmp_path / "intake_example.json"
+        gate_out = tmp_path / "gate_example.json"
+
+        proc = subprocess.run(
+            [
+                sys.executable, "-m", "openamp_foundry.cli",
+                "calibration-intake",
+                "--panel", str(EXAMPLES_PANEL),
+                "--results-dir", str(EXAMPLES_RESULTS_DIR),
+                "--out-json", str(intake_out),
+            ],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 0
+        assert intake_out.exists()
+
+        proc = subprocess.run(
+            [
+                sys.executable, "-m", "openamp_foundry.cli",
+                "recalibration-gate",
+                "--intake-report", str(intake_out),
+                "--intake-report-date", "2026-07-04",
+                "--policy", str(POLICY_PATH),
+                "--project-root", str(REPO_ROOT),
+                "--out-json", str(gate_out),
+            ],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=60,
+        )
+        assert proc.returncode == 3
+        payload = json.loads(proc.stdout)
+        assert payload["may_recalibrate"] is False
+
+        gate_data = json.loads(gate_out.read_text())
+        failed_ids = [r["rule_id"] for r in gate_data["rule_results"] if not r["passed"]]
+        assert "MIN_COHORT_SIZE" in failed_ids
+        assert "POSITIVE_CONTROLS_ALL_PASS" in failed_ids
+
+
+# ── Makefile target integrity ──────────────────────────────────────────
+
+
+class TestMakefileTargets:
+    """Verify the Makefile targets for calibration are functional."""
+
+    def test_make_calibration_intake_example_target(self):
+        """`make lab-result-intake-example` must produce a valid JSON output."""
+        result = subprocess.run(
+            ["make", "lab-result-intake-example"],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=120,
+        )
+        assert result.returncode == 0, (
+            f"make lab-result-intake-example failed:\n"
+            f"stdout: {result.stdout[:500]}\nstderr: {result.stderr[:500]}"
+        )
+        out_path = REPO_ROOT / "outputs" / "calibration_intake_example.json"
+        assert out_path.exists(), "intake example output not found"
+        data = json.loads(out_path.read_text())
+        assert data["n_panel_candidates"] >= 5
+        assert "cohort_metrics" in data
+
+    def test_make_recalibration_gate_example_target(self):
+        """`make recalibration-gate-example` must produce a valid JSON verdict.
+
+        The gate exits 3 on synthetic data (cohort too small); Make propagates
+        this as exit 2. We assert the output file was written correctly
+        regardless of the gate's binary verdict.
+        """
+        result = subprocess.run(
+            ["make", "recalibration-gate-example"],
+            cwd=str(REPO_ROOT),
+            capture_output=True, text=True, timeout=120,
+        )
+        out_path = REPO_ROOT / "outputs" / "recalibration_gate_example.json"
+        assert out_path.exists(), "gate example output not found"
+        data = json.loads(out_path.read_text())
+        assert data["may_recalibrate"] is False
+        # Gate exits 3 when may_recalibrate=False; Make propagates error
+        assert result.returncode != 0, (
+            "Make returned 0 but recalibration-gate should exit 3 "
+            "on synthetic data (cohort < 5)"
+        )

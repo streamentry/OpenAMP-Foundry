@@ -333,30 +333,22 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
-    { name = "pytest" },
-    { name = "ruff" },
-]
-
-[package.dev-dependencies]
-dev = [
     { name = "mypy" },
+    { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "jsonschema", specifier = ">=4.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=2.1.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.1.0" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
 ]
 provides-extras = ["dev"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "mypy", specifier = ">=2.1.0" },
-    { name = "pytest-cov", specifier = ">=7.1.0" },
-]
 
 [[package]]
 name = "packaging"
