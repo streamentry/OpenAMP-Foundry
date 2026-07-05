@@ -16,6 +16,8 @@ validated (it is not).
 from __future__ import annotations
 
 import json
+from io import StringIO
+import sys
 
 
 from openamp_foundry.pipeline import score_candidates
@@ -96,22 +98,35 @@ class TestExpertRankingCLI:
 
         out = tmp_path / "ranked.jsonl"
         report = tmp_path / "report.md"
-        rc = main([
-            "rank",
-            "--candidates", "examples/sequences/demo_candidates.csv",
-            "--references", "examples/known_reference/demo_known_amps.csv",
-            "--out", str(out),
-            "--report", str(report),
-            "--ranking-mode", "expert",
-        ])
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        try:
+            rc = main([
+                "rank",
+                "--candidates", "examples/sequences/demo_candidates.csv",
+                "--references", "examples/known_reference/demo_known_amps.csv",
+                "--out", str(out),
+                "--report", str(report),
+                "--ranking-mode", "expert",
+            ])
+            stdout = sys.stdout.getvalue()
+        finally:
+            sys.stdout = old_stdout
         assert rc == 0
         assert out.exists()
+
+        cli_payload = json.loads(stdout)
+        assert cli_payload["ranking_mode"] == "expert"
+        assert cli_payload["ranking_policy"]["mode"] == "expert"
+        assert "not a validated safety predictor" in cli_payload["ranking_policy"]["not_a_claim"]
 
         # Batch report should record the ranking mode
         report_json = tmp_path / "report.json"
         assert report_json.exists()
         data = json.loads(report_json.read_text())
         assert data["ranking_mode"] == "expert"
+        assert data["ranking_policy"]["mode"] == "expert"
+        assert len(data["ranking_policy"]["evidence_basis"]) >= 2
 
     def test_cli_ensemble_ranking_default(self, tmp_path):
         """Default ranking (no --ranking-mode) should be ensemble."""
@@ -130,6 +145,7 @@ class TestExpertRankingCLI:
         report_json = tmp_path / "report.json"
         data = json.loads(report_json.read_text())
         assert data["ranking_mode"] == "ensemble"
+        assert data["ranking_policy"]["mode"] == "ensemble"
 
 
 class TestExpertRankingSelectivity:

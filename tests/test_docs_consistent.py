@@ -108,6 +108,14 @@ class TestDocsConsistent:
         assert payload["standard"]["n_negatives"] == CURRENT_N_NEGATIVES
         assert payload["standard"]["n_total"] == CURRENT_N_TOTAL
 
+    def test_doc_metrics_snapshot_includes_ranking_policy(self):
+        """Snapshot must encode the current ranking recommendation contract."""
+        payload = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
+        assert payload["ranking_policy"]["default"]["mode"] == "ensemble"
+        assert payload["ranking_policy"]["alternative"]["mode"] == "expert"
+        assert payload["ranking_policy"]["default"]["evidence_basis"]
+        assert payload["ranking_policy"]["alternative"]["evidence_basis"]
+
     def test_doc_no_breaking_news_terminology(self):
         """'breaking news' must be replaced with 'high-impact scenario' in all docs."""
         breaking = re.compile(r"breaking[-\s]news", re.IGNORECASE)

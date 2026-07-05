@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "OpenAMP Batch Report",
   "type": "object",
-  "required": ["pipeline_version", "candidate_count", "selected_count", "generated_at", "disclaimer"],
+  "required": ["pipeline_version", "candidate_count", "selected_count", "generated_at", "disclaimer", "ranking_mode", "ranking_policy"],
   "properties": {
     "pipeline_version": {"type": "string"},
     "candidate_count": {"type": "integer", "minimum": 0},
@@ -18,6 +18,18 @@
         "ensemble": {"type": "number", "minimum": 0, "maximum": 1}
       }
     },
-    "selected_ids": {"type": "array", "items": {"type": "string"}}
+    "selected_ids": {"type": "array", "items": {"type": "string"}},
+    "ranking_mode": {"type": "string", "enum": ["ensemble", "expert"]},
+    "ranking_policy": {
+      "type": "object",
+      "required": ["mode", "recommended_for", "evidence_basis", "caution", "not_a_claim"],
+      "properties": {
+        "mode": {"type": "string", "enum": ["ensemble", "expert"]},
+        "recommended_for": {"type": "string"},
+        "evidence_basis": {"type": "array", "items": {"type": "string"}},
+        "caution": {"type": "string"},
+        "not_a_claim": {"type": "string"}
+      }
+    }
   }
 }

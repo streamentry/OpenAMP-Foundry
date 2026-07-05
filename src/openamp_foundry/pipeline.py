@@ -21,6 +21,7 @@ from openamp_foundry.scoring.hemolysis import hemolysis_risk_score
 from openamp_foundry.scoring.selectivity_rich import rich_selectivity_score
 from openamp_foundry.selection.diversity import greedy_diverse_select
 from openamp_foundry.selection.pareto import rank_candidates
+from openamp_foundry.selection.ranking_policy import ranking_policy_payload
 from openamp_foundry.types import ScoredCandidate
 from openamp_foundry.utils.hashing import file_sha256, stable_json_hash
 from openamp_foundry.utils.io import write_json, write_jsonl
@@ -251,6 +252,7 @@ def build_batch_report(
         },
         "selected_ids": sorted(selected_ids),
         "ranking_mode": ranking_mode,
+        "ranking_policy": ranking_policy_payload(ranking_mode),
     }
 
 

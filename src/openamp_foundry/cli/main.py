@@ -14,6 +14,7 @@ from pathlib import Path
 
 from openamp_foundry.evidence.schemas import validate_json_schema
 from openamp_foundry.pipeline import run_ranking_pipeline
+from openamp_foundry.selection.ranking_policy import ranking_policy_payload
 from openamp_foundry.utils.io import read_json
 
 
@@ -809,7 +810,20 @@ def main(argv: list[str] | None = None) -> int:
             manifest_path=args.manifest,
             ranking_mode=getattr(args, "ranking_mode", "ensemble"),
         )
-        print(json.dumps({"status": "ok", "out": args.out, "report": args.report}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "status": "ok",
+                    "out": args.out,
+                    "report": args.report,
+                    "ranking_mode": getattr(args, "ranking_mode", "ensemble"),
+                    "ranking_policy": ranking_policy_payload(
+                        getattr(args, "ranking_mode", "ensemble")
+                    ),
+                },
+                indent=2,
+            )
+        )
         return 0
 
     if args.command == "validate":

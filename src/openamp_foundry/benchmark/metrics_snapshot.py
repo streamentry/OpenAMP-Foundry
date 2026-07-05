@@ -4,16 +4,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from openamp_foundry.benchmark.feature_decomp import (
+    run_feature_decomposition_benchmark,
+)
 from openamp_foundry.benchmark.retrospective import (
     run_cluster_split_benchmark,
     run_expert_ablation_benchmark,
     run_retrospective_benchmark,
     run_selectivity_benchmark,
 )
-from openamp_foundry.benchmark.feature_decomp import (
-    run_feature_decomposition_benchmark,
-)
 from openamp_foundry.benchmark.triage import run_strict_triage_benchmark, run_triage_benchmark
+from openamp_foundry.selection.ranking_policy import ranking_policy_payload
 
 
 def build_metrics_snapshot(
@@ -196,5 +197,10 @@ def build_metrics_snapshot(
             "unused_signal_features": feature_decomp["unused_signal_features"],
             "per_feature": feature_decomp["per_feature"],
             "verdict": feature_decomp["verdict"],
+        },
+        "ranking_policy": {
+            "default": ranking_policy_payload("ensemble"),
+            "alternative": ranking_policy_payload("expert"),
+        },
         },
     }

@@ -78,6 +78,9 @@ The system is designed to reduce these failures:
 8. Write JSONL results.
 9. Generate one certificate per selected candidate.
 10. Generate a human-readable report.
+11. Record the ranking-policy rationale used for the run so reviewers can see
+    whether the batch used the broad default gate or the narrower safety-aware
+    alternative.
 
 ## Target future data flow
 
