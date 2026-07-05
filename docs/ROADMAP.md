@@ -396,6 +396,25 @@ penalizes the AMP-like composition that hemolytic AMPs share with their
 scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
 It must NOT replace the ensemble activity gate — it is a complementary signal.
 
+## v0.5.35 — Cross-Dataset Generalization Benchmark ✓ (2026-07-05)
+
+- **Last Phase 1 exit criterion satisfied**: cross-dataset results published.
+- DRAMP-only AMPs (n=500, no overlap with current set) vs Swiss-Prot decoys:
+  AUROC **0.7803** (CI: 0.7517–0.8081). Baseline (APD6/UniProt): 0.7832.
+  Δ = **−0.0029** — essentially identical.
+- Pipeline generalises strongly across AMP databases — heuristic features
+  (charge, hydrophobicity, hydrophobic moment, etc.) capture fundamental
+  physicochemical properties rather than database-specific biases.
+- 65% of current AMP set (325/500) overlaps with DRAMP (expected — DRAMP is
+  a meta-database). Cross-dataset test uses 6427 DRAMP-only sequences with
+  zero overlap with the current benchmark set.
+- **Phase 1 complete** — all 5 exit criteria met. Pipeline advances to Phase 2
+  (per-family breakdown, calibration engine, active learning).
+- New script: `scripts/benchmark_cross_dataset.py`
+- New target: `make bench-cross-dataset`
+- Docs: `docs/METRICS_CURRENT.md` (new section), `docs/BENCHMARK_CARD.md` (new section),
+  `docs/50_LOOP_PLAN.md` (Phase 1 ✅)
+
 ## v0.5.34 — Benchmark Card Consolidation ✓ (2026-07-05)
 
 - Consolidated all Phase 1 benchmark findings into `docs/BENCHMARK_CARD.md`

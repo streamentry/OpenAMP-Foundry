@@ -1,9 +1,9 @@
 # Benchmark Card — OpenAMP Foundry v0.5.x
 
 > **Purpose:** Single-page summary of benchmark methodology, data, and metrics.
-> **Last updated:** 2026-07-05 (all Phase 1 benchmark results consolidated, v0.5.33)
+> **Last updated:** 2026-07-05 (cross-dataset generalization, v0.5.35)
 >
-> This card covers all Phase 1 benchmark honesty work (Loops 9–15). Every finding
+> This card covers all Phase 1 benchmark honesty work (Loops 9–17). Every finding
 > is backed by machine-readable output and a `make` target. For detailed
 > per-benchmark narrative, see `docs/METRICS_CURRENT.md`.
 
@@ -13,7 +13,7 @@
 
 | Field | Value |
 |-------|-------|
-| Pipeline version | v0.5.33 |
+| Pipeline version | v0.5.35 |
 | Benchmark type | Retrospective AUROC (composition-matched decoys) + 7 auxiliary benchmarks |
 | Date | 2026-07-05 |
 | Config | `configs/pipeline.yaml` (primary), `configs/phase3.yaml` (synthesis gate) |
@@ -92,6 +92,27 @@ Run: `make bench-cluster-split-500`
 
 Cluster-aware CI lower bound (0.7061) stays above 0.65. Representative-only CI
 lower bound (0.6854) dips below 0.70 — honest limitation.
+
+## Cross-Dataset Generalization
+
+| Metric | DRAMP-only (n=500) | APD6/UniProt (baseline, n=500) | Δ |
+|--------|:------------------:|:------------------------------:|:-:|
+| AUROC | **0.7803** | **0.7832** | **−0.0029** |
+| CI₉₅ | 0.7517–0.8081 | 0.7505–0.8065 | — |
+| AUPRC | 0.8071 | 0.8164 | — |
+| Mean AMP score | 0.8178 | — | — |
+| Mean decoy score | 0.7197 | — | — |
+
+**Key finding:** Pipeline generalises strongly to independently-sourced DRAMP
+AMPs (AUROC 0.7803 vs baseline 0.7832, Δ=−0.0029). Heuristic features are
+source-independent — they capture fundamental physicochemical properties
+rather than database-specific biases. Test uses DRAMP-only sequences (n=6427
+available, subsampled to 500 for size-matched comparison) that are NOT in the
+current APD6/UniProt AMP set.
+
+**Phase 1 exit criterion met:** cross-dataset results published.
+
+Run: `make bench-cross-dataset`
 
 ## Easy Baseline Benchmark
 

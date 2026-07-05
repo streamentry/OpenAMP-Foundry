@@ -374,6 +374,10 @@ wave0-5-panel: wave0-5-fill-external
 wave0-5-evidence:
 	PYTHONPATH=src $(PYTHON) scripts/generate_wave0_5_evidence_certs.py
 
+bench-cross-dataset:
+	PYTHONPATH=src $(PYTHON) scripts/benchmark_cross_dataset.py \
+		--out outputs/cross_dataset_benchmark.json
+
 bench-multi-negatives:
 	PYTHONPATH=src $(PYTHON) scripts/benchmark_multi_negatives.py \
 		--out outputs/multi_negative_benchmark.json
