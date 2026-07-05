@@ -1,20 +1,21 @@
 """Calibration package — wet-lab feedback loop for the OpenAMP foundry.
 
-This package provides the machine-readable policy, intake report, and
-gate verdict that together form the pre-registered, human-gated
-recalibration workflow:
+This package provides the machine-readable policy, intake report,
+gate verdict, and weight-update proposal that together form the
+pre-registered, human-gated recalibration workflow:
 
     pilot panel predictions
         + validated lab results
         → calibration-intake report (descriptive only)
         → evaluated against pre-registered policy
         → gate verdict (may_recalibrate? True/False)
-        → human reviewer inspects verdict before any weight change
+        → engine (compute proposed weight deltas)
+        → human reviewer inspects proposal + verdict
+        → (separate) apply approved weight changes
 
-The recalibration ENGINE (actual weight-update code) does NOT live here
-yet. It is the next loop's job once wet-lab data exists. The current
-package provides the permission layer that must exist BEFORE any
-recalibration engine can be safely applied.
+The engine computes proposals only. It does NOT apply changes.
+A human reviewer must sign a dated decision log entry before any
+weight update takes effect.
 """
 
 from openamp_foundry.calibration.intake import (
@@ -37,6 +38,16 @@ from openamp_foundry.calibration.policy import (
     ReviewerArtefact,
     canonical_prohibited_action_ids,
     load_recalibration_policy,
+)
+
+from openamp_foundry.calibration.engine import (
+    BudgetExceededError,
+    PolicyViolationError,
+    WeightDelta,
+    WeightUpdateProposal,
+    compute_weight_update,
+    write_weight_update_proposal_json,
+    write_weight_update_proposal_markdown,
 )
 
 from openamp_foundry.calibration.recalibration_gate import (
@@ -79,4 +90,12 @@ __all__ = [
     "ProhibitedActionAudit",
     "RateLimitStatus",
     "ReviewerArtefactStatus",
+    # Engine
+    "compute_weight_update",
+    "write_weight_update_proposal_json",
+    "write_weight_update_proposal_markdown",
+    "WeightDelta",
+    "WeightUpdateProposal",
+    "PolicyViolationError",
+    "BudgetExceededError",
 ]

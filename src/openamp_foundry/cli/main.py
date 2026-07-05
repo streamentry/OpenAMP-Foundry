@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -755,6 +755,49 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional output path for the gate verdict Markdown report.",
     )
 
+    recalibration_engine = sub.add_parser(
+        "recalibration-engine",
+        help=(
+            "Compute proposed weight deltas from a calibration intake report + "
+            "gate verdict. Does NOT apply changes -- returns a proposal for "
+            "human review. Raises PolicyViolationError if may_recalibrate=False."
+        ),
+    )
+    recalibration_engine.add_argument(
+        "--intake-report",
+        required=True,
+        help="Path to calibration-intake JSON.",
+    )
+    recalibration_engine.add_argument(
+        "--gate-verdict",
+        required=True,
+        help="Path to gate verdict JSON.",
+    )
+    recalibration_engine.add_argument(
+        "--current-weights",
+        required=True,
+        help=(
+            "JSON dict mapping scorer names to current weights "
+            '(e.g. \'{"activity": 0.40, "safety": 0.25}\').'
+        ),
+    )
+    recalibration_engine.add_argument(
+        "--l1-budget",
+        type=float,
+        default=0.10,
+        help="Maximum allowed L1 weight delta (default: 0.10).",
+    )
+    recalibration_engine.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional output path for the proposal JSON.",
+    )
+    recalibration_engine.add_argument(
+        "--out-md",
+        default=None,
+        help="Optional output path for the proposal Markdown report.",
+    )
+
     novelty_broad = sub.add_parser(
         "novelty-check-broad",
         help=(
@@ -885,6 +928,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "recalibration-gate":
         return _run_recalibration_gate(args)
+
+    if args.command == "recalibration-engine":
+        return _run_recalibration_engine(args)
 
     if args.command == "synthesis-order":
         return _run_synthesis_order(args)

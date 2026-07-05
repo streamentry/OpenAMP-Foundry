@@ -26,11 +26,17 @@ import pytest
 
 from openamp_foundry.calibration import (
     MIN_COHORT_SIZE,
+    BudgetExceededError,
+    PolicyViolationError,
+    WeightUpdateProposal,
     build_calibration_intake_report,
+    compute_weight_update,
     evaluate_recalibration_gate,
     load_recalibration_policy,
     write_calibration_intake_json,
     write_gate_verdict_json,
+    write_weight_update_proposal_json,
+    write_weight_update_proposal_markdown,
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -570,6 +576,244 @@ class TestCalibrationE2ECLI:
         failed_ids = [r["rule_id"] for r in gate_data["rule_results"] if not r["passed"]]
         assert "MIN_COHORT_SIZE" in failed_ids
         assert "POSITIVE_CONTROLS_ALL_PASS" in failed_ids
+
+
+# ── Recalibration Engine tests ────────────────────────────────────────
+
+
+class TestRecalibrationEngine:
+    """Test the weight-update proposal engine."""
+
+    def test_raises_on_gate_false(self, failing_setup):
+        """Engine must raise PolicyViolationError when gate says no."""
+        panel_csv = failing_setup / "panel.csv"
+        results_dir = failing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+        assert verdict.may_recalibrate is False
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        with pytest.raises(PolicyViolationError):
+            compute_weight_update(intake, verdict, current_weights, policy_l1_budget=0.10)
+
+    def test_returns_proposal_on_gate_true(self, passing_setup):
+        """Engine must return a WeightUpdateProposal when gate says yes."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+        assert verdict.may_recalibrate is True
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+        assert isinstance(proposal, WeightUpdateProposal)
+        assert proposal.gate_passed is True
+        assert proposal.policy_version == 1
+        assert proposal.n_matched >= MIN_COHORT_SIZE
+
+    def test_proposal_contains_deltas(self, passing_setup):
+        """Proposal must contain per-scorer WeightDelta entries."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+
+        # Activity metric should be mapped to a delta
+        activity_deltas = [d for d in proposal.deltas if d.scorer == "activity"]
+        assert len(activity_deltas) >= 1
+        d = activity_deltas[0]
+        assert d.current_weight == 0.40
+        assert isinstance(d.proposed_weight, float)
+        assert isinstance(d.delta, float)
+        assert isinstance(d.rationale, str)
+        assert len(d.rationale) > 10
+
+    def test_proposal_l1_within_budget_by_default(self, passing_setup):
+        """Proposal L1 total must be within a reasonable budget."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+        assert proposal.l1_total <= 0.10
+        assert proposal.l1_within_budget is True
+
+    def test_raises_on_budget_exceeded(self, passing_setup):
+        """Engine must raise when L1 proposal exceeds budget."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        # Force poor precision so engine proposes a non-zero delta
+        intake["cohort_metrics"]["activity_vs_active_mic"] = {
+            "tp": 1, "fp": 4, "fn": 1, "tn": 2,
+            "insufficient_data": False,
+            "n": 8,
+        }
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        # Tiny budget should be exceeded by the non-zero delta
+        with pytest.raises(BudgetExceededError):
+            compute_weight_update(
+                intake, verdict, current_weights,
+                policy_l1_budget=0.001,
+            )
+
+    def test_proposal_has_timestamp(self, passing_setup):
+        """Proposal must include an ISO timestamp."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+        assert "T" in proposal.timestamp
+
+    def test_skips_insufficient_data_metric(self, passing_setup):
+        """Engine skips cohort metrics flagged insufficient_data."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        # Manually mark the metrics as insufficient_data
+        for key in intake["cohort_metrics"]:
+            intake["cohort_metrics"][key]["insufficient_data"] = True
+            # Remove tp/fp/fn/tn to mimic the markdown writer's contract
+            for col in ("tp", "fp", "fn", "tn"):
+                intake["cohort_metrics"][key].pop(col, None)
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+        assert len(proposal.deltas) == 0
+        assert any("insufficient_data" in note for note in proposal.notes)
+
+    def test_skips_unmapped_metric(self, passing_setup):
+        """Engine skips cohort metrics with no scorer mapping."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        # Add a synthetic metric with no mapping
+        intake["cohort_metrics"]["unmapped_metric"] = {
+            "tp": 3, "fp": 1, "fn": 1, "tn": 3,
+            "insufficient_data": False,
+            "n": 8,
+        }
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+        assert any("no mapped scorer weight" in note for note in proposal.notes)
+
+    def test_skips_missing_scorer_in_weights(self, passing_setup):
+        """Engine skips metrics whose mapped scorer is not in current_weights."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        # Only pass weights that don't include the mapped scorers
+        current_weights = {"some_other_scorer": 1.0}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+        assert any("current_weights has no such key" in note for note in proposal.notes)
+
+    def test_proposal_delta_direction_is_reasonable(self, passing_setup):
+        """When precision is high, delta should be zero or positive."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        # Override the activity metric with perfect confusion matrix
+        intake["cohort_metrics"]["activity_vs_active_mic"] = {
+            "tp": 3, "fp": 0, "fn": 0, "tn": 2,
+            "insufficient_data": False,
+            "n": 5,
+        }
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+        activity_deltas = [d for d in proposal.deltas if d.scorer == "activity"]
+        if activity_deltas:
+            d = activity_deltas[0]
+            # Perfect precision/recall -> delta should be 0
+            assert d.delta == 0.0
+
+    def test_writes_proposal_json(self, passing_setup, tmp_path):
+        """write_weight_update_proposal_json produces valid JSON."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+
+        out = tmp_path / "proposal.json"
+        write_weight_update_proposal_json(proposal, out)
+        assert out.exists()
+        data = json.loads(out.read_text())
+        assert data["gate_passed"] is True
+        assert "deltas" in data
+        assert "l1_total" in data
+
+    def test_writes_proposal_markdown(self, passing_setup, tmp_path):
+        """write_weight_update_proposal_markdown produces readable Markdown."""
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+
+        out = tmp_path / "proposal.md"
+        write_weight_update_proposal_markdown(proposal, out)
+        assert out.exists()
+        text = out.read_text()
+        assert "Weight Update Proposal" in text
+        assert "L1 Budget" in text
+        assert "Gate passed" in text
 
 
 # ── Makefile target integrity ──────────────────────────────────────────

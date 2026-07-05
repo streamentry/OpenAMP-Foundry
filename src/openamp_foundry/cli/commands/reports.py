@@ -779,3 +779,94 @@ def _run_recalibration_gate(args: argparse.Namespace) -> int:
     print(json.dumps(cli_summary, indent=2))
     # Exit code: 0 if may_recalibrate, 3 otherwise.
     return 0 if verdict.may_recalibrate else 3
+
+
+def _run_recalibration_engine(args: argparse.Namespace) -> int:
+    """Compute proposed weight deltas from intake + gate verdict."""
+    intake_path = Path(args.intake_report)
+    if not intake_path.exists():
+        payload = {
+            "status": "error",
+            "error": f"Intake report not found: {intake_path}",
+        }
+        print(json.dumps(payload))
+        return 2
+
+    gate_path = Path(args.gate_verdict)
+    if not gate_path.exists():
+        payload = {
+            "status": "error",
+            "error": f"Gate verdict not found: {gate_path}",
+        }
+        print(json.dumps(payload))
+        return 2
+
+    from openamp_foundry.calibration.engine import (
+        BudgetExceededError,
+        PolicyViolationError,
+        compute_weight_update,
+        write_weight_update_proposal_json,
+        write_weight_update_proposal_markdown,
+    )
+    from openamp_foundry.calibration.recalibration_gate import GateVerdict
+
+    intake = json.loads(intake_path.read_text())
+    gate_data = json.loads(gate_path.read_text())
+    current_weights = json.loads(args.current_weights)
+    l1_budget = args.l1_budget
+
+    # Reconstruct GateVerdict from JSON
+    gate_verdict = GateVerdict(
+        may_recalibrate=gate_data["may_recalibrate"],
+        policy_version=gate_data.get("policy_version", 0),
+        policy_locked_at=gate_data.get("policy_locked_at", ""),
+        intake_report_path=gate_data.get("intake_report_path", ""),
+        n_panel_candidates=gate_data.get("n_panel_candidates", 0),
+        n_matched_candidates=gate_data.get("n_matched_candidates", 0),
+        n_lab_results=gate_data.get("n_lab_results", 0),
+        rule_results=(),
+        prohibited_action_audit=(),
+        rate_limit_status=(),
+        reviewer_artefact_status=(),
+        reasons=tuple(gate_data.get("reasons", [])),
+        summary=gate_data.get("summary", ""),
+    )
+
+    try:
+        proposal = compute_weight_update(
+            intake_report=intake,
+            gate_verdict=gate_verdict,
+            current_weights=current_weights,
+            policy_l1_budget=l1_budget,
+        )
+    except PolicyViolationError as e:
+        payload = {
+            "status": "error",
+            "error": str(e),
+            "may_recalibrate": False,
+        }
+        print(json.dumps(payload))
+        return 3
+    except BudgetExceededError as e:
+        payload = {
+            "status": "budget_exceeded",
+            "error": str(e),
+        }
+        print(json.dumps(payload))
+        return 3
+
+    if args.out_json:
+        write_weight_update_proposal_json(proposal, args.out_json)
+    if args.out_md:
+        write_weight_update_proposal_markdown(proposal, args.out_md)
+
+    summary = {
+        "status": "ok",
+        "gate_passed": proposal.gate_passed,
+        "n_deltas": len(proposal.deltas),
+        "l1_total": round(proposal.l1_total, 4),
+        "l1_within_budget": proposal.l1_within_budget,
+        "timestamp": proposal.timestamp,
+    }
+    print(json.dumps(summary, indent=2))
+    return 0
