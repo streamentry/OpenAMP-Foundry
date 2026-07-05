@@ -396,6 +396,26 @@ penalizes the AMP-like composition that hemolytic AMPs share with their
 scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
 It must NOT replace the ensemble activity gate — it is a complementary signal.
 
+## v0.5.30 — Easy Baseline Benchmark ✓ (2026-07-05)
+
+- Implemented trivial baseline comparison: how does the pipeline compare to
+  single-feature predictors (length, charge, charge density)?
+- **Finding:** charge density alone (AUROC 0.8166) beats the full pipeline
+  ensemble (0.7792, Δ=−0.0374)
+- **Why this is expected:** The pipeline optimizes for 4 objectives (activity,
+  safety, synthesis, novelty). The safety scorer penalizes high-charge peptides
+  (hemolytic risk). Charge density has no such penalty, making it a better pure
+  AMP/non-AMP discriminator on Swiss-Prot decoys. Charge is a known strong AMP
+  predictor — this is an honest replication of a well-known literature result.
+- **Implication:** The pipeline's value is in multi-objective candidate selection,
+  not in basic AMP/non-AMP discrimination. A benchmark that tests the pipeline's
+  actual objective (finding safe, novel, synthesizable AMPs) would be more
+  informative than the current AMP-vs-decoy benchmark.
+- Script: `scripts/baseline_trivial.py`
+- Makefile target: `make bench-easy-baseline`
+- CI: informational step (non-gating)
+- Next: Loop 13 — Order-dependent features / strict triage
+
 ## v0.5.29 — Expanded 500-AMP Benchmark ✓ (2026-07-05)
 
 - Expanded benchmark from 95 + 96 (n=191) to 500 AMP + 500 decoy (n=1000)

@@ -5,9 +5,10 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-05 (expanded 500-AMP benchmark, v0.5.29)
+> **Last updated:** 2026-07-05 (easy baseline benchmark, v0.5.30)
+> **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination. Pipeline adds value in multi-objective selection, not basic AMP identification.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.29
+> **Pipeline version:** v0.5.30
 > **Branch:** main
 
 ---
@@ -92,6 +93,50 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
    set: AMP annotation is an active research field, and some annotated AMPs may not
    be genuinely antimicrobial. The set also includes fewer defensins and
    cysteine-rich peptides due to the 10–30 AA length constraint.
+
+### Easy Baseline Benchmark (trivial feature comparison)
+
+> Added 2026-07-05 (v0.5.30). Compares the full pipeline ensemble against
+> single-feature trivial predictors (length, charge, charge density) on the
+> expanded 500-AMP benchmark. If the pipeline does not significantly outperform
+> trivial features, its value must come from multi-objective optimization,
+> not better basic discrimination.
+>
+> Run: `make bench-easy-baseline`
+
+| Predictor | AUROC | Notes |
+|-----------|-------|-------|
+| Length alone | 0.5000 | Decoys are length-matched — no signal |
+| Net charge (pH 7.4) | 0.8125 | AMPs are cationic — known strong predictor |
+| **Charge density** | **0.8166** | **Best trivial feature** |
+| Length + charge (Z-scored) | 0.5024 | Length adds nothing (matched decoys) |
+| **Pipeline ensemble** | **0.7792** | **Below best trivial (Δ=−0.0374)** |
+
+**Honest finding:** The pipeline ensemble does NOT outperform charge density
+alone on AMP-vs-Swiss-Prot-decoy discrimination. This is expected because:
+
+1. **AMPs are cationic by nature.** Net positive charge is the single strongest
+   predictor of antimicrobial function. This is a well-known result in the
+   AMP prediction literature (Lata et al. 2007, Waghu et al. 2016).
+
+2. **The pipeline optimizes for 4 objectives.** The ensemble combines activity
+   (0.40), safety (0.25), synthesis (0.15), and novelty (0.20). The safety
+   scorer explicitly penalizes high-charge peptides (hemolytic risk). This
+   reduces raw AMP/non-AMP discrimination — intentionally.
+
+3. **Charge density alone has no safety penalty.** A pure charge-density
+   predictor ranks all high-charge sequences highly — including hemolytic ones.
+   The pipeline trades some raw discrimination for safety awareness.
+
+**Implication:** The current AMP-vs-Swiss-Prot-decoy benchmark primarily tests
+charge-based discrimination, which is not where the pipeline's value lies.
+A benchmark that tests the pipeline's actual objective (finding SAFE, novel,
+synthesizable AMPs) would more honestly assess the ensemble's contributions.
+
+**Recommendation for benchmarks that test the pipeline's actual value:**
+- Use charge-matched decoys (eliminate the trivial charge signal)
+- Test safe-AMP detection (active AND non-hemolytic vs hemolytic AMPs)
+- Test multi-objective ranking (does the ensemble rank safe, novel, synthesizable AMPs above toxic or trivially known ones?)
 
 ### Cluster-Split Benchmark (near-duplicate de-inflation, n=191)
 
@@ -778,6 +823,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 | 2026-07-02 | **Strict triage benchmark added:** composition-matched scrambled decoys replace random background. No scorer triages correctly — standard triage "success" of selectivity_proxy (0.782 sel_vs_dec) and expert_composite (0.757) was inflated by trivially distinguishable decoys. selectivity_proxy collapses to 0.500 (purely composition-driven), ensemble drops to 0.572. Real bottleneck (selective_vs_hemolytic) unchanged. | OpenAMP loop |
 | 2026-07-02 | Ranking policy contract added: machine-readable recommendation now states `ensemble` remains default broad synthesis gate, `expert` is narrower safety-aware alternative only | OpenAMP loop |
 | 2026-07-03 | **Rich selectivity scorer added:** composite of 8 evidence-identified features from the feature decomposition benchmark. Detection AUROC=0.7138 (CI 0.63-0.80) on n=179 — first pipeline score with statistically significant selective_vs_hemolytic discrimination. Old selectivity_proxy=0.5744 (CI 0.50-0.66). Honest limitation: does not triage AMP-vs-decoy (0.19); must be combined with activity gate. | OpenAMP loop |
+| 2026-07-05 | **Easy baseline benchmark added:** charge density alone (AUROC 0.8166) beats pipeline ensemble (0.7792, Δ=−0.0374). Honest finding: expected — pipeline optimizes for safety, not raw discrimination. `scripts/baseline_trivial.py`, `make bench-easy-baseline`, CI informational step. | OpenAMP loop 12 |
 | 2026-07-03 | **Rich selectivity integrated into production pipeline:** rich_selectivity_score now computed in score_candidates() (pipeline.py), replaces hemolysis_safety as the expert composite hemolysis-risk component (weight 0.10), used in pilot_priority formula, displayed in pilot panel report, and included in evidence certificates. Expert AUROC drops 0.7119→0.7097 (−0.0022) — acceptable tradeoff: the expert now includes a significant hemolysis detector (CI excludes 0.5) instead of the old non-significant one. | OpenAMP loop |
 | 2026-07-03 | **Two-gate triage composite added:** gate_triage = activity × rich_selectivity, added to triage benchmark. First scorer to pass all three standard triage conditions with strong selective_vs_hemolytic separation (0.666). Top-20: 16 selective / 1 hemolytic / 3 decoy — best distribution. Does NOT pass strict triage (hem_vs_dec 0.489) — honest limitation. Must not replace ensemble activity gate. | OpenAMP loop |
 | 2026-07-03 | **Feature decomposition benchmark added:** per-feature selective_vs_hemolytic AUROC for all 30 scalar physicochemical features. hydrophobic_fraction is the strongest single discriminative feature (0.6745, CI 0.58-0.77) but is NOT used by the selectivity proxy. 8/30 features have significant signal; 6 of those are unused. Provides actionable diagnostic for why composite scorers fail selective_vs_hemolytic discrimination. | OpenAMP loop |

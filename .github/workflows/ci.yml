@@ -80,3 +80,8 @@ jobs:
               exit(1)
           print(f'PASS: Expanded benchmark AUROC {auroc:.4f} >= 0.70')
           "
+
+      - name: Easy baseline benchmark (informational — compares pipeline to trivial features)
+        run: |
+          make bench-easy-baseline
+          echo "Easy baseline is informational — does not gate CI."
