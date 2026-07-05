@@ -40,6 +40,9 @@ jobs:
       - name: Benchmark regression gate (AUROC drop <= 0.02 vs committed baseline)
         run: make bench-gate
 
+      - name: Multi-negative-set benchmark (composition-independent sets > 0.70)
+        run: make bench-multi-negatives
+
       - name: Hidden-active benchmark (require EF >= 1.5 at k=5)
         run: |
           PYTHONPATH=src python -c "
