@@ -396,6 +396,66 @@ penalizes the AMP-like composition that hemolytic AMPs share with their
 scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
 It must NOT replace the ensemble activity gate — it is a complementary signal.
 
+## v0.5.28 — Multi-Negative-Set Benchmark ✓ (2026-07-05)
+
+The pipeline's AUROC (0.78 on AMP-vs-decoy) was measured against a single
+Swiss-Prot background negative set. There was no honest assessment of how
+the model behaves when faced with negative distributions that differ from
+the benchmark background. This release adds a 4-set multi-negative benchmark
+and gates CI on composition-independent sets.
+
+Changes:
+- `scripts/benchmark_multi_negatives.py`: Runs AUC against 4 decoy
+  distributions: Swiss-Prot background (same as standard benchmark),
+  uniform random (equal-length random peptides), reverse sequences
+  (same composition, reversed order), shuffled sequences (same
+  composition, random order). Returns AUROC, AUPRC, bootstrapped
+  95% CI, and an overall `all_independent_sets_above_0_70` verdict.
+  Gate passes if swissprot and uniform sets both > 0.70 AUROC.
+- `tests/test_benchmark_multi_negatives.py`: 14 tests covering AMP
+  loading, decoy generation for all 4 distributions, CSV writing,
+  CLI exit codes, JSON output parsing, and weak-AMP rejection.
+- `Makefile`: `bench-multi-negatives` target running the script with
+  output written to `outputs/multi_negative_benchmark.json`.
+- `.github/workflows/ci.yml`: Multi-negative benchmark added as a
+  blocking CI step after benchmark regression gate.
+- 1723 tests passing (14 new).
+
+Key honest findings:
+
+1. **Pipeline is composition-driven.** On reverse sequences (same
+   composition, reversed order), AUROC = 0.5000 (CI: 0.42–0.58).
+   On shuffled sequences (same composition, random order),
+   AUROC = 0.5376 (CI: 0.45–0.62). The model has no sequence-order
+   discriminative power — it scores high on any peptide with AMP-like
+   amino-acid composition regardless of actual bioactivity.
+
+2. **Expected, not embarrassing.** Composition-dependence is a known
+   property of linear models in small-peptide space. The physchem
+   features (charge, hydrophobicity, isoelectric point) are derived
+   from amino-acid composition, not tertiary structure. The model
+   correctly reflects that most AMPs are cationic and amphipathic.
+   The honest limitation is that composition-matched decoys reveal
+   the ceiling of linear-composition models.
+
+3. **Swiss-Prot and uniform decoys remain discriminable** (0.7832
+   and 0.7797 respectively) because random natural proteins and
+   truly random sequences have different composition distributions
+   than AMPs. This is genuine signal but must be interpreted in the
+   context of finding #1.
+
+4. **No gate for reverse/shuffled.** The gate only requires
+   composition-independent sets (swissprot, uniform) to stay above
+   0.70. Reverse/shuffled scores near 0.50 are expected; gating them
+   would be dishonest. These scores are preserved as honest negative
+   results in the benchmark report.
+
+5. **Use as a ceiling.** The multi-negative benchmark should be
+   re-run after any feature or model change that claims to improve
+   sequence-order awareness. An improvement on reverse or shuffled
+   AUROC from ~0.50 to ~0.60+ would be genuine evidence of
+   sequence-order learning.
+
 ## v1.0 — Validated dry-lab-to-wet-lab loop
 
 - independently reviewed assay batch (expert_review.yml GitHub issue template);
