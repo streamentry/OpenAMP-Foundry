@@ -21,10 +21,36 @@ _spec.loader.exec_module(_benchmark_gate)
 run_benchmark_gate = _benchmark_gate.run_benchmark_gate
 
 
-def _snapshot(auroc: float) -> dict:
+def _snapshot(
+    auroc: float = 0.7832,
+    cluster_full: float = 0.7832,
+    cluster_rep: float = 0.7607,
+    rich_detection: float = 0.7138,
+    gate_triage_correct: bool = True,
+    best_scorer: str = "gate_triage",
+) -> dict:
     return {
         "standard": {"auroc": auroc, "auprc": 0.8, "n_positives": 95, "n_negatives": 96},
         "phase3": {"auroc": auroc - 0.0384, "auprc": 0.76, "n_positives": 95, "n_negatives": 96},
+        "cluster_split": {
+            "full_auroc": cluster_full,
+            "representative_auroc": cluster_rep,
+        },
+        "selectivity": {
+            "per_score_auroc": {
+                "rich_selectivity": {
+                    "hemolysis_detection_auroc": rich_detection,
+                },
+            },
+        },
+        "triage": {
+            "best_scorer": best_scorer,
+            "per_scorer": {
+                "gate_triage": {
+                    "triages_correctly": gate_triage_correct,
+                },
+            },
+        },
     }
 
 
@@ -135,3 +161,50 @@ class TestBenchmarkGateCLI:
             assert rc == 0
             assert report.exists()
             assert "PASS" in report.read_text(encoding="utf-8")
+
+    # ── Extended gate: cluster-split checks ─────────────────────────────
+
+    def test_passes_when_cluster_split_stable(self):
+        baseline = _snapshot(cluster_full=0.7832, cluster_rep=0.7607)
+        current = _snapshot(cluster_full=0.7800, cluster_rep=0.7550)
+        assert run_benchmark_gate(baseline, current, cluster_tolerance=0.03) == 0
+
+    def test_fails_when_cluster_full_drops_below_tolerance(self):
+        baseline = _snapshot(cluster_full=0.7832)
+        current = _snapshot(cluster_full=0.7400)
+        assert run_benchmark_gate(baseline, current, cluster_tolerance=0.03) == 1
+
+    def test_fails_when_cluster_rep_drops_below_tolerance(self):
+        baseline = _snapshot(cluster_rep=0.7607)
+        current = _snapshot(cluster_rep=0.7200)
+        assert run_benchmark_gate(baseline, current, cluster_tolerance=0.03) == 1
+
+    # ── Extended gate: selectivity check ────────────────────────────────
+
+    def test_passes_when_rich_selectivity_stable(self):
+        baseline = _snapshot(rich_detection=0.7138)
+        current = _snapshot(rich_detection=0.7000)
+        assert run_benchmark_gate(baseline, current, selectivity_tolerance=0.05) == 0
+
+    def test_fails_when_rich_selectivity_drops_below_tolerance(self):
+        baseline = _snapshot(rich_detection=0.7138)
+        current = _snapshot(rich_detection=0.6200)
+        assert run_benchmark_gate(baseline, current, selectivity_tolerance=0.05) == 1
+
+    # ── Extended gate: triage boolean checks ────────────────────────────
+
+    def test_passes_when_gate_triage_correct(self):
+        baseline = _snapshot(gate_triage_correct=True, best_scorer="gate_triage")
+        current = _snapshot(gate_triage_correct=True, best_scorer="gate_triage")
+        assert run_benchmark_gate(baseline, current) == 0
+
+    def test_fails_when_gate_triage_becomes_incorrect(self):
+        baseline = _snapshot(gate_triage_correct=True, best_scorer="gate_triage")
+        current = _snapshot(gate_triage_correct=False, best_scorer="gate_triage")
+        assert run_benchmark_gate(baseline, current) == 1
+
+    def test_skips_when_baseline_missing_metric(self):
+        """If a metric path is missing from baseline, gate skips — not fails."""
+        baseline = {"standard": {"auroc": 0.7832}}
+        current = _snapshot()
+        assert run_benchmark_gate(baseline, current) == 0

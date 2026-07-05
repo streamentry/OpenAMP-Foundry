@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Benchmark regression gate for CI — fail CI if AUROC drops significantly."""
+"""Benchmark regression gate for CI — fail CI if key metrics regress."""
 
 from __future__ import annotations
 
@@ -9,37 +9,103 @@ import sys
 from pathlib import Path
 
 
+def _deep_get(d: dict, path: str) -> object:
+    """Resolve a dotted path like 'a.b.c' in a nested dict."""
+    parts = path.split(".")
+    for p in parts:
+        if not isinstance(d, dict):
+            return None
+        d = d.get(p, {})
+    return d if d != {} else None
+
+
 def run_benchmark_gate(
     baseline: dict,
     current: dict,
     tolerance: float = 0.02,
     *,
     report_file: str | Path | None = None,
+    cluster_tolerance: float = 0.03,
+    selectivity_tolerance: float = 0.05,
 ) -> int:
-    keys = ["standard", "phase3"]
+    """Compare baseline vs current metrics and return 0 (pass) or 1 (fail).
+
+    Checks:
+      - standard.auroc, phase3.auroc  (tolerance)
+      - cluster_split.full_auroc, cluster_split.representative_auroc (cluster_tolerance)
+      - selectivity.per_score_auroc.rich_selectivity.hemolysis_detection_auroc (selectivity_tolerance)
+      - triage.per_scorer.gate_triage.triages_correctly  (must remain True)
+      - triage.best_scorer  (must remain "gate_triage")
+    """
+    # Define checks: (label, dotted_path, tolerance_or_bool_target, is_boolean)
+    numeric_checks = [
+        ("standard.auroc", "standard.auroc", tolerance),
+        ("phase3.auroc", "phase3.auroc", tolerance),
+        ("cluster_split.full_auroc", "cluster_split.full_auroc", cluster_tolerance),
+        ("cluster_split.representative_auroc", "cluster_split.representative_auroc", cluster_tolerance),
+        ("rich_selectivity.detection.auroc",
+         "selectivity.per_score_auroc.rich_selectivity.hemolysis_detection_auroc",
+         selectivity_tolerance),
+    ]
+
+    bool_checks = [
+        ("gate_triage.triages_correctly",
+         "triage.per_scorer.gate_triage.triages_correctly",
+         True),
+        ("triage.best_scorer",
+         "triage.best_scorer",
+         "gate_triage"),
+    ]
+
     lines: list[str] = []
     lines.append("=== Benchmark Regression Gate ===")
-    lines.append(f"Tolerance: AUROC drop <= {tolerance}")
+    lines.append(f"AUROC tolerance: {tolerance}; cluster: {cluster_tolerance}; selectivity: {selectivity_tolerance}")
     lines.append("")
 
     worst_delta = 0.0
-    for key in keys:
-        b = baseline.get(key, {}).get("auroc", 0.0)
-        c = current.get(key, {}).get("auroc", 0.0)
-        d = b - c
-        flag = "FAIL" if d > tolerance else "PASS"
+    any_fail = False
+
+    for label, path, tol in numeric_checks:
+        b = _deep_get(baseline, path)
+        c = _deep_get(current, path)
+        if b is None:
+            lines.append(f"  [SKIP] {label:30s} baseline metric not found")
+            continue
+        if c is None:
+            lines.append(f"  [SKIP] {label:30s} current metric not found")
+            continue
+        if not isinstance(b, (int, float)) or not isinstance(c, (int, float)):
+            lines.append(f"  [SKIP] {label:30s} non-numeric values")
+            continue
+        bf, cf = float(b), float(c)
+        d = bf - cf
+        flag = "FAIL" if d > tol else "PASS"
+        if d > tol:
+            any_fail = True
         lines.append(
-            f"  [{flag:4s}] {key + '.auroc':30s} {b:.4f} → {c:.4f}  (Δ={d:+.4f})"
+            f"  [{flag:4s}] {label:30s} {bf:.4f} → {cf:.4f}  (Δ={d:+.4f})"
         )
         if d > worst_delta:
             worst_delta = d
 
+    for label, path, expected in bool_checks:
+        b = _deep_get(baseline, path)
+        c = _deep_get(current, path)
+        if b is None:
+            lines.append(f"  [SKIP] {label:30s} baseline metric not found")
+            continue
+        if c is None:
+            lines.append(f"  [SKIP] {label:30s} current metric not found")
+            continue
+        if c != expected:
+            any_fail = True
+            lines.append(f"  [FAIL] {label:30s} {b} → {c}  (expected {expected})")
+        else:
+            lines.append(f"  [PASS] {label:30s} {b} → {c}")
+
     lines.append("")
-    if worst_delta > tolerance:
-        lines.append(
-            f"FAIL: AUROC regression detected — max Δ={worst_delta:.4f}"
-            f" exceeds tolerance {tolerance}"
-        )
+    if any_fail:
+        lines.append(f"FAIL: Benchmark regression detected — {worst_delta=:.4f}")
         lines.append("Investigate scoring changes before merging.")
         report = "\n".join(lines)
         print(report)
@@ -48,8 +114,8 @@ def run_benchmark_gate(
         return 1
 
     lines.append(
-        f"PASS: All AUROC metrics within tolerance "
-        f"(max Δ={worst_delta:.4f}, limit={tolerance})"
+        f"PASS: All benchmark metrics within tolerances "
+        f"(max Δ={worst_delta:.4f})"
     )
     report = "\n".join(lines)
     print(report)

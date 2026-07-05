@@ -617,3 +617,40 @@ Key honest limitations:
 3. No benchmark, scoring, or behavioural number changed. This is a
    pure architectural-clarity release.
 
+## v0.5.27 — Extended Benchmark Regression Gate for CI ✓ (2026-07-05)
+
+The benchmark regression gate (`scripts/benchmark_gate.py`) previously only
+checked `standard.auroc` and `phase3.auroc`. Cluster-split, selectivity, and
+triage benchmarks could silently regress without CI catching it. This
+release extends the gate to protect every benchmark dimension.
+
+Changes:
+- `scripts/benchmark_gate.py`: `run_benchmark_gate()` now checks 5 numeric
+  metrics (standard.auroc, phase3.auroc, cluster_split.full_auroc,
+  cluster_split.representative_auroc, rich_selectivity.detection.auroc) and
+  2 boolean metrics (gate_triage.triages_correctly, triage.best_scorer).
+  Uses separate tolerances: 0.02 for standard/phase3, 0.03 for cluster-split,
+  0.05 for selectivity. Uses dotted-path resolution (`_deep_get`) to
+  traverse the nested snapshot dict safely.
+- `tests/test_benchmark_gate.py`: `_snapshot()` helper extended with
+  cluster-split, selectivity, and triage test fields. 8 new tests covering
+  cluster-split regression (full_auroc, representative_auroc), selectivity
+  regression, gate_triage boolean flip, best_scorer change, and
+  missing-metric skip behavior. 21 total tests (was 13).
+- `outputs/metrics_snapshot.json`: regenerated with n_bootstrap=200 for
+  faster CI; all values consistent with previous committed baseline.
+
+Key honest limitations:
+1. The gate sets tolerances wide enough to avoid flaky CI on bootstrap
+   noise — it catches significant regressions (e.g., a broken scorer change)
+   but may pass minor statistical variation.
+2. The selectivity detection AUROC (tolerance=0.05) is the noisiest metric
+   because it runs on n=179 with bootstrap sampling. The wider tolerance
+   is intentional to prevent false-positive CI failures.
+3. The gate checks standard triage (random decoys) but NOT strict triage
+   (composition-matched scrambled decoys), because no scorer passes strict
+   triage. Adding a strict-triage gate would require a different evaluation
+   criterion (e.g., "direction of effect preserved").
+4. Missing metrics in baseline or current are silently skipped, not failed.
+   This preserves backward compatibility with older snapshots.
+
