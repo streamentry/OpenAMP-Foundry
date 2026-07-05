@@ -396,6 +396,18 @@ penalizes the AMP-like composition that hemolytic AMPs share with their
 scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
 It must NOT replace the ensemble activity gate — it is a complementary signal.
 
+## v0.5.34 — Benchmark Card Consolidation ✓ (2026-07-05)
+
+- Consolidated all Phase 1 benchmark findings into `docs/BENCHMARK_CARD.md`
+- Card now covers: expanded benchmark (500+500), multi-negative (4 decoy sets),
+  cluster-split-500, easy baseline, order-dependence (7/31 features),
+  precision@k (top-20 perfect), within-AMP selectivity (rich_selectivity 0.714),
+  multi-class triage (gate_triage passes), expert ablation (n=1000 with
+  2 reclassifications), and 9 updated known biases
+- **Phase 1 exit criterion met:** benchmark card is externally reviewable
+- **One Phase 1 exit criterion remains:** cross-dataset and time-split results
+- Next: Loop 17 — Cross-dataset generalization
+
 ## v0.5.33 — Expert Ablation Re-run on Expanded Benchmark ✓ (2026-07-05)
 
 - Re-ran expert ablation on the expanded 500-AMP + 500-decoy benchmark (n=1000)

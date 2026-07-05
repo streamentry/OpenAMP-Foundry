@@ -2,7 +2,7 @@
 
 > **Status:** Strategic roadmap. Updated v0.5.27.
 > **Current state:** 1723 tests, pipeline AUROC 0.7792, calibration intake + gate shipped,
-> Phase 0 complete (Loops 1–8), Phase 1 Loop 15 complete (expert ablation re-run on n=1000),
+> Phase 0 complete (Loops 1–8), Phase 1 Loop 16 complete (benchmark card consolidated),
 > cluster-split/selectivity/triage now gated in CI, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
@@ -52,8 +52,26 @@ Strengthen every benchmark against self-deception. Expand datasets. Add honest f
 | 16 | No time-split benchmark (hardest leakage test). Most public AMP databases lack deposition dates | Time-split: gather dated AMP records, split by year (pre-2015 train, post-2015 test). Report AUROC with CI | Time-split AUROC > 0.60 or honest failure documented |
 | 17 | No per-family benchmark breakdown. Some AMP classes (defensins, lantibiotics) may score differently | Per-family AUROC: stratify benchmark by AMP structural class. Identify which families the pipeline handles well/poorly | Documentation of family-level strengths and blind spots |
 | 18 | No leakage audit for the expanded benchmark. Near-duplicates between AMPs and decoys may inflate scores | Leakage audit: run cluster-split on expanded 500+ benchmark. Report cluster-aware CI and representative-only AUROC | Cluster-aware CI lower bound > 0.65 |
-| 19 | Benchmark card is stale — still shows n=191 numbers, no easy baseline, order-dependence, or precision@k | Update benchmark card with current expanded-benchmark metrics, easy baseline finding, order-dependence analysis, precision@k operating characteristic | Benchmark card reflects all Phase 1 benchmark results |
-| 20 | (vacant — Phase 1 loops completed earlier than planned) | — | — |
+| **16 ✅** | **Benchmark card is stale — still shows n=191 numbers, no easy baseline, order-dependence, or precision@k** | **Updated benchmark card with all 15 loops' findings: expanded benchmark, multi-negative, cluster-split-500, easy baseline, order-dependence, precision@k, rich selectivity, gate_triage, expert ablation (n=1000), updated known biases** | **Benchmark card is externally reviewable. Phase 1 exit criterion met.** |
+
+### Phase 1 exit criteria now:
+
+| Criterion | Status |
+|-----------|:------:|
+| Benchmark size ≥ 500 AMPs + 500 decoys | ✅ v0.5.29 |
+| Cluster-aware CI lower bound > 0.65 | ✅ v0.5.29 (0.746) |
+| Cross-dataset and time-split results published | ❌ **Not yet done** |
+| Easy baseline delta documented | ✅ v0.5.30 |
+| Benchmark card exists and is externally reviewable | ✅ **This loop (v0.5.34)** |
+
+**One exit criterion remains:** cross-dataset and time-split results.
+
+| Loop | Bottleneck | Deliverable | Verification |
+|------|-----------|-------------|-------------|
+| 17 | Cross-dataset generalisation untested. Current benchmark uses same database for train/test | Cross-dataset benchmark: train on APD6, test on DRAMP (or vice versa). Report transfer AUROC | Transfer AUROC documented (may be weak — publish honestly) |
+| 18 | No per-family benchmark breakdown. Some AMP classes (defensins, lantibiotics) may score differently | Per-family AUROC: stratify benchmark by AMP structural class. Identify which families the pipeline handles well/poorly | Documentation of family-level strengths and blind spots |
+| 19 | (vacant — Phase 1 remaining) | — | — |
+| 20 | (vacant — Phase 1 remaining) | — | — |
 
 **Phase 1 exit criteria:**
 - ✅ Benchmark size ≥ 500 AMPs + 500 decoys
@@ -176,7 +194,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 
 ```
 Phase 0: ✅ Complete (Loops 1–8)
-Phase 1: Loop 15 of 15 (next loop: 16 — cross-dataset generalization or time-split benchmark)
+Phase 1: Loop 16 of 16 (next loop: 17 — cross-dataset generalization)
 Phase 2: Not started
 Phase 3: Not started
 Phase 4: Not started
@@ -212,10 +230,11 @@ Phase 4: Not started
 | 13 ✅ | No order-dependent features — strict triage AUROC 0.572 shows pipeline is predominantly composition-based | `scripts/benchmark_order_dependent.py`: analyzed which 31 features survive scrambling. Only 7 are order-dependent (amphipathicity + dipeptide). `src/openamp_foundry/features/dipeptide.py`: dipeptide order score (AUROC 0.7861) is the #1 order-dependent feature. Integrated into `compute_features()`. `make bench-order-dependent`, CI informational step | dipeptide_order_score AUROC 0.7861 on AMP-vs-scrambled. All composition features exactly 0.5000 (position-independent) |
 | 14 ✅ | AUROC is threshold-independent but real selection uses a fixed threshold. No precision-at-k calibration | `scripts/benchmark_precision_at_k.py`: operating characteristic (small-k precision/recall, threshold-based analysis). `make bench-precision-at-k`. **Finding:** top-20 precision 1.000, top-50 0.900, top-200 0.835. Best F1 threshold 0.6323 (F1=0.7518). At 80% recall, precision drops to base-rate (0.5000) — honest limitation documented. | Precision@k calibration documented in METRICS_CURRENT.md |
 | 15 ✅ | Expert ablation (v0.5.8) was stale on n=191. Since then rich_selectivity was added to expert composite. Needs re-run on expanded 500+ set | Re-ran expert ablation on n=1000 (500 AMP + 500 decoy). **Finding:** 2 components reclassified — synthesis was anti-signal artifact (0.4228→0.4968, now near-zero); boman_activity more strongly anti-AMP (0.3291). selectivity_proxy weaker on diverse set (0.6702 vs 0.7729). Activity remains dominant (0.7969). Expert delta widens to −0.0935. `make bench-expert-ablation-500`. | Per-component AUROC on expanded set documented in METRICS_CURRENT.md |
+| 16 ✅ | Benchmark card stale — shows n=191 numbers only, missing all Phase 1 findings (Loops 9–15) | Rewrote `docs/BENCHMARK_CARD.md`: consolidated expanded benchmark, cluster-split-500, multi-negative, easy baseline, order-dependence, precision@k, rich selectivity, gate_triage, expert ablation (n=1000), updated known biases. Phase 1 exit criterion met. | Benchmark card is externally reviewable |
 
 ### Phase 0 exit criteria (archived):
 - ✅ `from openamp_foundry.calibration import GateVerdict` works
 - ✅ `make ci` passes with benchmark gate
 - ✅ A new agent can read README → run demo → understand calibration flow → contribute safely in one session
 
-**Next loop:** Loop 16 — Phase 1 (Cross-dataset generalization or time-split benchmark).
+**Next loop:** Loop 17 — Phase 1 (Cross-dataset generalization — the last exit criterion).
