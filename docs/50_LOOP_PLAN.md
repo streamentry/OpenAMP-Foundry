@@ -1,8 +1,8 @@
 # 50-Loop Execution Plan
 
 > **Status:** Strategic roadmap. Updated v0.5.36.
-> **Current state:** 1735 tests, pipeline AUROC 0.7792, calibration intake + gate + engine shipped,
-> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loop 21 complete,
+> **Current state:** 1762 tests, pipeline AUROC 0.7792, calibration intake + gate + engine shipped,
+> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loops 18, 21 complete,
 > cluster-split/selectivity/triage now gated in CI, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
@@ -68,7 +68,7 @@ Build the recalibration engine gated by the policy. Implement active-learning ba
 
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
-| 18 | No per-family benchmark breakdown. The 500-AMP benchmark treats all AMPs as one class, hiding which families the pipeline handles well or poorly | `scripts/benchmark_per_family.py`: stratify 500-AMP set by heuristic structural class (alpha-helical, beta-sheet, mixed, cyclic, other). Report per-family AUROC. Pipeline may fail on some families — that's honest information for wet-lab selection | Per-family AUROC table in benchmark card. Families below threshold are flagged — candidate selection avoids overweighting them |
+| 18 ✅ | No per-family benchmark breakdown. The 500-AMP benchmark treats all AMPs as one class, hiding which families the pipeline handles well or poorly | `scripts/benchmark_per_family.py`: stratifies 500-AMP set by 6 heuristic structural classes. Reports per-class AUROC. v0.5.37. **Key finding:** Pipeline is charge-dominated — highly_cationic AUROC 0.958 vs proline_rich 0.586 (Δ=0.37). Weak classes flagged as blind spots for wet-lab selection. | Per-family AUROC table in METRICS_CURRENT.md. Families below 0.70 flagged. 27 tests, 1762 passing. |
 | 19 | No policy version tracking. Every recalibration event needs a version bump, locked-changes enforcement, and a decision-log entry | `calibration/policy_version.py`: auto-increment `policy_version` on every proposal, validate `locked_changes` entries are unchanged from prior version, reject proposals without a decision-log entry dated within 30 days. CI enforces this on `configs/recalibration_policy.yaml` | CI rejects policy PRs without valid decision log. Locked changes survive version bumps |
 | 20 | No lab-result simulator for testing the calibration loop without real data | `examples/lab_results_generator.py`: generates synthetic lab results at configurable cohort sizes, effect sizes, and noise levels. Clearly labeled SYNTHETIC in every file. Moved from original Loop 27 — needed earlier for engine benchmarking | Produces schema-valid JSON files that drive engine tests |
 | 21 ✅ | **Recalibration engine**: the gate existed but no engine. Real weight-update code needs to be safe, auditable, and gated | `calibration/engine.py`: `compute_weight_update(intake_report, gate_verdict, current_weights, l1_budget)` returns `WeightUpdateProposal`. Control theory: delta = learning_rate × (observed_accuracy − target_accuracy). Conservative learning rate 0.05. L1 budget enforced. v0.5.36 | 1735 tests; CLI `recalibration-engine` exits 0 on proposal, 3 on violations, 2 on missing files; 12 engine tests |
@@ -177,7 +177,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 ```
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
-Phase 2: Loop 21 of 29 (recalibration engine shipped — Loop 18 next)
+Phase 2: Loop 18 of 29 (per-family benchmark shipped — Loop 19 next)
 Phase 3: Not started (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```
@@ -226,6 +226,7 @@ Phase 4: Not started (Loops 40–49)
 
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
+| 18 ✅ | No per-family benchmark breakdown. The 500-AMP benchmark treats all AMPs as one class, hiding which families the pipeline handles well or poorly | `scripts/benchmark_per_family.py`: stratifies 500-AMP set by 6 heuristic structural classes. Reports per-class AUROC. v0.5.37. **Key finding:** Pipeline is charge-dominated — highly_cationic AUROC 0.958 vs proline_rich 0.586 (Δ=0.37). Weak classes flagged as blind spots for wet-lab selection. | Per-family AUROC table in METRICS_CURRENT.md. Families below 0.70 flagged. 27 tests, 1762 passing. |
 | 21 ✅ | Recalibration engine: the gate existed but no engine. Real weight-update code needs to be safe, auditable, and gated | `calibration/engine.py`: `compute_weight_update()` returns `WeightUpdateProposal`. Control theory: delta = learning_rate × (observed_accuracy − target_accuracy). Conservative LR 0.05. L1 budget enforced. v0.5.36 | 1735 tests; CLI recalibration-engine exits 0 on proposal, 3 on violations, 2 on missing files; 12 engine tests |
 
-**Next loop:** Loop 18 — Phase 2 (Per-family benchmark breakdown).
+**Next loop:** Loop 19 — Phase 2 (Policy version tracking).
