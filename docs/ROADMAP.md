@@ -396,6 +396,24 @@ penalizes the AMP-like composition that hemolytic AMPs share with their
 scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
 It must NOT replace the ensemble activity gate — it is a complementary signal.
 
+## v0.5.33 — Expert Ablation Re-run on Expanded Benchmark ✓ (2026-07-05)
+
+- Re-ran expert ablation on the expanded 500-AMP + 500-decoy benchmark (n=1000)
+- **Finding: 2 components reclassified from n=191** — synthesis was an anti-signal
+  artifact (0.4228 → 0.4968, now near-zero); boman_activity more strongly anti-AMP
+  than previously known (0.4620 → 0.3291)
+- **Finding: selectivity_proxy weaker on diverse set** (0.7729 → 0.6702) — the
+  charge+GRAVY heuristic discriminates less reliably on the broader AMP set
+- **Finding: delta widens** (−0.0735 → −0.0935) — expert composite worse binary
+  discriminator on diverse AMPs (expected: design tradeoff)
+- **Finding: activity remains dominant** (0.7969, signal-bearing); novelty and
+  motif_novelty exactly 0.5 by construction (no k-mer index in benchmark)
+- Makefile target: `make bench-expert-ablation-500`
+- Docs updated: METRICS_CURRENT.md (expanded per-component table + updated key findings)
+- Honest update: the original n=191 finding that "synthesis is anti-signal" was a
+  small-n artifact. Corrected in this release.
+- Next: Loop 16 — Cross-dataset generalization or benchmark card update
+
 ## v0.5.32 — Precision@k Calibration ✓ (2026-07-05)
 
 - Added `scripts/benchmark_precision_at_k.py` — operating characteristic for
@@ -412,7 +430,7 @@ It must NOT replace the ensemble activity gate — it is a complementary signal.
 - Makefile target: `make bench-precision-at-k`
 - Pipeline best used as small-k triage tool (pick top 20–50 where precision ≥ 0.90)
 - Docs updated: METRICS_CURRENT.md (new section), ROADMAP.md (this entry)
-- Next: Loop 15 — Cross-dataset generalization or remaining Phase 1 exit criterion
+- Next: Loop 16 — Cross-dataset generalization or remaining Phase 1 exit criterion
 
 ## v0.5.31 — Order-Dependent Features Benchmark ✓ (2026-07-05)
 

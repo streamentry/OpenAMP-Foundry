@@ -5,12 +5,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-05 (precision@k calibration, v0.5.32)
+> **Last updated:** 2026-07-05 (expert ablation re-run on expanded set, v0.5.33)
+> **New in v0.5.33:** Expert ablation re-run on expanded 500-AMP benchmark (n=1000). Two components reclassified: synthesis was an anti-signal artifact on n=191 (now near-zero 0.4968); boman_activity more strongly anti-AMP (0.3291). selectivity_proxy weaker on diverse set (0.6702 vs 0.7729). Activity remains dominant signal (0.7969). Expert composite delta widens to −0.0935 — expected tradeoff for selectivity-aware scoring.
 > **New in v0.5.32:** Precision@k calibration added — top-20 precision 1.000 (all AMPs), top-50 precision 0.900, top-100 precision 0.870, top-200 precision 0.835. Best F1 threshold 0.6323 (F1=0.7518, precision=0.6337, recall=0.9240). At 80% recall, precision drops to base-rate (0.5000) — honest limitation: high-recall triage is not the pipeline's strength.
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.32
+> **Pipeline version:** v0.5.33
 > **Branch:** main
 
 ---
@@ -397,14 +398,16 @@ is present; they are not guaranteed to be committed in every checkout.
 
 ---
 
-## Expert Ablation Benchmark (v0.5.x — added 2026-07-01)
+## Expert Ablation Benchmark (v0.5.x — added 2026-07-01; re-run on n=1000 v0.5.33)
 
 > The expert composite scorer (`scoring/expert.py`) adds four components beyond the
 > simple ensemble: selectivity, serum stability, helix-hinge, and k-mer motif novelty.
 > This ablation tests whether those additions improve binary AMP-vs-decoy discrimination
 > or are complexity that does not earn its keep.
 >
-> Run: `make bench-expert-ablation`
+> Run: `make bench-expert-ablation` (n=191) or `make bench-expert-ablation-500` (n=1000)
+
+### Original benchmark (n=191)
 
 | Metric | Pipeline (pipeline.yaml) | Phase3 (phase3.yaml) |
 |--------|:-----------------------:|:-------------------:|
@@ -415,43 +418,57 @@ is present; they are not guaranteed to be committed in every checkout.
 | **Delta (expert − ensemble)** | **−0.0735** | **−0.0351** |
 | Verdict | Expert LOWER | Expert LOWER |
 
-**Per-component AUROC** (pipeline config, n=191):
+### Expanded benchmark (n=1000, added v0.5.33)
 
-| Component | AUROC | Above random | Classification |
-|-----------|:-----:|:------------:|:--------------:|
-| activity | 0.8137 | +0.3137 | **Signal-bearing** |
-| selectivity_proxy | 0.7729 | +0.2729 | **Signal-bearing** |
-| hinge_selectivity | 0.5180 | +0.0180 | Near-zero |
-| novelty | 0.5000 | 0.0000 | Near-zero |
-| motif_novelty | 0.5000 | 0.0000 | Near-zero |
-| boman_activity | 0.4620 | −0.0380 | Near-zero |
-| synthesis | 0.4228 | −0.0772 | **Anti-signal** |
-| safety | 0.3487 | −0.1513 | **Anti-signal** |
-| rich_selectivity | 0.1973 | −0.3027 | **Anti-signal** |
-| serum_stability | 0.2231 | −0.2769 | **Anti-signal** |
+| Metric | Pipeline (pipeline.yaml) |
+|--------|:-----------------------:|
+| Ensemble AUROC | 0.7792 |
+| Ensemble CI₉₅ | 0.7503–0.8070 |
+| Expert composite AUROC | 0.6857 |
+| Expert CI₉₅ | 0.6523–0.7170 |
+| **Delta (expert − ensemble)** | **−0.0935** |
+| Verdict | Expert LOWER |
 
-**Key finding:** The expert composite scores **lower** than the simple ensemble on
-binary AMP-vs-decoy discrimination (delta = −0.0735). Three expert components are
-anti-signal: `safety`, `serum_stability`, `synthesis`, and `rich_selectivity` score random decoys higher
-than known AMPs. This is expected and not a bug: real AMPs have high hydrophobic
-moment and charge (features the safety scorer penalises), many interior protease
-sites (low serum stability), and often contain repeat runs or aggregation-prone
-segments (low synthesis feasibility). Random decoys drawn from Swiss-Prot
-frequencies tend to have more moderate biophysical properties.
+Run: `make bench-expert-ablation-500`
 
-**What this means for the pipeline:**
+### Per-component comparison (n=191 vs n=1000)
 
-1. The expert composite should NOT replace the ensemble for AMP/non-AMP triage. However, the rich_selectivity component (AUROC=0.1973 for AMP-vs-decoy but detection AUROC=0.7138 for hemolysis) is anti-AMP by design — it penalises high hydrophobicity and charge that define AMPs. This is the correct tradeoff: the expert composite trades a small AMP-detection penalty for significant hemolysis-risk awareness.
-2. The ensemble (activity + safety + synthesis + novelty + Boman) remains the
-   primary synthesis gate, as it has higher discriminative power.
-3. The expert components may still add value for **within-AMP ranking** (selectivity
-   and safety differentiation among candidates that already pass the activity gate)
-   — but this has not been demonstrated and should not be assumed.
-4. The `boman_activity` scorer (AUROC 0.462, below random) does not discriminate
-   AMPs from random decoys on the expanded benchmark. It contributes to the ensemble
-   only through the disagreement signal, not through independent discrimination.
-5. `motif_novelty` and `novelty` are 0.5 by construction (no k-mer index, no
-   references in this benchmark) — they are correctly neutral, not noise.
+| Component | n=191 AUROC | n=191 class | n=1000 AUROC | n=1000 class | Change |
+|-----------|:-----------:|:-----------:|:------------:|:------------:|:------:|
+| activity | 0.8137 | Signal-bearing | **0.7969** | Signal-bearing | ↓0.0168 (stable) |
+| selectivity_proxy | 0.7729 | Signal-bearing | **0.6702** | Signal-bearing | ↓0.1027 (weaker on diverse set) |
+| hinge_selectivity | 0.5180 | Near-zero | **0.5004** | Near-zero | ↓0.0176 (stable) |
+| novelty | 0.5000 | Near-zero | **0.5000** | Near-zero | 0.0000 (by construction) |
+| motif_novelty | 0.5000 | Near-zero | **0.5000** | Near-zero | 0.0000 (by construction) |
+| synthesis | 0.4228 | Anti-signal | **0.4968** | Near-zero | **↗ Reclassified** — n=191 artifact |
+| boman_activity | 0.4620 | Near-zero | **0.3291** | Anti-signal | **↘ Reclassified** — stronger anti-AMP on diverse set |
+| safety | 0.3487 | Anti-signal | **0.4459** | Anti-signal | ↑0.0972 (less extreme) |
+| serum_stability | 0.2231 | Anti-signal | **0.3767** | Anti-signal | ↑0.1536 (less extreme) |
+| rich_selectivity | 0.1973 | Anti-signal | **0.3407** | Anti-signal | ↑0.1434 (less extreme) |
+
+### Updated key findings
+
+The expanded benchmark (n=1000) **changes two classifications** and **tightens uncertainty**:
+
+1. **synthesis was an anti-signal artifact on n=191.** At 0.4968 on n=1000, synthesis feasibility is essentially neutral — AMPs and decoys have similar average synthesis difficulty. The original finding (0.4228) was a small-n artifact on the original 95-sequence benchmark, which was enriched for manually curated AMPs with unusual biophysical properties. On the more diverse 500-AMP set, this bias disappears.
+
+2. **boman_activity is more strongly anti-AMP than previously known.** At 0.3291 on n=1000, random decoys score substantially higher on Boman activity than most AMPs. The Boman index (a measure of overall residue solubility) is designed to detect peptides with broad-spectrum binding potential — a property that random decoys drawn from Swiss-Prot frequencies happen to have. This does NOT mean the Boman signal is harmful; its contribution to the ensemble works through the disagreement signal (|activity − boman|), not through independent discrimination. A high-disagreement candidate is one where the activity and Boman scorers disagree — this is the intended signal.
+
+3. **selectivity_proxy is weaker on the diverse set** (0.6702 vs 0.7729). The charge+GRAVY heuristic distinguishes AMPs from random decoys less reliably when applied to a broader AMP diversity (UniProt-reviewed + APD6 natural). This is expected: the original 95-AMP benchmark was manually curated and enriched for canonical amphipathic helix AMPs that have characteristic charge and GRAVY values.
+
+4. **activity remains the dominant signal** (0.7969, signal-bearing). The ensemble's primary discriminative power still comes from the activity scorer, as expected.
+
+5. **rich_selectivity, safety, and serum_stability remain anti-signal** but are less extreme on n=1000 (moving toward 0.5). The expanded set includes more diverse AMPs with more moderate biophysical properties, so the anti-AMP penalty is less severe on average.
+
+6. **The expert composite's delta widens from −0.0735 to −0.0935** because the selectivity-focused components penalize more diverse AMPs more heavily. The expert composite is NOT a good binary discriminator — this is by design, as its components focus on within-AMP differentiation.
+
+### What this means for the pipeline:
+
+1. The expert composite should NOT replace the ensemble for AMP/non-AMP triage. However, the rich_selectivity component (AUROC=0.3407 for AMP-vs-decoy but detection AUROC=0.7138 for hemolysis) is anti-AMP by design — it penalises high hydrophobicity and charge that define AMPs. This is the correct tradeoff.
+2. The ensemble (activity + safety + synthesis + novelty + Boman) remains the primary synthesis gate.
+3. The expert components may still add value for **within-AMP ranking** (selectivity and safety differentiation among candidates that already pass the activity gate) — but this has not been demonstrated and should not be assumed.
+4. The `boman_activity` scorer (AUROC 0.329, well below random) does NOT discriminate AMPs from random decoys. Its only useful contribution to the ensemble is through the disagreement signal — which requires a partner scorer to disagree with.
+5. `motif_novelty` and `novelty` are 0.5 by construction (no k-mer index, no references in this benchmark) — they are correctly neutral, not noise.
 
 **Honest limitation:** This benchmark measures binary AMP-vs-decoy discrimination
 only. The expert composite's selectivity, safety, and synthesis components are
@@ -941,6 +958,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 | 2026-07-03 | **Rich selectivity scorer added:** composite of 8 evidence-identified features from the feature decomposition benchmark. Detection AUROC=0.7138 (CI 0.63-0.80) on n=179 — first pipeline score with statistically significant selective_vs_hemolytic discrimination. Old selectivity_proxy=0.5744 (CI 0.50-0.66). Honest limitation: does not triage AMP-vs-decoy (0.19); must be combined with activity gate. | OpenAMP loop |
 | 2026-07-05 | **Order-dependent features benchmark added:** dipeptide_order_score is the strongest order-dependent feature (AUROC 0.7861 on AMP-vs-scrambled). Only 7/31 features survive scrambling. All composition features are exactly position-independent (0.5000). `src/openamp_foundry/features/dipeptide.py`, `scripts/benchmark_order_dependent.py`, `make bench-order-dependent`. | OpenAMP loop 13 |
 | 2026-07-05 | **Precision@k calibration benchmark added:** top-20 precision 1.000, top-50 precision 0.900, top-200 precision 0.835. Best F1 threshold 0.6323 (F1=0.7518). At 80% recall, precision drops to base-rate (0.5000) — honest limitation documented. `scripts/benchmark_precision_at_k.py`, `make bench-precision-at-k`. | OpenAMP loop 14 |
+| 2026-07-05 | **Expert ablation re-run on expanded benchmark (n=1000):** 2 components reclassified — synthesis was anti-signal artifact on n=191 (0.4228→0.4968, now near-zero); boman_activity more strongly anti-AMP (0.3291). selectivity_proxy weaker on diverse set. Activity remains dominant (0.7969). `make bench-expert-ablation-500`. | OpenAMP loop 15 |
 | 2026-07-05 | **Easy baseline benchmark added:** charge density alone (AUROC 0.8166) beats pipeline ensemble (0.7792, Δ=−0.0374). Honest finding: expected — pipeline optimizes for safety, not raw discrimination. `scripts/baseline_trivial.py`, `make bench-easy-baseline`, CI informational step. | OpenAMP loop 12 |
 | 2026-07-03 | **Rich selectivity integrated into production pipeline:** rich_selectivity_score now computed in score_candidates() (pipeline.py), replaces hemolysis_safety as the expert composite hemolysis-risk component (weight 0.10), used in pilot_priority formula, displayed in pilot panel report, and included in evidence certificates. Expert AUROC drops 0.7119→0.7097 (−0.0022) — acceptable tradeoff: the expert now includes a significant hemolysis detector (CI excludes 0.5) instead of the old non-significant one. | OpenAMP loop |
 | 2026-07-03 | **Two-gate triage composite added:** gate_triage = activity × rich_selectivity, added to triage benchmark. First scorer to pass all three standard triage conditions with strong selective_vs_hemolytic separation (0.666). Top-20: 16 selective / 1 hemolytic / 3 decoy — best distribution. Does NOT pass strict triage (hem_vs_dec 0.489) — honest limitation. Must not replace ensemble activity gate. | OpenAMP loop |
