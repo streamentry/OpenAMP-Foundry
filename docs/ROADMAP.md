@@ -396,6 +396,24 @@ penalizes the AMP-like composition that hemolytic AMPs share with their
 scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
 It must NOT replace the ensemble activity gate — it is a complementary signal.
 
+## v0.5.32 — Precision@k Calibration ✓ (2026-07-05)
+
+- Added `scripts/benchmark_precision_at_k.py` — operating characteristic for
+  candidate selection: small-k triage (top-20 precision 1.000), threshold-based
+  analysis (best F1 at 0.6323), and 80% recall operating point
+- **Finding: top-20 triage is perfect** (precision 1.000) — the top 20 candidates
+  are all genuine AMPs. Top-50 still excellent (0.900). Enrichment persists to
+  k=200 (0.835, 1.67×)
+- **Finding: best F1 threshold 0.6323** (F1=0.7518, precision=0.6337, recall=0.9240)
+- **Finding: at 80% recall, precision drops to base-rate** (0.5000) — the pipeline's
+  high-recall triage is limited by substantial score distribution overlap
+- **Honest limitation:** results use a balanced 50/50 dataset; in real low-prevalence
+  screening (1–10% AMP rate), precision at every operating point would be lower
+- Makefile target: `make bench-precision-at-k`
+- Pipeline best used as small-k triage tool (pick top 20–50 where precision ≥ 0.90)
+- Docs updated: METRICS_CURRENT.md (new section), ROADMAP.md (this entry)
+- Next: Loop 15 — Cross-dataset generalization or remaining Phase 1 exit criterion
+
 ## v0.5.31 — Order-Dependent Features Benchmark ✓ (2026-07-05)
 
 - Added `src/openamp_foundry/features/dipeptide.py` — dipeptide frequency

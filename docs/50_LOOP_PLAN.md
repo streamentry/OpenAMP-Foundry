@@ -39,24 +39,24 @@ Strengthen every benchmark against self-deception. Expand datasets. Add honest f
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
 | 9 ✅ | Benchmark gate only checked standard + phase3 AUROC. Cluster-split, selectivity, triage could silently regress | Extended benchmark regression gate (v0.5.27): `scripts/benchmark_gate.py` now checks cluster_split.full_auroc, cluster_split.representative_auroc, rich_selectivity.detection.auroc, gate_triage.triages_correctly, triage.best_scorer. 8 new tests. 1709 total. | `make bench-gate` passes; cluster-split AUROC gated at 0.03 tolerance; selectivity at 0.05; triage booleans enforced |
-| 10 ✅ | Benchmark expanded to n=191 but ROADMAP flags 500+ target as deferred | **500+ AMP benchmark**: expand to ≥500 public-domain AMPs + 500 composition-matched decoys. Recompute AUROC, CI, AUPRC | Validated on new dataset: AUROC 0.7792 (CI₉₅: 0.7505–0.8065); cluster-aware CI 0.746–0.8102; representative AUROC 0.778 |
-| 11 | No time-split benchmark (hardest leakage test). Most public AMP databases lack deposition dates | Time-split: gather dated AMP records, split by year (pre-2015 train, post-2015 test). Report AUROC with CI | Time-split AUROC > 0.60 or honest failure documented |
-| 12 | Strict triage: no scorer passes composition-matched decoy test. This is the hardest known gap | Analyze which 1D features survive scrambling. Build an order-dependent feature (dipeptide frequencies, auto-cross-covariance) and test if it recovers scrambled-decoy signal | Strict sel_vs_dec AUROC improves vs baseline 0.572 |
-| 13 | Cross-dataset generalisation untested. Current benchmark uses same database for train/test | Cross-dataset benchmark: train on APD6, test on DRAMP (or vice versa). Report transfer AUROC | Transfer AUROC documented (may be weak — publish honestly) |
-| 14 | No negative-set diversity. Only random Swiss-Prot decoys used | Multi-source negative set: random peptides, reverse-sequences, shuffled human proteome fragments, inactive AMP variants. Report per-source rejection rates | Benchmark runs on 4+ negative classes |
-| 15 | No per-family benchmark breakdown. Some AMP classes (defensins, lantibiotics) may score differently | Per-family AUROC: stratify benchmark by AMP structural class. Identify which families the pipeline handles well/poorly | Documentation of family-level strengths and blind spots |
-| 16 | AUROC is threshold-independent but real selection uses a fixed threshold. No precision-at-k calibration | Precision@k and recall@k at multiple operating points (k=10, 20, 50, 100). Recommend threshold for 80% recall | Operating characteristic documented in METRICS_CURRENT |
-| 17 | No leakage audit for the expanded benchmark. Near-duplicates between AMPs and decoys may inflate scores | Leakage audit: run cluster-split on expanded 500+ benchmark. Report cluster-aware CI and representative-only AUROC | Cluster-aware CI lower bound > 0.65 |
-| 18 | Expert ablation (v0.5.8) is stale. Now includes rich_selectivity; needs re-run on expanded dataset | Re-run expert ablation on 500+ benchmark. Confirm activity (0.814) and rich_selectivity (0.197 anti-AMP) components still valid | Per-component AUROC on expanded set documented |
-| 19 | No "easy baseline" documented. How does a trivial length+charge predictor compare? | Implement trivial baseline (length + net_charge only AUROC). Report delta vs pipeline. If delta is small, the pipeline is not adding value | Pipeline AUROC - trivial AUROC > 0.10 or honest caveat published |
-| 20 | No invariance test: does pipeline rank scrambled versions of known AMPs? | Invariance benchmark: for each AMP, generate 10 scrambled variants. Report what fraction outrank the original. If >50%, the pipeline is order-blind | Fraction documented; if high, note as limitation |
+| 10 ✅ | No multi-negative benchmark; no honest assessment of composition-dependence | Multi-source negative set: random peptides, reverse-sequences, shuffled human proteome fragments, inactive AMP variants. Report per-source rejection rates | Benchmark runs on 4+ negative classes |
+| 11 ✅ | Benchmark expanded to n=191 but ROADMAP flags 500+ target as deferred | **500+ AMP benchmark**: expand to ≥500 public-domain AMPs + 500 composition-matched decoys. Recompute AUROC, CI, AUPRC | Validated on new dataset: AUROC 0.7792 (CI₉₅: 0.7505–0.8065); cluster-aware CI 0.746–0.8102; representative AUROC 0.778 |
+| 12 ✅ | No "easy baseline" documented. How does a trivial length+charge predictor compare? | Implement trivial baseline (length + net_charge only AUROC). Report delta vs pipeline. | Charge density AUROC 0.8166 beats pipeline 0.7792 (Δ=−0.0374). Expected: pipeline optimises for safety, not raw discrimination |
+| 13 ✅ | No invariance test: does pipeline rank scrambled versions of known AMPs? | Order-dependence benchmark: analyze which 1D features survive scrambling. Build dipeptide order score. | dipeptide_order_score AUROC 0.7861 — #1 order-dependent feature. Only 7/31 features survive scrambling |
+| **14 ✅** | **AUROC is threshold-independent but real selection uses a fixed threshold. No precision-at-k calibration** | **Precision@k and recall@k at multiple operating points (k=1–200). Recommend threshold for best-F1.** | **Precision@k calibration documented in METRICS_CURRENT: top-20 precision 1.000, best F1 0.7518 at threshold 0.6323** |
+| 15 | Cross-dataset generalisation untested. Current benchmark uses same database for train/test | Cross-dataset benchmark: train on APD6, test on DRAMP (or vice versa). Report transfer AUROC | Transfer AUROC documented (may be weak — publish honestly) |
+| 16 | No time-split benchmark (hardest leakage test). Most public AMP databases lack deposition dates | Time-split: gather dated AMP records, split by year (pre-2015 train, post-2015 test). Report AUROC with CI | Time-split AUROC > 0.60 or honest failure documented |
+| 17 | No per-family benchmark breakdown. Some AMP classes (defensins, lantibiotics) may score differently | Per-family AUROC: stratify benchmark by AMP structural class. Identify which families the pipeline handles well/poorly | Documentation of family-level strengths and blind spots |
+| 18 | No leakage audit for the expanded benchmark. Near-duplicates between AMPs and decoys may inflate scores | Leakage audit: run cluster-split on expanded 500+ benchmark. Report cluster-aware CI and representative-only AUROC | Cluster-aware CI lower bound > 0.65 |
+| 19 | Expert ablation (v0.5.8) is stale. Now includes rich_selectivity; needs re-run on expanded dataset | Re-run expert ablation on 500+ benchmark. Confirm activity (0.814) and rich_selectivity (0.197 anti-AMP) components still valid | Per-component AUROC on expanded set documented |
+| 20 | Benchmark card is stale — still shows n=191 numbers, no easy baseline, order-dependence, or precision@k | Update benchmark card with current expanded-benchmark metrics, easy baseline finding, order-dependence analysis, precision@k operating characteristic | Benchmark card reflects all Phase 1 benchmark results |
 
 **Phase 1 exit criteria:**
-- Benchmark size ≥ 500 AMPs + 500 decoys
-- Cluster-aware CI lower bound > 0.65
-- Cross-dataset and time-split results published (even if weak)
-- Easy baseline delta documented
-- Benchmark card exists and is externally reviewable
+- ✅ Benchmark size ≥ 500 AMPs + 500 decoys
+- ✅ Cluster-aware CI lower bound > 0.65
+- Cross-dataset and time-split results published (even if weak) — **NOT YET DONE**
+- ✅ Easy baseline delta documented
+- Benchmark card exists and is externally reviewable — **PARTIAL (stale)**
 
 ---
 
@@ -172,7 +172,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 
 ```
 Phase 0: ✅ Complete (Loops 1–8)
-Phase 1: Loop 13 of 13 (next loop: 14 — cross-dataset generalization)
+Phase 1: Loop 14 of 14 (next loop: 15 — cross-dataset generalization)
 Phase 2: Not started
 Phase 3: Not started
 Phase 4: Not started
@@ -206,10 +206,11 @@ Phase 4: Not started
 | 11 ✅ | Benchmark expanded to n=191 but ROADMAP flags 500+ target as deferred. Current n=191 gives ±0.07 CI width | Expanded benchmark to 500 + 500 (n=1000). `scripts/curate_500_amp_benchmark.py`: UniProt-reviewed + APD6 natural + existing curated. AUROC 0.7792 (CI₉₅: 0.7505–0.8065). Cluster-aware CI 0.746–0.8102 (width 0.064, ~2.3× tighter). Representative AUROC 0.778 ≈ full AUROC 0.7792. `make bench-500`, `make bench-cluster-split-500`, CI gate | 500 AMPs + 500 decoys; AUROC > 0.70 verified; CI width ±0.028 vs ±0.07 on n=191 |
 | 12 ✅ | No easy baseline documented — pipeline AUROC 0.7792 might be driven primarily by charge, not sophisticated scoring | `scripts/baseline_trivial.py`: charge density alone achieves AUROC 0.8166, beating pipeline ensemble (0.7792). Documented honest finding: expected — pipeline optimizes for safety, not raw discrimination. `make bench-easy-baseline`, CI informational step, METRICS_CURRENT.md updated | Charge density AUROC 0.8166, pipeline 0.7792 (Δ=−0.0374). Pipeline adds value in multi-objective selection, not basic discrimination |
 | 13 ✅ | No order-dependent features — strict triage AUROC 0.572 shows pipeline is predominantly composition-based | `scripts/benchmark_order_dependent.py`: analyzed which 31 features survive scrambling. Only 7 are order-dependent (amphipathicity + dipeptide). `src/openamp_foundry/features/dipeptide.py`: dipeptide order score (AUROC 0.7861) is the #1 order-dependent feature. Integrated into `compute_features()`. `make bench-order-dependent`, CI informational step | dipeptide_order_score AUROC 0.7861 on AMP-vs-scrambled. All composition features exactly 0.5000 (position-independent) |
+| 14 ✅ | AUROC is threshold-independent but real selection uses a fixed threshold. No precision-at-k calibration | `scripts/benchmark_precision_at_k.py`: operating characteristic (small-k precision/recall, threshold-based analysis). `make bench-precision-at-k`. **Finding:** top-20 precision 1.000, top-50 0.900, top-200 0.835. Best F1 threshold 0.6323 (F1=0.7518). At 80% recall, precision drops to base-rate (0.5000) — honest limitation documented. | Precision@k calibration documented in METRICS_CURRENT.md |
 
 ### Phase 0 exit criteria (archived):
 - ✅ `from openamp_foundry.calibration import GateVerdict` works
 - ✅ `make ci` passes with benchmark gate
 - ✅ A new agent can read README → run demo → understand calibration flow → contribute safely in one session
 
-**Next loop:** Loop 14 — Phase 1 (Cross-dataset generalization).
+**Next loop:** Loop 15 — Phase 1 (Cross-dataset generalization or remaining exit criterion).
