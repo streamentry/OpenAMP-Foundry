@@ -1,5 +1,30 @@
 # Roadmap
 
+## v0.5.38 — Charge-Matched Decoy Honesty Benchmark ✓ (2026-07-06)
+
+The easy-baseline benchmark already showed that charge density alone beats the
+ensemble on raw AMP-vs-decoy AUROC. That made one missing benchmark load-bearing:
+an adversarial test that removes the charge-density gap itself.
+
+Changes:
+- Added `src/openamp_foundry/benchmark/charge_matched.py` with deterministic
+  greedy matching of each AMP to one unused decoy with nearest charge density.
+- Added `scripts/benchmark_charge_matched.py` and `make bench-charge-matched`.
+- Added snapshot/test coverage so the benchmark becomes part of the repo's
+  machine-readable current-state evidence.
+
+Why it matters:
+- Raw 500-AMP discrimination can still be materially charge-inflated.
+- This benchmark attacks the exact trivial prior directly instead of only
+  describing it in prose.
+- Future scoring changes can now be judged on whether they add discrimination
+  after charge matching, not just on ordinary AMP-vs-decoy AUROC.
+- Actual result on current benchmark: matching is not strong enough with the
+  current decoy pool (`mean_abs_charge_density_delta=0.1296`), and charge
+  density still beats the ensemble (`0.8166` vs `0.7792`). So the stronger claim
+  that broad discrimination survives charge control is **not established**.
+  The next benchmark bottleneck is a genuinely charge-balanced negative set.
+
 ## v0.1 — Safe starter ✓
 
 - toy data;
@@ -876,7 +901,6 @@ stratifies by structural class to reveal blind spots.
 - METRICS_CURRENT.md updated with full table and implications for candidate
   selection: diversity selection should deliberately compensate for the
   pipeline's helic/charge bias.
-
 ## v0.5.38 — Bias-Aware Pilot Panel Floor ✓ (2026-07-05)
 
 The per-family benchmark exposed a real blind spot but left selection behavior
@@ -894,3 +918,26 @@ Honest limit:
 - This is not a scoring improvement. It does not prove under-ranked classes are
   better candidates. It only stops the current charge/helical bias from
   silently dominating assay panel construction.
+
+## v0.5.39 — Charge-Matched Decoy Benchmark ✓ (2026-07-06)
+
+The easy-baseline benchmark showed charge density alone beats the ensemble on
+AMP-vs-Swiss-Prot decoys. This release adds an adversarial benchmark that tries
+to pair every AMP with the closest available decoy by pH-7.4 charge density.
+
+- `benchmark/charge_matched.py`: greedy one-to-one decoy matcher and AUROC
+  comparison for pipeline ensemble vs charge density.
+- `scripts/benchmark_charge_matched.py` and `make bench-charge-matched`: write
+  `outputs/benchmark_charge_matched.json`.
+- `metrics_snapshot.py`: adds `charge_matched_decoys` to the authoritative
+  machine-readable snapshot.
+- Tests cover AUROC ties, pH-7.4 charge-density calculation, unique decoy use,
+  benchmark structure, and metrics snapshot integration.
+
+Honest finding:
+- The current decoy pool is not charge-balanced enough for exact matching
+  (`mean_abs_charge_density_delta=0.1296`).
+- Charge density still beats the ensemble (`0.8166` vs `0.7792`), so raw
+  AMP-vs-decoy AUROC remains charge-inflated.
+- The next benchmark improvement should create or curate a truly charge-balanced
+  negative set instead of treating this benchmark as a win.

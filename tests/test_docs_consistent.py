@@ -115,6 +115,8 @@ class TestDocsConsistent:
         assert payload["ranking_policy"]["alternative"]["mode"] == "expert"
         assert payload["ranking_policy"]["default"]["evidence_basis"]
         assert payload["ranking_policy"]["alternative"]["evidence_basis"]
+        assert payload["charge_matched_decoys"]["benchmark"] == "charge_matched_decoys"
+        assert payload["charge_matched_decoys"]["n_positives"] == 500
 
     def test_doc_no_breaking_news_terminology(self):
         """'breaking news' must be replaced with 'high-impact scenario' in all docs."""

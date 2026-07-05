@@ -20,6 +20,8 @@ def test_metrics_snapshot_matches_current_benchmark_truth(tmp_path):
     assert snapshot["triage"]["best_scorer"] == "gate_triage"
     assert "gate_triage" in snapshot["triage"]["per_scorer"]
     assert snapshot["triage"]["per_scorer"]["gate_triage"]["triages_correctly"] is True
+    assert snapshot["charge_matched_decoys"]["benchmark"] == "charge_matched_decoys"
+    assert snapshot["charge_matched_decoys"]["n_positives"] == 500
     assert "top_20_by_gate_triage" in snapshot["triage"]
     assert "top_20_by_gate_triage" in snapshot["strict_triage"]
     assert "expert_composite" in snapshot["triage"]["per_scorer"]

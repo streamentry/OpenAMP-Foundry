@@ -4,14 +4,167 @@
     "cluster_threshold": 0.7,
     "decoy_csv": "examples/validation/random_background.csv",
     "hemolysis_csv": "examples/validation/hemolysis_reference.csv",
-    "n_bootstrap": 200,
+    "n_bootstrap": 2000,
     "phase3_config": "configs/phase3.yaml",
     "standard_config": "configs/pipeline.yaml"
   },
+  "charge_matched_decoys": {
+    "benchmark": "charge_matched_decoys",
+    "charge_density_auroc": 0.8166,
+    "interpretation": "Pipeline signal is weak once charge density is matched; treat raw AMP-vs-decoy AUROC as charge-inflated.",
+    "matches_preview": [
+      {
+        "abs_charge_density_delta": 0.0001,
+        "decoy_charge_density": 0.0345,
+        "decoy_id": "BG-500-0038",
+        "positive_charge_density": 0.0344,
+        "positive_id": "EXT-AP00025"
+      },
+      {
+        "abs_charge_density_delta": 0.0033,
+        "decoy_charge_density": 0.2414,
+        "decoy_id": "BG-500-0412",
+        "positive_charge_density": 0.2381,
+        "positive_id": "EXT-AP00030"
+      },
+      {
+        "abs_charge_density_delta": 0.0,
+        "decoy_charge_density": 0.2308,
+        "decoy_id": "BG-500-0176",
+        "positive_charge_density": 0.2308,
+        "positive_id": "EXT-AP00035"
+      },
+      {
+        "abs_charge_density_delta": 0.0004,
+        "decoy_charge_density": 0.0778,
+        "decoy_id": "BG-500-0216",
+        "positive_charge_density": 0.0782,
+        "positive_id": "EXT-AP00054"
+      },
+      {
+        "abs_charge_density_delta": 0.0,
+        "decoy_charge_density": 0.1,
+        "decoy_id": "BG-500-0010",
+        "positive_charge_density": 0.1,
+        "positive_id": "EXT-AP00055"
+      },
+      {
+        "abs_charge_density_delta": 0.0,
+        "decoy_charge_density": 0.2778,
+        "decoy_id": "BG-500-0477",
+        "positive_charge_density": 0.2778,
+        "positive_id": "EXT-AP00151"
+      },
+      {
+        "abs_charge_density_delta": 0.0065,
+        "decoy_charge_density": 0.3077,
+        "decoy_id": "BG-500-0132",
+        "positive_charge_density": 0.3142,
+        "positive_id": "EXT-AP00155"
+      },
+      {
+        "abs_charge_density_delta": 0.0606,
+        "decoy_charge_density": 0.2727,
+        "decoy_id": "BG-500-0234",
+        "positive_charge_density": 0.3333,
+        "positive_id": "EXT-AP00156"
+      },
+      {
+        "abs_charge_density_delta": 0.0003,
+        "decoy_charge_density": 0.0529,
+        "decoy_id": "BG-500-0200",
+        "positive_charge_density": 0.0526,
+        "positive_id": "EXT-AP00167"
+      },
+      {
+        "abs_charge_density_delta": 0.0,
+        "decoy_charge_density": 0.0855,
+        "decoy_id": "BG-500-0107",
+        "positive_charge_density": 0.0855,
+        "positive_id": "EXT-AP00171"
+      },
+      {
+        "abs_charge_density_delta": 0.0,
+        "decoy_charge_density": 0.1,
+        "decoy_id": "BG-500-0078",
+        "positive_charge_density": 0.1,
+        "positive_id": "EXT-AP00176"
+      },
+      {
+        "abs_charge_density_delta": 0.0433,
+        "decoy_charge_density": 0.2692,
+        "decoy_id": "BG-500-0459",
+        "positive_charge_density": 0.3125,
+        "positive_id": "EXT-AP00218"
+      },
+      {
+        "abs_charge_density_delta": 0.0015,
+        "decoy_charge_density": 0.1739,
+        "decoy_id": "BG-500-0090",
+        "positive_charge_density": 0.1724,
+        "positive_id": "EXT-AP00224"
+      },
+      {
+        "abs_charge_density_delta": 0.0051,
+        "decoy_charge_density": 0.1869,
+        "decoy_id": "BG-500-0004",
+        "positive_charge_density": 0.192,
+        "positive_id": "EXT-AP00238"
+      },
+      {
+        "abs_charge_density_delta": 0.0,
+        "decoy_charge_density": 0.16,
+        "decoy_id": "BG-500-0297",
+        "positive_charge_density": 0.16,
+        "positive_id": "EXT-AP00239"
+      },
+      {
+        "abs_charge_density_delta": 0.0009,
+        "decoy_charge_density": 0.1006,
+        "decoy_id": "BG-500-0117",
+        "positive_charge_density": 0.1015,
+        "positive_id": "EXT-AP00279"
+      },
+      {
+        "abs_charge_density_delta": 0.0192,
+        "decoy_charge_density": 0.2308,
+        "decoy_id": "BG-500-0495",
+        "positive_charge_density": 0.25,
+        "positive_id": "EXT-AP00291"
+      },
+      {
+        "abs_charge_density_delta": 0.003,
+        "decoy_charge_density": 0.1667,
+        "decoy_id": "BG-500-0489",
+        "positive_charge_density": 0.1697,
+        "positive_id": "EXT-AP00329"
+      },
+      {
+        "abs_charge_density_delta": 0.0494,
+        "decoy_charge_density": 0.2284,
+        "decoy_id": "BG-500-0341",
+        "positive_charge_density": 0.2778,
+        "positive_id": "EXT-AP00445"
+      },
+      {
+        "abs_charge_density_delta": 0.037,
+        "decoy_charge_density": 0.213,
+        "decoy_id": "BG-500-0415",
+        "positive_charge_density": 0.25,
+        "positive_id": "EXT-AP00490"
+      }
+    ],
+    "mean_abs_charge_density_delta": 0.1296,
+    "n_decoys_available": 500,
+    "n_matched_decoys": 500,
+    "n_positives": 500,
+    "pipeline_auroc": 0.7792,
+    "pipeline_minus_charge_density": -0.0374
+  },
   "cluster_split": {
     "cluster_aware_ci95": [
-      0.7043,
-      0.8614
+      0.7061,
+      0.8526
     ],
     "full_auroc": 0.7832,
     "held_out_auroc": 0.8734,
@@ -21,12 +174,12 @@
     "n_multi_member_clusters": 14,
     "representative_auroc": 0.7607,
     "representative_ci95": [
-      0.6738,
-      0.8348
+      0.6854,
+      0.8301
     ],
     "standard_ci95": [
-      0.7292,
-      0.844
+      0.717,
+      0.8423
     ]
   },
   "expert_ablation": {
@@ -57,11 +210,11 @@
     "n_features_tested": 30,
     "n_hemolytic": 45,
     "n_selective": 125,
-    "n_significant": 9,
+    "n_significant": 8,
     "per_feature": {
       "aggregation_propensity": {
-        "ci_hi": 0.6071,
-        "ci_lo": 0.4431,
+        "ci_hi": 0.6096,
+        "ci_lo": 0.445,
         "detection_auroc": 0.5251,
         "direction": "risk_indicator",
         "raw_auroc": 0.5251,
@@ -69,8 +222,8 @@
         "used_by_selectivity_proxy": false
       },
       "aromatic_fraction": {
-        "ci_hi": 0.6066,
-        "ci_lo": 0.4004,
+        "ci_hi": 0.6007,
+        "ci_lo": 0.4179,
         "detection_auroc": 0.507,
         "direction": "risk_indicator",
         "raw_auroc": 0.507,
@@ -78,8 +231,8 @@
         "used_by_selectivity_proxy": false
       },
       "boman_index": {
-        "ci_hi": 0.6439,
-        "ci_lo": 0.4294,
+        "ci_hi": 0.6443,
+        "ci_lo": 0.4525,
         "detection_auroc": 0.5485,
         "direction": "protective_indicator",
         "raw_auroc": 0.4515,
@@ -87,8 +240,8 @@
         "used_by_selectivity_proxy": false
       },
       "charge_density": {
-        "ci_hi": 0.6675,
-        "ci_lo": 0.4756,
+        "ci_hi": 0.6692,
+        "ci_lo": 0.4831,
         "detection_auroc": 0.5776,
         "direction": "risk_indicator",
         "raw_auroc": 0.5776,
@@ -96,8 +249,8 @@
         "used_by_selectivity_proxy": false
       },
       "charge_density_ph74": {
-        "ci_hi": 0.6755,
-        "ci_lo": 0.4953,
+        "ci_hi": 0.6787,
+        "ci_lo": 0.4967,
         "detection_auroc": 0.589,
         "direction": "risk_indicator",
         "raw_auroc": 0.589,
@@ -106,7 +259,7 @@
       },
       "chymotrypsin_site_density": {
         "ci_hi": 0.614,
-        "ci_lo": 0.4196,
+        "ci_lo": 0.4284,
         "detection_auroc": 0.5185,
         "direction": "risk_indicator",
         "raw_auroc": 0.5185,
@@ -114,8 +267,8 @@
         "used_by_selectivity_proxy": false
       },
       "cysteine_fraction": {
-        "ci_hi": 0.5607,
-        "ci_lo": 0.4288,
+        "ci_hi": 0.5678,
+        "ci_lo": 0.4315,
         "detection_auroc": 0.5002,
         "direction": "protective_indicator",
         "raw_auroc": 0.4998,
@@ -123,8 +276,8 @@
         "used_by_selectivity_proxy": false
       },
       "elastase_site_density": {
-        "ci_hi": 0.6927,
-        "ci_lo": 0.4842,
+        "ci_hi": 0.6848,
+        "ci_lo": 0.4799,
         "detection_auroc": 0.5839,
         "direction": "risk_indicator",
         "raw_auroc": 0.5839,
@@ -132,8 +285,8 @@
         "used_by_selectivity_proxy": false
       },
       "glycine_fraction": {
-        "ci_hi": 0.679,
-        "ci_lo": 0.4916,
+        "ci_hi": 0.6866,
+        "ci_lo": 0.498,
         "detection_auroc": 0.5924,
         "direction": "protective_indicator",
         "raw_auroc": 0.4076,
@@ -141,17 +294,17 @@
         "used_by_selectivity_proxy": false
       },
       "gravy": {
-        "ci_hi": 0.6928,
-        "ci_lo": 0.513,
+        "ci_hi": 0.6825,
+        "ci_lo": 0.4974,
         "detection_auroc": 0.5882,
         "direction": "risk_indicator",
         "raw_auroc": 0.5882,
-        "significant": true,
+        "significant": false,
         "used_by_selectivity_proxy": true
       },
       "helix_propensity": {
-        "ci_hi": 0.7513,
-        "ci_lo": 0.5422,
+        "ci_hi": 0.7461,
+        "ci_lo": 0.5439,
         "detection_auroc": 0.6489,
         "direction": "risk_indicator",
         "raw_auroc": 0.6489,
@@ -159,8 +312,8 @@
         "used_by_selectivity_proxy": false
       },
       "helix_wheel_amphipathic_score": {
-        "ci_hi": 0.6601,
-        "ci_lo": 0.4713,
+        "ci_hi": 0.6493,
+        "ci_lo": 0.4695,
         "detection_auroc": 0.5573,
         "direction": "protective_indicator",
         "raw_auroc": 0.4427,
@@ -168,8 +321,8 @@
         "used_by_selectivity_proxy": false
       },
       "helix_wheel_face_contrast": {
-        "ci_hi": 0.6601,
-        "ci_lo": 0.4713,
+        "ci_hi": 0.6484,
+        "ci_lo": 0.4692,
         "detection_auroc": 0.5564,
         "direction": "protective_indicator",
         "raw_auroc": 0.4436,
@@ -177,8 +330,8 @@
         "used_by_selectivity_proxy": false
       },
       "helix_wheel_h_face_cationic_fraction": {
-        "ci_hi": 0.6252,
-        "ci_lo": 0.4433,
+        "ci_hi": 0.6277,
+        "ci_lo": 0.4497,
         "detection_auroc": 0.5408,
         "direction": "risk_indicator",
         "raw_auroc": 0.5408,
@@ -186,8 +339,8 @@
         "used_by_selectivity_proxy": false
       },
       "helix_wheel_hydrophilic_face_mean_h": {
-        "ci_hi": 0.6562,
-        "ci_lo": 0.4758,
+        "ci_hi": 0.6417,
+        "ci_lo": 0.4558,
         "detection_auroc": 0.5476,
         "direction": "risk_indicator",
         "raw_auroc": 0.5476,
@@ -195,8 +348,8 @@
         "used_by_selectivity_proxy": false
       },
       "helix_wheel_hydrophobic_face_mean_h": {
-        "ci_hi": 0.6077,
-        "ci_lo": 0.4513,
+        "ci_hi": 0.6122,
+        "ci_lo": 0.4393,
         "detection_auroc": 0.5277,
         "direction": "protective_indicator",
         "raw_auroc": 0.4723,
@@ -204,8 +357,8 @@
         "used_by_selectivity_proxy": false
       },
       "helix_wheel_ph_face_cationic_fraction": {
-        "ci_hi": 0.6334,
-        "ci_lo": 0.429,
+        "ci_hi": 0.6356,
+        "ci_lo": 0.4417,
         "detection_auroc": 0.5379,
         "direction": "risk_indicator",
         "raw_auroc": 0.5379,
@@ -213,8 +366,8 @@
         "used_by_selectivity_proxy": false
       },
       "hydrophobic_fraction": {
-        "ci_hi": 0.7726,
-        "ci_lo": 0.59,
+        "ci_hi": 0.77,
+        "ci_lo": 0.5777,
         "detection_auroc": 0.6745,
         "direction": "risk_indicator",
         "raw_auroc": 0.6745,
@@ -222,8 +375,8 @@
         "used_by_selectivity_proxy": false
       },
       "hydrophobic_moment": {
-        "ci_hi": 0.6085,
-        "ci_lo": 0.4238,
+        "ci_hi": 0.606,
+        "ci_lo": 0.4231,
         "detection_auroc": 0.5152,
         "direction": "risk_indicator",
         "raw_auroc": 0.5152,
@@ -231,8 +384,8 @@
         "used_by_selectivity_proxy": false
       },
       "interior_chymotrypsin_sites": {
-        "ci_hi": 0.6162,
-        "ci_lo": 0.4559,
+        "ci_hi": 0.6299,
+        "ci_lo": 0.4519,
         "detection_auroc": 0.5372,
         "direction": "risk_indicator",
         "raw_auroc": 0.5372,
@@ -240,8 +393,8 @@
         "used_by_selectivity_proxy": false
       },
       "interior_elastase_sites": {
-        "ci_hi": 0.6715,
-        "ci_lo": 0.4764,
+        "ci_hi": 0.6709,
+        "ci_lo": 0.481,
         "detection_auroc": 0.5796,
         "direction": "risk_indicator",
         "raw_auroc": 0.5796,
@@ -249,8 +402,8 @@
         "used_by_selectivity_proxy": false
       },
       "interior_trypsin_sites": {
-        "ci_hi": 0.7072,
-        "ci_lo": 0.5108,
+        "ci_hi": 0.7016,
+        "ci_lo": 0.5115,
         "detection_auroc": 0.6089,
         "direction": "risk_indicator",
         "raw_auroc": 0.6089,
@@ -258,8 +411,8 @@
         "used_by_selectivity_proxy": false
       },
       "length": {
-        "ci_hi": 0.6692,
-        "ci_lo": 0.5233,
+        "ci_hi": 0.6769,
+        "ci_lo": 0.5011,
         "detection_auroc": 0.59,
         "direction": "risk_indicator",
         "raw_auroc": 0.59,
@@ -267,8 +420,8 @@
         "used_by_selectivity_proxy": false
       },
       "longest_repeat_run": {
-        "ci_hi": 0.6733,
-        "ci_lo": 0.5207,
+        "ci_hi": 0.6712,
+        "ci_lo": 0.5203,
         "detection_auroc": 0.5946,
         "direction": "risk_indicator",
         "raw_auroc": 0.5946,
@@ -276,8 +429,8 @@
         "used_by_selectivity_proxy": false
       },
       "max_hydrophobic_moment": {
-        "ci_hi": 0.5973,
-        "ci_lo": 0.4164,
+        "ci_hi": 0.6066,
+        "ci_lo": 0.4078,
         "detection_auroc": 0.5054,
         "direction": "protective_indicator",
         "raw_auroc": 0.4946,
@@ -285,8 +438,8 @@
         "used_by_selectivity_proxy": false
       },
       "net_charge_ph74": {
-        "ci_hi": 0.7202,
-        "ci_lo": 0.5455,
+        "ci_hi": 0.7288,
+        "ci_lo": 0.5323,
         "detection_auroc": 0.6332,
         "direction": "risk_indicator",
         "raw_auroc": 0.6332,
@@ -294,8 +447,8 @@
         "used_by_selectivity_proxy": true
       },
       "net_charge_proxy": {
-        "ci_hi": 0.7254,
-        "ci_lo": 0.5557,
+        "ci_hi": 0.7319,
+        "ci_lo": 0.5413,
         "detection_auroc": 0.6394,
         "direction": "risk_indicator",
         "raw_auroc": 0.6394,
@@ -303,8 +456,8 @@
         "used_by_selectivity_proxy": false
       },
       "proline_fraction": {
-        "ci_hi": 0.5724,
-        "ci_lo": 0.4142,
+        "ci_hi": 0.5797,
+        "ci_lo": 0.4264,
         "detection_auroc": 0.5071,
         "direction": "protective_indicator",
         "raw_auroc": 0.4929,
@@ -313,7 +466,7 @@
       },
       "selectivity_proxy": {
         "ci_hi": 0.6969,
-        "ci_lo": 0.5226,
+        "ci_lo": 0.5282,
         "detection_auroc": 0.6095,
         "direction": "protective_indicator",
         "raw_auroc": 0.3905,
@@ -321,8 +474,8 @@
         "used_by_selectivity_proxy": true
       },
       "trypsin_site_density": {
-        "ci_hi": 0.6627,
-        "ci_lo": 0.459,
+        "ci_hi": 0.662,
+        "ci_lo": 0.4694,
         "detection_auroc": 0.5668,
         "direction": "risk_indicator",
         "raw_auroc": 0.5668,
@@ -333,8 +486,8 @@
     "significant_features": [
       {
         "ci": [
-          0.59,
-          0.7726
+          0.5777,
+          0.77
         ],
         "detection_auroc": 0.6745,
         "direction": "risk_indicator",
@@ -342,8 +495,8 @@
       },
       {
         "ci": [
-          0.5422,
-          0.7513
+          0.5439,
+          0.7461
         ],
         "detection_auroc": 0.6489,
         "direction": "risk_indicator",
@@ -351,8 +504,8 @@
       },
       {
         "ci": [
-          0.5557,
-          0.7254
+          0.5413,
+          0.7319
         ],
         "detection_auroc": 0.6394,
         "direction": "risk_indicator",
@@ -360,8 +513,8 @@
       },
       {
         "ci": [
-          0.5455,
-          0.7202
+          0.5323,
+          0.7288
         ],
         "detection_auroc": 0.6332,
         "direction": "risk_indicator",
@@ -369,7 +522,7 @@
       },
       {
         "ci": [
-          0.5226,
+          0.5282,
           0.6969
         ],
         "detection_auroc": 0.6095,
@@ -378,8 +531,8 @@
       },
       {
         "ci": [
-          0.5108,
-          0.7072
+          0.5115,
+          0.7016
         ],
         "detection_auroc": 0.6089,
         "direction": "risk_indicator",
@@ -387,8 +540,8 @@
       },
       {
         "ci": [
-          0.5207,
-          0.6733
+          0.5203,
+          0.6712
         ],
         "detection_auroc": 0.5946,
         "direction": "risk_indicator",
@@ -396,28 +549,19 @@
       },
       {
         "ci": [
-          0.5233,
-          0.6692
+          0.5011,
+          0.6769
         ],
         "detection_auroc": 0.59,
         "direction": "risk_indicator",
         "feature": "length"
-      },
-      {
-        "ci": [
-          0.513,
-          0.6928
-        ],
-        "detection_auroc": 0.5882,
-        "direction": "risk_indicator",
-        "feature": "gravy"
       }
     ],
     "unused_signal_features": [
       {
         "ci": [
-          0.59,
-          0.7726
+          0.5777,
+          0.77
         ],
         "detection_auroc": 0.6745,
         "direction": "risk_indicator",
@@ -425,8 +569,8 @@
       },
       {
         "ci": [
-          0.5422,
-          0.7513
+          0.5439,
+          0.7461
         ],
         "detection_auroc": 0.6489,
         "direction": "risk_indicator",
@@ -434,8 +578,8 @@
       },
       {
         "ci": [
-          0.5557,
-          0.7254
+          0.5413,
+          0.7319
         ],
         "detection_auroc": 0.6394,
         "direction": "risk_indicator",
@@ -443,8 +587,8 @@
       },
       {
         "ci": [
-          0.5108,
-          0.7072
+          0.5115,
+          0.7016
         ],
         "detection_auroc": 0.6089,
         "direction": "risk_indicator",
@@ -452,8 +596,8 @@
       },
       {
         "ci": [
-          0.5207,
-          0.6733
+          0.5203,
+          0.6712
         ],
         "detection_auroc": 0.5946,
         "direction": "risk_indicator",
@@ -461,15 +605,15 @@
       },
       {
         "ci": [
-          0.5233,
-          0.6692
+          0.5011,
+          0.6769
         ],
         "detection_auroc": 0.59,
         "direction": "risk_indicator",
         "feature": "length"
       }
     ],
-    "verdict": "9 features have significant selective_vs_hemolytic signal (best: hydrophobic_fraction at 0.6745). The selectivity proxy uses only 3 of these (net_charge_ph74, gravy, selectivity_proxy). 6 significant feature(s) are NOT used. A richer selectivity scorer combining these axes could outperform the current proxy."
+    "verdict": "8 features have significant selective_vs_hemolytic signal (best: hydrophobic_fraction at 0.6745). The selectivity proxy uses only 3 of these (net_charge_ph74, gravy, selectivity_proxy). 6 significant feature(s) are NOT used. A richer selectivity scorer combining these axes could outperform the current proxy."
   },
   "phase3": {
     "auprc": 0.7933,
@@ -510,10 +654,10 @@
     "per_score_auroc": {
       "activity": {
         "auroc": 0.6063,
-        "ci95_hi": 0.68,
-        "ci95_lo": 0.5249,
-        "detection_ci95_hi": 0.4751,
-        "detection_ci95_lo": 0.32,
+        "ci95_hi": 0.6858,
+        "ci95_lo": 0.5193,
+        "detection_ci95_hi": 0.4807,
+        "detection_ci95_lo": 0.3142,
         "direction": "higher_is_risk",
         "hemolysis_detection_auroc": 0.3937,
         "mean_hemolytic": 0.6768,
@@ -521,10 +665,10 @@
       },
       "boman_activity": {
         "auroc": 0.4552,
-        "ci95_hi": 0.5466,
-        "ci95_lo": 0.3551,
-        "detection_ci95_hi": 0.6449,
-        "detection_ci95_lo": 0.4534,
+        "ci95_hi": 0.5484,
+        "ci95_lo": 0.3633,
+        "detection_ci95_hi": 0.6367,
+        "detection_ci95_lo": 0.4516,
         "direction": "higher_is_safe",
         "hemolysis_detection_auroc": 0.5448,
         "mean_hemolytic": 0.424,
@@ -532,10 +676,10 @@
       },
       "ensemble": {
         "auroc": 0.5799,
-        "ci95_hi": 0.6558,
-        "ci95_lo": 0.5053,
-        "detection_ci95_hi": 0.4947,
-        "detection_ci95_lo": 0.3442,
+        "ci95_hi": 0.6665,
+        "ci95_lo": 0.4933,
+        "detection_ci95_hi": 0.5067,
+        "detection_ci95_lo": 0.3335,
         "direction": "higher_is_risk",
         "hemolysis_detection_auroc": 0.4201,
         "mean_hemolytic": 0.8532,
@@ -543,10 +687,10 @@
       },
       "expert_composite": {
         "auroc": 0.4581,
-        "ci95_hi": 0.5626,
-        "ci95_lo": 0.3714,
-        "detection_ci95_hi": 0.6286,
-        "detection_ci95_lo": 0.4374,
+        "ci95_hi": 0.5479,
+        "ci95_lo": 0.3677,
+        "detection_ci95_hi": 0.6323,
+        "detection_ci95_lo": 0.4521,
         "direction": "higher_is_safe",
         "hemolysis_detection_auroc": 0.5419,
         "mean_hemolytic": 0.7424,
@@ -554,10 +698,10 @@
       },
       "hemolysis_risk": {
         "auroc": 0.565,
-        "ci95_hi": 0.6563,
-        "ci95_lo": 0.4659,
-        "detection_ci95_hi": 0.6563,
-        "detection_ci95_lo": 0.4659,
+        "ci95_hi": 0.6601,
+        "ci95_lo": 0.4664,
+        "detection_ci95_hi": 0.6601,
+        "detection_ci95_lo": 0.4664,
         "direction": "higher_is_risk",
         "hemolysis_detection_auroc": 0.565,
         "mean_hemolytic": 0.2042,
@@ -565,10 +709,10 @@
       },
       "hinge_selectivity": {
         "auroc": 0.5716,
-        "ci95_hi": 0.6432,
-        "ci95_lo": 0.4969,
-        "detection_ci95_hi": 0.5031,
-        "detection_ci95_lo": 0.3568,
+        "ci95_hi": 0.6536,
+        "ci95_lo": 0.4899,
+        "detection_ci95_hi": 0.5101,
+        "detection_ci95_lo": 0.3464,
         "direction": "higher_is_risk",
         "hemolysis_detection_auroc": 0.4284,
         "mean_hemolytic": 0.5667,
@@ -587,10 +731,10 @@
       },
       "rich_selectivity": {
         "auroc": 0.2862,
-        "ci95_hi": 0.382,
-        "ci95_lo": 0.2098,
-        "detection_ci95_hi": 0.7902,
-        "detection_ci95_lo": 0.618,
+        "ci95_hi": 0.3734,
+        "ci95_lo": 0.2049,
+        "detection_ci95_hi": 0.7951,
+        "detection_ci95_lo": 0.6266,
         "direction": "higher_is_safe",
         "hemolysis_detection_auroc": 0.7138,
         "mean_hemolytic": 0.5743,
@@ -598,10 +742,10 @@
       },
       "safety": {
         "auroc": 0.4884,
-        "ci95_hi": 0.5785,
-        "ci95_lo": 0.4001,
-        "detection_ci95_hi": 0.5999,
-        "detection_ci95_lo": 0.4215,
+        "ci95_hi": 0.5679,
+        "ci95_lo": 0.4046,
+        "detection_ci95_hi": 0.5954,
+        "detection_ci95_lo": 0.4321,
         "direction": "higher_is_safe",
         "hemolysis_detection_auroc": 0.5116,
         "mean_hemolytic": 0.9458,
@@ -609,10 +753,10 @@
       },
       "selectivity_proxy": {
         "auroc": 0.4256,
-        "ci95_hi": 0.5102,
-        "ci95_lo": 0.3373,
-        "detection_ci95_hi": 0.6627,
-        "detection_ci95_lo": 0.4898,
+        "ci95_hi": 0.5046,
+        "ci95_lo": 0.3442,
+        "detection_ci95_hi": 0.6558,
+        "detection_ci95_lo": 0.4954,
         "direction": "higher_is_safe",
         "hemolysis_detection_auroc": 0.5744,
         "mean_hemolytic": 0.8345,
@@ -620,10 +764,10 @@
       },
       "serum_stability": {
         "auroc": 0.4007,
-        "ci95_hi": 0.4907,
-        "ci95_lo": 0.3178,
-        "detection_ci95_hi": 0.6822,
-        "detection_ci95_lo": 0.5093,
+        "ci95_hi": 0.4918,
+        "ci95_lo": 0.3137,
+        "detection_ci95_hi": 0.6863,
+        "detection_ci95_lo": 0.5082,
         "direction": "higher_is_safe",
         "hemolysis_detection_auroc": 0.5993,
         "mean_hemolytic": 0.6186,
@@ -631,17 +775,17 @@
       },
       "synthesis": {
         "auroc": 0.4708,
-        "ci95_hi": 0.5697,
-        "ci95_lo": 0.3878,
-        "detection_ci95_hi": 0.6122,
-        "detection_ci95_lo": 0.4303,
+        "ci95_hi": 0.5563,
+        "ci95_lo": 0.3876,
+        "detection_ci95_hi": 0.6124,
+        "detection_ci95_lo": 0.4437,
         "direction": "higher_is_safe",
         "hemolysis_detection_auroc": 0.5292,
         "mean_hemolytic": 0.9733,
         "mean_selective": 0.9732
       }
     },
-    "rich_selectivity_verdict": "Rich selectivity scorer detects hemolysis risk (detection AUROC=0.7138, CI=[0.6180, 0.7902]). This is the first composite selectivity score built from evidence-identified features (feature decomposition benchmark v0.5.15) that achieves statistically significant selective_vs_hemolytic discrimination. It outperforms the old selectivity_proxy (detection AUROC=0.5744). The signal comes from combining 8 significant physicochemical features that the old proxy ignored.",
+    "rich_selectivity_verdict": "Rich selectivity scorer detects hemolysis risk (detection AUROC=0.7138, CI=[0.6266, 0.7951]). This is the first composite selectivity score built from evidence-identified features (feature decomposition benchmark v0.5.15) that achieves statistically significant selective_vs_hemolytic discrimination. It outperforms the old selectivity_proxy (detection AUROC=0.5744). The signal comes from combining 8 significant physicochemical features that the old proxy ignored.",
     "risk_detectors": [
       "serum_stability",
       "rich_selectivity"
@@ -654,8 +798,8 @@
       "selectivity_proxy",
       "hemolysis_risk"
     ],
-    "safety_verdict": "Safety scorer shows weak hemolysis detection (detection AUROC=0.5116, CI lo=0.4215 < 0.5). Signal is present but not statistically significant. The melittin blind spot remains: 1D hydrophobic moment cannot capture all hemolysis mechanisms.",
-    "selectivity_proxy_verdict": "Selectivity proxy shows weak hemolysis detection (detection AUROC=0.5744, CI lo=0.4898). Trend is correct but not significant at this sample size."
+    "safety_verdict": "Safety scorer shows weak hemolysis detection (detection AUROC=0.5116, CI lo=0.4321 < 0.5). Signal is present but not statistically significant. The melittin blind spot remains: 1D hydrophobic moment cannot capture all hemolysis mechanisms.",
+    "selectivity_proxy_verdict": "Selectivity proxy shows weak hemolysis detection (detection AUROC=0.5744, CI lo=0.4954). Trend is correct but not significant at this sample size."
   },
   "standard": {
     "auprc": 0.8164,

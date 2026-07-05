@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from openamp_foundry.benchmark.charge_matched import run_charge_matched_benchmark
 from openamp_foundry.benchmark.feature_decomp import (
     run_feature_decomposition_benchmark,
 )
@@ -72,6 +73,11 @@ def build_metrics_snapshot(
     feature_decomp = run_feature_decomposition_benchmark(
         hemolysis_csv=hemolysis_csv,
         n_bootstrap=n_bootstrap,
+    )
+    charge_matched = run_charge_matched_benchmark(
+        amp_csv="examples/validation/known_amps_500.csv",
+        decoy_csv="examples/validation/random_background_500.csv",
+        config_path=standard_config,
     )
 
     return {
@@ -198,6 +204,7 @@ def build_metrics_snapshot(
             "per_feature": feature_decomp["per_feature"],
             "verdict": feature_decomp["verdict"],
         },
+        "charge_matched_decoys": charge_matched,
         "ranking_policy": {
             "default": ranking_policy_payload("ensemble"),
             "alternative": ranking_policy_payload("expert"),
