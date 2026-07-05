@@ -143,6 +143,19 @@ python -m openamp_foundry.cli recalibration-gate \
 
 Exit code 0 means the gate allows recalibration; exit code 3 means the policy rejects it.
 
+Bias-aware pilot panel selection for under-ranked structural classes:
+
+```bash
+python -m openamp_foundry.cli pilot-panel \
+  --ranked outputs/demo_ranked.jsonl \
+  --out-csv outputs/pilot_panel.csv \
+  --min-per-structural-class 1
+```
+
+This is a panel-construction guard, not a claim that those classes are better.
+It only prevents the current charge-dominated ranker from excluding low-charge,
+proline-rich, short, or cysteine-rich scaffolds by default.
+
 ## Repository map
 
 ```text

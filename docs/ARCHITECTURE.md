@@ -37,7 +37,7 @@ The purpose of the added layers is not simulation theater. It is to improve whic
 | `openamp_foundry.data` | loading and normalizing candidate/reference data |
 | `openamp_foundry.features` | physicochemical feature extraction |
 | `openamp_foundry.scoring` | activity, safety, hemolysis risk, novelty, synthesis, ensemble, expert composite, rich selectivity scoring |
-| `openamp_foundry.selection` | ranking (ensemble or expert composite) and diversity selection |
+| `openamp_foundry.selection` | ranking (ensemble or expert composite), diversity selection, and optional structural-class floors for bias-aware pilot panels |
 | `openamp_foundry.evidence` | JSON certificate generation and validation |
 | `openamp_foundry.reports` | human-readable and machine-readable batch, calibration, and wet-lab review reports |
 | `openamp_foundry.benchmark` | leakage checks, cluster-split benchmark, expert ablation benchmark, within-AMP selectivity benchmark, triage benchmark, per-feature selectivity decomposition, and evaluation scaffolding |
@@ -81,6 +81,8 @@ The system is designed to reduce these failures:
 11. Record the ranking-policy rationale used for the run so reviewers can see
     whether the batch used the broad default gate or the narrower safety-aware
     alternative.
+12. Optionally reserve pilot slots for under-ranked structural classes so the
+    assay panel can compensate for measured benchmark blind spots.
 
 ## Target future data flow
 

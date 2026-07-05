@@ -523,6 +523,12 @@ After qualified assay data exists, build:
 
 **v0.5.37 progress:** `make bench-per-family` stratifies 500 AMPs by structural class (cysteine_rich, proline_rich, short, highly_cationic, moderately_cationic, low_charge). Key finding: pipeline is charge-dominated — highly_cationic AUROC 0.958 vs proline_rich AUROC 0.586, a 0.37 gap that reveals systematic undervaluation of non-helical, short, low-charge, and proline-rich families. Diversity selection should deliberately compensate for this bias. 27 new tests, total 1762 passing. CI informational step.
 
+**v0.5.38 progress:** `openamp-foundry pilot-panel --min-per-structural-class N`
+adds an optional structural-class floor before seed/remainder fill, reusing the
+same six classes from v0.5.37. This is a bias-compensation guard for assay panel
+construction, not evidence that under-ranked classes are stronger candidates.
+Default remains `0`.
+
 * lab-result ingestion;
 * hit/failure calibration;
 * retrospective analysis of why the model was right or wrong;

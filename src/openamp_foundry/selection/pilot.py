@@ -73,15 +73,18 @@ def select_pilot_panel(
     n: int = 20,
     max_per_seed: int | None = None,
     similarity_threshold: float | None = None,
+    min_per_structural_class: int = 0,
 ) -> list[dict]:
     """Select an n-candidate first-synthesis-wave panel from a list of nominees.
 
     Selection rules (in order):
-    1. One representative per distinct seed, chosen by pilot_priority.
-    2. Remaining slots filled from the rest of the pool, highest priority first,
+    1. If min_per_structural_class > 0, reserve up to that many top-priority
+       candidates per heuristic structural class.
+    2. One representative per distinct seed, chosen by pilot_priority.
+    3. Remaining slots filled from the rest of the pool, highest priority first,
        subject to the per-seed cap (max_per_seed).
-    3. If n < number of seeds, take the top-n seeds by priority.
-    4. (Optional) If similarity_threshold is provided, each candidate added in
+    4. If n < number of seeds, take the top-n seeds by priority.
+    5. (Optional) If similarity_threshold is provided, each candidate added in
        phases 1–3 is additionally required to be below similarity_threshold with
        every already-selected candidate. This eliminates near-duplicate siblings
        that crossed seed boundaries through conservative substitution.
@@ -94,6 +97,11 @@ def select_pilot_panel(
         similarity_threshold: Levenshtein similarity ceiling between any two selected
             candidates (e.g. 0.75). Candidates that are too similar to an
             already-selected candidate are skipped. None = no filter (default).
+        min_per_structural_class: Optional floor for coarse AMP structural classes
+            (`cysteine_rich`, `short`, `proline_rich`, `highly_cationic`,
+            `moderately_cationic`, `low_charge`). This compensates for the
+            documented v0.5.37 helic/charge ranking bias; it is a diversity
+            guard, not evidence of biological activity.
 
     Each returned dict gets an added `pilot_priority`, `seed`, and `pilot_rank` key.
     """
@@ -101,10 +109,16 @@ def select_pilot_panel(
         return []
 
     enriched = []
+    from openamp_foundry.selection.structural_class import classify_structural_class
+
     for c in candidates:
         ec = dict(c)
         ec["seed"] = _seed_from_source(c.get("source", ""))
         ec["pilot_priority"] = _pilot_priority(c.get("scores", {}))
+        ec["structural_class"] = classify_structural_class(
+            c.get("sequence", ""),
+            c.get("features", {}),
+        )
         enriched.append(ec)
 
     enriched.sort(key=lambda x: x["pilot_priority"], reverse=True)
@@ -118,16 +132,46 @@ def select_pilot_panel(
             return True
         return _is_diverse_vs_panel(c, selected, similarity_threshold)
 
+    selected_ids: set[str] = set()
+
+    def _candidate_key(c: dict) -> str:
+        return str(c.get("candidate_id") or c.get("sequence") or id(c))
+
+    def _append(c: dict) -> bool:
+        key = _candidate_key(c)
+        if key in selected_ids or not _diverse(c):
+            return False
+        selected.append(c)
+        selected_ids.add(key)
+        seed = c["seed"]
+        seed_counts[seed] = seed_counts.get(seed, 0) + 1
+        return True
+
+    # Phase 0 — bias-aware floor by heuristic structural class.
+    if min_per_structural_class > 0:
+        class_counts: dict[str, int] = {}
+        for c in enriched:
+            if len(selected) >= n:
+                break
+            cls = c["structural_class"]
+            if class_counts.get(cls, 0) >= min_per_structural_class:
+                continue
+            if max_per_seed is not None and seed_counts.get(c["seed"], 0) >= max_per_seed:
+                continue
+            if _append(c):
+                class_counts[cls] = class_counts.get(cls, 0) + 1
+
     # Phase 1 — one per seed (best by priority)
     seen_seeds: set[str] = set()
     phase2_candidates: list[dict] = []
     for c in enriched:
         seed = c["seed"]
+        if _candidate_key(c) in selected_ids:
+            seen_seeds.add(seed)
+            continue
         if seed not in seen_seeds:
-            if _diverse(c):
-                selected.append(c)
+            if _append(c):
                 seen_seeds.add(seed)
-                seed_counts[seed] = 1
             else:
                 # Too similar to an already-selected candidate from a different seed.
                 # Still mark seed as seen so Phase 2 can fill from its other variants.
@@ -147,11 +191,9 @@ def select_pilot_panel(
         if max_per_seed is not None and count >= max_per_seed:
             remainder.append(c)
             continue
-        if not _diverse(c):
+        if not _append(c):
             remainder.append(c)
             continue
-        selected.append(c)
-        seed_counts[seed] = count + 1
 
     # Phase 3 — if max_per_seed left unfilled slots, fill from remainder without cap
     if remainder and len(selected) < n and max_per_seed is not None:
@@ -164,9 +206,7 @@ def select_pilot_panel(
     for c in remainder:
         if len(selected) >= n:
             break
-        if not _diverse(c):
-            continue
-        selected.append(c)
+        _append(c)
 
     if similarity_threshold is not None and len(selected) < n:
         _log.info(

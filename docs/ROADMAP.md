@@ -877,3 +877,20 @@ stratifies by structural class to reveal blind spots.
   selection: diversity selection should deliberately compensate for the
   pipeline's helic/charge bias.
 
+## v0.5.38 — Bias-Aware Pilot Panel Floor ✓ (2026-07-05)
+
+The per-family benchmark exposed a real blind spot but left selection behavior
+unchanged. This release turns that finding into an optional assay-panel guard.
+
+- Added `selection/structural_class.py` so benchmark code and selection code
+  share the same six heuristic classes.
+- `select_pilot_panel()` now accepts `min_per_structural_class`; CLI exposes
+  `openamp-foundry pilot-panel --min-per-structural-class N`.
+- Panel output now reports `structural_classes_represented`.
+- Tests added for classifier parity, class-floor behavior, diversity interaction,
+  and CLI reporting.
+
+Honest limit:
+- This is not a scoring improvement. It does not prove under-ranked classes are
+  better candidates. It only stops the current charge/helical bias from
+  silently dominating assay panel construction.

@@ -495,6 +495,40 @@ def test_pilot_panel_blank_lines_skipped_and_output_produced(tmp_path, capsys):
     assert (tmp_path / "panel.md").exists()
 
 
+def test_pilot_panel_reports_structural_classes_and_floor_flag(tmp_path, capsys):
+    ranked = tmp_path / "ranked.jsonl"
+    rows = [
+        {
+            "candidate_id": "HIGH",
+            "sequence": "KKKKAAAAAAAAL",
+            "source": "template_mutation_from_SEED-H",
+            "selected": True,
+            "scores": {"ensemble": 0.95, "activity": 0.95, "boman_activity": 0.90, "disagreement": 0.05},
+            "features": {"length": 13, "net_charge_ph74": 5.0, "proline_fraction": 0.0},
+        },
+        {
+            "candidate_id": "LOW",
+            "sequence": "AAAAAAAALLLLL",
+            "source": "template_mutation_from_SEED-L",
+            "selected": True,
+            "scores": {"ensemble": 0.50, "activity": 0.50, "boman_activity": 0.45, "disagreement": 0.05},
+            "features": {"length": 13, "net_charge_ph74": 1.0, "proline_fraction": 0.0},
+        },
+    ]
+    ranked.write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    out_csv = str(tmp_path / "panel.csv")
+    rc = main([
+        "pilot-panel",
+        "--ranked", str(ranked),
+        "--out-csv", out_csv,
+        "--n", "2",
+        "--min-per-structural-class", "1",
+    ])
+    assert rc == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data["structural_classes_represented"] == ["highly_cationic", "low_charge"]
+
+
 def test_generate_batch_missing_seeds_file_returns_error(tmp_path, capsys):
     rc = main([
         "generate-batch",

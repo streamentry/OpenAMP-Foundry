@@ -39,6 +39,7 @@ def _run_pilot_panel(args: argparse.Namespace) -> int:
         n=args.n,
         max_per_seed=args.max_per_seed,
         similarity_threshold=getattr(args, "similarity_threshold", None),
+        min_per_structural_class=getattr(args, "min_per_structural_class", 0),
     )
     generated_at = datetime.now(timezone.utc).isoformat()
 
@@ -56,6 +57,9 @@ def _run_pilot_panel(args: argparse.Namespace) -> int:
         "n_panel": len(panel),
         "seeds_represented": seeds,
         "n_dual_scorer_consensus": n_consensus,
+        "structural_classes_represented": sorted(
+            {c.get("structural_class", "") for c in panel if c.get("structural_class")}
+        ),
         "out_csv": args.out_csv,
         "out_md": args.out_md,
         "disclaimer": (
@@ -339,5 +343,4 @@ def _run_diversity_check(args: argparse.Namespace) -> int:
         "out": args.out,
     }, indent=2))
     return 0
-
 

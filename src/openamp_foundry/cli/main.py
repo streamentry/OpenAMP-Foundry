@@ -344,6 +344,16 @@ def build_parser() -> argparse.ArgumentParser:
             "Recommended: 0.75. None = no filter (default)."
         ),
     )
+    pilot.add_argument(
+        "--min-per-structural-class",
+        type=int,
+        default=0,
+        help=(
+            "Optional floor per coarse structural class before seed/remainder fill. "
+            "Use to compensate for the documented v0.5.37 helic/charge bias. "
+            "Default 0 preserves priority-only behavior."
+        ),
+    )
 
     validate_scoring = sub.add_parser(
         "validate-scoring",

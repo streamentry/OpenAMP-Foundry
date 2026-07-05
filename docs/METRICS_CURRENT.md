@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-05 (per-family benchmark breakdown by structural class — v0.5.37)
+> **Last updated:** 2026-07-05 (bias-aware pilot panel floor — v0.5.38)
+> **New in v0.5.38:** `pilot-panel` now supports an optional `--min-per-structural-class` floor using the same six classes as the v0.5.37 benchmark. This is a panel-construction bias control, not evidence that the under-ranked classes are stronger candidates.
 > **New in v0.5.35:** Cross-dataset generalization benchmark: DRAMP AMPs (database-independent test) achieve AUROC 0.7803 vs baseline 0.7832 (Δ=-0.0029). Pipeline generalises strongly — heuristic features are source-independent, not memorizing APD6/UniProt biases. Phase 1 exit criterion #5 (cross-dataset results) satisfied. See `outputs/cross_dataset_benchmark.json`.
 > **New in v0.5.37:** Per-family benchmark breakdown: stratifies 500 AMPs by structural class. Pipeline is charge-dominated — highly_cationic AUROC 0.9583 vs proline_rich AUROC 0.5861 (Δ=0.37). Classes with weak discrimination flagged as blind spots. See `outputs/benchmark_per_family.json`.
 > **New in v0.5.33:** Expert ablation re-run on expanded 500-AMP benchmark (n=1000). Two components reclassified: synthesis was an anti-signal artifact on n=191 (now near-zero 0.4968); boman_activity more strongly anti-AMP (0.3291). selectivity_proxy weaker on diverse set (0.6702 vs 0.7729). Activity remains dominant signal (0.7969). Expert composite delta widens to −0.0935 — expected tradeoff for selectivity-aware scoring.
@@ -394,6 +395,12 @@ amphipathic-helix sets does not reflect performance on diverse AMP classes.
    be highly or moderately cationic AMPs with well-formed amphipathic helices.
    The pipeline systematically undervalues non-helical, short, low-charge, or
    proline-rich candidates. Diversity selection should deliberately compensate.
+
+**Shipped response (v0.5.38):**
+- `openamp-foundry pilot-panel --min-per-structural-class 1` can reserve one
+  slot per heuristic structural class before normal seed/remainder fill.
+- Default remains `0`, preserving existing behavior.
+- This improves assay-panel reviewability. It does not fix the scorer.
 
 ---
 

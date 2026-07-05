@@ -29,6 +29,7 @@ from collections import Counter
 from pathlib import Path
 
 from openamp_foundry.features.physchem import compute_features
+from openamp_foundry.selection.structural_class import classify_structural_class
 from openamp_foundry.scoring.activity import activity_likeness_score
 from openamp_foundry.scoring.boman import boman_activity_score
 from openamp_foundry.scoring.ensemble import ensemble_score
@@ -82,22 +83,7 @@ def _bootstrap_auroc_ci(
 
 
 def classify_amp(seq: str, features: dict) -> str:
-    c_count = seq.upper().count("C")
-    pro_fraction = features.get("proline_fraction", 0.0) or 0.0
-    length = features.get("length", len(seq))
-    net_charge = features.get("net_charge_ph74", 0.0) or 0.0
-
-    if c_count >= 2:
-        return "cysteine_rich"
-    if length <= 12:
-        return "short"
-    if pro_fraction >= 0.15:
-        return "proline_rich"
-    if net_charge >= 4.0:
-        return "highly_cationic"
-    if net_charge >= 2.0:
-        return "moderately_cationic"
-    return "low_charge"
+    return classify_structural_class(seq, features)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -225,7 +211,6 @@ def main(argv: list[str] | None = None) -> int:
         auroc = round(_auc_wilcoxon(pos, decoy_scores), 4)
         ci = _bootstrap_auroc_ci(pos, decoy_scores)
         delta = round(auroc - results["all_amps"]["auroc"], 4)
-        n_charge_above_4 = sum(1 for r in members if r["net_charge"] >= 4.0)
         n_cys_2plus = sum(1 for r in members if r["cysteine_count"] >= 2)
         n_pro_rich = sum(1 for r in members if r["proline_fraction"] >= 0.15)
         results[cls] = {
@@ -262,7 +247,7 @@ def main(argv: list[str] | None = None) -> int:
               f"{r['delta_vs_all']:>+8.4f} {r['mean_ensemble']:>8.4f} {r['mean_length']:>4.0f}")
 
     # 5. Class distribution (all classes, including below MIN_CLASS_SIZE)
-    print(f"\nClass distribution (all AMPs):")
+    print("\nClass distribution (all AMPs):")
     all_class_counts = Counter(r["class"] for r in amp_all)
     for cls, count in all_class_counts.most_common():
         r = results.get(cls)
@@ -287,13 +272,13 @@ def main(argv: list[str] | None = None) -> int:
     strong_classes = [c for c in class_order if c in results and results[c]["auroc"] >= 0.80]
 
     if weak_classes:
-        print(f"  Weak discrimination (AUROC < 0.70):")
+        print("  Weak discrimination (AUROC < 0.70):")
         for c in weak_classes:
             r = results[c]
             print(f"    - {c} ({r['auroc']:.4f}, n={r['n_amps']}): {r['description']}")
 
     if strong_classes:
-        print(f"  Strong discrimination (AUROC ≥ 0.80):")
+        print("  Strong discrimination (AUROC ≥ 0.80):")
         for c in strong_classes:
             r = results[c]
             print(f"    - {c} ({r['auroc']:.4f}, n={r['n_amps']}): {r['description']}")

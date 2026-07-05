@@ -8,8 +8,10 @@ selector used by `openamp-foundry pilot-panel`.
 from openamp_foundry.selection.diversity import greedy_diverse_select
 from openamp_foundry.selection.pareto import rank_candidates, select_top
 from openamp_foundry.selection.pilot import select_pilot_panel
+from openamp_foundry.selection.structural_class import classify_structural_class
 
 __all__ = [
+    "classify_structural_class",
     "greedy_diverse_select",
     "rank_candidates",
     "select_pilot_panel",

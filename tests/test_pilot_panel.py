@@ -6,6 +6,10 @@ import csv
 import pytest
 
 from openamp_foundry.selection.pilot import _pilot_priority, _seed_from_source, select_pilot_panel
+from openamp_foundry.selection.structural_class import (
+    STRUCTURAL_CLASS_ORDER,
+    classify_structural_class,
+)
 from openamp_foundry.reports.pilot_panel import write_pilot_csv, write_pilot_markdown
 
 
@@ -45,6 +49,14 @@ def _make(
         "nearest_reference": None,
         "selection_reason": [],
         "known_failure_modes": [],
+    }
+
+
+def _make_features(length=15, net_charge=2.0, proline_fraction=0.0):
+    return {
+        "length": length,
+        "net_charge_ph74": net_charge,
+        "proline_fraction": proline_fraction,
     }
 
 
@@ -539,3 +551,76 @@ class TestPilotPhase3FillFromRemainder:
         assert len(result) == 3
         ids = {r["candidate_id"] for r in result}
         assert "C1" in ids, "Phase 3 overflow candidate must be selected"
+
+
+class TestStructuralClass:
+    def test_classifier_matches_benchmark_classes(self):
+        assert classify_structural_class("CACDEFGHIKLAC", _make_features()) == "cysteine_rich"
+        assert classify_structural_class("RRWQWRMKKLG", _make_features(length=11, net_charge=4.0)) == "short"
+        assert classify_structural_class("RPRPRPAAAAAAA", _make_features(length=13, proline_fraction=0.23, net_charge=3.0)) == "proline_rich"
+        assert classify_structural_class("KKKKAAAAAAAAL", _make_features(length=13, net_charge=5.0)) == "highly_cationic"
+        assert classify_structural_class("KKAAAAAAAALLL", _make_features(length=13, net_charge=3.0)) == "moderately_cationic"
+        assert classify_structural_class("AAAAAAAALLLLL", _make_features(length=13, net_charge=1.0)) == "low_charge"
+
+
+class TestSelectPilotPanelStructuralClassFloor:
+    def _class_candidate(self, cid: str, structural_class: str, ensemble: float) -> dict:
+        seq_map = {
+            "cysteine_rich": "CACDEFGHIKLAC",
+            "proline_rich": "RPRPRPAAAAAAA",
+            "short": "RRWQWRMKKLG",
+            "highly_cationic": "KKKKAAAAAAAAL",
+            "moderately_cationic": "KKAAAAAAAALLL",
+            "low_charge": "AAAAAAAALLLLL",
+        }
+        feat_map = {
+            "cysteine_rich": {"length": 13, "net_charge_ph74": 2.0, "proline_fraction": 0.0},
+            "proline_rich": {"length": 13, "net_charge_ph74": 3.0, "proline_fraction": 0.23},
+            "short": {"length": 11, "net_charge_ph74": 4.0, "proline_fraction": 0.0},
+            "highly_cationic": {"length": 13, "net_charge_ph74": 5.0, "proline_fraction": 0.0},
+            "moderately_cationic": {"length": 13, "net_charge_ph74": 3.0, "proline_fraction": 0.0},
+            "low_charge": {"length": 13, "net_charge_ph74": 1.0, "proline_fraction": 0.0},
+        }
+        seed = f"SEED-{cid}"
+        cand = _make(cid, seq=seq_map[structural_class], seed=seed, ensemble=ensemble)
+        cand["features"].update(feat_map[structural_class])
+        return cand
+
+    def test_floor_guarantees_one_per_class_when_capacity_allows(self):
+        candidates = [
+            self._class_candidate("CYS", "cysteine_rich", 0.55),
+            self._class_candidate("PRO", "proline_rich", 0.54),
+            self._class_candidate("SRT", "short", 0.53),
+            self._class_candidate("HIC", "highly_cationic", 0.95),
+            self._class_candidate("MOC", "moderately_cationic", 0.94),
+            self._class_candidate("LOC", "low_charge", 0.52),
+            self._class_candidate("HIC2", "highly_cationic", 0.93),
+        ]
+        panel = select_pilot_panel(candidates, n=6, min_per_structural_class=1)
+        assert {c["structural_class"] for c in panel} == set(STRUCTURAL_CLASS_ORDER)
+
+    def test_default_zero_floor_preserves_priority_behavior(self):
+        candidates = [
+            self._class_candidate("H1", "highly_cationic", 0.95),
+            self._class_candidate("H2", "highly_cationic", 0.94),
+            self._class_candidate("H3", "highly_cationic", 0.93),
+            self._class_candidate("L1", "low_charge", 0.40),
+        ]
+        panel = select_pilot_panel(candidates, n=3)
+        assert {c["structural_class"] for c in panel} == {"highly_cationic"}
+
+    def test_floor_respects_diversity_threshold(self):
+        high = self._class_candidate("HIGH", "highly_cationic", 0.90)
+        near_dup_short = self._class_candidate("SHORT", "short", 0.89)
+        near_dup_short["sequence"] = high["sequence"][:-1] + "I"
+        near_dup_short["features"]["length"] = len(near_dup_short["sequence"])
+        low = self._class_candidate("LOW", "low_charge", 0.50)
+        panel = select_pilot_panel(
+            [high, near_dup_short, low],
+            n=3,
+            min_per_structural_class=1,
+            similarity_threshold=0.75,
+        )
+        ids = {c["candidate_id"] for c in panel}
+        assert "HIGH" in ids
+        assert "SHORT" not in ids
