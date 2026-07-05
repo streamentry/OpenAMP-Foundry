@@ -63,3 +63,20 @@ jobs:
               sys.exit(1)
           print('PASS: Pipeline outperforms random ranker on hidden-active benchmark')
           "
+
+      - name: Expanded benchmark (500 AMP + 500 decoy, AUROC > 0.70)
+        run: |
+          PYTHONPATH=src python -m openamp_foundry.cli validate-scoring \
+            --amp-csv examples/validation/known_amps_500.csv \
+            --decoy-csv examples/validation/random_background_500.csv \
+            --out outputs/validate_scoring_500_ci.json
+          PYTHONPATH=src python -c "
+          import json
+          data = json.load(open('outputs/validate_scoring_500_ci.json'))
+          auroc = data['auroc']
+          print(f'Expanded benchmark AUROC: {auroc:.4f}')
+          if auroc < 0.70:
+              print(f'FAIL: Expanded benchmark AUROC {auroc:.4f} < 0.70')
+              exit(1)
+          print(f'PASS: Expanded benchmark AUROC {auroc:.4f} >= 0.70')
+          "

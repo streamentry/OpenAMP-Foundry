@@ -30,6 +30,8 @@ help:
 	@echo "  make bench-multi-negatives    Multi-negative-set benchmark (4 decoy distributions)"
 	@echo "  make bench-baseline           Hidden-positive recovery benchmark (demo set)"
 	@echo "  make bench-cluster-split      Cluster-aware bootstrap CI (de-inflates near-duplicates)"
+	@echo "  make bench-500                Full benchmark on expanded 500-AMP set (AUROC, AUPRC, recall)"
+	@echo "  make bench-cluster-split-500  Cluster-split on expanded 500-AMP set"
 	@echo "  make bench-expert-ablation    Expert composite vs ensemble ablation (honesty check)"
 	@echo "  make bench-selectivity        Within-AMP selectivity (hemolytic vs selective)"
 	@echo "  make bench-feature-decomp     Per-feature selective_vs_hemolytic decomposition"
@@ -150,6 +152,27 @@ bench-cluster-split:
 		--amp-csv examples/validation/known_amps.csv \
 		--decoy-csv examples/validation/random_background.csv \
 		--out outputs/cluster_split_report.json
+
+bench-500:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli validate-scoring \
+		--amp-csv examples/validation/known_amps_500.csv \
+		--decoy-csv examples/validation/random_background_500.csv \
+		--benchmark-type standard \
+		--out outputs/validate_scoring_500.json
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli validate-scoring \
+		--amp-csv examples/validation/known_amps_500.csv \
+		--decoy-csv examples/validation/random_background_500.csv \
+		--config configs/phase3.yaml \
+		--benchmark-type standard \
+		--out outputs/validate_scoring_phase3_500.json
+	@echo "Expanded benchmark (500 AMP + 500 decoy) complete."
+
+bench-cluster-split-500:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench cluster-split \
+		--amp-csv examples/validation/known_amps_500.csv \
+		--decoy-csv examples/validation/random_background_500.csv \
+		--out outputs/cluster_split_500.json
+	@echo "Cluster-split on expanded 500-AMP set complete."
 
 bench-expert-ablation:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench expert-ablation \

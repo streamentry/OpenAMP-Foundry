@@ -39,7 +39,7 @@ Strengthen every benchmark against self-deception. Expand datasets. Add honest f
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
 | 9 ✅ | Benchmark gate only checked standard + phase3 AUROC. Cluster-split, selectivity, triage could silently regress | Extended benchmark regression gate (v0.5.27): `scripts/benchmark_gate.py` now checks cluster_split.full_auroc, cluster_split.representative_auroc, rich_selectivity.detection.auroc, gate_triage.triages_correctly, triage.best_scorer. 8 new tests. 1709 total. | `make bench-gate` passes; cluster-split AUROC gated at 0.03 tolerance; selectivity at 0.05; triage booleans enforced |
-| 10 | Benchmark expanded to n=191 but ROADMAP flags 500+ target as deferred | **500+ AMP benchmark**: expand to ≥500 public-domain AMPs + 500 composition-matched decoys. Recompute AUROC, CI, AUPRC | Validated on new dataset; CI width reported |
+| 10 ✅ | Benchmark expanded to n=191 but ROADMAP flags 500+ target as deferred | **500+ AMP benchmark**: expand to ≥500 public-domain AMPs + 500 composition-matched decoys. Recompute AUROC, CI, AUPRC | Validated on new dataset: AUROC 0.7792 (CI₉₅: 0.7505–0.8065); cluster-aware CI 0.746–0.8102; representative AUROC 0.778 |
 | 11 | No time-split benchmark (hardest leakage test). Most public AMP databases lack deposition dates | Time-split: gather dated AMP records, split by year (pre-2015 train, post-2015 test). Report AUROC with CI | Time-split AUROC > 0.60 or honest failure documented |
 | 12 | Strict triage: no scorer passes composition-matched decoy test. This is the hardest known gap | Analyze which 1D features survive scrambling. Build an order-dependent feature (dipeptide frequencies, auto-cross-covariance) and test if it recovers scrambled-decoy signal | Strict sel_vs_dec AUROC improves vs baseline 0.572 |
 | 13 | Cross-dataset generalisation untested. Current benchmark uses same database for train/test | Cross-dataset benchmark: train on APD6, test on DRAMP (or vice versa). Report transfer AUROC | Transfer AUROC documented (may be weak — publish honestly) |
@@ -172,7 +172,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 
 ```
 Phase 0: ✅ Complete (Loops 1–8)
-Phase 1: Loop 10 of 13 (next loop: 11)
+Phase 1: Loop 11 of 13 (next loop: 12 — time-split benchmark)
 Phase 2: Not started
 Phase 3: Not started
 Phase 4: Not started
@@ -203,10 +203,11 @@ Phase 4: Not started
 |------|-----------|-------------|-------------|
 | 9 ✅ | Benchmark gate only checks strict AUROC — no cluster-split, selectivity, or triage metric regression | Extended `benchmark_gate.py` with `_deep_get()` dotted-path resolver; 5 numeric + 2 boolean metrics; separate tolerances | 1709 pass, 8 new gate tests (total 21) |
 | 10 ✅ | No multi-negative benchmark; no honest assessment of composition-dependence | `scripts/benchmark_multi_negatives.py` with 4 decoy distributions; Makefile target; CI gate; composition-dependence documented as honest finding | 1723 pass, 14 new tests |
+| 11 ✅ | Benchmark expanded to n=191 but ROADMAP flags 500+ target as deferred. Current n=191 gives ±0.07 CI width | Expanded benchmark to 500 + 500 (n=1000). `scripts/curate_500_amp_benchmark.py`: UniProt-reviewed + APD6 natural + existing curated. AUROC 0.7792 (CI₉₅: 0.7505–0.8065). Cluster-aware CI 0.746–0.8102 (width 0.064, ~2.3× tighter). Representative AUROC 0.778 ≈ full AUROC 0.7792. `make bench-500`, `make bench-cluster-split-500`, CI gate | 500 AMPs + 500 decoys; AUROC > 0.70 verified; CI width ±0.028 vs ±0.07 on n=191 |
 
 ### Phase 0 exit criteria (archived):
 - ✅ `from openamp_foundry.calibration import GateVerdict` works
 - ✅ `make ci` passes with benchmark gate
 - ✅ A new agent can read README → run demo → understand calibration flow → contribute safely in one session
 
-**Next loop:** Loop 11 — Phase 1 (500+ AMP benchmark expansion).
+**Next loop:** Loop 12 — Phase 1 (Time-split benchmark).

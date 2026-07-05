@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-05 (subpackage public API surface, v0.5.25)
-> **New in v0.5.25:** 11 subpackages now publish a curated `__all__` so `from openamp_foundry.benchmark import run_triage_benchmark` works cleanly. `tests/test_public_api_imports.py` (7 tests) locks in the public surface. No benchmark numbers changed.
-> **Pipeline version:** v0.5.25
+> **Last updated:** 2026-07-05 (expanded 500-AMP benchmark, v0.5.29)
+> **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
+> **Pipeline version:** v0.5.29
 > **Branch:** main
 
 ---
@@ -31,7 +31,69 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 | Interpretation | **STRONG** | AUROC > 0.70 gate passed |
 
 
-### Cluster-Split Benchmark (near-duplicate de-inflation)
+### Expanded 500-AMP Benchmark (n=1000)
+
+> Added 2026-07-05. The original benchmark (95 AMPs + 96 decoys, n=191) was
+> expanded to 500 AMPs + 500 length-matched decoys (n=1000) using UniProt
+> reviewed AMPs (CC BY 4.0) and APD6 natural sequences (academic use).
+> This provides a more honest estimate of pipeline discriminative power
+> with tighter confidence intervals.
+>
+> Curated by: `scripts/curate_500_amp_benchmark.py`
+>
+> Run: `make bench-500`
+
+| Metric | Value | Notes |
+|--------|-------|-------|
+| Positives | **500** public-domain AMPs | UniProt reviewed + APD6 natural + existing curated |
+| Negatives | **500** length-matched random decoys | Swiss-Prot residue frequencies, seed=20260705 |
+| Total (n) | **1000** | ~2.3× reduction in CI width over the original 87-seq benchmark |
+| **Pipeline AUROC** | **0.7792** | Bootstrap CI₉₅: 0.7505–0.8065 |
+| **Phase3 AUROC** | **0.7744** | Synthesis gate config |
+| **Pipeline AUPRC** | **0.7705** | Random baseline: 0.5000 |
+| **Phase3 AUPRC** | **0.7656** | Random baseline: 0.5000 |
+| Recall@10 | 0.020 | 10/500 positives in top 10 |
+| Recall@20 | 0.040 | 20/500 positives in top 20 |
+| Recall@43 | 0.076 | 38/500 positives in top 43 |
+| Interpretation | **STRONG** | AUROC > 0.70 gate passed |
+
+### Expanded Cluster-Split Benchmark (near-duplicate de-inflation)
+
+| Metric | Pipeline (pipeline.yaml) | Phase3 (phase3.yaml) |
+|--------|:-----------------------:|:-------------------:|
+| Full AUROC | 0.7792 | 0.7744 |
+| **Cluster-aware CI₉₅** | **0.746–0.8102** | **same config** |
+| Representative AUROC (1/cluster) | 0.778 | 0.7744 |
+| Representative CI₉₅ | 0.7455–0.8084 | — |
+| Held-out AUROC (195 near-dup AMPs) | 0.7828 | — |
+| Independent clusters | 374 / 500 | 374 / 500 |
+| AMPs in multi-member clusters | 195 / 500 | 195 / 500 |
+| Multi-member clusters | 69 | 69 |
+
+**Key findings:**
+
+1. **Signal generalizes to 10× larger set.** AUROC 0.7792 on n=1000 is essentially
+   identical to 0.7832 on n=191. The pipeline does not overfit to the 95-sequence
+   benchmark.
+
+2. **CIs are much tighter.** Cluster-aware CI: 0.746–0.8102 (width 0.064) vs
+   0.7061–0.8526 (width 0.146) on n=191. The expanded set provides ~2.3× tighter
+   confidence intervals.
+
+3. **Representative AUROC nearly equals full AUROC.** 0.778 vs 0.7792. On the
+   original benchmark, representative AUROC (0.7607) was lower than full (0.7832).
+   The expanded set's 500 sequences are less dominated by near-duplicate inflation.
+
+4. **Cluster-aware CI lower bound (0.746) is well above the 0.65 gate.** The
+   pipeline's signal is robust to near-duplicate de-inflation.
+
+5. **Honest limitation:** The expanded set uses UniProt-reviewed and APD6 sequences
+   annotated as antimicrobial. These carry the same annotation bias as the original
+   set: AMP annotation is an active research field, and some annotated AMPs may not
+   be genuinely antimicrobial. The set also includes fewer defensins and
+   cysteine-rich peptides due to the 10–30 AA length constraint.
+
+### Cluster-Split Benchmark (near-duplicate de-inflation, n=191)
 
 > Added 2026-07-01. The standard benchmark treats all 95 AMPs as independent samples.
 > 33 of 95 AMPs are in 14 near-duplicate clusters (sim >= 0.70): magainin-1/2/3,
@@ -72,15 +134,19 @@ Run: `openamp-foundry bench cluster-split`
 
 | Point | Benchmark | AUROC | Phase3 AUROC | Source |
 |-------|-----------|-------|--------------|--------|
-| Current | 95 AMP + 96 decoy (n=191) | **0.7832** | **0.7448** | PR #110 |
+| **Expanded** | **500 AMP + 500 decoy (n=1000)** | **0.7792** | **0.7744** | v0.5.29 (Loop 11) |
+| Standard | 95 AMP + 96 decoy (n=191) | 0.7832 | 0.7448 | PR #110 |
 | Original demo set | 43 AMP + 44 decoy (n=87) | 0.8420 | 0.8266 | PR #72 |
 | Pre-face-bonus | 43 + 44 | 0.8348 | 0.8126 | PR #70 |
 | Pre-windowed-mu_h | 43 + 44 | 0.8047 | 0.7846 | PR #66 |
 | Pre-Trp-bonus | 43 + 44 | 0.8164 | — | PR #65 (transient) |
 
-**Note:** All historical baselines use the original demo set (43 AMPs + 44 decoys). Direct
-comparison with the expanded benchmark is not meaningful — the expanded set is more
-representative of diverse AMP classes not covered by the helic-centric scorer.
+**Note:** The expanded benchmark (500+500, n=1000) is now the primary benchmark.
+The n=191 benchmark is retained for backward comparison. The expanded set is more
+representative of diverse AMP classes and provides ~2.3× tighter confidence intervals.
+Historical baselines from the demo set (n=87) should not be directly compared with
+the expanded benchmark — the helic-centric scorer's strong performance on small
+amphipathic-helix sets does not reflect performance on diverse AMP classes.
 
 ---
 

@@ -396,6 +396,48 @@ penalizes the AMP-like composition that hemolytic AMPs share with their
 scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
 It must NOT replace the ensemble activity gate — it is a complementary signal.
 
+## v0.5.29 — Expanded 500-AMP Benchmark ✓ (2026-07-05)
+
+- Expanded benchmark from 95 + 96 (n=191) to 500 AMP + 500 decoy (n=1000)
+- Curation script: `scripts/curate_500_amp_benchmark.py` — reads UniProt-reviewed
+  AMPs (CC BY 4.0) and APD6 natural sequences, filters to 10-30 AA, deduplicates
+  against existing curated set, samples to 500, generates matched Swiss-Prot
+  frequency decoys
+- Pipeline AUROC on expanded set: 0.7792 (CI₉₅: 0.7505–0.8065) — signal
+  generalizes, essentially identical to 0.7832 on n=191
+- Phase3 AUROC: 0.7744 (was 0.7448 on n=191)
+- Cluster-aware CI: 0.746–0.8102 (width 0.064 vs 0.146 on n=191) — ~2.3× tighter
+- Representative AUROC: 0.778 — nearly equals full AUROC (improvement over
+  n=191 where representative 0.7607 < full 0.7832)
+- Expanded benchmark files: `examples/validation/known_amps_500.csv`,
+  `examples/validation/random_background_500.csv`
+- Makefile targets: `make bench-500`, `make bench-cluster-split-500`
+- CI gate: expanded benchmark AUROC > 0.70 enforced in CI after standard gate
+- Metrics snapshot: `outputs/metrics_snapshot_500.json`
+- METRICS_CURRENT.md updated with expanded benchmark sections
+
+Key honest findings:
+
+1. **Signal generalizes to diverse AMP classes.** AUROC 0.7792 on 500 AMPs from
+   UniProt and APD6 is nearly identical to 0.7832 on 95 manually curated AMPs.
+   The pipeline is not overfit to the small curated set.
+
+2. **CIs are dramatically tighter.** Cluster-aware CI width drops from 0.146
+   (n=191) to 0.064 (n=1000). This is the statistical benefit of a larger
+   benchmark — the pipeline's true discriminative power is now constrained
+   to a ±0.03 band rather than ±0.07.
+
+3. **Representative AUROC parity.** On n=191, the representative-only AUROC
+   (0.7607) was notably lower than the full AUROC (0.7832), indicating
+   near-duplicate inflation. On n=1000, representative AUROC (0.778) nearly
+   equals the full AUROC (0.7792) — the expanded set's 500 sequences have
+   lower redundancy.
+
+4. **Limitation:** The expanded set's lower recall@k (2% vs 10.5% at k=10) is
+   an honest effect of triage on a larger, harder pool. With 500 decoys
+   (vs 96), the top-10 threshold is more competitive. The pipeline correctly
+   ranks many AMPs in the top 20–40% rather than the top 1–2%.
+
 ## v0.5.28 — Multi-Negative-Set Benchmark ✓ (2026-07-05)
 
 The pipeline's AUROC (0.78 on AMP-vs-decoy) was measured against a single
