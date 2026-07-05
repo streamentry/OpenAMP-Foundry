@@ -5,6 +5,12 @@ of length, charge, hydrophobicity, helix/fold propensities, and other
 descriptors consumed by every scorer.
 """
 
+from openamp_foundry.features.dipeptide import (
+    ALL_DIPEPTIDES,
+    dipeptide_frequencies,
+    dipeptide_order_score,
+    get_reference_log_odds,
+)
 from openamp_foundry.features.physchem import (
     compute_features,
     fraction,
@@ -18,8 +24,12 @@ from openamp_foundry.features.physchem import (
 )
 
 __all__ = [
+    "ALL_DIPEPTIDES",
     "compute_features",
+    "dipeptide_frequencies",
+    "dipeptide_order_score",
     "fraction",
+    "get_reference_log_odds",
     "helix_propensity_score",
     "helix_wheel_faces",
     "hydrophobic_moment",

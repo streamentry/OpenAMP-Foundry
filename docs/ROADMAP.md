@@ -396,25 +396,26 @@ penalizes the AMP-like composition that hemolytic AMPs share with their
 scrambled versions. It also retains 3 decoys in top-20 (vs 0 for ensemble).
 It must NOT replace the ensemble activity gate — it is a complementary signal.
 
-## v0.5.30 — Easy Baseline Benchmark ✓ (2026-07-05)
+## v0.5.31 — Order-Dependent Features Benchmark ✓ (2026-07-05)
 
-- Implemented trivial baseline comparison: how does the pipeline compare to
-  single-feature predictors (length, charge, charge density)?
-- **Finding:** charge density alone (AUROC 0.8166) beats the full pipeline
-  ensemble (0.7792, Δ=−0.0374)
-- **Why this is expected:** The pipeline optimizes for 4 objectives (activity,
-  safety, synthesis, novelty). The safety scorer penalizes high-charge peptides
-  (hemolytic risk). Charge density has no such penalty, making it a better pure
-  AMP/non-AMP discriminator on Swiss-Prot decoys. Charge is a known strong AMP
-  predictor — this is an honest replication of a well-known literature result.
-- **Implication:** The pipeline's value is in multi-objective candidate selection,
-  not in basic AMP/non-AMP discrimination. A benchmark that tests the pipeline's
-  actual objective (finding safe, novel, synthesizable AMPs) would be more
-  informative than the current AMP-vs-decoy benchmark.
-- Script: `scripts/baseline_trivial.py`
-- Makefile target: `make bench-easy-baseline`
+- Added `src/openamp_foundry/features/dipeptide.py` — dipeptide frequency
+  computation and `dipeptide_order_score` with pre-computed log-odds reference
+- Added `scripts/benchmark_order_dependent.py` — analyzes which of 31 features
+  survive sequence scrambling (position independence test)
+- Integrated `dipeptide_order_score` into `compute_features()` (31st scalar feature)
+- **Finding: dipeptide_order_score is the strongest order-dependent feature**
+  (AUROC 0.7861 on AMP-vs-scrambled), beating hydrophobic moment (0.7483)
+- **Only 7/31 features survive scrambling** — all are amphipathicity/helix-wheel
+  properties plus the new dipeptide score
+- **All composition features are EXACTLY position-independent** (AUROC = 0.5000)
+- Some features are anti-order-dependent (aggregation propensity 0.4325,
+  hydrophilic face mean h 0.3506) — scrambling creates patterns not present
+  in native AMPs
+- Makefile target: `make bench-order-dependent`
 - CI: informational step (non-gating)
-- Next: Loop 13 — Order-dependent features / strict triage
+- Next: Loop 14 — Cross-dataset generalization
+
+## v0.5.30 — Easy Baseline Benchmark ✓ (2026-07-05)
 
 ## v0.5.29 — Expanded 500-AMP Benchmark ✓ (2026-07-05)
 

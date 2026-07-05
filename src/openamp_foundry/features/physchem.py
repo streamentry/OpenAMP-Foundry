@@ -408,6 +408,7 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     mu_h = hydrophobic_moment(sequence)
     max_mu_h = max_windowed_hydrophobic_moment(sequence)
     hw_faces = helix_wheel_faces(sequence)
+    from openamp_foundry.features.dipeptide import dipeptide_order_score
     n_trypsin = interior_protease_sites(sequence, TRYPSIN_SITES)
     n_chymotrypsin = interior_protease_sites(sequence, CHYMOTRYPSIN_SITES)
     n_elastase = interior_protease_sites(sequence, ELASTASE_SITES)
@@ -420,6 +421,7 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
     gravy = gravy_score(sequence)
     sel_proxy = selectivity_proxy(charge_ph74, gravy)
     agg = aggregation_propensity(sequence)
+    dio = dipeptide_order_score(sequence)
     return {
         "length": length,
         "net_charge_proxy": charge,
@@ -452,4 +454,5 @@ def compute_features(sequence: str) -> dict[str, float | int | dict[str, int]]:
         "helix_wheel_h_face_cationic_fraction": hw_faces["h_face_cationic_fraction"],
         "helix_wheel_ph_face_cationic_fraction": hw_faces["ph_face_cationic_fraction"],
         "helix_wheel_amphipathic_score": hw_faces["amphipathic_score"],
+        "dipeptide_order_score": dio,
     }

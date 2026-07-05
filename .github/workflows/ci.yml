@@ -85,3 +85,8 @@ jobs:
         run: |
           make bench-easy-baseline
           echo "Easy baseline is informational — does not gate CI."
+
+      - name: Order-dependent features benchmark (informational — analyzes which features survive scrambling)
+        run: |
+          make bench-order-dependent
+          echo "Order-dependent benchmark is informational — does not gate CI."

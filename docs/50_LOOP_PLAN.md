@@ -172,7 +172,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 
 ```
 Phase 0: ✅ Complete (Loops 1–8)
-Phase 1: Loop 12 of 13 (next loop: 13 — time-split benchmark)
+Phase 1: Loop 13 of 13 (next loop: 14 — cross-dataset generalization)
 Phase 2: Not started
 Phase 3: Not started
 Phase 4: Not started
@@ -205,10 +205,11 @@ Phase 4: Not started
 | 10 ✅ | No multi-negative benchmark; no honest assessment of composition-dependence | `scripts/benchmark_multi_negatives.py` with 4 decoy distributions; Makefile target; CI gate; composition-dependence documented as honest finding | 1723 pass, 14 new tests |
 | 11 ✅ | Benchmark expanded to n=191 but ROADMAP flags 500+ target as deferred. Current n=191 gives ±0.07 CI width | Expanded benchmark to 500 + 500 (n=1000). `scripts/curate_500_amp_benchmark.py`: UniProt-reviewed + APD6 natural + existing curated. AUROC 0.7792 (CI₉₅: 0.7505–0.8065). Cluster-aware CI 0.746–0.8102 (width 0.064, ~2.3× tighter). Representative AUROC 0.778 ≈ full AUROC 0.7792. `make bench-500`, `make bench-cluster-split-500`, CI gate | 500 AMPs + 500 decoys; AUROC > 0.70 verified; CI width ±0.028 vs ±0.07 on n=191 |
 | 12 ✅ | No easy baseline documented — pipeline AUROC 0.7792 might be driven primarily by charge, not sophisticated scoring | `scripts/baseline_trivial.py`: charge density alone achieves AUROC 0.8166, beating pipeline ensemble (0.7792). Documented honest finding: expected — pipeline optimizes for safety, not raw discrimination. `make bench-easy-baseline`, CI informational step, METRICS_CURRENT.md updated | Charge density AUROC 0.8166, pipeline 0.7792 (Δ=−0.0374). Pipeline adds value in multi-objective selection, not basic discrimination |
+| 13 ✅ | No order-dependent features — strict triage AUROC 0.572 shows pipeline is predominantly composition-based | `scripts/benchmark_order_dependent.py`: analyzed which 31 features survive scrambling. Only 7 are order-dependent (amphipathicity + dipeptide). `src/openamp_foundry/features/dipeptide.py`: dipeptide order score (AUROC 0.7861) is the #1 order-dependent feature. Integrated into `compute_features()`. `make bench-order-dependent`, CI informational step | dipeptide_order_score AUROC 0.7861 on AMP-vs-scrambled. All composition features exactly 0.5000 (position-independent) |
 
 ### Phase 0 exit criteria (archived):
 - ✅ `from openamp_foundry.calibration import GateVerdict` works
 - ✅ `make ci` passes with benchmark gate
 - ✅ A new agent can read README → run demo → understand calibration flow → contribute safely in one session
 
-**Next loop:** Loop 13 — Phase 1 (Order-dependent features / strict triage).
+**Next loop:** Loop 14 — Phase 1 (Cross-dataset generalization).
