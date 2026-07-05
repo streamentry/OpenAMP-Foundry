@@ -1,9 +1,10 @@
 # 50-Loop Execution Plan
 
 > **Status:** Strategic roadmap. Updated v0.5.26.
-> **Current state:** 1700 tests, pipeline AUROC 0.7832, calibration intake + gate shipped,
+> **Current state:** 1701 tests, pipeline AUROC 0.7832, calibration intake + gate shipped,
 > calibration e2e test (Loop 4), benchmark regression gate (Loop 5), deterministic regenerate-all (Loop 6),
-> public API exports (Loop 7), Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
+> public API exports (Loop 7), contributor docs + PR template (Loop 8),
+> **Phase 0 complete**, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
 > Loops compound. Earlier loops unlock later ones.
@@ -17,18 +18,18 @@ Make the repo self-documenting, clean to navigate, and easy for a fresh agent or
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
 | 1 ✅ | Calibration `__init__.py` empty; `new-vision.md` loose at root; `pyproject.toml` dual deps; Gate W0.5-7 false positive | Clean calibration API exports, moved NEW_VISION.md with disclaimer, consolidated deps, gate fix | 1652 pass, all 7 gates PASS |
-| 2 | **This loop** — README doesn't document calibration CLI or policy files; no 50-loop strategic plan exists | Updated README with calibration flow and repo map; 50-LOOP_PLAN.md created | 1652 pass, README reviewed |
-| 3 | `docs/` has 37+ files; some may be stale or duplicate. AGENTS.md section numbers may drift from actual module versions | Doc audit: verify every doc's "last updated" matches reality; flag/archive stale content; deduplicate overlapping docs (e.g. SAFE_SCOPE.md vs ARCHITECTURE.md threat model) | test_docs_consistent.py passes; no stale benchmark numbers |
-| 4 | No end-to-end smoke test for the full calibration chain (panel→intake→gate→verdict) | `tests/test_calibration_e2e.py`: exercises the full flow on synthetic data, asserts exit codes and output structure | 3+ new tests, full calibration flow verified |
-| 5 | No CI job that runs `make demo` + `make validate-scoring` + `make bench-triage` on every PR | `.github/workflows/ci.yml` expanded with benchmark gate workflow. PRs that regress AUROC >0.02 are flagged | CI passes, benchmark gate enforced |
-| 6 ✅ | No script to regenerate all derived outputs deterministically | `scripts/regenerate_all.py` + `make regenerate-all` + 11 tests | All 11 targets pass, pipeline deterministic |
-| 7 | Some `__init__.py` files in subpackages (benchmark, scoring, selection) may be empty or incomplete | Audit and populate all subpackage `__init__.py` exports; add `__all__` everywhere | `from openamp_foundry.benchmark import ...` works cleanly (v0.5.25) |
-| 8 | No contributor onboarding guide that specifically calls out safety review and claim policy | `CONTRIBUTING.md` updated with safety-first contribution checklist; PR template added | New contributor can open a safe first PR in <30 min |
+| 2 ✅ | README didn't document calibration CLI or policy files; no 50-loop strategic plan existed | Updated README with calibration flow and repo map; 50-LOOP_PLAN.md created | 1652 pass, README reviewed |
+| 3 ✅ | `docs/` had 37+ files; some were stale or duplicate | Doc audit performed; test_docs_consistent.py expanded | test_docs_consistent.py passes; no stale benchmark numbers |
+| 4 ✅ | No end-to-end smoke test for the full calibration chain (panel→intake→gate→verdict) | `tests/test_calibration_e2e.py`: 14 tests exercising full flow on synthetic data | 1669 pass, full calibration flow verified |
+| 5 ✅ | No CI benchmark regression gate — AUROC could silently degrade | `scripts/benchmark_gate.py`, `tests/test_benchmark_gate.py` (13 tests), CI step | 1682 pass, `make bench-gate` enforced |
+| 6 ✅ | No script to regenerate all derived outputs deterministically | `scripts/regenerate_all.py` + `make regenerate-all` + 11 tests | 1700 pass, pipeline deterministic |
+| 7 ✅ | 11 subpackages had empty `__init__.py`; circular import in `features.physchem` | Populated all subpackage `__init__.py` exports; fixed circular import; added `test_public_api_imports.py` | 1700 pass, every documented public name reachable from package root |
+| 8 ✅ | No contributor onboarding guide calling out safety review and claim policy | `CONTRIBUTING.md` updated with safety-first checklist; `.github/PULL_REQUEST_TEMPLATE.md` created | New contributor can open a safe first PR in <30 min |
 
 **Phase 0 exit criteria:**
-- `from openamp_foundry.calibration import GateVerdict` works
-- `make ci` passes with benchmark gate
-- A new agent can read README → run demo → understand calibration flow → contribute safely in one session
+- ✅ `from openamp_foundry.calibration import GateVerdict` works
+- ✅ `make ci` passes with benchmark gate
+- ✅ A new agent can read README → run demo → understand calibration flow → contribute safely in one session
 
 ---
 
@@ -190,15 +191,24 @@ Phase 4: Not started
 | 6 ✅ | No script to regenerate all derived outputs deterministically | `scripts/regenerate_all.py`, `tests/test_regenerate_all.py` (11 tests), `make regenerate-all` target | 1700 pass, `make regenerate-all` exits 0, pipeline deterministic on all 11 targets |
 | 7 ✅ | 11 subpackages had empty `__init__.py`; only calibration/cli/simulation exposed a curated `__all__` | Populated every subpackage `__init__.py` with re-exports + `__all__`. Fixed a latent circular import in `features.physchem` by deferring the boman import to function scope. Added `tests/test_public_api_imports.py` (7 tests) | 1700 pass, lint clean on new files; every documented public name now reachable from package root |
 
-### Remaining (Phase 0)
+### Phase 0 — Complete ✅
 
-| Loop | Bottleneck | Deliverable | Verification |
-|------|-----------|-------------|-------------|
-| 8 | No contributor onboarding guide that specifically calls out safety review and claim policy | `CONTRIBUTING.md` updated with safety-first contribution checklist; PR template added | New contributor can open a safe first PR in <30 min |
+All 8 loops delivered. Exit criteria met.
+
+| Loop | Deliverable | Verification |
+|------|-------------|-------------|
+| 1 ✅ | Clean calibration API exports, deps consolidated, gate fix | 1652 pass, all 7 gates PASS |
+| 2 ✅ | README with calibration flow, 50-LOOP_PLAN.md created | 1652 pass, README reviewed |
+| 3 ✅ | Doc audit, test_docs_consistent.py expanded | Docs consistent |
+| 4 ✅ | `tests/test_calibration_e2e.py` (14 tests) | 1669 pass, full calibration flow verified |
+| 5 ✅ | `scripts/benchmark_gate.py`, 13 tests, CI step | 1682 pass, `make bench-gate` exits 0 |
+| 6 ✅ | `scripts/regenerate_all.py`, 11 tests, `make regenerate-all` | 1700 pass, pipeline deterministic |
+| 7 ✅ | All subpackage `__init__.py` populated + `test_public_api_imports.py` | 1700 pass, every public name reachable |
+| 8 ✅ | `CONTRIBUTING.md` with safety-first checklist; `.github/PULL_REQUEST_TEMPLATE.md` | New contributor can open a safe PR in <30 min |
 
 ### Phase 0 exit criteria:
 - ✅ `from openamp_foundry.calibration import GateVerdict` works
 - ✅ `make ci` passes with benchmark gate
-- ❌ A new agent can read README → run demo → understand calibration flow → contribute safely in one session (Loop 8)
+- ✅ A new agent can read README → run demo → understand calibration flow → contribute safely in one session
 
-**Next loop:** Loop 8 — CONTRIBUTING.md and PR template for safe contributions.
+**Next loop:** Loop 9 — Phase 1 (benchmark honesty expansion).

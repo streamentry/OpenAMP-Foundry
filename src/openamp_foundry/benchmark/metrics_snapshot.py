@@ -202,5 +202,4 @@ def build_metrics_snapshot(
             "default": ranking_policy_payload("ensemble"),
             "alternative": ranking_policy_payload("expert"),
         },
-        },
     }
