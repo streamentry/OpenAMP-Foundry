@@ -90,3 +90,8 @@ jobs:
         run: |
           make bench-order-dependent
           echo "Order-dependent benchmark is informational — does not gate CI."
+
+      - name: Per-family benchmark (informational — stratifies 500 AMPs by structural class, per-class AUROC)
+        run: |
+          make bench-per-family
+          echo "Per-family benchmark is informational — does not gate CI."

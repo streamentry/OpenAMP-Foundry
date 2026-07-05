@@ -519,6 +519,10 @@ After qualified assay data exists, build:
 
 **v0.5.20 progress:** `openamp-foundry recalibration-gate` evaluates a calibration-intake report against the pre-registered policy in `configs/recalibration_policy.yaml` and emits a binary `may_recalibrate` verdict. The policy encodes 7 minimum conditions (cohort size, controls, orphans, positives, negatives, metrics availability), 5 permanent prohibited actions (toxicity, hemolysis, novelty, pathogen enhancement, post-hoc success redefinition), and 2 rate limits (L1 weight budget, cooldown). The validator rejects policy files that omit any canonical prohibited action or any `locked_changes` entry. The gate does NOT trigger weight updates; it is the missing permission layer between v0.5.19 intake and a future recalibration engine. Exit code 0 when `may_recalibrate=true`, 3 when false. 39 new tests, total 1647 passing. See `docs/CALIBRATION_POLICY.md`.
 
+**v0.5.36 progress:** `openamp-foundry recalibration-engine` computes proposed weight deltas from a calibration-intake report and gate verdict. Control theory approach: delta = learning_rate × (observed_accuracy − target_accuracy) with conservative LR 0.05. L1 budget enforced. Engine proposes only — does NOT apply changes. Exit codes: 0 on proposal, 3 on policy/budget violation, 2 on missing files. 12 new tests, total 1735 passing. See `src/openamp_foundry/calibration/engine.py`.
+
+**v0.5.37 progress:** `make bench-per-family` stratifies 500 AMPs by structural class (cysteine_rich, proline_rich, short, highly_cationic, moderately_cationic, low_charge). Key finding: pipeline is charge-dominated — highly_cationic AUROC 0.958 vs proline_rich AUROC 0.586, a 0.37 gap that reveals systematic undervaluation of non-helical, short, low-charge, and proline-rich families. Diversity selection should deliberately compensate for this bias. 27 new tests, total 1762 passing. CI informational step.
+
 * lab-result ingestion;
 * hit/failure calibration;
 * retrospective analysis of why the model was right or wrong;

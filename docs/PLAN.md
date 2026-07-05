@@ -233,6 +233,10 @@ Deliverables:
 - model update report (gated by v0.5.20);
 - second-batch selection (gated by v0.5.20);
 - public negative-result archive where safe.
+- **Per-family benchmark breakdown (shipped v0.5.37):** stratifies 500-AMP benchmark
+  by 6 heuristic structural classes; reveals charge-dominated pipeline with blind
+  spots for proline-rich, short, and low-charge AMPs. Diversity selection should
+  compensate for helic/charge bias.
 
 Exit criterion:
 

@@ -5,14 +5,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-05 (cross-dataset generalization benchmark — DRAMP APD6/UniProt AUROC parity, v0.5.35)
+> **Last updated:** 2026-07-05 (per-family benchmark breakdown by structural class — v0.5.37)
 > **New in v0.5.35:** Cross-dataset generalization benchmark: DRAMP AMPs (database-independent test) achieve AUROC 0.7803 vs baseline 0.7832 (Δ=-0.0029). Pipeline generalises strongly — heuristic features are source-independent, not memorizing APD6/UniProt biases. Phase 1 exit criterion #5 (cross-dataset results) satisfied. See `outputs/cross_dataset_benchmark.json`.
+> **New in v0.5.37:** Per-family benchmark breakdown: stratifies 500 AMPs by structural class. Pipeline is charge-dominated — highly_cationic AUROC 0.9583 vs proline_rich AUROC 0.5861 (Δ=0.37). Classes with weak discrimination flagged as blind spots. See `outputs/benchmark_per_family.json`.
 > **New in v0.5.33:** Expert ablation re-run on expanded 500-AMP benchmark (n=1000). Two components reclassified: synthesis was an anti-signal artifact on n=191 (now near-zero 0.4968); boman_activity more strongly anti-AMP (0.3291). selectivity_proxy weaker on diverse set (0.6702 vs 0.7729). Activity remains dominant signal (0.7969). Expert composite delta widens to −0.0935 — expected tradeoff for selectivity-aware scoring.
 > **New in v0.5.32:** Precision@k calibration added — top-20 precision 1.000 (all AMPs), top-50 precision 0.900, top-100 precision 0.870, top-200 precision 0.835. Best F1 threshold 0.6323 (F1=0.7518, precision=0.6337, recall=0.9240). At 80% recall, precision drops to base-rate (0.5000) — honest limitation: high-recall triage is not the pipeline's strength.
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.35
+> **Pipeline version:** v0.5.37
 > **Branch:** main
 
 ---
@@ -336,6 +337,63 @@ representative of diverse AMP classes and provides ~2.3× tighter confidence int
 Historical baselines from the demo set (n=87) should not be directly compared with
 the expanded benchmark — the helic-centric scorer's strong performance on small
 amphipathic-helix sets does not reflect performance on diverse AMP classes.
+
+---
+
+### Per-Family Benchmark Breakdown (by structural class)
+
+> Added 2026-07-05 (v0.5.37). The expanded 500-AMP benchmark reports a single
+> AUROC for all AMPs. This benchmark stratifies the AMP set by heuristic
+> structural class to reveal which families the pipeline handles well or poorly.
+>
+> Classification rules (mutually exclusive, priority order): cysteine_rich (≥2 Cys),
+> short (≤12 AA), proline_rich (Pro ≥ 15%), highly_cationic (charge ≥ 4.0),
+> moderately_cationic (charge 2.0–3.9), low_charge (charge < 2.0).
+>
+> Run: `make bench-per-family`
+
+| Class | N | AUROC | CI₉₅ | Δ vs baseline | Mean ensemble | Description |
+|-------|:-:|:-----:|:----:|:-------------:|:-------------:|-------------|
+| highly_cationic | 73 | **0.9583** | 0.936–0.976 | +0.1791 | 0.8700 | Net charge pH 7.4 ≥ 4.0 |
+| moderately_cationic | 115 | **0.8940** | 0.868–0.918 | +0.1148 | 0.8355 | Net charge pH 7.4 2.0–3.9 |
+| cysteine_rich | 153 | **0.7230** | 0.677–0.768 | −0.0562 | 0.7918 | β-sheet / disulfide-stabilised |
+| low_charge | 118 | **0.6925** | 0.642–0.738 | −0.0867 | 0.7812 | Net charge pH 7.4 < 2.0 |
+| short | 21 | **0.6095** | 0.486–0.727 | −0.1697 | 0.7608 | Length ≤ 12 AA |
+| proline_rich | 20 | **0.5861** | 0.418–0.735 | −0.1931 | 0.7534 | Pro fraction ≥ 0.15 |
+| **all_amps (baseline)** | **500** | **0.7792** | **0.750–0.807** | — | **0.8079** | Full AMP set |
+
+**Key findings:**
+
+1. **Pipeline is charge-dominated.** Classes with higher charge (highly_cationic
+   AUROC 0.958, moderately_cationic 0.894) outperform the baseline by a wide
+   margin. The two classes account for 188/500 AMPs (37.6%) and drive the
+   overall AUROC. This is consistent with the easy baseline benchmark (v0.5.30):
+   charge density alone achieves AUROC 0.8166.
+
+2. **Proline-rich AMPs are the worst-handled class** (AUROC 0.586, CI includes
+   0.50). This is expected — proline-rich AMPs (Bac2A, PR-39, indolicidin) have
+   non-helical, extended structures that the helic-centric activity scorer does
+   not reward. Wet-lab selection should avoid overweighting the ensemble score
+   for proline-rich families without corroborating evidence.
+
+3. **Short AMPs (≤12 AA) also perform poorly** (AUROC 0.610, CI includes 0.50).
+   Short sequences have insufficient residues for the hydrophobic-moment and
+   helix-wheel features to be meaningful. The pipeline's physicochemical proxies
+   are designed for optimal 15–25 AA range.
+
+4. **Cysteine-rich AMPs show moderate discrimination** (AUROC 0.723) despite the
+   pipeline lacking any explicit β-sheet or disulfide scoring. The signal comes
+   from secondary features (composition, charge, hydrophobicity) that correlate
+   with cysteine-rich AMPs — not from cysteine-specific modeling.
+
+5. **Low-charge AMPs underperform the baseline** (AUROC 0.693). AMPs with net
+   charge < 2.0 are harder to distinguish from decoy sequences, which also have
+   low average charge.
+
+6. **Implication for candidate selection:** Top-ranked candidates are likely to
+   be highly or moderately cationic AMPs with well-formed amphipathic helices.
+   The pipeline systematically undervalues non-helical, short, low-charge, or
+   proline-rich candidates. Diversity selection should deliberately compensate.
 
 ---
 
@@ -994,4 +1052,5 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 | 2026-07-03 | **Feature decomposition benchmark added:** per-feature selective_vs_hemolytic AUROC for all 30 scalar physicochemical features. hydrophobic_fraction is the strongest single discriminative feature (0.6745, CI 0.58-0.77) but is NOT used by the selectivity proxy. 8/30 features have significant signal; 6 of those are unused. Provides actionable diagnostic for why composite scorers fail selective_vs_hemolytic discrimination. | OpenAMP loop |
 | 2026-07-04 | **Calibration intake module added:** `openamp-foundry calibration-intake` joins a pilot panel CSV with a directory of validated lab result JSON files, produces a per-candidate prediction-vs-actual report with cohort metrics gated by `MIN_COHORT_SIZE=5`. Descriptive only — does NOT trigger recalibration, weight updates, or selection-rule changes. Synthetic example data in `examples/lab_results/` is clearly labeled in every file and in `examples/lab_results/README.md`. 29 new tests; total 1614 passing. | OpenAMP loop |
 | 2026-06-29 | Initial — expanded benchmark (PR #110) | OpenAMP CI |
+| 2026-07-05 | **Per-family benchmark breakdown added:** stratifies 500 AMPs by structural class (cysteine_rich, proline_rich, short, highly_cationic, moderately_cationic, low_charge). Pipeline is charge-dominated: highly_cationic AUROC 0.958 vs proline_rich AUROC 0.586 — a 0.37 gap. Proline-rich, short, and low-charge AMPs are consistently undervalued. Diversity selection should deliberately compensate for pipeline's helic/charge bias. `scripts/benchmark_per_family.py`, `make bench-per-family`, CI informational step. 27 new tests. | OpenAMP loop 18 |
 | 2026-07-04 | **Recalibration policy + gate module added:** `openamp-foundry recalibration-gate` evaluates a calibration intake report against the pre-registered policy in `configs/recalibration_policy.yaml` and emits a binary `may_recalibrate` verdict. The policy file encodes 7 minimum conditions (cohort size, controls, orphans, positives, negatives, metrics availability), 5 permanent prohibited actions (toxicity, hemolysis, novelty, pathogen enhancement, post-hoc success redefinition), and 2 rate limits (L1 weight budget, cooldown). The validator rejects policy files that omit any canonical prohibited action or any `locked_changes` entry. The gate does NOT trigger weight updates; it is the missing permission layer between v0.5.19 intake and a future recalibration engine. Exit code 0 when `may_recalibrate=true`, 3 when false. 39 new tests; total 1647 passing. See `docs/CALIBRATION_POLICY.md`. | OpenAMP loop |

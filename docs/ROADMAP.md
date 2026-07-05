@@ -844,3 +844,36 @@ Key honest limitations:
 4. Missing metrics in baseline or current are silently skipped, not failed.
    This preserves backward compatibility with older snapshots.
 
+## v0.5.36 — Recalibration Engine ✓ (2026-07-05)
+
+The recalibration gate (v0.5.20) answered 'may recalibrate?' and the intake
+module (v0.5.19) joined predictions with lab actuals. The missing piece was
+the engine that computes WHAT weight changes are proposed.
+
+- `calibration/engine.py`: `compute_weight_update()` accepts an intake report,
+  gate verdict, and current weights, and returns a `WeightUpdateProposal`.
+- Conservative learning rate 0.05. L1 budget enforced.
+- CLI: `openamp-foundry recalibration-engine`
+- Makefile target: `make recalibration-engine`
+- 12 new tests (total 1735)
+- Honest limitation: engine proposes only — does NOT apply changes.
+  Side effects require explicit human action + decision log entry.
+
+## v0.5.37 — Per-Family Benchmark Breakdown ✓ (2026-07-05)
+
+The expanded 500-AMP benchmark reports a single AUROC. This benchmark
+stratifies by structural class to reveal blind spots.
+
+- `scripts/benchmark_per_family.py`: classifies 500 AMPs into 6 heuristic
+  structural classes (cysteine_rich, proline_rich, short, highly_cationic,
+  moderately_cationic, low_charge) and reports per-class AUROC with CIs.
+- **Key finding: pipeline is charge-dominated.** highly_cationic AUROC 0.9583
+  vs proline_rich AUROC 0.5861 (Δ=0.37). Proline-rich AMPs are the worst
+  handled class (CI includes 0.50).
+- 27 new tests in `tests/test_benchmark_per_family.py`
+- Makefile target: `make bench-per-family`
+- CI: informational step (non-gating)
+- METRICS_CURRENT.md updated with full table and implications for candidate
+  selection: diversity selection should deliberately compensate for the
+  pipeline's helic/charge bias.
+
