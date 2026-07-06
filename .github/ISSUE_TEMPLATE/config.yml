@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security or safety-sensitive report
+    url: https://github.com/Open-Problem-Lab/OpenAMP-Foundry/security/advisories/new
+    about: Use private reporting for credentials, sensitive artifacts, release-risk concerns, or safety-sensitive content.
+  - name: Project index
+    url: https://github.com/Open-Problem-Lab/OpenAMP-Foundry/blob/main/docs/PROJECT_INDEX.md
+    about: Start here to find the right docs for humans, agents, reviewers, labs, and maintainers.
+  - name: Claim review checklist
+    url: https://github.com/Open-Problem-Lab/OpenAMP-Foundry/blob/main/docs/CLAIM_REVIEW_CHECKLIST.md
+    about: Use this before proposing public scientific wording or release claims.
