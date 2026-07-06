@@ -27,8 +27,8 @@ Read in this order:
 1. [`README.md`](../README.md) — quickstart and repo map.
 2. [`CONTRIBUTING.md`](../CONTRIBUTING.md) — contribution rules and safety checklist.
 3. [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — system architecture and extension points.
-4. [`docs/BENCHMARKING.md`](BENCHMARKING.md) — benchmark commands.
-5. [`docs/HIGH_LEVERAGE_TASKS.md`](HIGH_LEVERAGE_TASKS.md) — concrete task map.
+4. [`docs/HIGH_LEVERAGE_TASKS.md`](HIGH_LEVERAGE_TASKS.md) — concrete task map.
+5. [`docs/NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md) — sequenced infrastructure backlog.
 
 First useful contribution: fix a small bug, improve a test, add a doc consistency check, or make one CLI path easier to use.
 
@@ -40,7 +40,7 @@ Read in this order:
 2. [`CLAUDE.md`](../CLAUDE.md) — concise collaborator guidance.
 3. [`docs/AGENT_ONBOARDING.md`](AGENT_ONBOARDING.md) — task-selection and verification protocol.
 4. [`docs/HIGH_LEVERAGE_TASKS.md`](HIGH_LEVERAGE_TASKS.md) — concrete task map.
-5. [`SAFETY.md`](../SAFETY.md) — disallowed content and safety defaults.
+5. [`docs/NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md) — PR-sized work map.
 
 First useful contribution: select one narrow bottleneck, implement it, add tests, update docs, run the relevant checks, and preserve failure modes.
 
@@ -73,10 +73,10 @@ First useful contribution: review whether candidate evidence packages are interp
 Read in this order:
 
 1. [`SAFETY.md`](../SAFETY.md) — safety posture.
-2. [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — user-facing boundaries.
-3. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release rules.
-4. [`docs/EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — safety packet structure.
-5. [`docs/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md) — external-workflow boundaries.
+2. [`docs/SAFETY_DOC_AUDIT.md`](SAFETY_DOC_AUDIT.md) — documentation safety audit and remediation record.
+3. [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — user-facing boundaries.
+4. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release rules.
+5. [`docs/EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — safety packet structure.
 
 First useful contribution: identify where an artifact could be misread, over-released, overclaimed, or used outside scope.
 
@@ -100,7 +100,7 @@ Read in this order:
 2. [`docs/DOCS_MAINTENANCE.md`](DOCS_MAINTENANCE.md) — documentation governance.
 3. [`docs/ISSUE_LABEL_TAXONOMY.md`](ISSUE_LABEL_TAXONOMY.md) — issue labels and triage rules.
 4. [`docs/NUMBER_ONE_REPO_STANDARD.md`](NUMBER_ONE_REPO_STANDARD.md) — category-leader bar.
-5. [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md) — merge checklist.
+5. [`docs/NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md) — next 100 PR map.
 
 First useful contribution: make the repo easier to maintain without lowering safety, evidence, or reproducibility standards.
 
@@ -115,6 +115,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`docs/WHY_WORK_ON_OPENAMP.md`](WHY_WORK_ON_OPENAMP.md) | Positioning: why serious contributors should choose this repo. |
 | [`docs/OPEN_BIOTECH_STACK.md`](OPEN_BIOTECH_STACK.md) | Infrastructure thesis and stack model. |
 | [`docs/ADOPTION_STRATEGY.md`](ADOPTION_STRATEGY.md) | Adoption strategy for humans, agents, labs, and institutions. |
+| [`docs/NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md) | PR-sized roadmap for compounding work. |
 | [`docs/50_LOOP_PLAN.md`](50_LOOP_PLAN.md) | Execution history and future loop structure. |
 
 ## Core operating docs
@@ -163,6 +164,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | Document | Job |
 |---|---|
 | [`SAFETY.md`](../SAFETY.md) | Project safety policy. |
+| [`docs/SAFETY_DOC_AUDIT.md`](SAFETY_DOC_AUDIT.md) | Safety audit and remediation record for docs. |
 | [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) | Allowed and disallowed use. |
 | [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) | Release policy for models, weights, and sensitive artifacts. |
 | [`DATA_LICENSE_NOTICE.md`](../DATA_LICENSE_NOTICE.md) | Data and license rules. |
