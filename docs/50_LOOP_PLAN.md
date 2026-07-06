@@ -1,8 +1,8 @@
 # 50-Loop Execution Plan
 
-> **Status:** Strategic roadmap. Updated v0.5.44.
-> **Current state:** 1813 tests, pipeline AUROC 0.7792, calibration intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report shipped,
-> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loops 18, 19, 20, 21, 22, 23 complete,
+> **Status:** Strategic roadmap. Updated v0.5.45.
+> **Current state:** 1824 tests, pipeline AUROC 0.7792, calibration intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report + batch-2 selector shipped,
+> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loops 18, 19, 20, 21, 22, 23, 24 complete,
 > cluster-split/selectivity/triage now gated in CI, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
@@ -74,7 +74,7 @@ Build the recalibration engine gated by the policy. Implement active-learning ba
 | 21 ✅ | **Recalibration engine**: the gate existed but no engine. Real weight-update code needs to be safe, auditable, and gated | `calibration/engine.py`: `compute_weight_update(intake_report, gate_verdict, current_weights, l1_budget)` returns `WeightUpdateProposal`. Control theory: delta = learning_rate × (observed_accuracy − target_accuracy). Conservative learning rate 0.05. L1 budget enforced. v0.5.36 | 1735 tests; CLI `recalibration-engine` exits 0 on proposal, 3 on violations, 2 on missing files; 12 engine tests |
 | 22 ✅ | No "dry run" mode for recalibration engine. User can't preview what weights would change | `--dry-run` flag: compute and log proposed weight changes without applying them. Outputs comparison table (current vs proposed). v0.5.43. 1 test, Makefile target. | Dry run produces diff without side effects; verified with `make recalibration-engine-dry-run` + manual inspection |
 | 23 ✅ | No weight-change report that a human reviewer can inspect | `reports/recalibration_report.py`: generates human-readable report with before/after weights, rationale, policy-rule results, gate-verdict context, and explicit "human review required" banner. Schema validation via `schemas/recalibration_report.schema.json`. v0.5.44. 9 tests. | Report validates against schema; gate verdict details preserved; CLI uses combined report for JSON/MD output |
-| 24 | No second-batch selection logic. The gate allows recalibration, but how do we pick the next 8–12 candidates? | `active_learning/selector.py`: implements uncertainty sampling + diversity + safety gate. Returns ranked candidates for batch 2 | Selection respects safety constraints; top-5 include at least 1 high-uncertainty probe |
+| 24 ✅ | No second-batch selection logic. The gate allows recalibration, but how do we pick the next 8–12 candidates? | `active_learning/selector.py`: implements uncertainty sampling + diversity + safety gate. CLI `select-batch`. v0.5.45. 11 tests. | Selection respects safety constraints; top-5 include at least 1 high-uncertainty probe; all blocked candidates rejected; CLI produces valid JSON manifest |
 | 25 | No active-learning benchmark on synthetic data. Can the selector recover known "hidden active" candidates better than random? | Synthetic benchmark: hide 3 known active AMPs from the panel, run selection, measure how many rounds to recover them | Recovery within N rounds (N pre-registered) |
 | 26 | No integration between active-learning selector and the calibration pipeline | End-to-end flow: intake → gate (pass) → recalibration engine (dry-run) → selector → batch 2 manifest | Full chain runs on synthetic data, produces a batch-2 manifest |
 | 27 | No end-to-end regression test for the full calibration loop (the "golden path") | `tests/test_calibration_full_loop.py`: generate synthetic results → intake → gate → dry-run recalibration → selector → batch manifest. Assert all exit codes 0 | Full golden path tested on every PR |
@@ -177,7 +177,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 ```
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
-Phase 2: Loop 23 of 29 (recalibration report shipped — Loop 24 next)
+Phase 2: Loop 24 of 29 (batch-2 selector shipped — Loop 25 next)
 Phase 3: Not started (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from openamp_foundry.cli.commands.core import _run_generate_batch
 from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot, _run_feature_decomp
-from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
+from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
 from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version
@@ -884,6 +884,74 @@ def build_parser() -> argparse.ArgumentParser:
         help="ISO date (YYYY-MM-DD) for 'today'. Defaults to actual today.",
     )
 
+    # ── Batch-2 selector ──────────────────────────────────────────────
+    select_batch = sub.add_parser(
+        "select-batch",
+        help=(
+            "Select the next batch of candidates for lab testing after "
+            "an initial batch has been assayed and the recalibration "
+            "pipeline has run. Uses uncertainty sampling + diversity + "
+            "safety gating to pick informative candidates."
+        ),
+    )
+    select_batch.add_argument(
+        "--candidates",
+        required=True,
+        help="Path to the full candidate pool CSV (same format as pilot panel).",
+    )
+    select_batch.add_argument(
+        "--batch-1-ids",
+        required=True,
+        help="Comma-separated candidate IDs already tested in batch 1.",
+    )
+    select_batch.add_argument(
+        "--n",
+        type=int,
+        default=10,
+        help="Desired batch-2 size (default: 10).",
+    )
+    select_batch.add_argument(
+        "--safety-threshold",
+        type=float,
+        default=0.5,
+        help="Minimum safety score (0-1) for eligibility (default: 0.5).",
+    )
+    select_batch.add_argument(
+        "--selectivity-threshold",
+        type=float,
+        default=0.5,
+        help="Minimum rich_selectivity score for eligibility (default: 0.5).",
+    )
+    select_batch.add_argument(
+        "--ensemble-weight",
+        type=float,
+        default=0.40,
+        help="Weight for ensemble score in combined rank (default: 0.40).",
+    )
+    select_batch.add_argument(
+        "--uncertainty-weight",
+        type=float,
+        default=0.30,
+        help="Weight for uncertainty score (default: 0.30).",
+    )
+    select_batch.add_argument(
+        "--diversity-weight",
+        type=float,
+        default=0.30,
+        help="Weight for diversity vs batch-1 (default: 0.30).",
+    )
+    select_batch.add_argument(
+        "--min-uncertainty-probes",
+        type=int,
+        default=1,
+        help="At least this many high-uncertainty candidates in the selection (default: 1).",
+    )
+    select_batch.add_argument(
+        "--out",
+        required=True,
+        help="Output path for the batch-2 manifest JSON.",
+    )
+
     return parser
 
 
@@ -998,6 +1066,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "validate-policy-version":
         return _run_validate_policy_version(args)
+
+    if args.command == "select-batch":
+        return _run_select_batch(args)
 
     parser.error("unknown command")
     return 2

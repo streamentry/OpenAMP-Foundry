@@ -344,3 +344,56 @@ def _run_diversity_check(args: argparse.Namespace) -> int:
     }, indent=2))
     return 0
 
+
+def _run_select_batch(args: argparse.Namespace) -> int:
+    """Select a second batch of candidates for lab testing.
+
+    Reads the full candidate pool CSV, filters out batch-1 candidates,
+    applies safety gating, uncertainty sampling, and diversity ranking.
+    Writes a JSON manifest.
+    """
+    from openamp_foundry.active_learning.selector import select_batch_2
+
+    pool_path = Path(args.candidates)
+    if not pool_path.exists():
+        print(json.dumps({"status": "error", "error": f"Candidates CSV not found: {pool_path}"}))
+        return 1
+
+    batch_1_ids = [s.strip() for s in args.batch_1_ids.split(",") if s.strip()]
+    if not batch_1_ids:
+        print(json.dumps({"status": "error", "error": "batch-1-ids must be a non-empty comma-separated list"}))
+        return 1
+
+    result = select_batch_2(
+        candidates_csv=pool_path,
+        batch_1_ids=batch_1_ids,
+        n=args.n,
+        safety_threshold=args.safety_threshold,
+        selectivity_threshold=args.selectivity_threshold,
+        ensemble_weight=args.ensemble_weight,
+        uncertainty_weight=args.uncertainty_weight,
+        diversity_weight=args.diversity_weight,
+        min_uncertainty_probes=args.min_uncertainty_probes,
+    )
+
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(
+        json.dumps(result.to_dict(), indent=2, sort_keys=False) + "\n"
+    )
+
+    selected_ids = [c.get("candidate_id", "?") for c in result.selected]
+
+    print(json.dumps({
+        "status": "ok",
+        "n_requested": args.n,
+        "n_remaining": result.n_remaining,
+        "n_after_safety_gate": result.n_after_safety_gate,
+        "n_selected": len(result.selected),
+        "probes_in_top_n": result.probes_in_top_n,
+        "selected_ids": selected_ids,
+        "notes": list(result.notes),
+        "out": str(out_path),
+    }, indent=2))
+    return 0
+

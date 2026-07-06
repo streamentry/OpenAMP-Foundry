@@ -1,5 +1,29 @@
 # Roadmap
 
+## v0.5.45 — Active-Learning Batch-2 Selector ✓ (2026-07-06)
+
+The recalibration pipeline could compute weight updates and produce a reviewable
+report, but had no way to select the next set of candidates for lab testing. This
+release adds a standalone batch-2 selector that uses uncertainty sampling,
+diversity ranking, and a safety gate to pick informative candidates.
+
+Changes:
+- Added ``active_learning/selector.py`` — ``select_batch_2()`` combines
+  per-candidate ensemble score, uncertainty (from model disagreement and
+  ensemble proximity to 0.5), and diversity vs batch 1 (via normalized sequence
+  similarity). The safety gate rejects candidates below configurable safety and
+  selectivity thresholds. At least 1 high-uncertainty probe is guaranteed in
+  the top-N selection.
+- Added ``active_learning/__init__.py`` — exports ``BatchSelection`` and
+  ``select_batch_2``.
+- Added CLI ``select-batch`` — reads a candidate pool CSV and batch-1 IDs,
+  writes a JSON manifest with selected candidates and metadata (version,
+  probes_in_top_n, n_after_safety_gate, notes).
+- Added 11 tests: basic selection, safety gate, selectivity gate, uncertainty
+  probe guarantee, diversity vs batch-1, empty pool, all-gated-out,
+  selection_reason field, metadata shape, CLI success, CLI error path.
+- Updated CLI parser (``main.py``) and handler (``selection.py``).
+
 ## v0.5.44 — Recalibration Report with Schema Validation ✓ (2026-07-06)
 
 The existing weight-update proposal markdown writer was embedded in engine.py
