@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (data-return validation — v0.5.67)
+> **Last updated:** 2026-07-06 (publication pack — v0.5.68)
 > **New in v0.5.65:** `scripts/build_lab_batch_pack.py` now writes `chain_of_custody.json` and `MANIFEST.json` into lab batch packs. The custody file includes SHA-256 hashes for `panel.csv`, the ordered candidate list, each candidate sequence, and each evidence certificate. `--verify-pack` verifies archive integrity and detects tampering. These hashes prove identity/integrity only, not biological activity, safety, or synthesis success. 5 tests.
 > **New in v0.5.64:** `schemas/decision_log.schema.json` — 12-field JSON Schema for human review decisions. Covers 9 decision types from AGENTS.md §8. Dissent conditional. 11 tests. 2000 total.
 > **New in v0.5.63:** `scripts/build_lab_batch_pack.py` — generates single zip with candidate CSV, 36 evidence certs, protocol refs, controls manifest, data return template. `make lab-batch-pack`. 10 tests. 1989 total.

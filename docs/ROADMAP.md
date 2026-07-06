@@ -1,5 +1,20 @@
 # Roadmap
 
+## v0.5.68 — Publication Pack Checklist (Loop 48) ✓ (2026-07-06)
+
+Checklist for public release of OpenAMP results. A reviewer can reproduce
+all findings from the contents of this pack.
+
+Changes:
+- ``docs/PUBLICATION_PACK.md`` — 12 sections: pipeline code and version,
+  input data, scoring outputs, benchmark results, candidate panel, wet-lab
+  results, calibration, reproducibility evidence, negative results, safety
+  and governance, README for reproduction, preprint preparation. References
+  7 related governance docs.
+- ``docs/50_LOOP_PLAN.md`` — Loop 48 ✅. Next: Loop 49.
+- ``docs/METRICS_CURRENT.md`` — Changelog updated.
+- No code changes. 2013 tests still pass.
+
 ## v0.5.67 — Data-Return Validation Tool (Loop 47) ✓ (2026-07-06)
 
 CLI to validate lab result JSON files against the schema.
