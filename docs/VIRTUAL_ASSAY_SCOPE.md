@@ -2,162 +2,223 @@
 
 ## Purpose
 
-This document defines what the Phase 3 virtual assay layer IS and IS NOT,
-which modules are planned, and the bar each module must clear before
-affecting candidate selection. It exists to prevent simulation theater:
-an impressive-looking model that does not improve decision quality is noise.
+This document defines what the OpenAMP virtual assay layer is allowed to mean.
 
-## Status
+It exists to prevent simulation theater: an impressive-looking model that does not improve decision quality is noise.
 
-**Phase 3 — experimental modules implemented, production integration still gated.**
-`MembraneProxy` (Loop 31) and `StructureProxy` (Loop 32) exist, and both now
-have explicit ablation evidence. Current state:
+The virtual assay layer is not a replacement for biology.
 
-- `bench-simulation-ablation` shows simulation composite degrades AMP-vs-decoy.
-- `bench-simulation-ablation-within-amp` shows simulation scores do not beat
-  `rich_selectivity` on hemolysis detection.
-- `bench simulation-gate` therefore blocks `weighted` mode and downgrades to
-  `info` until the evidence changes.
-- `rank --simulation-mode info` propagates membrane, structure, and maximum
-  simulation uncertainty into ranked JSONL rows, Markdown reports, and evidence
-  certificates. These values are informational only.
+It is an experimental inspection and prioritization layer that may eventually help qualified humans choose fewer, smarter wet-lab questions if it beats cheap baselines and survives calibration.
 
-## Core Principle
+## Current status
 
-> An impressive-looking simulator that does not improve real decision
-> quality is noise, not progress. — AGENTS.md §7.5
+**Status:** experimental modules implemented; production ranking impact remains gated.
 
-Every module must demonstrate that it improves triage or selection quality
-relative to a cheap heuristic baseline before it may affect candidate
-ranking. Modules that fail the ablation must remain flagged as experimental.
+Current state:
 
-## What the Virtual Assay Layer Models
+- `MembraneProxy` and `StructureProxy` exist.
+- Simulation outputs can be surfaced in informational reports where supported by the CLI.
+- Current ablation evidence does not justify weighted ranking impact.
+- `docs/SIMULATION_BENCHMARK.md` is the source of truth for current simulation benchmark verdicts.
+- Weighted simulation remains blocked until the simulation gate passes with stronger evidence.
 
-| Module | Planned loop | Models | Output |
-|--------|-------------|--------|--------|
-| Membrane binding proxy | 31 | Coarse-grained membrane binding energy using hydrophobicity scale + helical hydrophobic moment. Bacterial membrane proxy (anionic lipid headgroups) and mammalian membrane proxy (zwitterionic/cholesterol). | `SimulationResult` with scores per membrane type, uncertainty |
-| Structure ensemble proxy | 32 | Secondary structure propensity (helix/coil/sheet) from sequence. Flags non-helical candidates for which the helic-centric activity scorer is unreliable. | 3-state ensemble weights (helix/coil/sheet), confidence |
-| Selectivity ratio | 33 | Ratio of bacterial membrane binding score to RBC/mammalian membrane binding score. Flags candidates where selectivity index is low. | `selectivity_ratio` with uncertainty |
-| Stability proxy | Deferred | Protease susceptibility, serum half-life proxy. Deferred because no calibration data exists. | Not scoped until calibration data arrives |
+## Core principle
 
-## What the Virtual Assay Layer Does NOT Model
+> An impressive-looking simulator that does not improve real decision quality is noise, not progress.
 
-The virtual assay layer explicitly DOES NOT model:
+Every module must demonstrate that it improves triage or selection quality relative to a cheap heuristic baseline before it may affect candidate ranking.
 
-- Full-cell biological response (signaling, metabolism, stress response)
-- Immune system interactions (cytokine release, immunogenicity)
-- Pharmacokinetics or biodistribution
-- Synergistic effects with other compounds
-- Biofilm penetration or extracellular matrix interaction
-- Intracellular target engagement (DNA, ribosome, protein binding)
-- Resistance development or evolutionary dynamics
-- In vivo efficacy in any animal model
-- Human clinical outcomes
+Modules that fail ablation may remain visible only as experimental context.
+
+## What the virtual assay layer is for
+
+The virtual assay layer may help with:
+
+- exposing model uncertainty;
+- identifying candidates where simple helical/charge assumptions may fail;
+- comparing mechanistic proxy signals;
+- informing human review;
+- selecting uncertainty probes for future batches;
+- generating hypotheses for qualified experts to critique;
+- deciding what additional evidence would be useful.
+
+It must not be treated as biological validation.
+
+## What the virtual assay layer models
+
+| Module | Models | Output | Status |
+|---|---|---|---|
+| Membrane binding proxy | Coarse-grained sequence-derived membrane-interaction proxy. | `SimulationResult` with membrane-related scores and uncertainty. | Experimental. |
+| Structure ensemble proxy | Sequence-derived secondary-structure propensity. | Helix/coil/sheet proxy and uncertainty. | Experimental. |
+| Selectivity ratio | Proxy contrast between bacterial-facing and mammalian-facing membrane signals. | Selectivity-like score with uncertainty. | Experimental. |
+| Stability proxy | Future stability/protease-risk signal. | Not scoped until adequate calibration/benchmark data exists. | Deferred. |
+| External simulation adapter | Wrapper around third-party tools or services under explicit user control. | Standard `SimulationResult`. | Interface-level support only. |
+
+## What the virtual assay layer does not model
+
+The virtual assay layer explicitly does not model:
+
+- full-cell biological response;
+- immune response;
+- pharmacokinetics;
+- biodistribution;
+- synergy with other compounds;
+- biofilm penetration;
+- intracellular target engagement unless a specific validated module later earns scope;
+- resistance evolution;
+- in vivo efficacy;
+- human clinical outcomes;
+- biological safety.
 
 Any claim that the virtual assay layer predicts these is a category error.
 
-## Uncertainty Policy
+## Uncertainty policy
 
-Every `SimulationResult` MUST include an `uncertainty` field. The
-uncertainty reflects:
+Every `SimulationResult` must include an uncertainty field.
 
-- **Parameter uncertainty**: how well the module's parameters are
-  constrained by available calibration data
-- **Model-form uncertainty**: whether the module's functional form
-  captures the relevant physics
-- **Calibration uncertainty**: whether calibration data exists and how
-  well it matches the target domain
+Uncertainty should reflect:
 
-If calibration data is absent or weak, the `uncertainty` field must
-surface that directly. A module with `uncertainty > 0.5` (on a 0–1 scale
-where 0 = fully constrained, 1 = unconstrained) is experimental and must
-not affect selection.
+- parameter uncertainty;
+- model-form uncertainty;
+- calibration uncertainty;
+- domain mismatch;
+- input limitations;
+- missing external-tool dependencies;
+- failure or fallback behavior.
 
-When `rank --simulation-mode info` is used, selected-candidate evidence
-certificates include `sim_membrane_uncertainty`,
-`sim_structure_uncertainty`, and `sim_max_uncertainty`. These fields expose
-proxy uncertainty for reviewers; they do not change ranking, filtering, or
-selection.
+If calibration data is absent or weak, the uncertainty field must surface that directly.
 
-## Ablation Requirement
+A module with high uncertainty is experimental and must not affect selection.
 
-Each module must pass an ablation benchmark before it can affect
-selection. The ablation test compares the module's discrimination against
-a trivial baseline (single-feature proxy):
+## Ablation requirement
 
-| Metric | Required bar |
-|--------|-------------|
-| Selective-vs-hemolytic AUROC | > 0.65 with CI lower bound > 0.50 |
-| Improvement over best single feature | Delta AUROC > 0.05 |
-| Uncertainty | < 0.5 on relevant domain |
+Each module must pass ablation before it can affect candidate selection.
 
-Modules that do NOT pass the ablation are permanently marked as
-experimental and flagged with `SIMULATION_THEATER_RISK` in their
-`SimulationResult`.
+At minimum, the module must be compared against its cheapest meaningful baseline.
 
-## Integration Modes
+Examples:
 
-The virtual assay layer supports three modes:
+| Module output | Cheap baseline challenger |
+|---|---|
+| Membrane binding score | Hydrophobicity or hydrophobic moment. |
+| Selectivity ratio | Existing selectivity proxy. |
+| Helix weight | Simple helix propensity. |
+| Non-helical flag | Proline/cysteine/length class heuristic. |
+| Stability proxy | Simple cleavage-site or length heuristic. |
 
-| Mode | Effect | When to use |
-|------|--------|-------------|
-| `off` (default) | No simulation scores computed. Current pipeline. | Production candidate ranking |
-| `info` | Simulation scores computed and included in reports only. No ranking impact. | Benchmarking, exploration |
-| `weighted` | Simulation scores affect ranking only if the simulation gate passes on current ablation artifacts. | Only after ablation validation |
+A module that does not beat its cheapest challenger may remain informational, but it must not alter ranking.
 
-The `rank` CLI does **not** yet expose `--simulation-mode`. That omission is
-intentional until a module clears the gate honestly. Current executable policy:
-`openamp-foundry bench simulation-gate` may return `weighted` permission in the
-future, but production ranking remains simulation-free today.
+## Integration modes
 
-## Calibration Requirement
+| Mode | Effect | Allowed use |
+|---|---|---|
+| `off` | No virtual assay scores computed. | Default production ranking. |
+| `info` | Scores may be computed and shown in reports/certificates. | Exploration and human inspection only. |
+| `weighted` | Scores affect ranking. | Forbidden unless simulation gate passes. |
 
-No virtual-assay module may be used in `weighted` mode unless it has
-calibration data from at least one wet-lab batch showing that its
-predictions correlate with measured outcomes (MIC, hemolysis, or
-selectivity index). The calibration data must be documented in the
-module's `calibration_set` field.
+`weighted` mode must be fail-closed.
 
-## Known Risks
+If benchmark artifacts are missing, stale, contradictory, or fail the gate, weighted integration remains blocked.
+
+## Calibration requirement
+
+No virtual-assay module may be used in weighted mode unless it has documented calibration evidence showing that it improves decision quality for the intended task.
+
+Calibration evidence should include:
+
+- dataset or result source;
+- task definition;
+- cheap-baseline comparison;
+- uncertainty behavior;
+- failure modes;
+- proof-ladder interpretation;
+- reviewer decision.
+
+Correlation with outcomes is not enough if the module still fails to improve selection relative to cheap baselines.
+
+## External adapter policy
+
+External simulation or predictor adapters must:
+
+- be explicit about scope;
+- be versioned;
+- fail closed;
+- avoid silent downloads;
+- avoid sending sequences to external services without explicit user consent;
+- return uncertainty;
+- record errors as evidence, not hide them;
+- never strengthen biological claims by default.
+
+An adapter is a bridge, not a trust guarantee.
+
+## Evidence certificate policy
+
+When simulation values appear in evidence certificates, they must be labeled as experimental context unless the module has cleared the relevant gate.
+
+Certificates should state:
+
+- module name;
+- version;
+- scope;
+- scores;
+- uncertainty;
+- calibration set if any;
+- validated-against list;
+- whether scores affected ranking;
+- known limitations.
+
+## Known risks
 
 | Risk | Mitigation |
-|------|-----------|
-| Overinterpretation of coarse-grained proxies | Ablation requirement, uncertainty propagation, explicit scope document |
-| False confidence from simulation | Uncertainty > 0.5 gates off selection impact |
-| Helical bias propagated to simulation | Structure ensemble proxy flags non-helical candidates |
-| Simulation results mistaken for biology | All output labeled with `simulation: true`, no biological claims allowed |
-| Ablation benchmarks overfit to reference set | Cross-validate on held-out membrane data, update reference set annually |
+|---|---|
+| Simulation theater | Require ablation and cheap-baseline comparison. |
+| False confidence | Propagate uncertainty and block ranking impact. |
+| Helical bias | Report family/structure-class blind spots. |
+| Hidden external dependencies | Adapter availability checks and fail-closed behavior. |
+| Benchmark overfitting | Cross-dataset and family-stratified evaluation. |
+| Claim inflation | Proof ladder and certificate caveats. |
+| Agent overreach | Agent onboarding and human-review gates. |
 
-## Relationship to Calibration Pipeline
+## Relationship to calibration pipeline
 
-The virtual assay layer feeds INTO the calibration pipeline but does not
-replace it. The order is:
+The virtual assay layer feeds into the calibration roadmap but does not replace it.
 
 ```text
 candidate source
-  → dry-lab foundry (current pipeline)
-  → virtual assay proxies (Phase 3)
-  → uncertainty estimation
-  → informative batch selection
-  → lab assay
-  → calibration intake → gate → engine (Phase 2)
-  → next-round candidate selection
+  -> dry-lab foundry
+  -> virtual assay proxies, if enabled
+  -> uncertainty and review context
+  -> candidate panel design
+  -> qualified external testing, if approved
+  -> structured result intake
+  -> recalibration gate
+  -> human-reviewed update or rejection
+  -> next candidate-selection round
 ```
 
-The virtual assay layer proposes which candidates are informative. The
-calibration layer decides whether and how to update weights based on
-actual outcomes. Neither layer operates without human review.
+The virtual assay layer proposes context.
 
-## Exit Criteria for Phase 3
+The calibration layer decides whether real outcomes justify model updates.
 
-Phase 3 is complete when:
+Human review remains mandatory.
 
-1. At least 2 simulation modules exist and are benchmarked.
-2. A module that improves strict-triage selective-vs-hemolytic AUROC
-   by > 0.03 is flagged as "improves selection" and available in
-   `weighted` mode.
-3. Modules that fail the ablation are either removed or permanently
-   marked experimental.
-4. Uncertainty is propagated through to the evidence certificate. ✅
-5. The external adapter protocol (`ExternalSimulationAdapter`) is
-   documented in ARCHITECTURE.md.
+## Exit criteria for trusted integration
+
+A virtual assay module may be considered for ranking impact only when:
+
+1. It has a stable interface.
+2. It returns uncertainty.
+3. It has deterministic behavior or recorded external dependencies.
+4. It beats its cheapest baseline on a relevant task.
+5. It improves panel-level decision quality, not just isolated AUROC.
+6. It has documented failure modes.
+7. It has no unresolved safety or release concerns.
+8. A human reviewer approves the integration mode.
+
+Until then, it is experimental context.
+
+## Final standard
+
+The best virtual assay module is not the one that sounds most biological.
+
+It is the one that helps qualified humans choose better experiments and makes its own uncertainty impossible to ignore.
