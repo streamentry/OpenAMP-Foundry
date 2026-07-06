@@ -1,5 +1,30 @@
 # Roadmap
 
+## v0.5.49 — Policy Version Bump Workflow with CI Guard ✓ (2026-07-06)
+
+The `policy_version.py` module had `validate_policy_version()` and
+`auto_increment_version()` but no standalone CLI to actually bump the policy
+and no CI check enforcing version bumps when the policy file changes. This
+release closes both gaps.
+
+Changes:
+- ``scripts/bump_recalibration_policy.py`` — Standalone script that loads
+  the current policy, validates a decision-log entry within 30 days,
+  auto-increments ``policy_version``, updates ``locked_at`` and
+  ``human_reviewer``, and writes the updated YAML. Supports ``--dry-run``
+  for preview. Exit 0 on success, 3 on validation failure.
+- ``.github/workflows/ci.yml`` — Added ``Policy version validation guard``
+  step: when ``configs/recalibration_policy.yaml`` differs from ``origin/main``,
+  the workflow fetches the base version and runs ``validate-policy-version``
+  against the PR version. CI fails if the version bump violates the policy
+  contract (no recent decision log, locked_changes removed, etc.).
+- ``Makefile`` — Added ``bump-policy-version`` and
+  ``bump-policy-version-dry-run`` targets.
+- ``tests/test_bump_recalibration_policy.py`` — 9 tests covering successful
+  bump, dry-run (no write), missing decision log, stale log, future log,
+  missing policy file, exit code 3, exit code 0, and consecutive double bump.
+- 1843 total tests passing.
+
 ## v0.5.48 — Architecture documentation cleanup ✓ (2026-07-06)
 
 ARCHITECTURE.md listed ``calibration`` and ``active_learning`` as "Potential future

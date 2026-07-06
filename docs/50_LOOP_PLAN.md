@@ -78,7 +78,7 @@ Build the recalibration engine gated by the policy. Implement active-learning ba
 | 25 ✅ | No active-learning benchmark on synthetic data. Can the selector recover known "hidden active" candidates better than random? | `active_learning/benchmark.py`: multi-round recovery benchmark with pre-registered thresholds (max_rounds_to_first=3, min_recall=0.33). CLI `bench active-learning`. v0.5.46. 8 tests. | Recovery verified: selector recovers hidden actives within pre-registered thresholds; compared against random baseline (20-trial average) |
 | 26 ✅ | No integration between active-learning selector and the calibration pipeline | `scripts/run_calibration_loop.py`: end-to-end script that generates synthetic lab results → builds intake → evaluates gate → computes weight proposal (dry-run) → selects batch-2 → writes manifest. `make calibration-loop` target. | Full chain verified end-to-end on synthetic data; all 5 steps produce valid output files |
 | 27 ✅ | No end-to-end regression test for the full calibration loop (the "golden path") in pytest | `tests/test_calibration_e2e.py` — `TestFullCalibrationLoop.test_full_calibration_loop_via_cli`: generates synthetic results → CLI intake → gate → engine proposal → batch-2 selector → validates all output artifacts. Uses subprocess CLI calls for every step with temp directory isolation. | 1834 tests passing; full golden path tested on every PR |
-| 28 | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: bumps version, requires 30-day decision-log entry. CI guard | CI rejects policy PRs without valid decision log |
+| 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 | Negative result archive template | `docs/NEGATIVE_RESULT_ARCHIVE.md`: template for publishing failures alongside pipeline scores | Lab partner can fill the template |
 
 **Phase 2 exit criteria:**
@@ -177,7 +177,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 ```
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
-Phase 2: Loop 27 of 29 (full-loop pytest test shipped — Loop 28 next)
+Phase 2: Loop 28 of 29 (policy bump workflow shipped — Loop 29 next)
 Phase 3: Not started (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```
@@ -236,12 +236,13 @@ Phase 4: Not started (Loops 40–49)
 | 25 ✅ | No active-learning benchmark on synthetic data. Can the selector recover known "hidden active" candidates better than random? | `active_learning/benchmark.py`: multi-round recovery benchmark with pre-registered thresholds (max_rounds_to_first=3, min_recall=0.33). CLI `bench active-learning`. v0.5.46. 8 tests. | Recovery verified: selector recovers hidden actives within pre-registered thresholds; compared against random baseline (20-trial average) |
 | 26 ✅ | No integration between active-learning selector and the calibration pipeline | `scripts/run_calibration_loop.py`: end-to-end script that generates synthetic lab results → builds intake → evaluates gate → computes weight proposal (dry-run) → selects batch-2 → writes manifest. `make calibration-loop` target. | Full chain verified end-to-end on synthetic data; all 5 steps produce valid output files |
 | 27 ✅ | No end-to-end regression test for the full calibration loop (the "golden path") in pytest | `tests/test_calibration_e2e.py` — `TestFullCalibrationLoop.test_full_calibration_loop_via_cli`: generates synthetic results → CLI intake → gate → engine proposal → batch-2 selector → validates all output artifacts. Uses subprocess CLI calls for every step with temp directory isolation. | 1834 tests passing; full golden path tested on every PR |
+| 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 
-**Next loop:** Loop 28 — Phase 2 (policy version bump workflow + CI guard).
+**Next loop:** Loop 29 — Phase 2 (negative-result archive template).
 
-**Phase 2 exit criteria (4 of 5 met):**
+**Phase 2 exit criteria (5 of 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest
 - ✅ Recalibration engine correctly rejects when policy forbids it
 - ✅ Active-learning selector benchmarked against random baseline
+- ✅ Policy bump workflow has CI guard
 - ❌ Negative-result archive template (Loop 29)
-- ❌ Policy bump workflow has CI guard (Loop 28)

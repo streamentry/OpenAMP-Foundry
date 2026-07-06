@@ -95,3 +95,18 @@ jobs:
         run: |
           make bench-per-family
           echo "Per-family benchmark is informational — does not gate CI."
+
+      - name: Policy version validation guard (fails if recalibration_policy.yaml changes without a version-bump decision log)
+        run: |
+          git fetch origin main
+          if ! git diff --quiet origin/main -- configs/recalibration_policy.yaml; then
+            echo "configs/recalibration_policy.yaml has changed — validating version bump..."
+            git show origin/main:configs/recalibration_policy.yaml > /tmp/prev_policy.yaml
+            PYTHONPATH=src python -m openamp_foundry.cli validate-policy-version \
+              --current-policy configs/recalibration_policy.yaml \
+              --previous-policy /tmp/prev_policy.yaml \
+              --decision-log-dir decision_logs/
+            echo "Policy version validation PASSED."
+          else
+            echo "configs/recalibration_policy.yaml unchanged — skipping policy version validation."
+          fi
