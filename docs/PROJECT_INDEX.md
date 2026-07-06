@@ -39,7 +39,7 @@ Read in this order:
 1. [`AGENTS.md`](../AGENTS.md) — primary operating contract.
 2. [`CLAUDE.md`](../CLAUDE.md) — concise collaborator guidance.
 3. [`docs/AGENT_ONBOARDING.md`](AGENT_ONBOARDING.md) — task-selection and verification protocol.
-4. [`docs/DECISION_RULES.md`](DECISION_RULES.md) — gates that must not be bypassed.
+4. [`docs/HIGH_LEVERAGE_TASKS.md`](HIGH_LEVERAGE_TASKS.md) — concrete task map.
 5. [`SAFETY.md`](../SAFETY.md) — disallowed content and safety defaults.
 
 First useful contribution: select one narrow bottleneck, implement it, add tests, update docs, run the relevant checks, and preserve failure modes.
@@ -63,7 +63,7 @@ Read in this order:
 1. [`docs/WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — how computational packages are prepared for review.
 2. [`docs/PROOF_LADDER.md`](PROOF_LADDER.md) — claim ladder from dry-lab nomination to independent validation.
 3. [`docs/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md) — safe collaboration modes.
-4. [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — allowed and disallowed use.
+4. [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — non-protocol template for freezing pilot logic before testing.
 5. [`docs/NEGATIVE_RESULT_ARCHIVE.md`](NEGATIVE_RESULT_ARCHIVE.md) — how failures become useful evidence.
 
 First useful contribution: review whether candidate evidence packages are interpretable, whether controls are adequate, and whether success/failure criteria are scientifically meaningful.
@@ -88,7 +88,7 @@ Read in this order:
 2. [`GOAL.md`](../GOAL.md) — measurable milestones.
 3. [`docs/WHY_WORK_ON_OPENAMP.md`](WHY_WORK_ON_OPENAMP.md) — why this project is worth serious effort.
 4. [`docs/OPEN_BIOTECH_STACK.md`](OPEN_BIOTECH_STACK.md) — how this could become shared biotech infrastructure.
-5. [`docs/PROOF_LADDER.md`](PROOF_LADDER.md) — how claims mature.
+5. [`docs/ADOPTION_STRATEGY.md`](ADOPTION_STRATEGY.md) — how the repo becomes useful to humans, agents, labs, and institutions.
 
 First useful contribution: fund independent validation, benchmark audits, safe result publication, or infrastructure work that makes the project less dependent on any one person or model.
 
@@ -102,6 +102,7 @@ First useful contribution: fund independent validation, benchmark audits, safe r
 | [`AGENTS.md`](../AGENTS.md) | Operating contract for AI agents. |
 | [`docs/WHY_WORK_ON_OPENAMP.md`](WHY_WORK_ON_OPENAMP.md) | Positioning: why serious contributors should choose this repo. |
 | [`docs/OPEN_BIOTECH_STACK.md`](OPEN_BIOTECH_STACK.md) | Infrastructure thesis and stack model. |
+| [`docs/ADOPTION_STRATEGY.md`](ADOPTION_STRATEGY.md) | Adoption strategy for humans, agents, labs, and institutions. |
 | [`docs/50_LOOP_PLAN.md`](50_LOOP_PLAN.md) | Execution history and future loop structure. |
 
 ## Core technical docs
@@ -116,6 +117,7 @@ First useful contribution: fund independent validation, benchmark audits, safe r
 | [`docs/CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) | Recalibration gate and policy. |
 | [`docs/SIMULATION_BENCHMARK.md`](SIMULATION_BENCHMARK.md) | Current verdict on simulation modules. |
 | [`docs/VIRTUAL_ASSAY_SCOPE.md`](VIRTUAL_ASSAY_SCOPE.md) | What virtual assay modules may and may not claim. |
+| [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) | Non-protocol template for freezing pilot logic before qualified testing. |
 
 ## Core safety docs
 
