@@ -5,7 +5,12 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (charge-balanced synthetic control — v0.5.41)
+> **Last updated:** 2026-07-06 (calibration loop integration — v0.5.46)
+> **New in v0.5.46:** Active-learning recovery benchmark added — `run_active_learning_benchmark()` simulates multi-round recovery of hidden active candidates via `select_batch_2` vs 20-trial random baseline. Pre-registered thresholds: PREREGISTERED_MAX_ROUNDS_TO_FIRST_RECOVERY=3, PREREGISTERED_MIN_RECALL=0.33. `openamp-foundry bench active-learning` CLI. 8 tests. 1832 total passing.
+> **New in v0.5.45:** Active-learning batch-2 selector added — `select_batch_2()` uses uncertainty (model disagreement + ensemble proximity to 0.5), diversity (sequence similarity vs batch-1), and safety/selectivity gates with min-uncertainty-probe guarantee. `openamp-foundry select-batch` CLI. 11 tests.
+> **New in v0.5.44:** Recalibration report with JSON Schema validation added — `schemas/recalibration_report.schema.json` (Draft 2020-12), `build_recalibration_report()` combines gate verdict + weight proposal, `validate_recalibration_report()`, CLI `--out-json` and `--out-md`. 9 tests.
+> **New in v0.5.43:** Dry-run mode for recalibration engine — `--dry-run` flag on `recalibration-engine` CLI prints diff table with current vs proposed weights, L1 summary. Skips all file writes. `make recalibration-engine-dry-run`.
+> **New in v0.5.42:** Synthetic lab-result generator added — `examples/lab_results_generator.py` produces schema-valid JSON for 7 assay types (MIC, MBC, hemolysis_RBC, cytotoxicity_mammalian, membrane_disruption, time_kill, biofilm_inhibition). Configurable cohort-size, effect-size, noise-level, seed. All files explicitly SYNTHETIC-labeled. 40/40 schema-valid. Integrates with `calibration-intake`.
 > **New in v0.5.41:** Added exact charge-balanced synthetic controls. These
 > preserve each AMP's length and K/R/D/E/H counts, then resample neutral
 > positions from a fixed neutral residue background. This is not a biological
@@ -22,7 +27,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.41
+> **Pipeline version:** v0.5.46
 > **Branch:** main
 
 ---
@@ -1092,7 +1097,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1515+ |
+| Total tests | 1832+ |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 
@@ -1102,11 +1107,10 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Limitation | Impact |
 |------------|--------|
-| AUROC 0.7832 | ~22% of benchmark pairs misranked; wet-lab is the judge |
+| 500-AMP AUROC 0.7792 | ~22% of benchmark pairs misranked; charge-inflated; wet-lab is the judge |
 | Safety model blind spot | Melittin scores Safety=1.0; hemolysis assay mandatory |
 | No structural modeling | Helical assumption may misclassify non-helical mechanisms |
 | Near-seed generation only | Novel sequence space not explored de novo |
-| Benchmark at 191 sequences | Still far from 500+ target flagged in ROADMAP (v1.0+) |
 | APD/DRAMP novelty (v2) | Complete — 27,234-sequence combined DB (APD6+DRAMP+UniProt); BLOSUM62 local alignment; Wave 0.5 results updated |
 | No wet-lab data | All probabilities are upper bounds; true hit rate unknown |
 | Rich selectivity scope | Designed for within-AMP selectivity only; does not distinguish AMPs from decoys (selective_vs_decoy=0.19) |

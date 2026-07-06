@@ -409,7 +409,12 @@ def write_calibration_intake_json(report, out_path):
 
 
 def write_calibration_intake_markdown(report, out_path):
-    """Write a human-readable markdown calibration intake summary."""
+    """Write a human-readable markdown calibration intake summary.
+
+    Uses .get() for optional metric fields (e.g. ``prediction_score_key``)
+    so that cohort metrics from different constructors do not crash the
+    markdown writer with a KeyError.
+    """
     p = Path(out_path)
     p.parent.mkdir(parents=True, exist_ok=True)
     lines = [
@@ -433,7 +438,8 @@ def write_calibration_intake_markdown(report, out_path):
         lines.append("")
         lines.append(f"- Assay type: `{metric['assay_type']}`")
         lines.append(f"- Predicate: `{metric['predicate']}`")
-        lines.append(f"- Prediction score key: `{metric['prediction_score_key']}`")
+        pred_key = metric.get("prediction_score_key", "unknown")
+        lines.append(f"- Prediction score key: `{pred_key}`")
         lines.append(f"- n: **{metric['n']}** (min required: {metric['min_required']})")
         if metric["insufficient_data"]:
             lines.append(f"- **Status:** insufficient_data - {metric['disclaimer']}")

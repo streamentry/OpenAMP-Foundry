@@ -508,6 +508,38 @@ class TestWriters:
         assert "insufficient_data" in text or "TP=" in text
         assert "Honest Limitations" in text
 
+    def test_markdown_writer_survives_missing_prediction_score_key(self, tmp_path):
+        report = {
+            "report_disclaimer": "SYNTHETIC DATA — not real",
+            "n_panel_candidates": 3,
+            "n_lab_results": 3,
+            "n_matched_candidates": 3,
+            "n_orphan_lab_results": 0,
+            "min_cohort_size": 5,
+            "cohort_metrics": {
+                "activity_vs_mic": {
+                    "assay_type": "MIC",
+                    "predicate": "active_mic",
+                    "n": 3,
+                    "min_required": 5,
+                    "insufficient_data": True,
+                    "tp": None,
+                    "fp": None,
+                    "fn": None,
+                    "tn": None,
+                    "disclaimer": "Small cohort.",
+                }
+            },
+            "per_candidate_joined": [],
+            "control_failures": [],
+        }
+        out = tmp_path / "out.md"
+        write_calibration_intake_markdown(report, out)
+        assert out.exists()
+        text = out.read_text()
+        assert "prediction_score_key" not in [k for k in report["cohort_metrics"]["activity_vs_mic"].keys()]
+        assert "Prediction score key:" in text
+
 
 class TestDisclaimer:
     def test_disclaimer_present(self, tmp_path):

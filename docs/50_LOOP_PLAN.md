@@ -1,8 +1,8 @@
 # 50-Loop Execution Plan
 
 > **Status:** Strategic roadmap. Updated v0.5.46.
-> **Current state:** 1832 tests, pipeline AUROC 0.7792, calibration intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report + batch-2 selector + recovery benchmark shipped,
-> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loops 18, 19, 20, 21, 22, 23, 24, 25 complete,
+> **Current state:** 1832 tests, pipeline AUROC 0.7792, calibration pipeline complete (intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report + batch-2 selector + recovery benchmark) + end-to-end integration script shipped,
+> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loops 18–26 complete,
 > cluster-split/selectivity/triage now gated in CI, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
@@ -76,8 +76,8 @@ Build the recalibration engine gated by the policy. Implement active-learning ba
 | 23 ✅ | No weight-change report that a human reviewer can inspect | `reports/recalibration_report.py`: generates human-readable report with before/after weights, rationale, policy-rule results, gate-verdict context, and explicit "human review required" banner. Schema validation via `schemas/recalibration_report.schema.json`. v0.5.44. 9 tests. | Report validates against schema; gate verdict details preserved; CLI uses combined report for JSON/MD output |
 | 24 ✅ | No second-batch selection logic. The gate allows recalibration, but how do we pick the next 8–12 candidates? | `active_learning/selector.py`: implements uncertainty sampling + diversity + safety gate. CLI `select-batch`. v0.5.45. 11 tests. | Selection respects safety constraints; top-5 include at least 1 high-uncertainty probe; all blocked candidates rejected; CLI produces valid JSON manifest |
 | 25 ✅ | No active-learning benchmark on synthetic data. Can the selector recover known "hidden active" candidates better than random? | `active_learning/benchmark.py`: multi-round recovery benchmark with pre-registered thresholds (max_rounds_to_first=3, min_recall=0.33). CLI `bench active-learning`. v0.5.46. 8 tests. | Recovery verified: selector recovers hidden actives within pre-registered thresholds; compared against random baseline (20-trial average) |
-| 26 | No integration between active-learning selector and the calibration pipeline | End-to-end flow: intake → gate (pass) → recalibration engine (dry-run) → selector → batch 2 manifest | Full chain runs on synthetic data, produces a batch-2 manifest |
-| 27 | No end-to-end regression test for the full calibration loop (the "golden path") | `tests/test_calibration_full_loop.py`: generate synthetic results → intake → gate → dry-run recalibration → selector → batch manifest. Assert all exit codes 0 | Full golden path tested on every PR |
+| 26 ✅ | No integration between active-learning selector and the calibration pipeline | `scripts/run_calibration_loop.py`: end-to-end script that generates synthetic lab results → builds intake → evaluates gate → computes weight proposal (dry-run) → selects batch-2 → writes manifest. `make calibration-loop` target. | Full chain verified end-to-end on synthetic data; all 5 steps produce valid output files |
+| 27 | No end-to-end regression test for the full calibration loop (the "golden path") in pytest | `tests/test_calibration_full_loop.py`: generate synthetic results → intake → gate → dry-run recalibration → selector → batch manifest. Assert all exit codes 0 | Full golden path tested on every PR |
 | 28 | The recalibration policy (v0.5.20) has version 1. No bump workflow exists for when real data arrives | `scripts/bump_recalibration_policy.py`: bumps `policy_version`, requires a non-empty decision-log entry dated within 30 days. CI guard enforces this | CI rejects policy PRs without valid decision log |
 | 29 | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: template for publishing failed candidates, assay conditions, and pipeline scores alongside the negative result | Template is complete enough for a lab partner to fill |
 

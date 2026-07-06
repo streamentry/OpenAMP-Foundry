@@ -392,6 +392,11 @@ validate-policy-version:
 		--previous-policy configs/recalibration_policy.yaml \
 		--decision-log-dir decision_logs/
 
+calibration-loop:
+	PYTHONPATH=src $(PYTHON) scripts/run_calibration_loop.py \
+		--out-dir outputs/calibration_loop \
+		--seed 42 --n-batch-2 10
+
 generate-synthetic-lab-results:
 	PYTHONPATH=src $(PYTHON) examples/lab_results_generator.py \
 		--panel-csv outputs/pilot_panel.csv \
