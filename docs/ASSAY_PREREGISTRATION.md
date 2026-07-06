@@ -1,235 +1,230 @@
-# Assay Pre-Registration — Wave 1
+# Pilot Pre-Registration — Candidate-Selection Evaluation
 
-**Status:** PRE-REGISTERED (lock before synthesis order is placed)  
-**Pipeline version:** 0.5.x  
-**Manifest SHA-256:** see `outputs/phase3_manifest.json`  
-**Locked by:** [PI name + date]  
-**Document version:** 1.0 (2026-06-28)
+## Status
 
----
+**Template / planning artifact. Not a wet-lab protocol.**
+
+This document freezes the computational selection logic, comparison groups, success/failure criteria, result-intake expectations, and claim boundaries for a future qualified external pilot.
+
+It does not provide experimental procedures, culturing conditions, assay recipes, organism-handling guidance, biospecimen procedures, or operational biological instructions.
+
+Qualified partners must use their own approved protocols, oversight, biosafety systems, and institutional review processes.
 
 ## Purpose
 
-This document pre-registers the primary assay plan for Wave 1 of the OpenAMP Foundry pilot panel.
-Pre-registration means the analysis plan, pass/fail thresholds, and reporting obligations are locked
-**before** any wet-lab result is seen. This prevents p-hacking, outcome switching, and selective
-non-reporting of negative results.
+Pre-registration prevents p-hacking, outcome switching, selective reporting, and after-the-fact story repair.
 
-> **This document must be signed by the PI and filed before synthesis is ordered.**
-> Any deviation from this plan must be logged in a deviation record and reported in the methods.
+The pilot asks one narrow question:
 
----
+> Does an OpenAMP-selected candidate panel produce more useful experimental information than simple baseline-selection strategies under qualified external review/testing conditions?
 
-## 1. Candidate Set
+The pilot does not ask whether any candidate is a drug, therapy, cure, clinical candidate, proven antimicrobial, or safe/effective in humans.
+
+## Related documents
+
+- [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — general pilot template.
+- [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — review packet standard.
+- [`WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — safe expert-review handoff guide.
+- [`PROOF_LADDER.md`](PROOF_LADDER.md) — evidence levels and claim ladder.
+- [`CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) — gate before any recalibration.
+- [`NEGATIVE_RESULT_ARCHIVE.md`](NEGATIVE_RESULT_ARCHIVE.md) — safe negative-result format.
+
+## Pilot identity
 
 | Field | Value |
-|-------|-------|
-| Number of candidates | 20 (pilot panel) |
-| Selection algorithm | `pilot-panel` with similarity_threshold=0.75, max_per_seed=4 |
-| Selection date | [date of `make pilot` run] |
-| Selection locked at manifest | `outputs/phase3_manifest.json` |
-| Confident panel (post-external-predictor filter) | Historical placeholder; external predictor review later completed and summarized in `docs/METRICS_CURRENT.md` |
+|---|---|
+| Pilot name | TBD |
+| Status | Draft / frozen / results received / interpreted / archived |
+| Selection commit | TBD |
+| Pipeline version | TBD |
+| Candidate manifest | TBD |
+| Manifest hash | TBD |
+| Pre-registration date | TBD |
+| Locked by | TBD |
+| Safety reviewer | TBD |
+| Domain reviewer | TBD |
+| Qualified external partner | TBD |
 
----
+## Candidate set
 
-## 2. Primary Assay — Broth Microdilution MIC
+Before any result is known, freeze:
 
-### Protocol
+- candidate IDs or safe sequence references;
+- panel role for each candidate;
+- evidence certificate for each candidate;
+- novelty label;
+- safety-risk label;
+- synthesis-feasibility label;
+- diversity cluster or scaffold family;
+- proof-ladder level;
+- release status.
 
-- **Method:** Broth microdilution (EUCAST ISO 20776-1 or CLSI M07)
-- **Broth:** Mueller-Hinton Broth II (MHB-II; cation-adjusted for Gram-negative)
-- **Volume:** 100 µL per well (96-well plate, flat-bottom)
-- **Inoculum:** 5 × 10⁵ CFU/mL (0.5 McFarland ± 10%)
-- **Peptide concentration range:** 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128 µg/mL (serial 2-fold)
-- **Incubation:** 37 °C, 18–20 h (aerobic, static)
-- **Readout:** Optical density at 600 nm (OD600); visual confirmation of turbidity
-- **MIC definition:** Lowest concentration with no visible growth (OD600 ≤ 10% of growth control)
+Full candidate identities or sequences should be handled according to safety and release policy.
 
-### Target Organisms
+## Panel roles
 
-| Priority | Organism | Strain | Gram | Rationale |
-|----------|----------|--------|------|-----------|
-| 1 | *Escherichia coli* | ATCC 25922 | Negative | QC reference, EUCAST standard |
-| 2 | *Staphylococcus aureus* | ATCC 29213 | Positive | Clinical relevance, methicillin-sensitive reference |
-| 3 | *Staphylococcus aureus* | USA300 LAC (MRSA) | Positive | MRSA clinical isolate; ESKAPE; raises publication impact ~2× |
-| 4 | *Pseudomonas aeruginosa* | ATCC 27853 | Negative | ESKAPE organism, hard target |
-| 5 | *Klebsiella pneumoniae* | ATCC 700603 | Negative | Clinical priority, MDR context |
+A well-designed panel should include more than top-ranked leads.
 
-Priority order: if budget-constrained, run organisms 1, 2, and 3 (minimum viable screen + MDR
-impact). MRSA USA300 is priority 3 because SEED-007 (bombolitin-II), SEED-008 (Trp-rich
-puroindoline-a), and SEED-009 (proline-rich Bac2A) have mechanisms that operate well against
-Gram-positive. SEED-006 (mastoparan-X, wasp-venom helix insertion) operates against both Gram-
-negative and Gram-positive membranes and provides Gram-negative coverage even in the MRSA-only
-panel. SEED-001_VAR_064 serves as the positive control (magainin-1 derivative, known active).
-MRSA activity is the single highest-impact result achievable with this panel. Cost: +$200–400
-per peptide at most contract labs.
+Possible roles:
 
-**Note for SEED-009 (proline-rich, top 4 ensemble-score ranks in pilot panel):** Proline-rich
-cathelicidins can show reduced activity in standard Mueller-Hinton Broth — media composition
-(amino acids, divalent cation concentration) affects translocation efficiency and intracellular
-availability for this AMP class (Krizsan et al. 2014 Angew Chem Int Ed 53:12236). Run SEED-009
-variants in parallel in RPMI-1640 medium in addition to standard MHB. Report both results; if
-MHB MIC is ≥4× higher than RPMI MIC, annotate as "media-dependent activity" in the results.
+| Role | Purpose |
+|---|---|
+| Lead candidate | Tests the pipeline’s best current selection logic. |
+| Baseline challenger | Tests whether simple heuristics perform as well or better. |
+| Known-control reference | Helps contextualize the external partner’s result interpretation. |
+| Negative-control candidate | Helps test specificity of selection logic. |
+| Uncertainty probe | Tests a candidate where the model is unsure but information value is high. |
+| Diversity probe | Tests underrepresented structural or sequence classes. |
+| Safety-boundary probe | Tests whether predicted safety-risk flags are meaningful, if ethically and safely appropriate. |
 
-### Controls
+A panel is an experimental question, not a top-k list.
 
-| Control | Type | Expected result | Action if fails |
-|---------|------|-----------------|-----------------|
-| Ciprofloxacin 0.004–4 µg/mL vs E. coli ATCC 25922 | Positive | MIC = 0.004–0.016 µg/mL (EUCAST v14 Table 5 QC range) | ABORT assay run; repeat |
-| PBS / vehicle only (no peptide) | Negative growth control | Full growth (OD600 > 0.15) | ABORT assay run; repeat |
-| Sterility control (broth + peptide, no bacteria) | Sterility | No growth (OD600 ≤ 0.03) | Flag contamination; repeat |
+## Baseline comparison plan
 
----
+At least one baseline-selection strategy should be frozen before results are known.
 
-## 3. Secondary Assay — Hemolysis (HC50)
+Possible baselines:
 
-### Protocol
+- random valid candidates;
+- charge-density selection;
+- similarity-to-known-AMP selection;
+- diversity-only selection;
+- conservative safety-first selection;
+- external-predictor consensus;
+- human expert selection where available.
 
-- **Cells:** Human red blood cells (hRBCs), freshly drawn (same day) from a consented donor or commercial suspension
-- **Buffer:** Phosphate-buffered saline (PBS, pH 7.4)
-- **hRBC concentration:** 0.5% v/v
-- **Peptide range:** 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 µg/mL
-  *(Extended to 512 µg/mL to avoid TI ambiguity at the 32 µg/mL MIC boundary:
-  a candidate at MIC=32 µg/mL with HC50>256 would be borderline TI>8, not PASS;
-  testing to 512 µg/mL disambiguates whether TI is truly >10.)*
-- **Incubation:** 37 °C, 1 h (gentle shaking, 100 rpm)
-- **Readout:** Supernatant absorbance at 541 nm after centrifugation (800 × g, 10 min)
-- **Controls:**
-  - 0.1% Triton X-100 = 100% lysis (positive control)
-  - PBS only = 0% lysis (negative control)
-- **HC50 definition:** Concentration producing 50% hemolysis (interpolated from sigmoidal fit or linear interpolation)
-- **Interpretation rule:** HC50 > 512 µg/mL is reported as "> 512 µg/mL" and counts as PASS for TI ≥ 10 when MIC ≤ 51.2 µg/mL
+If no baseline comparison is included, the pilot must be labeled exploratory and cannot support experiment-compression claims.
 
-### Reporting
+## Pre-registered success criteria
 
-Report HC50 (µg/mL) for each candidate. If HC50 > 256 µg/mL (top concentration), report as > 256 µg/mL.
+Choose and freeze measurable criteria before results.
 
----
+Examples:
 
-## 4. Selectivity Index
+| Criterion | Interpretation |
+|---|---|
+| OpenAMP panel outperforms baseline panel on useful activity signals | Supports selection improvement under tested context. |
+| OpenAMP panel outperforms baseline panel on safety-adjusted yield | Stronger than activity alone. |
+| OpenAMP panel reveals a model blind spot that changes next-batch selection | Negative or mixed result still useful. |
+| Result quality is sufficient for recalibration-gate evaluation | Supports learning-loop progress. |
 
-Compute Therapeutic Index (TI) for each organism:
+Do not use vague criteria such as “promising” unless the term is operationally defined by qualified reviewers before results.
 
-```
-TI = HC50 (µg/mL) / MIC (µg/mL)
-```
+## Pre-registered failure criteria
 
-| TI interpretation | Action |
-|-------------------|--------|
-| TI > 10 | PASS — proceed to confirmatory assay |
-| TI 5–10 | BORDERLINE — note for expert review; may advance if no better candidates |
-| TI < 5 | FAIL — exclude from Wave 2 unless exceptional MIC |
+Choose and freeze failure criteria before results.
 
----
+Examples:
 
-## 5. Serum Stability Assay (Wave 1 recommended before full MIC panel)
+| Criterion | Interpretation |
+|---|---|
+| OpenAMP panel does not beat cheap baselines | Experiment-compression claim is unsupported. |
+| Controls or partner quality flags make results uninterpretable | No model update should occur. |
+| Apparent hits are near-duplicates of known references | Novelty claim must be downgraded. |
+| Activity-like signals are safety-adjusted failures | Activity-only selection is not enough. |
+| Result set is too small or too imbalanced for calibration | Recalibration gate should reject. |
 
-- **Matrix:** 50% pooled human serum in PBS (37 °C) — consistent with Otvos & Cudic 2002
-  (Curr Pharm Design) and `docs/WET_LAB_HANDOFF.md` Section 4
-- **Peptide concentration:** 100 µM
-- **Time points:** 0, 30, 60, 120 min
-- **Primary readout:** HPLC/MS peptide quantification (intact peptide fraction at each time point)
-- **Backup readout:** Residual antimicrobial activity by agar dilution (used only when HPLC is
-  unavailable; note in methods if backup readout is used)
-- **Pass criterion:** > 50% intact peptide remaining at 60 min (primary readout)
+A clean failure is useful if it changes the next selection loop.
 
-> **Pre-registered decision:** Serum stability is required for ALL 20 candidates as a triage
-> step BEFORE committing to the full MIC panel. This is the primary pre-registered plan — not an
-> amendment. Rationale: five of seven scaffold families have model-flagged stability limitations;
-> early triage saves assay cost. Serum stability data is required for therapeutic relevance claims
-> in any resulting publication.
-> 
-> Families with known model limitations (score may underestimate actual stability):
-> - SEED-003 (11 AA, <15 AA calibration edge; model scores 0.35–0.38 likely underestimate actual t½)
-> - SEED-006 (14 AA; **ALL 4 pilot variants contain Met at position 9** inherited from mastoparan-X
->   template INWKGIAAMAKKLL — Nle (norleucine) substitution at position 9 ("M9Nle") REQUIRED
->   on synthesis order to eliminate oxidation risk; HPLC purity mandatory at receipt; store
->   lyophilized at −80 °C under inert atmosphere)
-> - SEED-007 (11 AA; same length as SEED-003; Met at position 6 in all 4 pilot variants — HPLC
->   purity mandatory at receipt; **Nle substitution REQUIRED** for oxidation-resistant synthesis)
-> - SEED-008 (13 AA, model calibrated for 18–30 AA; Trp steric effect expected to improve t½).
->   **ALL 4 SEED-008 pilots carry F-Pro N-terminus: Nα-acetylation is REQUIRED on the synthesis
->   order** to prevent diketopiperazine (DKP) cyclization (cyclo(F-Pro), MW≈244 Da, t½ hours–days
->   at 37°C pH 7.4). Confirm full-length peptide by MS at receipt; MW−244 Da satellite peak
->   indicates DKP contamination — reject batch if satellite exceeds 5% relative peak area.
-> - SEED-009 (Pro-X protease resistance not captured by model; expected to exceed model score)
-> - SEED-005 (safety score 0.845 — lowest in pilot panel; hemolysis assay at MIC/3 mandatory;
->   if HC₅₀ < 10× MIC, exclude from Wave 2)
+## Result-intake plan
 
----
+Results should return as structured summaries compatible with project schemas.
 
-## 6. Pre-registered Analysis Plan
+Required safe fields include:
 
-### Primary Endpoint
+- candidate ID;
+- panel ID;
+- endpoint type at a safe abstraction level;
+- result summary;
+- quality/control interpretation supplied by the qualified partner;
+- whether the result is interpretable;
+- whether the result can be used in calibration intake;
+- limitations;
+- release status.
 
-**Primary endpoint:** Number of candidates with MIC ≤ 32 µg/mL against *E. coli* ATCC 25922.
+Operational experimental detail should remain outside this repository.
 
-**Secondary endpoint:** Number of candidates with MIC ≤ 32 µg/mL AND TI > 10.
+## Calibration decision plan
 
-### Hit Definition (locked)
+After structured result intake:
 
-A candidate is classified as a **confirmed hit** if:
+1. Generate a calibration intake report.
+2. Run the recalibration gate.
+3. Record the gate verdict.
+4. If rejected, preserve the rejection and do not update selection behavior.
+5. If permitted, prepare a weight-change proposal or next-batch policy proposal.
+6. Require human review before applying any change.
+7. Record the decision in a dated decision log.
 
-1. MIC ≤ 32 µg/mL against ≥ 1 target organism (Table in §2), AND
-2. TI > 10 (HC50 / MIC > 10), AND
-3. Positive control in the same assay plate passed (ciprofloxacin QC range)
+See [`CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md).
 
-A candidate is classified as a **provisional hit** if criterion 1 is met but criterion 2 or 3 could not be assessed (resource constraints). Provisional hits advance to Wave 2 with serum stability and TI gating.
+## Claim boundaries
 
-### Statistical Plan
+### Before results
 
-- All assays run in **biological triplicate** (n = 3 independent experiments on separate days)
-- Report geometric mean MIC ± SD from triplicates
-- Report HC50 with 95% CI (from sigmoidal regression or log-linear interpolation)
-- No correction for multiple comparisons for primary endpoint (exploratory screen)
-- No data points excluded without documented justification
+Allowed:
 
-### Reporting Obligations
+- computationally nominated candidate;
+- selected for expert review;
+- selected for possible qualified testing;
+- evidence package;
+- pre-registered pilot.
 
-- **All results reported**, including:
-  - Inactive candidates (MIC > 128 µg/mL)
-  - Toxic candidates (TI < 2)
-  - Inconclusive results (QC failure with description)
-- Negative results archived as `schemas/lab_result.schema.json` entries with `result_qualitative: "inactive"`
-- Results shared with pipeline team within 2 weeks of assay completion
-- Results NOT selectively shared or suppressed based on outcome
+Forbidden:
 
----
+- active antimicrobial;
+- safe;
+- drug candidate;
+- therapeutic;
+- clinical;
+- AI-discovered antibiotic;
+- proven.
 
-## 7. Pre-registered Decision Gates
+### After results
 
-| Gate | Threshold | Action if passed | Action if failed |
-|------|-----------|-----------------|-----------------|
-| P1: ≥1 candidate MIC ≤ 32 µg/mL | Hit count ≥ 1 | Proceed to Wave 2 (D-amino variants, MDR strains) | Re-evaluate pipeline; consider new seeds |
-| P2: ≥1 candidate TI > 10 + MIC ≤ 32 µg/mL | Hit count ≥ 1 | Proceed to serum stability gating | Return to design; re-weigh selectivity scoring |
-| P3: ≥1 candidate all-gates pass (P2 + > 50% stability at 60 min + novel scaffold) | Hit count ≥ 1 | Prepare confirmatory external lab replication | Document as negative result; publish pipeline learnings |
+Claims must follow [`PROOF_LADDER.md`](PROOF_LADDER.md).
 
----
+Examples:
 
-## 8. Deviations
+- “showed activity under specified partner-reported conditions” may require initial qualified evidence.
+- “independently replicated early signal” requires external replication.
+- “clinical” or “therapeutic” language is outside normal repo authority.
 
-Any deviation from this protocol must be documented below before assay data is analysed:
+## Reporting obligations
 
-| Date | Deviation description | Approved by |
-|------|----------------------|-------------|
-| — | — | — |
+The pilot should report:
 
----
+- all candidates in the frozen panel, where safe;
+- all baseline candidates, where safe;
+- inactive or negative candidates, where safe;
+- uninterpretable results;
+- deviations from the frozen plan;
+- safety or release restrictions;
+- claim level;
+- recalibration-gate verdict;
+- next-batch implications.
 
-## 9. Signatures
+Selective reporting is forbidden.
 
-| Role | Name | Institution | Signature | Date |
-|------|------|-------------|-----------|------|
-| Principal Investigator | | | | |
-| Peptide Synthesis Approver | | | | |
-| Biosafety Officer | | | | |
-| Lab Partner Representative | | | | |
+## Deviation log
 
----
+Any deviation from the frozen computational/review plan should be recorded before interpretation.
 
-## 10. Disclaimer
+| Date | Deviation | Why it occurred | Approved by | Effect on interpretation |
+|---|---|---|---|---|
+| — | — | — | — | — |
 
-This pre-registration covers a computational nomination pilot. Candidates are short synthetic
-peptides derived from natural AMP templates. No claim of clinical efficacy, drug status, or
-therapeutic use is made. All wet-lab work must comply with local institutional biosafety
-regulations and ethics requirements.
+## Sign-off
+
+| Role | Name | Organization | Decision | Date |
+|---|---|---|---|---|
+| Computational lead | TBD | TBD | Draft / approved / rejected | TBD |
+| Domain reviewer | TBD | TBD | Draft / approved / rejected | TBD |
+| Safety reviewer | TBD | TBD | Draft / approved / rejected | TBD |
+| Qualified partner representative | TBD | TBD | Draft / approved / rejected | TBD |
+
+## Final rule
+
+The pre-registration exists to find out whether OpenAMP’s selection logic works.
+
+It does not exist to protect OpenAMP’s story.
