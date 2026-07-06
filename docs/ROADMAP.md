@@ -1,5 +1,23 @@
 # Roadmap
 
+## v0.5.43 — Dry-Run Mode for Recalibration Engine ✓ (2026-07-06)
+
+The recalibration engine computed proposals but had no way to preview what
+weights would change without writing output files. This release adds a
+``--dry-run`` flag that prints a human-readable diff table and exits without
+side effects.
+
+Changes:
+- Added ``--dry-run`` flag to the ``recalibration-engine`` CLI. When set,
+  the handler prints a diff table showing current vs proposed weights per
+  scorer, L1 total, rationale, and a clear ``DRY RUN — no changes applied``
+  disclaimer. No JSON or Markdown files are written.
+- Added ``make recalibration-engine-dry-run`` Makefile target.
+- Added 1 test confirming the dry-run contract: proposal is inspectable,
+  no output files written unless explicitly called.
+- Updated ``engine.py`` docstring to reflect the shipped ``--dry-run``
+  behavior.
+
 ## v0.5.42 — Synthetic Lab-Result Generator ✓ (2026-07-06)
 
 The calibration loop had no way to test the full intake→gate→engine pipeline

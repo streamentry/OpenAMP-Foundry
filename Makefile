@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine validate-policy-version generate-synthetic-lab-results
+.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -57,6 +57,7 @@ help:
 	@echo "  make recalibration-gate-example  Evaluate recalibration gate on synthetic intake example"
 	@echo "  make recalibration-gate         Evaluate recalibration gate on a real intake report"
 	@echo "  make recalibration-engine       Compute proposed weight deltas (requires gate verdict first)"
+	@echo "  make recalibration-engine-dry-run  Preview weight changes without side effects"
 	@echo "  make validate-policy-version    Validate proposed policy version against predecessor"
 	@echo "  make generate-synthetic-lab-results  Generate synthetic lab results for calibration testing"
 	@echo "  make test               Run full test suite (1803 passing tests, >=80% coverage)"
@@ -377,6 +378,13 @@ recalibration-engine: lab-result-intake-example
 		--current-weights '{"activity": 0.40, "safety": 0.25, "synthesis": 0.15, "novelty": 0.20}' \
 		--out-json outputs/recalibration_proposal.json \
 		--out-md outputs/recalibration_proposal.md
+
+recalibration-engine-dry-run: lab-result-intake-example
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli recalibration-engine \
+		--intake-report outputs/calibration_intake_example.json \
+		--gate-verdict outputs/recalibration_gate_example.json \
+		--current-weights '{"activity": 0.40, "safety": 0.25, "synthesis": 0.15, "novelty": 0.20}' \
+		--dry-run
 
 validate-policy-version:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli validate-policy-version \

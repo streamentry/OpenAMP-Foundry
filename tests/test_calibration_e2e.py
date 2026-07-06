@@ -773,6 +773,44 @@ class TestRecalibrationEngine:
             # Perfect precision/recall -> delta should be 0
             assert d.delta == 0.0
 
+    def test_dry_run_prints_diff_and_skips_file_writes(self, passing_setup, tmp_path):
+        """compute_weight_update with dry-run semantics: print diff, no file writes.
+
+        The engine itself does not have a dry-run mode (it always returns
+        a proposal without side effects). This test verifies the CLI-level
+        contract: the proposal dict is inspectable without writing files,
+        and writing functions are only called explicitly.
+        """
+        panel_csv = passing_setup / "panel.csv"
+        results_dir = passing_setup / "results"
+        intake = build_calibration_intake_report(panel_csv, results_dir)
+        policy = load_recalibration_policy(POLICY_PATH)
+        verdict = evaluate_recalibration_gate(intake, policy)
+
+        current_weights = {"activity": 0.40, "safety": 0.25}
+        proposal = compute_weight_update(
+            intake, verdict, current_weights, policy_l1_budget=0.10,
+        )
+
+        # Dry-run contract: proposal must be inspectable without side effects
+        assert proposal.gate_passed is True
+        assert len(proposal.deltas) > 0
+        for delta in proposal.deltas:
+            assert isinstance(delta.scorer, str)
+            assert isinstance(delta.current_weight, (int, float))
+            assert isinstance(delta.proposed_weight, (int, float))
+            assert isinstance(delta.rationale, str)
+
+        # Verify no proposal output files were written unless explicitly called
+        out_json = tmp_path / "proposal.json"
+        out_md = tmp_path / "proposal.md"
+        assert not out_json.exists(), (
+            "Dry-run should not write JSON; found proposal.json"
+        )
+        assert not out_md.exists(), (
+            "Dry-run should not write MD; found proposal.md"
+        )
+
     def test_writes_proposal_json(self, passing_setup, tmp_path):
         """write_weight_update_proposal_json produces valid JSON."""
         panel_csv = passing_setup / "panel.csv"

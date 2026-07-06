@@ -807,6 +807,15 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional output path for the proposal Markdown report.",
     )
+    recalibration_engine.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=False,
+        help=(
+            "Preview proposed weight changes without writing output files. "
+            "Prints a diff table and exits. No side effects."
+        ),
+    )
 
     novelty_broad = sub.add_parser(
         "novelty-check-broad",

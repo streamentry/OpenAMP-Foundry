@@ -27,9 +27,10 @@ Design constraints:
 * The engine does NOT modify ``prohibited_actions``, does NOT relax
   novelty/toxicity/hemolysis safety floors, and does NOT change
   success definitions.
-* A ``--dry-run`` mode returns the same proposed deltas WITHOUT
-  any side effect. The default mode also returns only a proposal
-  (no side effects). Side effects require explicit human action.
+* The ``--dry-run`` flag (CLI) returns the same proposed deltas WITHOUT
+  writing output files or producing any side effect. The default mode
+  also returns only a proposal (no side effects). Side effects require
+  explicit human action.
 """
 
 from __future__ import annotations

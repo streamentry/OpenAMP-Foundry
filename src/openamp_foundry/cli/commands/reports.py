@@ -782,7 +782,12 @@ def _run_recalibration_gate(args: argparse.Namespace) -> int:
 
 
 def _run_recalibration_engine(args: argparse.Namespace) -> int:
-    """Compute proposed weight deltas from intake + gate verdict."""
+    """Compute proposed weight deltas from intake + gate verdict.
+
+    With ``--dry-run``, prints a human-readable diff table and skips all
+    file writes. Without it, writes ``--out-json`` and/or ``--out-md``
+    if specified. Neither mode applies changes.
+    """
     intake_path = Path(args.intake_report)
     if not intake_path.exists():
         payload = {
@@ -855,10 +860,34 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
         print(json.dumps(payload))
         return 3
 
-    if args.out_json:
-        write_weight_update_proposal_json(proposal, args.out_json)
-    if args.out_md:
-        write_weight_update_proposal_markdown(proposal, args.out_md)
+    is_dry_run = getattr(args, "dry_run", False)
+    dry_run_label = " [DRY RUN — no changes applied]" if is_dry_run else ""
+
+    if is_dry_run:
+        # Print diff table instead of writing files
+        print(f"Recalibration Engine Proposal{dry_run_label}")
+        print(f"{'=' * 60}")
+        print(f"  Timestamp:      {proposal.timestamp}")
+        print(f"  Gate passed:    {proposal.gate_passed}")
+        print(f"  Policy version: {proposal.policy_version}")
+        print(f"  L1 total:       {proposal.l1_total:.4f} / budget {proposal.l1_budget:.4f}")
+        print(f"  L1 within budget: {proposal.l1_within_budget}")
+        print()
+        print(f"  {'Scorer':<20} {'Current':>8} {'Proposed':>8} {'Delta':>8}  {'Rationale'}")
+        print(f"  {'-'*20} {'-'*8} {'-'*8} {'-'*8}  {'-'*40}")
+        for d in proposal.deltas:
+            sign = "+" if d.delta >= 0 else ""
+            print(f"  {d.scorer:<20} {d.current_weight:>8.4f} {d.proposed_weight:>8.4f} {sign}{d.delta:>7.4f}  {d.rationale[:60]}")
+        print()
+        print(f"  N deltas: {len(proposal.deltas)}")
+        print(f"  Notes: {', '.join(proposal.notes) if proposal.notes else '(none)'}")
+        print(f"{'=' * 60}")
+        print(f"DRY RUN — no files written, no weight changes applied.")
+    else:
+        if args.out_json:
+            write_weight_update_proposal_json(proposal, args.out_json)
+        if args.out_md:
+            write_weight_update_proposal_markdown(proposal, args.out_md)
 
     summary = {
         "status": "ok",
@@ -867,6 +896,7 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
         "l1_total": round(proposal.l1_total, 4),
         "l1_within_budget": proposal.l1_within_budget,
         "timestamp": proposal.timestamp,
+        "dry_run": is_dry_run,
     }
     print(json.dumps(summary, indent=2))
     return 0

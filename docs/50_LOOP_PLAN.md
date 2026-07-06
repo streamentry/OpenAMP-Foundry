@@ -1,8 +1,8 @@
 # 50-Loop Execution Plan
 
-> **Status:** Strategic roadmap. Updated v0.5.42.
-> **Current state:** 1803 tests, pipeline AUROC 0.7792, calibration intake + gate + engine + policy-version + synthetic generator shipped,
-> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loops 18, 19, 20, 21 complete,
+> **Status:** Strategic roadmap. Updated v0.5.43.
+> **Current state:** 1804 tests, pipeline AUROC 0.7792, calibration intake + gate + engine + dry-run + policy-version + synthetic generator shipped,
+> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loops 18, 19, 20, 21, 22 complete,
 > cluster-split/selectivity/triage now gated in CI, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
@@ -72,7 +72,7 @@ Build the recalibration engine gated by the policy. Implement active-learning ba
 | 19 ✅ | No policy version tracking. Every recalibration event needs a version bump, locked-changes enforcement, and a decision-log entry | `calibration/policy_version.py`: auto-increment `policy_version` on every proposal, validate `locked_changes` entries are unchanged from prior version, reject proposals without a decision-log entry dated within 30 days. v0.5.40. 29 tests, exit 0/3 CLI. | CI rejects policy PRs without valid decision log. Locked changes survive version bumps |
 | 20 ✅ | No lab-result simulator for testing the calibration loop without real data | `examples/lab_results_generator.py`: generates synthetic lab results at configurable cohort sizes, effect sizes, and noise levels. Clearly labeled SYNTHETIC in every file. v0.5.42. 7 assay types, 40/40 schema-valid, integrates with calibration-intake. | Produces schema-valid JSON files that drive engine tests; verified with `make generate-synthetic-lab-results` + `calibration-intake` (20 matched, 0 orphans) |
 | 21 ✅ | **Recalibration engine**: the gate existed but no engine. Real weight-update code needs to be safe, auditable, and gated | `calibration/engine.py`: `compute_weight_update(intake_report, gate_verdict, current_weights, l1_budget)` returns `WeightUpdateProposal`. Control theory: delta = learning_rate × (observed_accuracy − target_accuracy). Conservative learning rate 0.05. L1 budget enforced. v0.5.36 | 1735 tests; CLI `recalibration-engine` exits 0 on proposal, 3 on violations, 2 on missing files; 12 engine tests |
-| 22 | No "dry run" mode for recalibration engine. User can't preview what weights would change | `--dry-run` flag: compute and log proposed weight changes without applying them. Outputs comparison table (current vs proposed) | Dry run produces diff without side effects |
+| 22 ✅ | No "dry run" mode for recalibration engine. User can't preview what weights would change | `--dry-run` flag: compute and log proposed weight changes without applying them. Outputs comparison table (current vs proposed). v0.5.43. 1 test, Makefile target. | Dry run produces diff without side effects; verified with `make recalibration-engine-dry-run` + manual inspection |
 | 23 | No weight-change report that a human reviewer can inspect | `reports/recalibration_report.py`: generates human-readable report with before/after weights, rationale, policy-rule results, and explicit "human review required" banner | Report validates against schema |
 | 24 | No second-batch selection logic. The gate allows recalibration, but how do we pick the next 8–12 candidates? | `active_learning/selector.py`: implements uncertainty sampling + diversity + safety gate. Returns ranked candidates for batch 2 | Selection respects safety constraints; top-5 include at least 1 high-uncertainty probe |
 | 25 | No active-learning benchmark on synthetic data. Can the selector recover known "hidden active" candidates better than random? | Synthetic benchmark: hide 3 known active AMPs from the panel, run selection, measure how many rounds to recover them | Recovery within N rounds (N pre-registered) |
@@ -177,7 +177,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 ```
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
-Phase 2: Loop 20 of 29 (synthetic lab generator shipped — Loop 22 next)
+Phase 2: Loop 22 of 29 (dry-run shipped — Loop 23 next)
 Phase 3: Not started (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```
@@ -230,5 +230,6 @@ Phase 4: Not started (Loops 40–49)
 | 19 ✅ | No policy version tracking. Every recalibration event needs a version bump, locked-changes enforcement, and a decision-log entry | `calibration/policy_version.py`: auto-increment `policy_version` on every proposal, validate `locked_changes` entries are unchanged from prior version, reject proposals without a decision-log entry dated within 30 days. v0.5.40. 29 tests, exit 0/3 CLI. | CI rejects policy PRs without valid decision log. Locked changes survive version bumps |
 | 20 ✅ | No lab-result simulator for testing the calibration loop without real data | `examples/lab_results_generator.py`: generates synthetic lab results at configurable cohort sizes, effect sizes, and noise levels. v0.5.42. 7 assay types, schema-valid, integrates with calibration-intake. | Files validate against lab_result.schema.json; end-to-end verified with `make generate-synthetic-lab-results` → `calibration-intake` (20 candidates matched, 0 orphans) |
 | 21 ✅ | Recalibration engine: the gate existed but no engine. Real weight-update code needs to be safe, auditable, and gated | `calibration/engine.py`: `compute_weight_update()` returns `WeightUpdateProposal`. Control theory: delta = learning_rate × (observed_accuracy − target_accuracy). Conservative LR 0.05. L1 budget enforced. v0.5.36 | 1735 tests; CLI recalibration-engine exits 0 on proposal, 3 on violations, 2 on missing files; 12 engine tests |
+| 22 ✅ | No dry-run mode for recalibration engine. User can't preview what weights would change | `--dry-run` flag: compute and log proposed weight changes without applying them. Outputs comparison table (current vs proposed). v0.5.43. 1 test, Makefile target. | Dry run produces diff without side effects; verified with `make recalibration-engine-dry-run` + manual inspection |
 
-**Next loop:** Loop 22 — Phase 2 (Dry-run mode for recalibration engine).
+**Next loop:** Loop 23 — Phase 2 (Weight-change report for human reviewer inspection).
