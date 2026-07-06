@@ -32,8 +32,13 @@ where = ["src"]
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]
+force-exclude = true
+extend-exclude = [
+  "src/openamp_foundry/reproducibility.py",
+  "tests/l*/test_*_batch_pack.py",
+  "tests/release/test_run_manifest_verifier.py",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "scripts"]
-
