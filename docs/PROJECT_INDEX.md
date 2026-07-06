@@ -27,8 +27,8 @@ Read in this order:
 1. [`README.md`](../README.md) — quickstart and repo map.
 2. [`CONTRIBUTING.md`](../CONTRIBUTING.md) — contribution rules and safety checklist.
 3. [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — system architecture and extension points.
-4. [`docs/BENCHMARKING.md`](BENCHMARKING.md) — how evidence is measured.
-5. [`docs/AGENT_ONBOARDING.md`](AGENT_ONBOARDING.md) — useful even for human engineers because it encodes the project workflow.
+4. [`docs/BENCHMARKING.md`](BENCHMARKING.md) — benchmark commands.
+5. [`docs/HIGH_LEVERAGE_TASKS.md`](HIGH_LEVERAGE_TASKS.md) — concrete task map.
 
 First useful contribution: fix a small bug, improve a test, add a doc consistency check, or make one CLI path easier to use.
 
@@ -51,8 +51,8 @@ Read in this order:
 1. [`VISION.md`](../VISION.md) — what the project is trying to become.
 2. [`GOAL.md`](../GOAL.md) — concrete milestones and kill rules.
 3. [`docs/METRICS_CURRENT.md`](METRICS_CURRENT.md) — current benchmark evidence.
-4. [`docs/BENCHMARKING.md`](BENCHMARKING.md) — benchmark logic and caveats.
-5. [`docs/PROOF_LADDER.md`](PROOF_LADDER.md) — what evidence is needed before stronger claims.
+4. [`docs/BENCHMARKING.md`](BENCHMARKING.md) — benchmark commands.
+5. [`docs/BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) — benchmark lifecycle and anti-cheating rules.
 
 First useful contribution: add a leakage-resistant benchmark, improve reference curation, challenge a scorer with a cheaper baseline, or add an adapter with documented limitations.
 
@@ -60,13 +60,13 @@ First useful contribution: add a leakage-resistant benchmark, improve reference 
 
 Read in this order:
 
-1. [`docs/WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — how computational packages are prepared for review.
+1. [`docs/WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — safe expert-review handoff guide.
 2. [`docs/PROOF_LADDER.md`](PROOF_LADDER.md) — claim ladder from dry-lab nomination to independent validation.
-3. [`docs/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md) — safe collaboration modes.
-4. [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — non-protocol template for freezing pilot logic before testing.
-5. [`docs/NEGATIVE_RESULT_ARCHIVE.md`](NEGATIVE_RESULT_ARCHIVE.md) — how failures become useful evidence.
+3. [`docs/EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — standard review packet contents.
+4. [`docs/LAB_PARTNER_ONBOARDING.md`](LAB_PARTNER_ONBOARDING.md) — safe partner onboarding boundaries.
+5. [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — non-protocol template for freezing pilot logic before qualified testing.
 
-First useful contribution: review whether candidate evidence packages are interpretable, whether controls are adequate, and whether success/failure criteria are scientifically meaningful.
+First useful contribution: review whether candidate evidence packages are interpretable, whether controls are adequate at the planning level, and whether success/failure criteria are scientifically meaningful.
 
 ### Safety reviewer
 
@@ -75,7 +75,7 @@ Read in this order:
 1. [`SAFETY.md`](../SAFETY.md) — safety posture.
 2. [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — user-facing boundaries.
 3. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release rules.
-4. [`docs/DECISION_RULES.md`](DECISION_RULES.md) — gates and hardcoded thresholds.
+4. [`docs/EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — safety packet structure.
 5. [`docs/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md) — external-workflow boundaries.
 
 First useful contribution: identify where an artifact could be misread, over-released, overclaimed, or used outside scope.
@@ -92,6 +92,18 @@ Read in this order:
 
 First useful contribution: fund independent validation, benchmark audits, safe result publication, or infrastructure work that makes the project less dependent on any one person or model.
 
+### Maintainer
+
+Read in this order:
+
+1. [`docs/MAINTAINER_GUIDE.md`](MAINTAINER_GUIDE.md) — maintainer review rules.
+2. [`docs/DOCS_MAINTENANCE.md`](DOCS_MAINTENANCE.md) — documentation governance.
+3. [`docs/ISSUE_LABEL_TAXONOMY.md`](ISSUE_LABEL_TAXONOMY.md) — issue labels and triage rules.
+4. [`docs/NUMBER_ONE_REPO_STANDARD.md`](NUMBER_ONE_REPO_STANDARD.md) — category-leader bar.
+5. [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md) — merge checklist.
+
+First useful contribution: make the repo easier to maintain without lowering safety, evidence, or reproducibility standards.
+
 ## Core strategic docs
 
 | Document | Job |
@@ -99,25 +111,52 @@ First useful contribution: fund independent validation, benchmark audits, safe r
 | [`VISION.md`](../VISION.md) | Ambitious but grounded long-term vision. |
 | [`GOAL.md`](../GOAL.md) | Concrete milestones, kill rules, and metrics. |
 | [`MISSION.md`](../MISSION.md) | Scientific mission and claim boundaries. |
-| [`AGENTS.md`](../AGENTS.md) | Operating contract for AI agents. |
+| [`docs/NUMBER_ONE_REPO_STANDARD.md`](NUMBER_ONE_REPO_STANDARD.md) | Defines what category leadership means. |
 | [`docs/WHY_WORK_ON_OPENAMP.md`](WHY_WORK_ON_OPENAMP.md) | Positioning: why serious contributors should choose this repo. |
 | [`docs/OPEN_BIOTECH_STACK.md`](OPEN_BIOTECH_STACK.md) | Infrastructure thesis and stack model. |
 | [`docs/ADOPTION_STRATEGY.md`](ADOPTION_STRATEGY.md) | Adoption strategy for humans, agents, labs, and institutions. |
 | [`docs/50_LOOP_PLAN.md`](50_LOOP_PLAN.md) | Execution history and future loop structure. |
 
+## Core operating docs
+
+| Document | Job |
+|---|---|
+| [`AGENTS.md`](../AGENTS.md) | Operating contract for AI agents. |
+| [`CLAUDE.md`](../CLAUDE.md) | Concise collaborator guidance. |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Contribution rules and PR expectations. |
+| [`docs/AGENT_ONBOARDING.md`](AGENT_ONBOARDING.md) | Safe agent task protocol. |
+| [`docs/HUMAN_ONBOARDING.md`](HUMAN_ONBOARDING.md) | Human contributor onboarding. |
+| [`docs/HIGH_LEVERAGE_TASKS.md`](HIGH_LEVERAGE_TASKS.md) | Task map for humans and agents. |
+| [`docs/MAINTAINER_GUIDE.md`](MAINTAINER_GUIDE.md) | Maintainer review and governance standard. |
+| [`docs/DOCS_MAINTENANCE.md`](DOCS_MAINTENANCE.md) | Documentation maintenance rules. |
+| [`docs/ISSUE_LABEL_TAXONOMY.md`](ISSUE_LABEL_TAXONOMY.md) | Issue-label system. |
+
 ## Core technical docs
 
 | Document | Job |
 |---|---|
-| [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) | System architecture, data flow, package map, threat model. |
-| [`docs/BENCHMARKING.md`](BENCHMARKING.md) | Benchmark targets and commands. |
+| [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) | System architecture, data flow, package map, extension points. |
+| [`docs/BENCHMARKING.md`](BENCHMARKING.md) | Current benchmark suite and commands. |
+| [`docs/BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) | Benchmark lifecycle and anti-cheating rules. |
 | [`docs/METRICS_CURRENT.md`](METRICS_CURRENT.md) | Current benchmark state and single source of truth for metrics. |
 | [`docs/DECISION_RULES.md`](DECISION_RULES.md) | Pre-registered pass/fail gates. |
 | [`docs/EVIDENCE_CERTIFICATE.md`](EVIDENCE_CERTIFICATE.md) | Candidate certificate spec. |
 | [`docs/CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) | Recalibration gate and policy. |
 | [`docs/SIMULATION_BENCHMARK.md`](SIMULATION_BENCHMARK.md) | Current verdict on simulation modules. |
 | [`docs/VIRTUAL_ASSAY_SCOPE.md`](VIRTUAL_ASSAY_SCOPE.md) | What virtual assay modules may and may not claim. |
+
+## External review and collaboration docs
+
+| Document | Job |
+|---|---|
+| [`docs/WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) | Safe expert-review handoff guide, not a protocol. |
+| [`docs/LAB_PARTNER_ONBOARDING.md`](LAB_PARTNER_ONBOARDING.md) | Safe partner onboarding boundaries. |
+| [`docs/EXPERT_REVIEW_PACK.md`](EXPERT_REVIEW_PACK.md) | Expert review pack template. |
+| [`docs/EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) | External review packet standard. |
 | [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) | Non-protocol template for freezing pilot logic before qualified testing. |
+| [`docs/ASSAY_PREREGISTRATION.md`](ASSAY_PREREGISTRATION.md) | Candidate-selection pilot pre-registration template, not a protocol. |
+| [`docs/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md) | External collaboration modes and boundaries. |
+| [`docs/NEGATIVE_RESULT_ARCHIVE.md`](NEGATIVE_RESULT_ARCHIVE.md) | Safe negative-result format. |
 
 ## Core safety docs
 
@@ -127,7 +166,15 @@ First useful contribution: fund independent validation, benchmark audits, safe r
 | [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) | Allowed and disallowed use. |
 | [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) | Release policy for models, weights, and sensitive artifacts. |
 | [`DATA_LICENSE_NOTICE.md`](../DATA_LICENSE_NOTICE.md) | Data and license rules. |
-| [`docs/NEGATIVE_RESULT_ARCHIVE.md`](NEGATIVE_RESULT_ARCHIVE.md) | Safe negative-result format. |
+
+## GitHub workflow files
+
+| File | Job |
+|---|---|
+| [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md) | PR checklist for safety, evidence, proof ladder, baselines, and review. |
+| [`.github/ISSUE_TEMPLATE/agent_safe_task.md`](../.github/ISSUE_TEMPLATE/agent_safe_task.md) | Agent-safe task template. |
+| [`.github/ISSUE_TEMPLATE/benchmark_governance.md`](../.github/ISSUE_TEMPLATE/benchmark_governance.md) | Benchmark proposal/change template. |
+| [`.github/ISSUE_TEMPLATE/safety_review.md`](../.github/ISSUE_TEMPLATE/safety_review.md) | Safety/release review template. |
 
 ## Working loop for any contributor
 
@@ -180,7 +227,7 @@ The next bottleneck is external truth:
 
 - independent review of candidate evidence packages;
 - fair comparison against charge/similarity baselines;
-- pre-registered wet-lab pilots through qualified partners;
+- pre-registered pilots through qualified partners;
 - result intake that preserves both successes and failures;
 - calibration that improves the next round without rewriting history.
 
