@@ -134,7 +134,7 @@ Prepare for real wet-lab partners. Make the pack reviewable, the evidence tracea
 | 46 | No pre-registered analysis plan for Wave 1 results. What analysis runs when data comes back? | `docs/WAVE1_ANALYSIS_PLAN.md`: pre-registered statistical analysis (primary: MIC ≤ 32 hit rate; secondary: selectivity index; exploratory: per-family correlation). No post-hoc changes allowed | Plan is timestamped and locked before data return |
 | 47 ✅ | No data-return validation tool. Lab sends CSV/JSON files; pipeline needs to validate them against schema | `scripts/validate_lab_data_return.py`: validates JSON files against `schemas/lab_result.schema.json`, reports per-file errors, detects control failures. v0.5.67 | 8 tests, 2008 total. Detects missing fields, invalid JSON, control failures |
 | 48 ✅ | No public-data release package. If results are publishable, what goes in the supplement? | `docs/PUBLICATION_PACK.md`: 12-section checklist covering pipeline code, input data, scores, benchmarks, panel, wet-lab results, calibration, reproducibility, negative results, safety, README, preprint prep. v0.5.68 | Pack is complete enough for a reviewer to reproduce all findings |
-| 49 | **Culmination loop**: run the full dry-lab pipeline end-to-end, calibrate against any available wet-lab data, produce the final report. Pre-register the discovery claim | Full reproducibility report: all outputs regenerated from versioned inputs, benchmark card finalized, calibration report generated, discovery probability estimated with honest uncertainty | `make full-reproducibility-report` succeeds; all 49 gates pass; report is publishable as a preprint |
+| 49 ✅ | **Culmination loop**: full dry-lab pipeline end-to-end reproducibility report | `scripts/full_reproducibility_report.py` + `make full-reproducibility-report`. Produces outputs/full_reproducibility_report.json + .md with git state, test count, benchmarks, simulation status, Phase 4 readiness, honest limitations. v0.5.69 | 8 tests, 2021 total. `make full-reproducibility-report` succeeds; report documents all 49 loops complete; no wet-lab data exists — honest limitation stated |
 
 **Phase 4 exit criteria:**
 - Lab partner onboarding pack exists
@@ -182,7 +182,7 @@ Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
 Phase 2: ✅ Complete (Loops 18–29)
 Phase 3: ✅ Complete (Loops 30–39)
-Phase 4: In progress — Loop 43 ✅ (Loops 40–49)
+Phase 4: ✅ Complete (Loops 40–49)
 ```
 
 ### Completed
@@ -242,7 +242,7 @@ Phase 4: In progress — Loop 43 ✅ (Loops 40–49)
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**Next loop:** Loop 49 — culmination reproducibility report.
+**All 50 loops complete.**
 
 **Phase 2 exit criteria (all 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest

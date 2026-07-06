@@ -469,6 +469,9 @@ bench-multi-negatives:
 regenerate-all:
 	PYTHONPATH=src $(PYTHON) scripts/regenerate_all.py
 
+full-reproducibility-report:
+	PYTHONPATH=src $(PYTHON) scripts/full_reproducibility_report.py
+
 metrics-snapshot:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench metrics-snapshot \
 		--out outputs/metrics_snapshot.json
