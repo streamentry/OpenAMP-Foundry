@@ -13,6 +13,28 @@ Changes:
 - ``docs/METRICS_CURRENT.md`` — Changelog updated. Test count: 2008.
 - 2008 tests passing.
 
+## v0.5.65 — Lab Batch Pack Chain-of-Custody Hashes (Loop 45) ✓ (2026-07-06)
+
+Closed a real Phase 4 handoff gap: a lab batch pack could be zipped and sent,
+but the receiver had no machine-checkable way to verify that candidate IDs,
+sequences, ordering, and evidence files were still the intended ones.
+
+Changes:
+- `scripts/build_lab_batch_pack.py` — now writes `chain_of_custody.json` and
+  `MANIFEST.json` into each pack. The custody file records SHA-256 hashes for
+  `panel.csv`, the ordered candidate list, each candidate sequence, and each
+  bundled evidence certificate. Added `--verify-pack` to re-check those hashes
+  against an existing zip.
+- `tests/test_lab_batch_pack.py` — covers custody-file generation, successful
+  verification, tamper detection, and CLI verification mode.
+- `docs/50_LOOP_PLAN.md` — Loop 45 ✅. Next: Loop 46.
+- `docs/METRICS_CURRENT.md` — version and changelog synced.
+
+Honest boundary:
+- These hashes verify identity and archive integrity only.
+- They are not evidence of biological activity, safety, synthesis success, or
+  experimental provenance after a qualified lab receives material.
+
 ## v0.5.64 — Decision-Log Schema (Loop 43) ✓ (2026-07-06)
 
 Machine-readable JSON Schema for human review decisions, covering the

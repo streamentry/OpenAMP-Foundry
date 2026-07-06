@@ -6,8 +6,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from scripts.check_wave1_pass_fail import _check_criteria, _load_lab_results
 
 
@@ -200,7 +198,7 @@ def test_cli_writes_output_json(tmp_path):
     (results_dir / "c1_mic.json").write_text(json.dumps(_make_result("C1", "MIC", 8)))
     (results_dir / "ctrl.json").write_text(json.dumps(_make_result("CTRL-001", "MIC", 16)))
     out = tmp_path / "verdict.json"
-    result = subprocess.run(
+    subprocess.run(
         [sys.executable, "scripts/check_wave1_pass_fail.py",
          "--results-dir", str(results_dir),
          "--out", str(out)],

@@ -51,7 +51,6 @@ def test_schema_decision_values():
 
 
 def test_valid_decision_passes_validation():
-    schema = _load_schema()
     example = {
         "entry_id": "DR-2026-07-06-001",
         "date": "2026-07-06",
@@ -67,7 +66,6 @@ def test_valid_decision_passes_validation():
 
 
 def test_missing_required_field_fails():
-    schema = _load_schema()
     example = {
         "entry_id": "DR-001",
         "date": "2026-07-06",

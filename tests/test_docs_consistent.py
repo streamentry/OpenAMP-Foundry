@@ -120,6 +120,9 @@ class TestDocsConsistent:
         assert "evidence" in scope
         assert "certificates" in scope
         assert "uncertainty" in scope
+        assert "Current ablation evidence does not justify weighted ranking impact." in scope
+        assert "Weighted simulation remains blocked" in scope
+        assert "docs/SIMULATION_BENCHMARK.md" in scope
 
     def test_doc_metrics_snapshot_includes_ranking_policy(self):
         """Snapshot must encode the current ranking recommendation contract."""
@@ -207,9 +210,10 @@ class TestDocsConsistent:
         assert "Historical baseline state only" in baseline_text
         assert "External predictor screen (all 60 shortlist) | COMPLETE" in scaffold_text
         assert "Wave 0.5 Gate W0.5-3 (activity consensus) | COMPLETE" in scaffold_text
-        assert "pre-registration" in prereg_text.lower()
-        assert "external" in prereg_text.lower()
-        assert "predictor" not in prereg_text or "predictor" in prereg_text
+        assert "Template / planning artifact. Not a wet-lab protocol." in prereg_text
+        assert "candidate IDs or safe sequence references" in prereg_text
+        assert "The external predictor portion has since been completed" in checklist_text
+        assert "External predictor review for Wave 0.5 was completed after this panel recommendation was first drafted." in wave1_text
 
     def test_doc_external_predictor_gate_distinguishes_generic_from_wave05(self):
         """Live docs must not imply the completed Wave 0.5 screen is still wholly pending."""
@@ -235,6 +239,27 @@ class TestDocsConsistent:
         assert "Wave 0.5 complete; generic future-panel Gate 6 remains panel-specific" in roadmap_text
         assert "expert review" in expert_text.lower()
         assert "template" in expert_text.lower()
+        assert "replaces earlier panel-specific review drafts" in expert_text
+        assert "Full sequences should be included only when release review allows it." in expert_text
+
+    def test_doc_lab_batch_pack_chain_of_custody_current(self):
+        """Loop 45 must stay marked as shipped with identity-hash boundaries."""
+        loop_text = (DOCS_DIR / "50_LOOP_PLAN.md").read_text(encoding="utf-8")
+        roadmap_text = (DOCS_DIR / "ROADMAP.md").read_text(encoding="utf-8")
+        metrics_text = (DOCS_DIR / "METRICS_CURRENT.md").read_text(encoding="utf-8")
+        onboarding_text = (DOCS_DIR / "LAB_PARTNER_ONBOARDING.md").read_text(
+            encoding="utf-8"
+        )
+
+        assert "| 45 ✅ |" in loop_text
+        assert "chain_of_custody.json" in loop_text
+        assert "v0.5.65" in roadmap_text
+        assert "--verify-pack" in roadmap_text
+        assert "These hashes verify identity and archive integrity only." in roadmap_text
+        assert "New in v0.5.65" in metrics_text
+        assert "chain_of_custody.json" in onboarding_text
+        assert "does not verify synthesis, biological" in onboarding_text
+        assert "activity, safety, or experimental provenance after receipt" in onboarding_text
 
 
 class TestFeatureDecompositionDocsConsistent:

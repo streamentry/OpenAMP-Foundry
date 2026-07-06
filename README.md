@@ -42,6 +42,7 @@ This repo gives you a safe starting point for:
 - penalizing likely safety/synthesis risks;
 - selecting diverse candidates;
 - generating auditable JSON evidence certificates;
+- bundling lab-review packs with chain-of-custody identity hashes;
 - running a demo pipeline without downloading external biological datasets;
 - expanding later with real predictors and qualified external validation.
 
@@ -61,6 +62,7 @@ candidate sequences
   -> novelty score against references
   -> ensemble rank
   -> evidence certificate
+  -> chain-of-custody hash manifest
   -> expert-review package, if human review approves
 ```
 

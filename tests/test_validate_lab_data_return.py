@@ -6,8 +6,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from scripts.validate_lab_data_return import validate_lab_results_dir
 
 

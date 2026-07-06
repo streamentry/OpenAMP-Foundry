@@ -3,11 +3,10 @@
 import json
 import subprocess
 import sys
-import tempfile
 import zipfile
 from pathlib import Path
 
-from scripts.build_lab_batch_pack import build_batch_pack
+from scripts.build_lab_batch_pack import build_batch_pack, verify_batch_pack
 
 
 def _make_evidence(tmp: Path, candidate_id: str) -> Path:
@@ -79,6 +78,58 @@ def test_build_pack_contains_data_return_template(tmp_path):
         assert "data_return_template.json" in z.namelist()
 
 
+def test_build_pack_contains_chain_of_custody(tmp_path):
+    panel = _make_panel_csv(tmp_path)
+    ev_dir = _make_evidence(tmp_path, "C1")
+    _make_evidence(tmp_path, "C2")
+    out = tmp_path / "pack.zip"
+    manifest = build_batch_pack(panel_csv=str(panel), evidence_dir=str(ev_dir), out_zip=str(out))
+    with zipfile.ZipFile(out) as z:
+        custody = json.loads(z.read("chain_of_custody.json"))
+        assert "MANIFEST.json" in z.namelist()
+        assert custody["panel_csv_sha256"] == manifest["panel_csv_sha256"]
+        assert custody["synthesis_order_sha256"] == manifest["synthesis_order_sha256"]
+        assert len(custody["candidate_identities"]) == 2
+        assert custody["candidate_identities"][0]["candidate_id"] == "C1"
+        assert "sequence_sha256" in custody["candidate_identities"][0]
+        assert "biological activity" in custody["not_evidence_of"]
+
+
+def test_verify_batch_pack_success(tmp_path):
+    panel = _make_panel_csv(tmp_path)
+    ev_dir = _make_evidence(tmp_path, "C1")
+    _make_evidence(tmp_path, "C2")
+    out = tmp_path / "pack.zip"
+    build_batch_pack(panel_csv=str(panel), evidence_dir=str(ev_dir), out_zip=str(out))
+    result = verify_batch_pack(out)
+    assert result["status"] == "ok"
+    assert result["panel_hash_ok"] is True
+    assert result["candidate_identity_hashes_ok"] is True
+    assert result["synthesis_order_hash_ok"] is True
+    assert result["evidence_hashes_ok"] is True
+
+
+def test_verify_batch_pack_detects_tampered_panel(tmp_path):
+    panel = _make_panel_csv(tmp_path)
+    ev_dir = _make_evidence(tmp_path, "C1")
+    out = tmp_path / "pack.zip"
+    build_batch_pack(panel_csv=str(panel), evidence_dir=str(ev_dir), out_zip=str(out))
+
+    tampered = tmp_path / "tampered.zip"
+    with zipfile.ZipFile(out) as src, zipfile.ZipFile(tampered, "w", zipfile.ZIP_DEFLATED) as dst:
+        for name in src.namelist():
+            data = src.read(name)
+            if name == "panel.csv":
+                data = data.replace(b"C1,KKLFKKILKYL", b"C1,KKLFKKILKKK")
+            dst.writestr(name, data)
+
+    result = verify_batch_pack(tampered)
+    assert result["status"] == "failed"
+    assert result["panel_hash_ok"] is False
+    assert result["candidate_identity_hashes_ok"] is False
+    assert result["synthesis_order_hash_ok"] is False
+
+
 def test_build_pack_contains_protocols(tmp_path):
     panel = _make_panel_csv(tmp_path)
     ev_dir = _make_evidence(tmp_path, "C1")
@@ -142,3 +193,20 @@ def test_cli_manifest_output(tmp_path):
     assert manifest.exists()
     data = json.loads(manifest.read_text())
     assert "evidence_count" in data
+    assert "panel_csv_sha256" in data
+    assert "synthesis_order_sha256" in data
+
+
+def test_cli_verify_pack(tmp_path):
+    ev_dir = _make_evidence(tmp_path, "C1")
+    panel = _make_panel_csv(tmp_path)
+    out = tmp_path / "pack.zip"
+    build_batch_pack(panel_csv=str(panel), evidence_dir=str(ev_dir), out_zip=str(out))
+    result = subprocess.run(
+        [sys.executable, "scripts/build_lab_batch_pack.py", "--verify-pack", str(out)],
+        capture_output=True, text=True,
+        env={"PYTHONPATH": "src"},
+    )
+    assert result.returncode == 0
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "ok"
