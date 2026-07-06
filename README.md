@@ -1,6 +1,6 @@
 # OpenAMP Foundry
 
-**OpenAMP Foundry** is a verification-first, dry-lab starter repository for AI-assisted antimicrobial peptide (AMP) discovery.
+**OpenAMP Foundry** is a verification-first, safety-constrained dry-lab foundry for AI-assisted antimicrobial peptide (AMP) discovery.
 
 It is designed around a strict principle:
 
@@ -11,6 +11,27 @@ The current repository is a rigorous **dry-lab foundry**.
 The larger mission is more ambitious:
 
 > Build an open **wet-lab compression engine** for AMP discovery: a system that helps qualified scientists decide which small number of experiments are most worth running next, then learns from those outcomes.
+
+The long-term infrastructure ambition is described in [`VISION.md`](VISION.md), [`GOAL.md`](GOAL.md), and [`docs/OPEN_BIOTECH_STACK.md`](docs/OPEN_BIOTECH_STACK.md).
+
+## Start here
+
+| You are | Read first | Then read |
+|---|---|---|
+| New human contributor | [`docs/HUMAN_ONBOARDING.md`](docs/HUMAN_ONBOARDING.md) | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md) |
+| AI agent | [`AGENTS.md`](AGENTS.md) | [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md), [`CLAUDE.md`](CLAUDE.md) |
+| Computational scientist | [`docs/METRICS_CURRENT.md`](docs/METRICS_CURRENT.md) | [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md), [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) |
+| Wet-lab/domain expert | [`docs/WET_LAB_HANDOFF.md`](docs/WET_LAB_HANDOFF.md) | [`docs/COLLABORATION_PLAYBOOK.md`](docs/COLLABORATION_PLAYBOOK.md), [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) |
+| Safety reviewer | [`SAFETY.md`](SAFETY.md) | [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md), [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md) |
+| Funder/institution | [`VISION.md`](VISION.md) | [`GOAL.md`](GOAL.md), [`docs/WHY_WORK_ON_OPENAMP.md`](docs/WHY_WORK_ON_OPENAMP.md) |
+
+## Why this repo exists
+
+AI generation is cheap.
+
+Trusted candidate selection is scarce.
+
+OpenAMP Foundry exists to build the open evidence layer between AI-generated biological hypotheses and qualified experimental testing. The project is not trying to make biology look solved by software. It is trying to make experiment selection more reproducible, auditable, baseline-aware, and safe.
 
 This repo gives you a safe starting point for:
 
@@ -160,14 +181,29 @@ proline-rich, short, or cysteine-rich scaffolds by default.
 
 ```text
 openamp-foundry/
+  README.md                            # primary entrypoint
+  VISION.md                            # long-term infrastructure vision
+  GOAL.md                              # milestones, kill rules, metrics
+  MISSION.md                           # project mission and claim boundaries
   AGENTS.md                            # agent operating contract and safety mission
   CLAUDE.md                            # concise collaborator guidance
-  MISSION.md                           # project mission and claim boundaries
+  CONTRIBUTING.md                      # contributor workflow and PR checklist
+  SAFETY.md                            # safety policy
+  RESPONSIBLE_USE.md                   # allowed/disallowed use
+  MODEL_RELEASE_POLICY.md              # model and artifact release policy
   .github/workflows/ci.yml             # CI checks
   configs/pipeline.yaml                # scoring weights and thresholds
   configs/phase3.yaml                  # wet-lab-ready batch configuration
   configs/recalibration_policy.yaml    # pre-registered recalibration policy
   data/README.md                       # data policy and external data notes
+  docs/PROJECT_INDEX.md                # human/agent navigation hub
+  docs/HUMAN_ONBOARDING.md             # human contributor onboarding
+  docs/AGENT_ONBOARDING.md             # agent task protocol
+  docs/WHY_WORK_ON_OPENAMP.md          # contributor positioning thesis
+  docs/OPEN_BIOTECH_STACK.md           # Linux-for-biotech infrastructure thesis
+  docs/PROOF_LADDER.md                 # evidence levels and claim ladder
+  docs/COLLABORATION_PLAYBOOK.md       # external collaboration rules
+  docs/HIGH_LEVERAGE_TASKS.md          # task map for humans and agents
   docs/50_LOOP_PLAN.md                 # 50-loop strategic execution plan
   docs/ARCHITECTURE.md                 # architecture and threat model
   docs/BENCHMARKING.md                 # leakage-resistant benchmark plan
