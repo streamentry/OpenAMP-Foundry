@@ -1,0 +1,27 @@
+# CODEOWNERS
+#
+# This file documents review intent for safety-sensitive and governance-sensitive areas.
+# Replace @Open-Problem-Lab/maintainers with the actual maintainer team when available.
+
+* @Open-Problem-Lab/maintainers
+
+# Safety, release, and governance areas require maintainer attention.
+SAFETY.md @Open-Problem-Lab/maintainers
+SECURITY.md @Open-Problem-Lab/maintainers
+RESPONSIBLE_USE.md @Open-Problem-Lab/maintainers
+MODEL_RELEASE_POLICY.md @Open-Problem-Lab/maintainers
+GOVERNANCE.md @Open-Problem-Lab/maintainers
+
+# Agent and external-facing docs require extra scrutiny.
+AGENTS.md @Open-Problem-Lab/maintainers
+docs/AGENT_ONBOARDING.md @Open-Problem-Lab/maintainers
+docs/WET_LAB_HANDOFF.md @Open-Problem-Lab/maintainers
+docs/EXTERNAL_REVIEW_PACKET.md @Open-Problem-Lab/maintainers
+docs/PRE_REGISTERED_PILOT_TEMPLATE.md @Open-Problem-Lab/maintainers
+
+# Benchmarks, calibration, data, and model release need responsible review.
+docs/BENCHMARK_GOVERNANCE.md @Open-Problem-Lab/maintainers
+docs/CALIBRATION_POLICY.md @Open-Problem-Lab/maintainers
+docs/DATA_GOVERNANCE.md @Open-Problem-Lab/maintainers
+docs/MODEL_CARD_TEMPLATE.md @Open-Problem-Lab/maintainers
+configs/recalibration_policy.yaml @Open-Problem-Lab/maintainers
