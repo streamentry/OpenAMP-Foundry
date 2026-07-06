@@ -448,6 +448,10 @@ bench-simulation-ablation-within-amp:
 	PYTHONPATH=src $(PYTHON) scripts/benchmark_simulation_ablation.py \
 		--mode within-amp --out outputs/simulation_ablation_within_amp.json
 
+bench-simulation-baselines:
+	PYTHONPATH=src $(PYTHON) scripts/benchmark_simulation_baselines.py \
+		--out outputs/simulation_baselines.json
+
 simulation-gate:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench simulation-gate \
 		--amp-vs-decoy-json outputs/simulation_ablation.json \

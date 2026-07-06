@@ -1,5 +1,30 @@
 # Roadmap
 
+## v0.5.58 — Simulation Cheap-Baseline Benchmark (Loop 36) ✓ (2026-07-06)
+
+Per-signal comparison: does each simulation output beat its cheapest
+meaningful heuristic baseline on the within-AMP hemolysis task?
+
+Changes:
+- ``scripts/benchmark_simulation_baselines.py`` — Compares bacterial_binding
+  vs mean_eisenberg, selectivity_ratio vs selectivity_proxy, helix_weight
+  vs helix_propensity, non_helical vs proline_fraction. ``make
+  bench-simulation-baselines`` target.
+- ``tests/test_benchmark_simulation_baselines.py`` — 13 tests.
+- ``docs/50_LOOP_PLAN.md`` — Loop 36 ✅. Next: Loop 38.
+- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.58. Test count: 1953.
+- ``docs/BENCHMARKING.md`` — Added bench-simulation-baselines (22 targets).
+
+**Honest finding: 0/4 simulation signals beat their cheapest baseline.**
+- bacterial_binding (0.4876) vs mean_eisenberg (0.5469): delta=−0.0593
+- selectivity_ratio (0.3615) vs selectivity_proxy (0.3905): delta=−0.0290
+- helix_weight (0.6458) vs helix_propensity (0.6489): delta=−0.0031
+- non_helical (0.4124) vs proline_fraction (0.4929): delta=−0.0805
+
+**Consequence:** All current simulation modules remain permanently
+experimental. Weighted mode stays blocked. Future simulation work
+must use fundamentally richer modeling (not just 1D propensities).
+
 ## v0.5.57 — Simulation Mode CLI Flag (Loop 37) ✓ (2026-07-06)
 
 Phase 3 simulation modules are now user-accessible via the `rank` CLI.
