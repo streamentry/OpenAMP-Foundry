@@ -1,5 +1,28 @@
 # Roadmap
 
+## v0.5.42 — Synthetic Lab-Result Generator ✓ (2026-07-06)
+
+The calibration loop had no way to test the full intake→gate→engine pipeline
+without real wet-lab data. This release adds a configurable synthetic lab-result
+generator that produces schema-valid JSON files with controlled effect sizes,
+noise levels, and cohort sizes.
+
+Changes:
+- Added `examples/lab_results_generator.py` — generates synthetic lab result
+  JSON files matching `schemas/lab_result.schema.json`. Supports 7 assay types
+  (MIC, MBC, hemolysis_RBC, cytotoxicity_mammalian, membrane_disruption,
+  time_kill, biofilm_inhibition). Configurable via `--cohort-size`,
+  `--effect-size`, `--noise-level`, `--assay-types`, `--seed`.
+- Every output file is explicitly labeled SYNTHETIC in organism, lab, notes,
+  and disclaimer fields to prevent confusion with real data.
+- CLI: `python examples/lab_results_generator.py` with `--panel-csv` support
+  to generate results for real candidate IDs.
+- Makefile: `make generate-synthetic-lab-results` generates 40 results (20
+  candidates, MIC + hemolysis_RBC, 40% effect size, seed 42).
+- Verified: generated files validate against `lab_result.schema.json`
+  (40/40 passed) and integrate correctly with `calibration-intake`
+  (20 candidates matched, 40 results, 0 orphans).
+
 ## v0.5.41 — Exact Charge-Balanced Synthetic Control ✓ (2026-07-06)
 
 The v0.5.39 charge-matched benchmark showed that the available background decoy
