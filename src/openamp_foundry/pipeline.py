@@ -86,6 +86,19 @@ def score_candidates(
         from openamp_foundry.scoring.expert import expert_score
         exp = expert_score(candidate.sequence, features=features)
         raw_scores["expert_composite"] = exp.composite
+        # Charge bias: fraction of activity score driven by charge density.
+        # Higher values (>0.8) indicate the candidate's score is charge-dominated.
+        # This is informational — helps identify candidates where non-charge
+        # features (hydrophobic moment, amphipathicity) are not contributing.
+        _orig = act
+        if _orig > 0 and valid:
+            _mod = dict(features)
+            _mod["charge_density_ph74"] = 0.0
+            _mod["charge_density"] = 0.0
+            _no_charge = activity_likeness_score(_mod)
+            raw_scores["charge_bias"] = round(1.0 - min(_no_charge / _orig, 1.0), 4)
+        else:
+            raw_scores["charge_bias"] = 0.0
         item = ScoredCandidate(
             candidate=candidate,
             features=features,
