@@ -1,5 +1,18 @@
 # Roadmap
 
+## v0.5.67 — Data-Return Validation Tool (Loop 47) ✓ (2026-07-06)
+
+CLI to validate lab result JSON files against the schema.
+
+Changes:
+- ``scripts/validate_lab_data_return.py`` — validates JSON files against
+  ``schemas/lab_result.schema.json``, reports per-file errors, detects
+  control failures. Exit 0 all pass, 3 any fail, 2 missing files.
+- ``tests/test_validate_lab_data_return.py`` — 8 tests.
+- ``docs/50_LOOP_PLAN.md`` — Loop 47 ✅. Next: Loop 48.
+- ``docs/METRICS_CURRENT.md`` — Changelog updated. Test count: 2008.
+- 2008 tests passing.
+
 ## v0.5.64 — Decision-Log Schema (Loop 43) ✓ (2026-07-06)
 
 Machine-readable JSON Schema for human review decisions, covering the
