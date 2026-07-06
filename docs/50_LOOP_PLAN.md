@@ -102,7 +102,7 @@ Build the multi-resolution virtual assay layer: structure proxies, membrane inte
 | 31 ✅ | No membrane interaction proxy. The simulation module had only a dummy placeholder | `simulation/membrane.py`: MembraneProxy with Wimley-White interfacial and octanol scales, bacterial/mammalian binding scores, selectivity ratio, and uncertainty. BomanBaseline clamped. v0.5.52 | 30 tests, 1873 total. Magainin more selective than melittin (verified by test). Membrane proxy initialised, benchmark deferred to Loop 34 |
 | 32 ✅ | No structure ensemble proxy. Current pipeline assumes all AMPs are helical | `simulation/structure.py`: StructureProxy with Chou-Fasman 3-state propensities, normalized ensemble weights, non_helical flag. v0.5.53 | 34 tests, 1905 total. Protegrin/tachyplesin non-helical (✅), magainin not non-helical (✅). Melittin ambiguous — Chou-Fasman limitation documented |
 | 33 ✅ | No per-module ablation: do simulation modules improve discrimination? (Original 'selectivity ratio' superseded by Loop 31 membrane proxy — replaced with more useful ablation benchmark) | `scripts/benchmark_simulation_ablation.py`: tests MembraneProxy + StructureProxy on 500-AMP AMP-vs-decoy benchmark. Reports per-module AUROC, combined composite AUROC, and verdict. v0.5.54 | 17 tests, 1922 total. Honest finding: composite degrades AMP-vs-decoy (delta=-0.1153), but bacterial_binding alone achieves 0.7512 AUROC — genuine non-charge signal from Wimley-White + hydrophobic moment |
-| 34 | No benchmark set for membrane proxy calibration | `examples/validation/membrane_reference.csv`: 30+ AMPs with known membrane activity (pore-forming, carpet, toroidal pore). Literature-sourced with citations | Dataset card exists with source, citation, and known limitations |
+| 34 ✅ | No within-AMP simulation ablation: do simulation modules improve hemolysis detection? (Original 'membrane reference CSV' deferred — higher leverage to test modules on their actual task first) | Extended `scripts/benchmark_simulation_ablation.py` with `--mode within-amp`. Tests MembraneProxy + StructureProxy on 45 hemolytic vs 125 selective AMPs. Reports per-score detection AUROC. v0.5.55 | 23 tests, 1928 total. Honest finding: best simulation helix_weight AUROC 0.6458; rich_selectivity still best at 0.7453. Simulation modules do NOT improve over existing scorers for hemolysis detection |
 | 35 | No per-module ablation: each simulation module must beat a cheap heuristic baseline before affecting selection | `benchmark/simulation_ablation.py`: compares each simulation module against trivial baseline (single-feature proxy). Reports delta AUROC for each | Any module with delta ≤ 0 is flagged as `NO_IMPROVEMENT` and disabled from production pipeline |
 | 36 | No uncertainty-aware composite that folds simulation outputs into the ranking | `scoring/simulation_composite.py`: weighted combination of simulation modules, weighted by their benchmarked AUROC. Uncertainty from `SimulationResult` propagates to final score | Uncertainty reported alongside every candidate score in evidence certificate |
 | 37 | No simulation module that meets the bar to affect selection. All may be experimental | Add `--simulation-mode` flag to the `rank` command: `off` (default, current pipeline), `info` (simulation scores in report only, no ranking impact), `weighted` (simulation affects ranking if benchmarked AUROC > 0.6) | Each mode produces distinct, documented output |
@@ -180,7 +180,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
 Phase 2: ✅ Complete (Loops 18–29)
-Phase 3: In progress — Loop 33 ✅ (Loops 30–39)
+Phase 3: In progress — Loop 34 ✅ (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```
 
@@ -241,7 +241,7 @@ Phase 4: Not started (Loops 40–49)
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**Next loop:** Loop 34 — Phase 3 (membrane reference benchmark set).
+**Next loop:** Loop 35 — Phase 3 (membrane reference benchmark set or simulation-mode CLI flag).
 
 **Phase 2 exit criteria (all 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest

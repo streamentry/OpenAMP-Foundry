@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (simulation ablation — v0.5.54)
+> **Last updated:** 2026-07-06 (within-AMP simulation ablation — v0.5.55)
+> **New in v0.5.55:** Within-AMP simulation ablation — `--mode within-amp` tests MembraneProxy + StructureProxy on hemolysis detection (45 hemolytic vs 125 selective). Honest finding: best simulation `helix_weight` AUROC 0.6458; `rich_selectivity` still best at 0.7453. 23 tests. 1928 total.
 > **New in v0.5.54:** Simulation ablation benchmark — tests MembraneProxy + StructureProxy on 500-AMP AMP-vs-decoy benchmark. Honest finding: composite degrades (delta=−0.1153) but `bacterial_binding` alone achieves AUROC 0.7512 — genuine non-charge signal. 17 new tests. 1922 total.
 > **New in v0.5.53:** Structure ensemble proxy — `StructureProxy` using Chou-Fasman 3-state helix/sheet/coil propensities. `non_helical` flag for helic-biased scorer warnings. `HelicityBaseline`. 34 new tests. 1905 total.
 > **New in v0.5.52:** Membrane interaction proxy — `MembraneProxy` using Wimley-White interfacial/octanol scales for coarse-grained bacterial and mammalian binding energy scores. `BomanBaseline` clamped. 30 new tests. 1873 total.
@@ -35,7 +36,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.54
+> **Pipeline version:** v0.5.55
 > **Branch:** main
 
 ---
@@ -1105,7 +1106,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1922 |
+| Total tests | 1928 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 

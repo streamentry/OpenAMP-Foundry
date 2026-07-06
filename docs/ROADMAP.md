@@ -1,5 +1,31 @@
 # Roadmap
 
+## v0.5.55 — Within-AMP Simulation Ablation (Loop 34) ✓ (2026-07-06)
+
+Extended the simulation ablation benchmark to test modules on their
+designed task: within-AMP hemolysis detection. Original Loop 34 plan
+(membrane reference CSV) deferred — higher leverage to test modules
+on actual task first.
+
+Changes:
+- ``scripts/benchmark_simulation_ablation.py`` — Extended with ``--mode
+  within-amp`` flag. Tests 45 hemolytic vs 125 selective AMPs from
+  ``examples/validation/hemolysis_reference.csv``. Reports per-score
+  hemolysis detection AUROC (inverted for safety-type scorers).
+- ``Makefile`` — Added ``bench-simulation-ablation-within-amp`` target.
+- ``docs/50_LOOP_PLAN.md`` — Loop 34 ✅ (re-interpreted). Next: Loop 35.
+- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.55. Test count: 1928.
+- 1928 tests passing (1905 existing + 23 updated).
+
+**Honest finding:**
+- ``rich_selectivity`` remains the best hemolysis detector (AUROC 0.7453).
+- Best simulation score: ``helix_weight`` (AUROC 0.6458) — hemolytic AMPs tend
+  to be more helical. Biologically meaningful but not competitive.
+- Simulation composite delta=-0.0995 vs rich_selectivity — modules do NOT
+  improve over existing scorers for hemolysis detection.
+- Implication: membrane and structure proxies need structural or contextual
+  features beyond 1D Chou-Fasman propensities and Wimley-White averages.
+
 ## v0.5.54 — Simulation Ablation Benchmark (Loop 33) ✓ (2026-07-06)
 
 First honest test of whether Phase 3 simulation modules improve
