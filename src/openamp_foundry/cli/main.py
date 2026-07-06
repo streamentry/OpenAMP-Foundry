@@ -41,6 +41,17 @@ def build_parser() -> argparse.ArgumentParser:
             "partially corrects the ensemble's anti-selective bias."
         ),
     )
+    rank.add_argument(
+        "--simulation-mode",
+        choices=["off", "info"],
+        default="off",
+        help=(
+            "Simulation mode: 'off' (default, no simulation scores), "
+            "'info' (run MembraneProxy and StructureProxy, include "
+            "scores in report — no ranking impact). 'weighted' mode "
+            "is not yet available (see 'make simulation-gate')."
+        ),
+    )
 
     validate = sub.add_parser("validate", help="Validate a candidate certificate against JSON schema.")
     validate.add_argument("--certificate", required=True)
@@ -1029,6 +1040,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "rank":
+        sim_mode = getattr(args, "simulation_mode", "off")
         run_ranking_pipeline(
             candidate_path=args.candidates,
             reference_path=args.references,
@@ -1038,6 +1050,7 @@ def main(argv: list[str] | None = None) -> int:
             config_path=args.config,
             manifest_path=args.manifest,
             ranking_mode=getattr(args, "ranking_mode", "ensemble"),
+            simulation_mode=sim_mode,
         )
         print(
             json.dumps(
@@ -1046,6 +1059,7 @@ def main(argv: list[str] | None = None) -> int:
                     "out": args.out,
                     "report": args.report,
                     "ranking_mode": getattr(args, "ranking_mode", "ensemble"),
+                    "simulation_mode": sim_mode,
                     "ranking_policy": ranking_policy_payload(
                         getattr(args, "ranking_mode", "ensemble")
                     ),

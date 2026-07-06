@@ -1,5 +1,26 @@
 # Roadmap
 
+## v0.5.57 — Simulation Mode CLI Flag (Loop 37) ✓ (2026-07-06)
+
+Phase 3 simulation modules are now user-accessible via the `rank` CLI.
+Jumped ahead of Loop 36 (cheap-baseline benchmark) — the CLI flag is the
+higher-leverage bottleneck because it makes the modules tangible.
+
+Changes:
+- ``src/openamp_foundry/cli/main.py`` — Added ``--simulation-mode`` argument
+  to ``rank`` parser with ``off`` (default) and ``info`` choices.
+  ``weighted`` excluded — blocked by gate (Loop 35).
+- ``src/openamp_foundry/pipeline.py`` — ``run_ranking_pipeline`` accepts
+  ``simulation_mode`` param. When ``info``: runs MembraneProxy and
+  StructureProxy on every candidate, adds ``sim_*`` keys to each
+  ScoredCandidate.scores dict. ``build_batch_report`` includes
+  ``simulation_mode`` and ``simulation_averages``. ``write_report``
+  dynamically adds simulation columns to the Markdown table.
+- ``tests/test_simulation_mode_cli.py`` — 6 tests covering: default off
+  (no sim keys), info adds keys, scores in range, report contains sim
+  columns, output JSON has simulation_mode field, all candidates have scores.
+- 1940 tests passing (1934 existing + 6 new).
+
 ## v0.5.56 — Simulation Weighted-Mode Gate (Loop 35) ✓ (2026-07-06)
 
 Phase 3 had a real honesty gap: the scope doc described `weighted` simulation

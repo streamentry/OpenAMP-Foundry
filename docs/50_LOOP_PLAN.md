@@ -105,7 +105,7 @@ Build the multi-resolution virtual assay layer: structure proxies, membrane inte
 | 34 ✅ | No within-AMP simulation ablation: do simulation modules improve hemolysis detection? (Original 'membrane reference CSV' deferred — higher leverage to test modules on their actual task first) | Extended `scripts/benchmark_simulation_ablation.py` with `--mode within-amp`. Tests MembraneProxy + StructureProxy on 45 hemolytic vs 125 selective AMPs. Reports per-score detection AUROC. v0.5.55 | 23 tests, 1928 total. Honest finding: best simulation helix_weight AUROC 0.6458; rich_selectivity still best at 0.7453. Simulation modules do NOT improve over existing scorers for hemolysis detection |
 | 35 ✅ | No executable brake prevented future agents from enabling weighted simulation despite negative ablation results | `simulation/gate.py` + `openamp-foundry bench simulation-gate`: fail-closed permission gate consuming both current ablation artifacts. `make simulation-gate` writes a machine-readable verdict. | 6 tests added; current suite 1927 passing, 7 skipped. Current verdict blocks weighted mode and downgrades to info-only |
 | 36 | No per-module cheap-baseline benchmark for within-domain simulation value | `benchmark/simulation_baselines.py`: compare each simulation signal against its cheap heuristic baseline on the same task. Report deltas + CI. | Any module with delta ≤ 0 remains permanently experimental |
-| 37 | No simulation module that meets the bar to affect selection. All may be experimental | Add `--simulation-mode` flag to the `rank` command: `off` (default, current pipeline), `info` (simulation scores in report only, no ranking impact), `weighted` (simulation affects ranking if benchmarked AUROC > 0.6) | Each mode produces distinct, documented output |
+| 37 ✅ | No `--simulation-mode` CLI flag. Simulation modules exist but users cannot access them | Added `--simulation-mode` to `rank` CLI: `off` (default) and `info` (runs MembraneProxy + StructureProxy, adds `sim_*` keys to scores, includes in JSONL/report). Weighted blocked by gate (Loop 35). v0.5.57 | 6 tests, 1940 total. Demo pipeline with `--simulation-mode info` produces sim scores for all 10 candidates. Report includes sim columns |
 | 38 | No API contract for third-party simulation modules (e.g. Martini MD, AlphaFold) | `simulation/interfaces.py` extended with `ExternalSimulationAdapter` protocol. Documented in ARCHITECTURE.md extension points | Third-party can implement the protocol without reading pipeline internals |
 | 39 | Virtual-assay benchmark report comparing simulation-augmented vs simulation-free ranking on the strict triage set | `docs/SIMULATION_BENCHMARK.md`: head-to-head comparison of sel_vs_dec, hem_vs_dec, sel_vs_hem AUROCs with and without simulation. If simulation doesn't improve strict triage, say so explicitly | Honest: if delta ≤ 0, report "simulation did not improve triage" |
 
@@ -180,7 +180,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
 Phase 2: ✅ Complete (Loops 18–29)
-Phase 3: In progress — Loop 35 ✅ (Loops 30–39)
+Phase 3: In progress — Loop 37 ✅ (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```
 

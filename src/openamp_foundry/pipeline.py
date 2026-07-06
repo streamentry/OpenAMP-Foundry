@@ -140,11 +140,39 @@ def run_ranking_pipeline(
     config_path: str | Path = "configs/pipeline.yaml",
     manifest_path: str | Path | None = None,
     ranking_mode: str = "ensemble",
+    simulation_mode: str = "off",
 ) -> list[ScoredCandidate]:
     run_id = str(uuid.uuid4())
     generated_at = datetime.now(timezone.utc).isoformat()
 
     scored, config = score_candidates(candidate_path, reference_path, config_path)
+
+    simulation_keys: list[str] = []
+    simulation_averages: dict[str, float] = {}
+    if simulation_mode in ("info", "weighted"):
+        from openamp_foundry.simulation.membrane import MembraneProxy
+        from openamp_foundry.simulation.structure import StructureProxy
+        membrane = MembraneProxy()
+        structure = StructureProxy()
+        sim_keys = [
+            "bacterial_binding", "mammalian_binding", "selectivity_ratio",
+            "helix_weight", "sheet_weight", "coil_weight", "non_helical",
+        ]
+        sim_totals: dict[str, float] = {k: 0.0 for k in sim_keys}
+        for sc in scored:
+            mem_result = membrane.simulate(sc.candidate.sequence)
+            struct_result = structure.simulate(sc.candidate.sequence)
+            for key in ["bacterial_binding", "mammalian_binding", "selectivity_ratio"]:
+                val = mem_result.scores.get(key, 0.0)
+                sc.scores[f"sim_{key}"] = val
+                sim_totals[key] += val
+            for key in ["helix_weight", "sheet_weight", "coil_weight", "non_helical"]:
+                val = struct_result.scores.get(key, 0.0)
+                sc.scores[f"sim_{key}"] = val
+                sim_totals[key] += val
+        n = len(scored) if scored else 1
+        simulation_keys = [f"sim_{k}" for k in sim_keys]
+        simulation_averages = {k: round(v / n, 4) for k, v in sim_totals.items()}
     selection_cfg = config.get("selection", {})
     min_novelty = float(selection_cfg.get("min_novelty", 0.0))
     max_safety_risk = float(selection_cfg.get("max_safety_risk", 1.0))
@@ -188,8 +216,12 @@ def run_ranking_pipeline(
             write_json(cert_root / f"{item.candidate.candidate_id}.json", cert)
 
     if report_path:
-        write_report(report_path, ranked, selected)
-        batch_report = build_batch_report(ranked, selected, generated_at, ranking_mode=ranking_mode)
+        write_report(report_path, ranked, selected, simulation_keys=simulation_keys)
+        batch_report = build_batch_report(
+            ranked, selected, generated_at, ranking_mode=ranking_mode,
+            simulation_mode=simulation_mode,
+            simulation_averages=simulation_averages,
+        )
         report_json = Path(report_path).with_suffix(".json")
         write_json(report_json, batch_report)
 
@@ -223,10 +255,12 @@ def build_batch_report(
     selected: list[ScoredCandidate],
     generated_at: str,
     ranking_mode: str = "ensemble",
+    simulation_mode: str = "off",
+    simulation_averages: dict[str, float] | None = None,
 ) -> dict[str, Any]:
     """Build a machine-readable batch report validatable against batch_report.schema.json."""
     selected_ids = {item.candidate.candidate_id for item in selected}
-    return {
+    report: dict[str, Any] = {
         "pipeline_version": __version__,
         "candidate_count": len(ranked),
         "selected_count": len(selected),
@@ -254,14 +288,31 @@ def build_batch_report(
         "ranking_mode": ranking_mode,
         "ranking_policy": ranking_policy_payload(ranking_mode),
     }
+    if simulation_mode != "off" and simulation_averages:
+        report["simulation_mode"] = simulation_mode
+        report["simulation_averages"] = simulation_averages
+    return report
 
 
 def write_report(
-    path: str | Path, ranked: list[ScoredCandidate], selected: list[ScoredCandidate]
+    path: str | Path,
+    ranked: list[ScoredCandidate],
+    selected: list[ScoredCandidate],
+    simulation_keys: list[str] | None = None,
 ) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     selected_ids = {item.candidate.candidate_id for item in selected}
+    sim_keys = simulation_keys or []
+
+    header = "| Rank | ID | Seq | Ensemble | Activity | Safety | Synthesis | Novelty | Selected |"
+    sep = "|---:|---|---|---:|---:|---:|---:|---:|:---:|"
+    if sim_keys:
+        for k in sim_keys:
+            display = k.replace("sim_", "Sim ").replace("_", " ")
+            header = header.replace("| Selected |", f"| {display} | Selected |")
+            sep = sep.replace("|:---:|", "|---:|:---:|")
+
     lines = [
         "# OpenAMP Foundry Candidate Report",
         "",
@@ -273,15 +324,19 @@ def write_report(
         f"Total candidates scored: {len(ranked)}",
         f"Candidates selected (passed all filters, diverse): {len(selected)}",
         "",
-        "| Rank | ID | Seq | Ensemble | Activity | Safety | Synthesis | Novelty | Selected |",
-        "|---:|---|---|---:|---:|---:|---:|---:|:---:|",
+        header,
+        sep,
     ]
     for idx, item in enumerate(ranked, start=1):
         s = item.scores
         sel_mark = "Y" if item.candidate.candidate_id in selected_ids else ""
-        lines.append(
+        cols = (
             f"| {idx} | {item.candidate.candidate_id} | `{item.candidate.sequence}` | "
             f"{s['ensemble']:.4f} | {s['activity']:.4f} | {s['safety']:.4f} | "
-            f"{s['synthesis']:.4f} | {s['novelty']:.4f} | {sel_mark} |"
+            f"{s['synthesis']:.4f} | {s['novelty']:.4f} |"
         )
+        if sim_keys:
+            cols += " " + " | ".join(f"{s.get(k, 0.0):.4f}" for k in sim_keys) + " |"
+        cols += f" {sel_mark} |"
+        lines.append(cols)
     p.write_text("\n".join(lines) + "\n", encoding="utf-8")
