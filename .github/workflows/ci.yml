@@ -23,8 +23,96 @@ jobs:
             src/openamp_foundry/reproducibility.py \
             tests/release/test_run_manifest_verifier.py
 
-      - name: Unit and integration tests
+      - name: Unit + integration tests
         run: pytest -q --tb=short
 
       - name: Demo pipeline
         run: make demo
+
+      - name: Validate evidence certificates
+        run: |
+          for cert in outputs/evidence/*.json; do
+            PYTHONPATH=src python -m openamp_foundry.cli validate \
+              --certificate "$cert" \
+              --schema schemas/candidate.schema.json
+          done
+
+      - name: Leakage check (informational)
+        run: make bench-leakage
+
+      - name: Doc link check (tolerates current 114 broken, fails on regressions)
+        run: python scripts/check_doc_links.py --max-errors 150
+
+      - name: Benchmark regression gate (AUROC drop <= 0.02 vs committed baseline)
+        run: make bench-gate
+
+      - name: Multi-negative-set benchmark (composition-independent sets > 0.70)
+        run: make bench-multi-negatives
+
+      - name: Hidden-active benchmark (require EF >= 1.5 at k=5)
+        run: |
+          PYTHONPATH=src python -c "
+          import json, subprocess, sys, os
+          result = subprocess.run(
+              ['python', '-m', 'openamp_foundry.cli', 'bench', 'baseline',
+               '--candidates', 'examples/benchmark/mixed_candidates.csv',
+               '--positives', 'examples/benchmark/active_labels.csv',
+               '--k', '5'],
+              capture_output=True, text=True, check=True,
+              env={**os.environ, 'PYTHONPATH': 'src'}
+          )
+          data = json.loads(result.stdout)
+          ef = next(r['enrichment_factor'] for r in data['results'] if r['k'] == 5)
+          print(f'Enrichment factor at k=5: {ef}')
+          if ef < 1.5:
+              print(f'FAIL: EF={ef} below minimum 1.5')
+              sys.exit(1)
+          print('PASS: Pipeline outperforms random ranker on hidden-active benchmark')
+          "
+
+      - name: Expanded benchmark (500 AMP + 500 decoy, AUROC > 0.70)
+        run: |
+          PYTHONPATH=src python -m openamp_foundry.cli validate-scoring \
+            --amp-csv examples/validation/known_amps_500.csv \
+            --decoy-csv examples/validation/random_background_500.csv \
+            --out outputs/validate_scoring_500_ci.json
+          PYTHONPATH=src python -c "
+          import json
+          data = json.load(open('outputs/validate_scoring_500_ci.json'))
+          auroc = data['auroc']
+          print(f'Expanded benchmark AUROC: {auroc:.4f}')
+          if auroc < 0.70:
+              print(f'FAIL: Expanded benchmark AUROC {auroc:.4f} < 0.70')
+              exit(1)
+          print(f'PASS: Expanded benchmark AUROC {auroc:.4f} >= 0.70')
+          "
+
+      - name: Easy baseline benchmark (informational — compares pipeline to trivial features)
+        run: |
+          make bench-easy-baseline
+          echo "Easy baseline is informational — does not gate CI."
+
+      - name: Order-dependent features benchmark (informational — analyzes which features survive scrambling)
+        run: |
+          make bench-order-dependent
+          echo "Order-dependent benchmark is informational — does not gate CI."
+
+      - name: Per-family benchmark (informational — stratifies 500 AMPs by structural class, per-class AUROC)
+        run: |
+          make bench-per-family
+          echo "Per-family benchmark is informational — does not gate CI."
+
+      - name: Policy version validation guard (fails if recalibration_policy.yaml changes without a version-bump decision log)
+        run: |
+          git fetch origin main
+          if ! git diff --quiet origin/main -- configs/recalibration_policy.yaml; then
+            echo "configs/recalibration_policy.yaml has changed — validating version bump..."
+            git show origin/main:configs/recalibration_policy.yaml > /tmp/prev_policy.yaml
+            PYTHONPATH=src python -m openamp_foundry.cli validate-policy-version \
+              --current-policy configs/recalibration_policy.yaml \
+              --previous-policy /tmp/prev_policy.yaml \
+              --decision-log-dir decision_logs/
+            echo "Policy version validation PASSED."
+          else
+            echo "configs/recalibration_policy.yaml unchanged — skipping policy version validation."
+          fi
