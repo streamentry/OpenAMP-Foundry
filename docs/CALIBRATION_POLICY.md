@@ -1,231 +1,223 @@
 # Recalibration Policy
 
-> **Purpose:** Define the pre-registered, human-authored policy that gates
-> any pipeline recalibration in OpenAMP Foundry. This document explains the
-> policy; the machine-readable contract is `configs/recalibration_policy.yaml`.
->
-> **Status:** v0.5.20 — ratified alongside the recalibration-gate CLI.
+## Purpose
 
----
+This document defines the pre-registered policy that gates any OpenAMP recalibration.
+
+The machine-readable contract lives in `configs/recalibration_policy.yaml`.
+
+The policy exists because the most dangerous failure mode in a feedback-loop discovery system is silent self-rewriting after seeing outcomes.
+
+## Prime rule
+
+**Lab-result intake may describe what happened. It may not change ranking behavior unless the recalibration gate permits it and a qualified human review records the decision.**
+
+A `may_recalibrate=true` verdict is permission to consider a change.
+
+It is not a command to change the model.
 
 ## Why this exists
 
-Calibration intake (`openamp-foundry calibration-intake`, v0.5.19) joins
-computational predictions with validated lab results and produces a
-per-candidate report. It is intentionally **descriptive only**: it does
-NOT trigger any weight update, scoring change, or selection rule
-modification.
+OpenAMP’s long-term goal is wet-lab compression: learn which experiments are worth running next.
 
-The next step in the wet-lab compression roadmap is to **act on** those
-intake reports when the evidence is strong enough — and ONLY then. The
-most dangerous failure mode is silent recalibration: an agent sees real
-wet-lab data, decides the scorer "needs improvement," and rewrites
-weights to fit. That is exactly the cherry-picking the project exists
-to prevent.
+That requires learning from outcomes.
 
-This policy is the formal gate against silent recalibration. It
-encodes:
+But naive learning creates cherry-picking risk:
 
-- **minimum conditions** — what a cohort must look like before any
-  recalibration is even considered (cohort size, controls, no orphans,
-  confirmed actives and inactives);
-- **prohibited actions** — permanent safety floors that no recalibration
-  may relax (toxicity, hemolysis, novelty, pathogen enhancement, success
-  redefinition);
-- **rate limits** — how much weight can change per event and how often
-  recalibration may occur;
-- **required reviewer artefacts** — what humans must produce for a
-  recalibration to be considered scientifically valid.
-
-The policy is **machine-readable** (`configs/recalibration_policy.yaml`)
-and **machine-enforced** (`openamp_foundry.calibration.policy` +
-`openamp_foundry.calibration.recalibration_gate`). The CLI
-`openamp-foundry recalibration-gate` evaluates an intake report against
-the policy and emits a binary verdict plus a list of reasons.
-
----
-
-## What the gate actually does
-
-```bash
-# 1. Generate an intake report from a pilot panel + lab results dir
-make lab-result-intake PANEL=... RESULTS_DIR=...
-# 2. Evaluate the recalibration gate against that report + the policy
-make recalibration-gate INTAKE=outputs/calibration_intake.json
+```text
+see result
+  -> adjust weights to make past result look expected
+  -> claim improvement
+  -> lose scientific validity
 ```
+
+The recalibration policy prevents that failure by separating:
+
+1. result intake;
+2. gate evaluation;
+3. weight-change proposal;
+4. human review;
+5. documented decision;
+6. future-batch selection.
+
+## What the gate protects
+
+The gate protects against:
+
+- too-small cohorts;
+- failed or missing controls;
+- orphan results;
+- post-hoc success redefinition;
+- relaxing safety floors;
+- relaxing novelty floors;
+- activity-only optimization;
+- excessive weight movement;
+- too-frequent recalibration;
+- undocumented reviewer decisions.
+
+## Current recalibration architecture
+
+```text
+lab result files
+  -> calibration intake
+  -> intake report
+  -> recalibration gate
+  -> gate verdict
+  -> recalibration engine proposal, if allowed
+  -> human review
+  -> decision log
+  -> next-batch selection
+```
+
+The engine is subordinate to the gate.
+
+If the gate rejects recalibration, the engine must not change ranking behavior.
+
+## Gate evaluation
 
 The gate:
 
-1. Loads and validates `configs/recalibration_policy.yaml`. If a
-   minimum_condition rule is missing its `locked_changes` entry, OR
-   any canonical prohibited action is removed, the policy itself is
-   rejected at load time.
-2. Loads the intake report produced by `calibration-intake`.
-3. Evaluates every `minimum_conditions` rule against the report. If
-   ANY rule fails, the verdict is `may_recalibrate=false`.
-4. Audits every `prohibited_actions` entry (informational only;
-   surfaced in the verdict so reviewers see the floors).
-5. Evaluates every `rate_limits` entry. When inputs are missing,
-   status is `unknown`; when thresholds are violated, status is
-   `exceeded` (and the verdict lists it as a reason).
-6. Checks whether each `required_reviewer_artefacts` file exists on
-   disk. Missing artefacts are surfaced but do not by themselves
-   block the gate; the human review is the final step.
+1. Loads and validates `configs/recalibration_policy.yaml`.
+2. Rejects the policy if canonical prohibited actions are missing.
+3. Loads the calibration intake report.
+4. Evaluates minimum conditions.
+5. Surfaces prohibited actions as non-negotiable floors.
+6. Evaluates rate limits where inputs are available.
+7. Reports missing reviewer artifacts.
+8. Emits a binary verdict plus reasons.
 
-Exit code:
+Exit codes:
 
-- `0` when `may_recalibrate=true`
-- `3` when `may_recalibrate=false`
-- `2` when an input is missing or malformed
+| Code | Meaning |
+|---:|---|
+| 0 | Gate permits recalibration consideration. |
+| 3 | Gate rejects recalibration. |
+| 2 | Input missing or malformed. |
 
----
+## Minimum conditions
 
-## The minimum conditions
+| Rule | Purpose |
+|---|---|
+| `MIN_COHORT_SIZE` | Prevent one-off cherry-picking. |
+| `MIN_POSITIVES_IN_COHORT` | Require positive evidence before learning from hits. |
+| `MIN_NEGATIVES_IN_COHORT` | Require negative evidence before learning from failures. |
+| `POSITIVE_CONTROLS_ALL_PASS` | Prevent interpreting a failed experiment as model evidence. |
+| `NEGATIVE_CONTROLS_ALL_PASS` | Prevent false-positive interpretation. |
+| `NO_ORPHAN_LAB_RESULTS` | Require every result to map to a known panel candidate. |
+| `COHORT_METRICS_AVAILABLE` | Require enough data to interpret cohort behavior. |
 
-| Rule                          | Default | Purpose                                              |
-|-------------------------------|---------|------------------------------------------------------|
-| `MIN_COHORT_SIZE`             | 5       | Anti-cherry-picking floor for cohort size.            |
-| `MIN_POSITIVES_IN_COHORT`     | 2       | At least two confirmed active hits.                   |
-| `MIN_NEGATIVES_IN_COHORT`     | 2       | At least two confirmed inactive results.              |
-| `POSITIVE_CONTROLS_ALL_PASS`  | true    | No failed positive controls allowed.                  |
-| `NEGATIVE_CONTROLS_ALL_PASS`  | true    | No failed negative controls allowed.                  |
-| `NO_ORPHAN_LAB_RESULTS`       | 0       | All lab results must match a panel candidate.         |
-| `COHORT_METRICS_AVAILABLE`    | false   | Cohort metrics must not be flagged insufficient_data. |
+Every rule should be listed in `locked_changes` in the policy YAML.
 
-Every rule is also listed in `locked_changes` in the policy YAML.
-Removing or relaxing a rule requires bumping `policy_version` AND
-writing a dated decision log entry that explains why.
+Relaxing any rule requires a policy version bump and decision record.
 
----
+## Permanent prohibited actions
 
-## The prohibited actions (permanent floor)
+These floors are not normal tunable parameters.
 
-These rules CANNOT be relaxed by any future policy edit. They duplicate
-the non-negotiable safety floors already encoded in `AGENTS.md` and
-`MISSION.md`.
+| ID | Meaning |
+|---|---|
+| `NO_TOXICITY_RELAXATION` | Do not improve apparent activity by allowing more toxic candidates. |
+| `NO_HEMOLYSIS_RELAXATION` | Do not relax hemolysis-related safety floors to rescue hits. |
+| `NO_NOVELTY_RELAXATION` | Do not make rediscovery look like novelty. |
+| `NO_DANGEROUS_PATHGEN_OPTIMIZATION` | Do not optimize harmful biological capability. |
+| `NO_POST_HOC_SUCCESS_REDEFINITION` | Do not change success definitions after seeing outcomes. |
 
-| ID                                  | Why it is permanent                                  |
-|-------------------------------------|------------------------------------------------------|
-| `NO_TOXICITY_RELAXATION`            | AGENTS.md forbids activity-only optimization.       |
-| `NO_HEMOLYSIS_RELAXATION`           | MISSION.md requires dual-use review.                |
-| `NO_NOVELTY_RELAXATION`             | AGENTS.md identifies rediscovering AMPs as a threat.|
-| `NO_DANGEROUS_PATHGEN_OPTIMIZATION` | AGENTS.md forbids dangerous operational content.    |
-| `NO_POST_HOC_SUCCESS_REDEFINITION`  | Anti-cherry-picking; success must be fixed in advance.|
-
-A policy file that omits any of these is rejected at load time. To
-remove one entirely would require deleting the entire policy file and
-starting from scratch — which is itself auditable in git history.
-
----
+A policy file that omits canonical prohibited actions should fail validation.
 
 ## Rate limits
 
-| Rule                       | Default | Purpose                                       |
-|----------------------------|---------|-----------------------------------------------|
-| `WEIGHT_CHANGE_L1_BUDGET`  | 0.10    | Maximum L1 weight change per event.           |
-| `COOLDOWN_DAYS`            | 14      | Minimum days between consecutive recalibrations. |
+Rate limits prevent overfitting to a small or noisy batch.
 
-These are checked when the corresponding CLI inputs are supplied
-(`--weight-l1-distance` and `--previous-recalibration-at`). Without
-inputs, the status is `unknown` and the gate still answers the binary
-question — but the verdict surfaces that the rate limit was not
-evaluable.
+| Rule | Purpose |
+|---|---|
+| `WEIGHT_CHANGE_L1_BUDGET` | Limits total weight movement per event. |
+| `COOLDOWN_DAYS` | Prevents repeated rapid recalibration. |
 
----
+If rate-limit inputs are missing, the verdict should surface uncertainty rather than pretending the rate limit was evaluated.
 
-## Required reviewer artefacts
+## Reviewer artifacts
 
-| Artefact              | Path                                    | Purpose                            |
-|-----------------------|-----------------------------------------|------------------------------------|
-| `INTAKE_REPORT_JSON`  | `outputs/calibration_intake.json`       | Machine-readable intake report.    |
-| `INTAKE_REPORT_MARKDOWN` | `outputs/calibration_intake.md`       | Human-readable intake report.      |
-| `DECISION_LOG_ENTRY`  | `docs/DECISION_LOG_<YYYY-MM-DD>.md`     | Human-authored rationale + proposal.|
+A recalibration decision should have:
 
-These are surfaced in the verdict and counted as `reasons` when missing,
-but they do not by themselves block the gate. The human review IS the
-final step.
+- intake report JSON;
+- intake report Markdown;
+- gate verdict;
+- proposed weight update if any;
+- human decision log;
+- explanation of why the update is allowed or rejected;
+- next-batch impact statement;
+- claim-boundary statement.
 
----
+Missing reviewer artifacts should be visible.
 
-## What this policy is NOT
+## Human review standard
 
-- **Not a recalibrator.** The gate does not move weights or change
-  scoring. It only emits a verdict.
-- **Not a replacement for human review.** A `may_recalibrate=true`
-  verdict is a *permission*, not a *command*. The decision to actually
-  apply a weight change still belongs to a human reviewer with a
-  documented decision log entry.
-- **Not a static barrier.** A future maintainer may relax the cohort
-  size threshold from 5 to 7 if the evidence justifies it. They MUST
-  bump `policy_version` and write a decision log entry first. The
-  validator surfaces missing `locked_changes` entries as load errors.
-- **Not a substitute for benchmark honesty.** The gate evaluates
-  *cohort evidence*, not pipeline calibration health. Benchmark
-  regressions are caught by `make validate-scoring` and the triage
-  benchmark, not by this policy.
+Human review must answer:
 
----
+1. Did the gate permit recalibration?
+2. Are controls interpretable?
+3. Does the result beat relevant baselines?
+4. Does the proposed change preserve safety floors?
+5. Does the proposed change preserve novelty floors?
+6. Does the proposed change respect the L1 budget?
+7. What claim, if any, becomes stronger?
+8. What claim must remain unchanged?
+9. What next-batch decision changes?
+10. What would make this update wrong?
 
-## How to update the policy
+## Rejection is success
 
-If real wet-lab data justifies a policy change:
+A rejected recalibration is not a failed system.
 
-1. Open `configs/recalibration_policy.yaml`.
-2. Bump `policy_version` (integer; never decrement).
-3. Update `locked_at` to today's ISO date.
-4. Update `human_reviewer` to identify the reviewer.
-5. Make the rule changes.
-6. If a rule is being RELAXED, add a `locked_changes` entry with the
-   new `locked_at` date and the reason.
-7. If a rule is being REMOVED, add a decision log entry
-   (`docs/DECISION_LOG_<date>.md`) explaining why. The validator will
-   reject the file until the removal is recorded.
-8. If a canonical prohibited action is being removed entirely, STOP.
-   That change is not allowed.
+It means the evidence was not strong enough to justify changing behavior.
 
-The policy validator (`openamp_foundry.calibration.policy`) enforces
-steps 5–7 mechanically. The CI gate
-(`tests/test_recalibration_gate.py::test_canonical_prohibited_actions_match_policy`)
-enforces the canonical prohibited-action list.
+The gate should reject often when data are weak, noisy, uncontrolled, too small, unsafe, or ambiguous.
 
----
+## What this policy is not
 
-## How this fits the wet-lab compression roadmap
+This policy is not:
 
-| Roadmap step                | Status        | Where it lives                              |
-|-----------------------------|---------------|---------------------------------------------|
-| Lab-result schema           | Done (v0.5.18)| `schemas/lab_result.schema.json`            |
-| Lab-result intake report    | Done (v0.5.19)| `openamp_foundry.calibration.intake`        |
-| **Recalibration policy**    | **Done (v0.5.20)** | `configs/recalibration_policy.yaml` + `openamp_foundry.calibration.policy` + `openamp_foundry.calibration.recalibration_gate` |
-| Recalibration *engine*      | Pending       | Future loop, after real lab data arrives     |
-| Active-learning selection   | Pending       | Future loop, depends on recalibration engine |
+- proof that a candidate works;
+- proof that OpenAMP improves discovery;
+- a replacement for human review;
+- a benchmark regression gate;
+- a safety review by itself;
+- a license to optimize activity at the expense of safety;
+- a way to change success definitions after the fact.
 
-The recalibration policy is the **gate that protects** the
-recalibration engine. Building the engine without the gate would be
-silent cherry-picking. Building the gate now — before real data
-arrives — is the honest sequence.
+## Policy update procedure
 
----
+To update the policy:
 
-## Quick command reference
+1. State the reason for change.
+2. Identify whether the change tightens, relaxes, or clarifies a rule.
+3. Bump `policy_version`.
+4. Update `locked_at`.
+5. Add or update `locked_changes` entries.
+6. Write a dated decision log entry.
+7. Run policy validation tests.
+8. Update docs if interpretation changes.
+9. Require human review for any relaxation.
+10. Stop if the change removes a canonical prohibited action.
 
-```bash
-# Show policy summary (no evaluation needed)
-cat configs/recalibration_policy.yaml | head -40
+## Relationship to benchmark governance
 
-# Run the synthetic example end-to-end
-make lab-result-intake-example
-make recalibration-gate-example
-# Expect exit code 3 (FAIL) because the synthetic cohort is too small
-# and one positive control failed.
+Recalibration gates cohort-driven updates.
 
-# Evaluate a real intake report
-make recalibration-gate \
-  INTAKE=outputs/calibration_intake.json \
-  DATE=2026-08-15 \
-  PREV=2026-07-01 \
-  L1=0.05
+Benchmark governance gates model and benchmark claims.
 
-# Run the gate in tests
-pytest tests/test_recalibration_gate.py -v
-```
+Both are required.
+
+A recalibration may be allowed by cohort evidence but still rejected if it worsens benchmark honesty or violates safety boundaries.
+
+## Relationship to proof ladder
+
+Recalibration can improve the system’s internal decision policy.
+
+It does not automatically move a candidate up the proof ladder.
+
+A candidate moves up the proof ladder only through the relevant evidence, especially qualified experimental results and independent replication.
+
+## Final standard
+
+The recalibration policy should make OpenAMP capable of learning from biology without letting the project rewrite its past to look smarter than it was.
