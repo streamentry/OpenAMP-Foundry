@@ -243,7 +243,7 @@ def build_parser() -> argparse.ArgumentParser:
         "metrics-snapshot",
         help=(
             "Build a machine-readable snapshot of the repo's current benchmark truth. "
-            "Use this to refresh docs/METRICS_CURRENT.md evidence and catch number drift."
+            "Use this to refresh docs/evidence/METRICS_CURRENT.md evidence and catch number drift."
         ),
     )
     metrics_snapshot.add_argument(

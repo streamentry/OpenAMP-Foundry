@@ -170,7 +170,7 @@ All results will be reported, including:
 - Synthesis failures (no product / low purity).
 
 Negative results will be archived in `outputs/negative_result_archive.csv`
-per the schema in `docs/NEGATIVE_RESULT_ARCHIVE.md`.
+per the schema in `docs/evidence/NEGATIVE_RESULT_ARCHIVE.md`.
 
 ---
 
@@ -188,7 +188,7 @@ per the schema in `docs/NEGATIVE_RESULT_ARCHIVE.md`.
 
 - `configs/wave1_pass_fail.yaml` — Machine-readable pass/fail criteria.
 - `scripts/lab/check_wave1_pass_fail.py` — CLI to validate batch results.
-- `docs/ASSAY_PREREGISTRATION.md` — Pre-registered assay protocol.
-- `docs/LAB_PARTNER_ONBOARDING.md` — Lab partner instructions.
+- `docs/review/ASSAY_PREREGISTRATION.md` — Pre-registered assay protocol.
+- `docs/review/LAB_PARTNER_ONBOARDING.md` — Lab partner instructions.
 - `schemas/lab_result.schema.json` — Data return schema.
 - `schemas/decision_log.schema.json` — Decision log format.

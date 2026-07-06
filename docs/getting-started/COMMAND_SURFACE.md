@@ -84,9 +84,9 @@ A valid certificate is a review artifact.
 
 Benchmarks should be interpreted using:
 
-- [`docs/BENCHMARKING.md`](BENCHMARKING.md)
-- [`docs/BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md)
-- [`docs/METRICS_CURRENT.md`](METRICS_CURRENT.md)
+- [`docs/evidence/BENCHMARKING.md`](../evidence/BENCHMARKING.md)
+- [`docs/evidence/BENCHMARK_GOVERNANCE.md`](../evidence/BENCHMARK_GOVERNANCE.md)
+- [`docs/evidence/METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md)
 
 Important benchmark families include:
 

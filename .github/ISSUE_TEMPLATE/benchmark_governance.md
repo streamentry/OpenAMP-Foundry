@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this template for benchmark proposals, benchmark changes, or benchmark interpretation updates. Read `docs/BENCHMARK_GOVERNANCE.md` before opening.
+        Use this template for benchmark proposals, benchmark changes, or benchmark interpretation updates. Read `docs/evidence/BENCHMARK_GOVERNANCE.md` before opening.
   - type: textarea
     id: question
     attributes:
@@ -81,9 +81,9 @@ body:
     attributes:
       label: Review requirements
       options:
-        - label: `docs/BENCHMARK_GOVERNANCE.md` considered.
+        - label: `docs/evidence/BENCHMARK_GOVERNANCE.md` considered.
           required: true
-        - label: `docs/METRICS_CURRENT.md` will be updated if results change.
+        - label: `docs/evidence/METRICS_CURRENT.md` will be updated if results change.
           required: true
         - label: Cheap-baseline comparison is included or explicitly deferred with reason.
           required: true

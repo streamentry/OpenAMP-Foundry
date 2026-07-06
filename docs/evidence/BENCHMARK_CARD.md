@@ -5,7 +5,7 @@
 >
 > This card covers all Phase 1 benchmark honesty work (Loops 9–17). Every finding
 > is backed by machine-readable output and a `make` target. For detailed
-> per-benchmark narrative, see `docs/METRICS_CURRENT.md`.
+> per-benchmark narrative, see `docs/evidence/METRICS_CURRENT.md`.
 
 ---
 
@@ -17,7 +17,7 @@
 | Benchmark type | Retrospective AUROC (composition-matched decoys) + 7 auxiliary benchmarks |
 | Date | 2026-07-05 |
 | Config | `configs/pipeline.yaml` (primary), `configs/phase3.yaml` (synthesis gate) |
-| Commit | See `docs/METRICS_CURRENT.md` |
+| Commit | See `docs/evidence/METRICS_CURRENT.md` |
 
 ## Data
 

@@ -27,7 +27,7 @@ Make the repo easier to run, understand, and verify.
 | A1 | Add a `make doctor` command that checks Python version, package install, expected folders, and key optional tools. | New users fail less. | B |
 | A2 | Add `openamp-foundry doctor` CLI equivalent. | Agents can self-diagnose environment issues. | B |
 | A3 | Generate a first-run report after `make demo`. | New users understand outputs faster. | B |
-| A4 | Add a `docs/FIRST_RUN_WALKTHROUGH.md` with expected outputs and claim boundaries. | Converts demo into onboarding. | A |
+| A4 | Add a `docs/getting-started/FIRST_RUN_WALKTHROUGH.md` with expected outputs and claim boundaries. | Converts demo into onboarding. | A |
 | A5 | Add test that README quickstart commands stay valid. | Prevents entrypoint drift. | B |
 | A6 | Add link-check CI for internal docs. | Prevents doc graph rot. | B |
 | A7 | Add a `make docs-check` target. | Agents can verify doc-only PRs. | B |

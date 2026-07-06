@@ -185,7 +185,7 @@ Before a dataset enters a gate benchmark, answer:
 5. Is charge/length/composition shortcut risk documented?
 6. Does the benchmark answer the intended claim?
 7. Is the benchmark card complete?
-8. Is the result recorded in `docs/METRICS_CURRENT.md`?
+8. Is the result recorded in `docs/evidence/METRICS_CURRENT.md`?
 
 ## Data deprecation
 

@@ -33,7 +33,7 @@ Mitigation:
 - `VISION.md`;
 - `GOAL.md`;
 - `docs/PROJECT_INDEX.md`;
-- `docs/NEXT_100_PR_MAP.md`;
+- `docs/research/NEXT_100_PR_MAP.md`;
 - `GOVERNANCE.md`;
 - decision records.
 
@@ -90,8 +90,8 @@ The repo is succession-ready when these are current:
 - `MODEL_RELEASE_POLICY.md`;
 - `docs/PROJECT_INDEX.md`;
 - `docs/TRUST_CENTER.md`;
-- `docs/METRICS_CURRENT.md`;
-- `docs/NEXT_100_PR_MAP.md`;
+- `docs/evidence/METRICS_CURRENT.md`;
+- `docs/research/NEXT_100_PR_MAP.md`;
 - `docs/RELEASE_CHECKLIST.md`;
 - `docs/RISK_REGISTER.md`.
 

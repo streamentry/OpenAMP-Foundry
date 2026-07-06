@@ -31,7 +31,7 @@ The output is descriptive and audit-only. It does NOT:
 
 Recalibration decisions must follow a separate, human-reviewed workflow
 that explicitly compares pre-registered selection rules against observed
-outcomes. See docs/WAVE2_PLAN.md and docs/DECISION_RULES.md.
+outcomes. See docs/research/WAVE2_PLAN.md and docs/evidence/DECISION_RULES.md.
 """
 from __future__ import annotations
 
@@ -69,8 +69,8 @@ _DISCLAIMER = (
     "or clinical utility. It does NOT trigger recalibration, weight updates, "
     "or changes to the pre-registered selection rule. Recalibration requires a "
     "separate human-reviewed decision log and must not rewrite success "
-    "definitions after the fact. See docs/DECISION_RULES.md and "
-    "docs/WAVE2_PLAN.md for the pre-registered Wave 2 workflow."
+    "definitions after the fact. See docs/evidence/DECISION_RULES.md and "
+    "docs/research/WAVE2_PLAN.md for the pre-registered Wave 2 workflow."
 )
 
 
@@ -114,7 +114,7 @@ def _is_active_mic(result):
 
     Returns None when the result is qualitative-only or the assay is not MIC.
     Conservative cutoff at MIC <= 32 ug/mL matches the Wave 2 plan's "active"
-    definition (docs/WAVE2_PLAN.md, Scenario B).
+    definition (docs/research/WAVE2_PLAN.md, Scenario B).
     """
     if result.get("assay_type") != "MIC":
         return None
@@ -491,7 +491,7 @@ def write_calibration_intake_markdown(report, out_path):
         "- All aggregate metrics are descriptive only. They do not validate the pipeline.",
         "- Cohort metrics do NOT control for selection bias from the pre-registered shortlist.",
         "- Below the minimum cohort size, no point estimate is reported. This prevents small-sample theater.",
-        "- Recalibration requires a separate human-reviewed decision log (see docs/DECISION_RULES.md).",
+        "- Recalibration requires a separate human-reviewed decision log (see docs/evidence/DECISION_RULES.md).",
         "- This report does NOT change scoring weights, ensemble composition, or selection rules.",
         "",
     ]

@@ -103,8 +103,8 @@ Package behavior must remain aligned with docs under [`docs/PROJECT_INDEX.md`](P
 | Benchmark card | Documents benchmark purpose, data, baselines, and limits. | [`BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) |
 | Dataset card | Documents source, license, labels, preprocessing, bias, and release status. | [`DATA_GOVERNANCE.md`](DATA_GOVERNANCE.md) |
 | Model or adapter card | Documents model/adapter scope, benchmarks, limitations, and release status. | [`MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md) |
-| Review packet | Packages artifacts for qualified external review. | [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) |
-| Decision record | Records important governance decisions. | [`DECISION_RECORD_TEMPLATE.md`](DECISION_RECORD_TEMPLATE.md) |
+| Review packet | Packages artifacts for qualified external review. | [`EXTERNAL_REVIEW_PACKET.md`](review/EXTERNAL_REVIEW_PACKET.md) |
+| Decision record | Records important governance decisions. | [`DECISION_RECORD_TEMPLATE.md`](operations/DECISION_RECORD_TEMPLATE.md) |
 
 ## Threat model
 

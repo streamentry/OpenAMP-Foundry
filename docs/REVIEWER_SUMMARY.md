@@ -66,7 +66,7 @@ assay is mandatory for all candidates.
 - All candidates are short synthetic peptides — standard BSL-2 handling adequate
 - No disulfide-constrained, no lipopeptide, no toxin-directed candidates
 - No pathogen-enhancing sequences in panel
-- Pre-registered assay protocol locked before synthesis (`docs/ASSAY_PREREGISTRATION.md`)
+- Pre-registered assay protocol locked before synthesis (`docs/review/ASSAY_PREREGISTRATION.md`)
 
 ---
 

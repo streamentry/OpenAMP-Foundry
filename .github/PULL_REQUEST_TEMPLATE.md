@@ -9,7 +9,7 @@
 - [ ] Class C — scientific behavior change: scoring, selection, benchmark, calibration, simulation
 - [ ] Class D — safety-sensitive or wet-lab-facing change
 
-See `docs/MAINTAINER_GUIDE.md`.
+See `docs/getting-started/MAINTAINER_GUIDE.md`.
 
 ## Type of change
 
@@ -49,8 +49,8 @@ Required for scorer, predictor, simulator, ranking, calibration, active-learning
 - [ ] Cheapest meaningful baseline identified
 - [ ] Baseline comparison included or change is explicitly informational only
 - [ ] Benchmark leakage or shortcut risks considered
-- [ ] `docs/METRICS_CURRENT.md` updated if metrics changed
-- [ ] `docs/BENCHMARKING.md` / `docs/BENCHMARK_GOVERNANCE.md` updated if benchmark behavior changed
+- [ ] `docs/evidence/METRICS_CURRENT.md` updated if metrics changed
+- [ ] `docs/evidence/BENCHMARKING.md` / `docs/evidence/BENCHMARK_GOVERNANCE.md` updated if benchmark behavior changed
 
 ## Verification
 
@@ -66,7 +66,7 @@ Required for scorer, predictor, simulator, ranking, calibration, active-learning
 
 - [ ] This PR was not agent-generated
 - [ ] This PR was fully or partly agent-generated and human-reviewed
-- [ ] Agent-generated changes stayed within `docs/AGENT_ONBOARDING.md` boundaries
+- [ ] Agent-generated changes stayed within `docs/getting-started/AGENT_ONBOARDING.md` boundaries
 
 ## Evidence
 

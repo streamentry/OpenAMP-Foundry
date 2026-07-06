@@ -93,7 +93,7 @@ A benchmark may gate releases or integration only when:
 - cheap baselines are included;
 - known limitations are recorded;
 - thresholds are pre-registered;
-- metric drift is visible in `docs/METRICS_CURRENT.md`;
+- metric drift is visible in `docs/evidence/METRICS_CURRENT.md`;
 - CI or a manual release checklist enforces the relevant gate.
 
 ## Stage 5 — Maintenance and deprecation

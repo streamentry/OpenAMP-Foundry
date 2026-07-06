@@ -24,10 +24,10 @@ Read these first:
 - CLAUDE.md
 - MISSION.md
 - README.md
-- docs/ARCHITECTURE.md
+- docs/engineering/ARCHITECTURE.md
 - docs/PLAN.md
-- docs/ROADMAP.md
-- docs/METRICS_CURRENT.md
+- docs/research/ROADMAP.md
+- docs/evidence/METRICS_CURRENT.md
 - docs/CALIBRATION_POLICY.md (if present — pre-registered recalibration gate)
 - docs/SAFE_SCOPE.md
 

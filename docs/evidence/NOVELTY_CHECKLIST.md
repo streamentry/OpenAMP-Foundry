@@ -85,7 +85,7 @@ E.g. for SEED-008:
 | 4 | SEED-007_VAR_001 | | | | | | | | |
 | ... | (all 20) | | | | | | | | |
 
-Use 72-AMP broad novelty check (`docs/NOVELTY_BROAD_CHECK.md`) as internal baseline.
+Use 72-AMP broad novelty check (`docs/evidence/NOVELTY_BROAD_CHECK.md`) as internal baseline.
 The external checks above are required before publishing novelty claims.
 
 ---

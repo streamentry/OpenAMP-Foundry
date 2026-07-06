@@ -25,7 +25,7 @@ Common artifacts:
 
 ## Benchmarks
 
-Each benchmark has or should have a `make` target, a script in `scripts/`, and a documented result in `docs/METRICS_CURRENT.md` and `outputs/metrics_snapshot.json` where applicable.
+Each benchmark has or should have a `make` target, a script in `scripts/`, and a documented result in `docs/evidence/METRICS_CURRENT.md` and `outputs/metrics_snapshot.json` where applicable.
 
 ### Core discrimination
 

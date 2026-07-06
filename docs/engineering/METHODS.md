@@ -259,7 +259,7 @@ UniProt antimicrobial sequences.
 
 Weights were set by expert judgment before any candidate generation. They are not
 data-optimized and have not been validated. The scoring rule is pre-registered in
-`docs/SELECTION_RULE.md`.
+`docs/evidence/SELECTION_RULE.md`.
 
 ---
 
@@ -272,7 +272,7 @@ data-optimized and have not been validated. The scoring rule is pre-registered i
 3. **Diversity select**: Greedy selection with pairwise similarity cap of 0.80
 4. **Target batch**: Up to 100 candidates
 
-The complete pre-registered rule is in `docs/SELECTION_RULE.md`.
+The complete pre-registered rule is in `docs/evidence/SELECTION_RULE.md`.
 
 ### 5.2 Pilot Panel Selection (first-synthesis wave)
 

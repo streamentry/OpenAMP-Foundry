@@ -33,10 +33,10 @@ Before making nontrivial changes, agents should read:
 1. [`docs/README.md`](docs/README.md) — task-based documentation map.
 2. [`SAFETY.md`](SAFETY.md) — safety policy.
 3. [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md) — allowed and disallowed uses.
-4. [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md) — task workflow.
+4. [`docs/getting-started/AGENT_ONBOARDING.md`](docs/getting-started/AGENT_ONBOARDING.md) — task workflow.
 5. [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) — claim levels.
-6. [`docs/HIGH_LEVERAGE_TASKS.md`](docs/HIGH_LEVERAGE_TASKS.md) — task priority map.
-7. [`docs/NEXT_100_PR_MAP.md`](docs/NEXT_100_PR_MAP.md) — PR-sized backlog.
+6. [`docs/operations/HIGH_LEVERAGE_TASKS.md`](docs/operations/HIGH_LEVERAGE_TASKS.md) — task priority map.
+7. [`docs/research/NEXT_100_PR_MAP.md`](docs/research/NEXT_100_PR_MAP.md) — PR-sized backlog.
 8. [`docs/TRUST_CENTER.md`](docs/TRUST_CENTER.md) — trust architecture.
 
 If these docs conflict, safety and claim discipline win.
@@ -148,7 +148,7 @@ Preferred language for dry-lab artifacts:
 
 Avoid stronger language unless the proof ladder supports it.
 
-Use [`docs/CLAIM_REVIEW_CHECKLIST.md`](docs/CLAIM_REVIEW_CHECKLIST.md) before editing public-facing language.
+Use [`docs/evidence/CLAIM_REVIEW_CHECKLIST.md`](docs/evidence/CLAIM_REVIEW_CHECKLIST.md) before editing public-facing language.
 
 ## Proof ladder rule
 
@@ -197,7 +197,7 @@ Common cheap enemies:
 
 If a new method does not beat its cheap enemy, it may remain informational, but agents must not give it ranking authority.
 
-Use [`docs/BENCHMARK_GOVERNANCE.md`](docs/BENCHMARK_GOVERNANCE.md).
+Use [`docs/evidence/BENCHMARK_GOVERNANCE.md`](docs/evidence/BENCHMARK_GOVERNANCE.md).
 
 ## Simulation rule
 
@@ -207,7 +207,7 @@ Agents must not present proxy models as validated biology.
 
 A virtual-assay module may affect ranking only when the documented gate allows it.
 
-Use [`docs/VIRTUAL_ASSAY_SCOPE.md`](docs/VIRTUAL_ASSAY_SCOPE.md) and [`docs/SIMULATION_BENCHMARK.md`](docs/SIMULATION_BENCHMARK.md).
+Use [`docs/VIRTUAL_ASSAY_SCOPE.md`](docs/VIRTUAL_ASSAY_SCOPE.md) and [`docs/evidence/SIMULATION_BENCHMARK.md`](docs/evidence/SIMULATION_BENCHMARK.md).
 
 ## Data and model rule
 
@@ -221,7 +221,7 @@ Use:
 - [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md)
 - [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md)
 - [`docs/MODEL_CARD_TEMPLATE.md`](docs/MODEL_CARD_TEMPLATE.md)
-- [`docs/ARTIFACT_VERSIONING.md`](docs/ARTIFACT_VERSIONING.md)
+- [`docs/engineering/ARTIFACT_VERSIONING.md`](docs/engineering/ARTIFACT_VERSIONING.md)
 
 ## Reproducibility rule
 
@@ -247,10 +247,10 @@ A good packet helps reviewers reject weak candidates, weak benchmarks, weak clai
 
 Use:
 
-- [`docs/EXTERNAL_REVIEW_PACKET.md`](docs/EXTERNAL_REVIEW_PACKET.md)
-- [`docs/EXPERT_REVIEW_PACK.md`](docs/EXPERT_REVIEW_PACK.md)
-- [`docs/WET_LAB_HANDOFF.md`](docs/WET_LAB_HANDOFF.md)
-- [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](docs/PRE_REGISTERED_PILOT_TEMPLATE.md)
+- [`docs/review/EXTERNAL_REVIEW_PACKET.md`](docs/review/EXTERNAL_REVIEW_PACKET.md)
+- [`docs/review/EXPERT_REVIEW_PACK.md`](docs/review/EXPERT_REVIEW_PACK.md)
+- [`docs/review/WET_LAB_HANDOFF.md`](docs/review/WET_LAB_HANDOFF.md)
+- [`docs/review/PRE_REGISTERED_PILOT_TEMPLATE.md`](docs/review/PRE_REGISTERED_PILOT_TEMPLATE.md)
 
 ## Human review triggers
 

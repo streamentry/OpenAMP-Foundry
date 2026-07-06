@@ -41,7 +41,7 @@ All candidates have:
 - Machine-readable evidence certificates (Phase 8)
 
 External predictor review for Wave 0.5 was completed after this panel recommendation was first drafted.
-Treat this file as the panel-selection record; use `docs/METRICS_CURRENT.md` for the current external-consensus state.
+Treat this file as the panel-selection record; use `docs/evidence/METRICS_CURRENT.md` for the current external-consensus state.
 
 No antimicrobial activity is claimed until qualified wet-lab validation.
 

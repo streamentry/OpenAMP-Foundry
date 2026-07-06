@@ -18,15 +18,15 @@ The long-term infrastructure ambition is described in [`VISION.md`](VISION.md), 
 
 | You are | Read first | Then read |
 |---|---|---|
-| New human contributor | [`docs/README.md`](docs/README.md) | [`docs/FIRST_RUN_WALKTHROUGH.md`](docs/FIRST_RUN_WALKTHROUGH.md), [`CONTRIBUTING.md`](CONTRIBUTING.md) |
-| AI agent | [`AGENTS.md`](AGENTS.md) | [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md), [`docs/HUMAN_AGENT_COLLABORATION.md`](docs/HUMAN_AGENT_COLLABORATION.md) |
-| Reviewer | [`docs/REVIEWER_ONBOARDING.md`](docs/REVIEWER_ONBOARDING.md) | [`docs/CLAIM_REVIEW_CHECKLIST.md`](docs/CLAIM_REVIEW_CHECKLIST.md), [`docs/RISK_REGISTER.md`](docs/RISK_REGISTER.md) |
-| Computational scientist | [`docs/evidence/README.md`](docs/evidence/README.md) | [`docs/METRICS_CURRENT.md`](docs/METRICS_CURRENT.md), [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md) |
-| Data/schema/model contributor | [`docs/SCHEMA_REGISTRY.md`](docs/SCHEMA_REGISTRY.md) | [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md), [`docs/ADAPTER_AUTHOR_GUIDE.md`](docs/ADAPTER_AUTHOR_GUIDE.md) |
-| Wet-lab/domain expert | [`docs/WET_LAB_HANDOFF.md`](docs/WET_LAB_HANDOFF.md) | [`docs/EXTERNAL_REVIEW_PACKET.md`](docs/EXTERNAL_REVIEW_PACKET.md), [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](docs/PRE_REGISTERED_PILOT_TEMPLATE.md) |
+| New human contributor | [`docs/README.md`](docs/README.md) | [`docs/getting-started/FIRST_RUN_WALKTHROUGH.md`](docs/getting-started/FIRST_RUN_WALKTHROUGH.md), [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| AI agent | [`AGENTS.md`](AGENTS.md) | [`docs/getting-started/AGENT_ONBOARDING.md`](docs/getting-started/AGENT_ONBOARDING.md), [`docs/operations/HUMAN_AGENT_COLLABORATION.md`](docs/operations/HUMAN_AGENT_COLLABORATION.md) |
+| Reviewer | [`docs/getting-started/REVIEWER_ONBOARDING.md`](docs/getting-started/REVIEWER_ONBOARDING.md) | [`docs/evidence/CLAIM_REVIEW_CHECKLIST.md`](docs/evidence/CLAIM_REVIEW_CHECKLIST.md), [`docs/RISK_REGISTER.md`](docs/RISK_REGISTER.md) |
+| Computational scientist | [`docs/evidence/README.md`](docs/evidence/README.md) | [`docs/evidence/METRICS_CURRENT.md`](docs/evidence/METRICS_CURRENT.md), [`docs/evidence/BENCHMARKING.md`](docs/evidence/BENCHMARKING.md) |
+| Data/schema/model contributor | [`docs/engineering/SCHEMA_REGISTRY.md`](docs/engineering/SCHEMA_REGISTRY.md) | [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md), [`docs/engineering/ADAPTER_AUTHOR_GUIDE.md`](docs/engineering/ADAPTER_AUTHOR_GUIDE.md) |
+| Wet-lab/domain expert | [`docs/review/WET_LAB_HANDOFF.md`](docs/review/WET_LAB_HANDOFF.md) | [`docs/review/EXTERNAL_REVIEW_PACKET.md`](docs/review/EXTERNAL_REVIEW_PACKET.md), [`docs/review/PRE_REGISTERED_PILOT_TEMPLATE.md`](docs/review/PRE_REGISTERED_PILOT_TEMPLATE.md) |
 | Safety reviewer | [`docs/TRUST_CENTER.md`](docs/TRUST_CENTER.md) | [`SAFETY.md`](SAFETY.md), [`SECURITY.md`](SECURITY.md) |
 | Funder/institution | [`docs/OPEN_INFRASTRUCTURE_MOAT.md`](docs/OPEN_INFRASTRUCTURE_MOAT.md) | [`docs/ADOPTION_METRICS.md`](docs/ADOPTION_METRICS.md), [`GOVERNANCE.md`](GOVERNANCE.md) |
-| Maintainer | [`GOVERNANCE.md`](GOVERNANCE.md) | [`docs/SUSTAINABILITY_AND_BUS_FACTOR.md`](docs/SUSTAINABILITY_AND_BUS_FACTOR.md), [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) |
+| Maintainer | [`GOVERNANCE.md`](GOVERNANCE.md) | [`docs/operations/SUSTAINABILITY_AND_BUS_FACTOR.md`](docs/operations/SUSTAINABILITY_AND_BUS_FACTOR.md), [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) |
 
 ## Why this repo exists
 
@@ -130,7 +130,7 @@ python -m openamp_foundry.cli validate \
   --schema schemas/candidate.schema.json
 ```
 
-For first-run interpretation, read [`docs/FIRST_RUN_WALKTHROUGH.md`](docs/FIRST_RUN_WALKTHROUGH.md). For command interpretation, read [`docs/COMMAND_SURFACE.md`](docs/COMMAND_SURFACE.md). Commands produce artifacts; artifacts support claims only when the proof ladder allows them.
+For first-run interpretation, read [`docs/getting-started/FIRST_RUN_WALKTHROUGH.md`](docs/getting-started/FIRST_RUN_WALKTHROUGH.md). For command interpretation, read [`docs/getting-started/COMMAND_SURFACE.md`](docs/getting-started/COMMAND_SURFACE.md). Commands produce artifacts; artifacts support claims only when the proof ladder allows them.
 
 ## Repository map
 
@@ -160,35 +160,35 @@ openamp-foundry/
   docs/TRUST_CENTER.md                   # safety/evidence/governance trust front door
   docs/OPEN_INFRASTRUCTURE_MOAT.md       # durable infrastructure thesis
   docs/NUMBER_ONE_REPO_STANDARD.md       # category-leader standard
-  docs/FIRST_RUN_WALKTHROUGH.md          # first-run path
-  docs/COMMAND_SURFACE.md                # command workflows and claim boundaries
-  docs/SCHEMA_REGISTRY.md                # schema and artifact registry
-  docs/RUN_MANIFEST_STANDARD.md          # provenance standard
-  docs/ADAPTER_AUTHOR_GUIDE.md           # safe adapter authoring
+  docs/getting-started/FIRST_RUN_WALKTHROUGH.md          # first-run path
+  docs/getting-started/COMMAND_SURFACE.md                # command workflows and claim boundaries
+  docs/engineering/SCHEMA_REGISTRY.md                # schema and artifact registry
+  docs/engineering/RUN_MANIFEST_STANDARD.md          # provenance standard
+  docs/engineering/ADAPTER_AUTHOR_GUIDE.md           # safe adapter authoring
   docs/RISK_REGISTER.md                  # major risks and mitigations
-  docs/SUSTAINABILITY_AND_BUS_FACTOR.md  # sustainability and bus-factor plan
+  docs/operations/SUSTAINABILITY_AND_BUS_FACTOR.md  # sustainability and bus-factor plan
   docs/PUBLICATION_POLICY.md             # public claims policy
-  docs/NEXT_100_PR_MAP.md                # PR-sized roadmap
-  docs/CI_AND_QUALITY_GATES.md           # CI and quality gates
-  docs/HUMAN_AGENT_COLLABORATION.md      # human-agent collaboration model
-  docs/REVIEWER_ONBOARDING.md            # reviewer guide
+  docs/research/NEXT_100_PR_MAP.md                # PR-sized roadmap
+  docs/engineering/CI_AND_QUALITY_GATES.md           # CI and quality gates
+  docs/operations/HUMAN_AGENT_COLLABORATION.md      # human-agent collaboration model
+  docs/getting-started/REVIEWER_ONBOARDING.md            # reviewer guide
   docs/ADOPTION_METRICS.md               # adoption metrics focused on trust
-  docs/DECISION_RECORD_TEMPLATE.md       # decision record template
-  docs/HUMAN_ONBOARDING.md               # human contributor onboarding
-  docs/AGENT_ONBOARDING.md               # agent task protocol
+  docs/operations/DECISION_RECORD_TEMPLATE.md       # decision record template
+  docs/getting-started/HUMAN_ONBOARDING.md               # human contributor onboarding
+  docs/getting-started/AGENT_ONBOARDING.md               # agent task protocol
   docs/PROOF_LADDER.md                   # evidence levels and claim ladder
-  docs/CLAIM_REVIEW_CHECKLIST.md         # claim review checklist
+  docs/evidence/CLAIM_REVIEW_CHECKLIST.md         # claim review checklist
   docs/DATA_GOVERNANCE.md                # data governance standard
   docs/MODEL_CARD_TEMPLATE.md            # model/adapter card template
-  docs/ARTIFACT_VERSIONING.md            # artifact compatibility policy
+  docs/engineering/ARTIFACT_VERSIONING.md            # artifact compatibility policy
   docs/RELEASE_CHECKLIST.md              # release checklist
-  docs/BENCHMARKING.md                   # benchmark suite
-  docs/BENCHMARK_GOVERNANCE.md           # benchmark lifecycle and governance
-  docs/METRICS_CURRENT.md                # current benchmark summary
+  docs/evidence/BENCHMARKING.md                   # benchmark suite
+  docs/evidence/BENCHMARK_GOVERNANCE.md           # benchmark lifecycle and governance
+  docs/evidence/METRICS_CURRENT.md                # current benchmark summary
   docs/CALIBRATION_POLICY.md             # recalibration gate policy
-  docs/EVIDENCE_CERTIFICATE.md           # candidate certificate spec
+  docs/evidence/EVIDENCE_CERTIFICATE.md           # candidate certificate spec
   docs/VIRTUAL_ASSAY_SCOPE.md            # virtual-assay scope and gates
-  docs/WET_LAB_HANDOFF.md                # safe expert-review handoff guide
+  docs/review/WET_LAB_HANDOFF.md                # safe expert-review handoff guide
   examples/                              # toy datasets only
   outputs/.gitkeep                       # generated files ignored by git
   schemas/                               # JSON schemas

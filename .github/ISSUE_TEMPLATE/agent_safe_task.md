@@ -57,8 +57,8 @@ body:
       label: Relevant docs
       description: Which docs should the contributor or agent read first?
       value: |
-        - docs/AGENT_ONBOARDING.md
-        - docs/HIGH_LEVERAGE_TASKS.md
+        - docs/getting-started/AGENT_ONBOARDING.md
+        - docs/operations/HIGH_LEVERAGE_TASKS.md
         - SAFETY.md
     validations:
       required: true

@@ -140,7 +140,7 @@ def write_pilot_markdown(panel: list[dict], path: str | Path, generated_at: str 
         "make pilot    # selects this panel from the nominees",
         "```",
         "",
-        "Full methodology: `docs/NOMINATION_REPORT.md`",
+        "Full methodology: `docs/evidence/NOMINATION_REPORT.md`",
     ]
 
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")

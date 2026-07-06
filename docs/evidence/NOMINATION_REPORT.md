@@ -203,7 +203,7 @@ cathelicidins, melittin (hemolysis control), and the five seed sequences themsel
 ensemble = 0.35 × activity + 0.30 × safety + 0.20 × synthesis + 0.15 × novelty
 ```
 
-Weights were fixed in `docs/SELECTION_RULE.md` before any candidate generation run.
+Weights were fixed in `docs/evidence/SELECTION_RULE.md` before any candidate generation run.
 Boman activity is NOT included in the ensemble — it is a transparency/audit signal only.
 
 ### 4.8 Model Disagreement
@@ -233,7 +233,7 @@ Candidates where both scores are high (low disagreement) are computationally str
 ## 5. Selection Criteria
 
 Selection was executed by `src/openamp_foundry/selection/` using `configs/phase3.yaml`.
-The complete pre-registered rule is in `docs/SELECTION_RULE.md`.
+The complete pre-registered rule is in `docs/evidence/SELECTION_RULE.md`.
 
 ### 5.1 Hard Filters
 
@@ -362,8 +362,8 @@ The pipeline produces a complete, verifiable evidence chain:
 | Evidence certificates (JSON) | `outputs/phase3_evidence/` | Schema-validated per-candidate certificate |
 | Batch pack (JSON) | `outputs/phase3_batch_pack.json` | Five sub-reports: diversity, novelty, toxicity, synthesis, consensus |
 | Batch pack (Markdown) | `outputs/phase3_batch_pack.md` | Human-readable version of batch pack |
-| Expert review pack | `docs/EXPERT_REVIEW_PACK.md` | Lab handoff document with dual-scorer data |
-| Pre-registered selection rule | `docs/SELECTION_RULE.md` | Rule locked before candidate generation |
+| Expert review pack | `docs/review/EXPERT_REVIEW_PACK.md` | Lab handoff document with dual-scorer data |
+| Pre-registered selection rule | `docs/evidence/SELECTION_RULE.md` | Rule locked before candidate generation |
 | Config | `configs/phase3.yaml` | All thresholds and weights |
 | Generator | `src/openamp_foundry/generators/template_mutator.py` | Deterministic substitution code |
 | Benchmark | `src/openamp_foundry/benchmark/` | Validation that pipeline recovers known AMPs |
@@ -423,7 +423,7 @@ This section is mandatory for scientific integrity.
 
 The following steps cannot be completed computationally:
 
-1. **Expert sign-off** (microbiologist or peptide chemist): review `docs/EXPERT_REVIEW_PACK.md`
+1. **Expert sign-off** (microbiologist or peptide chemist): review `docs/review/EXPERT_REVIEW_PACK.md`
 2. **Extended novelty check**: BLAST candidates against APD3 / DRAMP databases
 3. **Synthesis**: Standard SPPS at a qualified CRO or peptide synthesis facility
 4. **MIC assay**: Against clinically relevant organisms (e.g., E. coli ATCC 25922, S. aureus ATCC 29213)

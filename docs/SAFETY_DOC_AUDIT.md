@@ -34,10 +34,10 @@ OpenAMP should be a dry-lab evidence, review, and result-intake infrastructure p
 
 | Document | Risk found | Remediation |
 |---|---|---|
-| `docs/WET_LAB_HANDOFF.md` | Mixed score interpretation with operational wet-lab guidance. | Refactored into safe expert-review handoff guide. |
-| `docs/LAB_PARTNER_ONBOARDING.md` | Included synthesis and assay operational details. | Refactored into non-protocol partner onboarding and review-boundary doc. |
-| `docs/ASSAY_PREREGISTRATION.md` | Included concrete assay parameters and operational procedure details. | Refactored into candidate-selection pilot pre-registration template. |
-| `docs/EXPERT_REVIEW_PACK.md` | Included panel-specific candidate table and stronger review-to-testing language. | Refactored into reusable safe expert-review packet template. |
+| `docs/review/WET_LAB_HANDOFF.md` | Mixed score interpretation with operational wet-lab guidance. | Refactored into safe expert-review handoff guide. |
+| `docs/review/LAB_PARTNER_ONBOARDING.md` | Included synthesis and assay operational details. | Refactored into non-protocol partner onboarding and review-boundary doc. |
+| `docs/review/ASSAY_PREREGISTRATION.md` | Included concrete assay parameters and operational procedure details. | Refactored into candidate-selection pilot pre-registration template. |
+| `docs/review/EXPERT_REVIEW_PACK.md` | Included panel-specific candidate table and stronger review-to-testing language. | Refactored into reusable safe expert-review packet template. |
 | `README.md` | Repo map did not fully reflect new governance and review docs. | Updated with governance, review, and safety-oriented entrypoints. |
 | `.github/PULL_REQUEST_TEMPLATE.md` | Needed stronger proof-ladder and safety review checks. | Expanded PR template. |
 | Issue templates | Missing structured safety/agent/benchmark triage. | Added agent-safe, benchmark-governance, and safety-review issue templates. |

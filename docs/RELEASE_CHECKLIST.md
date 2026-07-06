@@ -40,7 +40,7 @@ A release is a trust event.
 
 ### 3. Benchmarks
 
-- [ ] `docs/METRICS_CURRENT.md` updated if metrics changed.
+- [ ] `docs/evidence/METRICS_CURRENT.md` updated if metrics changed.
 - [ ] Benchmark commands recorded.
 - [ ] Cheap-baseline comparisons included for advanced methods.
 - [ ] Benchmark failures or regressions documented.
@@ -92,7 +92,7 @@ A release is a trust event.
 
 - [ ] `docs/PROJECT_INDEX.md` updated if docs changed.
 - [ ] `README.md` updated if entrypoint changed.
-- [ ] `docs/HIGH_LEVERAGE_TASKS.md` or `docs/NEXT_100_PR_MAP.md` updated if strategy changed.
+- [ ] `docs/operations/HIGH_LEVERAGE_TASKS.md` or `docs/research/NEXT_100_PR_MAP.md` updated if strategy changed.
 - [ ] Issue templates/labels still match workflow.
 - [ ] Maintainer decision logs created for major decisions.
 

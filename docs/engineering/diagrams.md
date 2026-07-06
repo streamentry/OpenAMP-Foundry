@@ -311,6 +311,6 @@ Thresholds (identity = matches / query length, BLOSUM62 local):
 | 3 | `scripts/novelty/run_expanded_novelty_audit.py` | independent novelty re-audit |
 | 5 | `scripts/research/screen_1000_candidates.py` (Macrel) + web predictors | `outputs/screening_1000/` |
 | 6 | `scripts/novelty/run_patent_blastp.py` | `outputs/patent_blastp_*/ip_clearance_report.md` |
-| 7 | `docs/WET_LAB_HANDOFF.md` | synthesis order + assay plan |
+| 7 | `docs/review/WET_LAB_HANDOFF.md` | synthesis order + assay plan |
 
-*See `docs/NOVELTY_AUDIT_GUIDE.md` for the canonical novelty methodology and database provenance.*
+*See `docs/evidence/NOVELTY_AUDIT_GUIDE.md` for the canonical novelty methodology and database provenance.*

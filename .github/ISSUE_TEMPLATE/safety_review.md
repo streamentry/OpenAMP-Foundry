@@ -46,7 +46,7 @@ body:
         - RESPONSIBLE_USE.md
         - MODEL_RELEASE_POLICY.md
         - docs/PROOF_LADDER.md
-        - docs/EXTERNAL_REVIEW_PACKET.md
+        - docs/review/EXTERNAL_REVIEW_PACKET.md
     validations:
       required: true
   - type: dropdown

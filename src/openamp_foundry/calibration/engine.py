@@ -411,7 +411,7 @@ def write_weight_update_proposal_markdown(
     lines.append("1. A human reviewer must read this proposal.")
     lines.append("2. Verify the gate verdict at the referenced path.")
     lines.append("3. If approved, sign a dated decision log entry")
-    lines.append("   (see ``docs/DECISION_RULES.md``).")
+    lines.append("   (see ``docs/evidence/DECISION_RULES.md``).")
     lines.append("4. Apply the approved weight changes by editing")
     lines.append("   the scoring config file.")
     lines.append("5. Regenerate all benchmark outputs after applying.")

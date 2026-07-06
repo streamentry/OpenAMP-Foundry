@@ -233,7 +233,7 @@ SEED-009: RRLPRPGYMPRP    → search "RRLPRPG" in each database
 
 If none of these motifs have exact database matches, the novelty claim is strong.
 
-See `docs/NOVELTY_CHECKLIST.md` for the full step-by-step guide.
+See `docs/evidence/NOVELTY_CHECKLIST.md` for the full step-by-step guide.
 
 ---
 
@@ -252,9 +252,9 @@ infectious disease specialist — ideally someone who:
 | Document | Purpose |
 |----------|---------|
 | `docs/REVIEWER_SUMMARY.md` | 2-page quick overview — start here |
-| `docs/EXPERT_REVIEW_PACK.md` | Full expert review packet with all candidate data |
-| `docs/NOVELTY_AUDIT_FULL.md` | Novelty classification against 120-AMP library |
-| `docs/BENCHMARK_CARD.md` | Benchmark methodology and metrics |
+| `docs/review/EXPERT_REVIEW_PACK.md` | Full expert review packet with all candidate data |
+| `docs/evidence/NOVELTY_AUDIT_FULL.md` | Novelty classification against 120-AMP library |
+| `docs/evidence/BENCHMARK_CARD.md` | Benchmark methodology and metrics |
 | Generated questionnaires | `make questionnaire` → `outputs/questionnaire/*.md` |
 
 ### Reviewer Questionnaire
@@ -328,7 +328,7 @@ make synthesis-order
 
 ## Step 6 — Lock Pre-Registration
 
-1. Fill in PI signature in `docs/ASSAY_PREREGISTRATION.md` §9
+1. Fill in PI signature in `docs/review/ASSAY_PREREGISTRATION.md` §9
 2. Commit the filled document to the repo (locked before wet-lab data)
 3. Share the assay protocol with the wet-lab team
 

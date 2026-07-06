@@ -42,7 +42,7 @@ Before public claims, complete:
 Use:
 
 - [`PROOF_LADDER.md`](PROOF_LADDER.md)
-- [`CLAIM_REVIEW_CHECKLIST.md`](CLAIM_REVIEW_CHECKLIST.md)
+- [`CLAIM_REVIEW_CHECKLIST.md`](../evidence/CLAIM_REVIEW_CHECKLIST.md)
 - [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md)
 - [`SAFETY.md`](../SAFETY.md)
 
@@ -105,7 +105,7 @@ When communicating benchmark results, state:
 
 Do not copy stale metrics across many docs.
 
-Link to [`METRICS_CURRENT.md`](METRICS_CURRENT.md) when possible.
+Link to [`METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md) when possible.
 
 ## Candidate communication
 

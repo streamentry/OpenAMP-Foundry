@@ -43,8 +43,8 @@ These docs define current project truth.
 | `SAFETY.md` | Safety policy. |
 | `RESPONSIBLE_USE.md` | Allowed/disallowed use. |
 | `MODEL_RELEASE_POLICY.md` | Artifact release boundaries. |
-| `docs/METRICS_CURRENT.md` | Current benchmark metrics. |
-| `docs/DECISION_RULES.md` | Gates and thresholds. |
+| `docs/evidence/METRICS_CURRENT.md` | Current benchmark metrics. |
+| `docs/evidence/DECISION_RULES.md` | Gates and thresholds. |
 | `docs/CALIBRATION_POLICY.md` | Recalibration gate policy. |
 | `docs/PROJECT_INDEX.md` | Navigation hub. |
 
@@ -57,10 +57,10 @@ These docs tell people and agents how to work.
 - `AGENTS.md`
 - `CLAUDE.md`
 - `CONTRIBUTING.md`
-- `docs/AGENT_ONBOARDING.md`
-- `docs/HUMAN_ONBOARDING.md`
-- `docs/HIGH_LEVERAGE_TASKS.md`
-- `docs/MAINTAINER_GUIDE.md`
+- `docs/getting-started/AGENT_ONBOARDING.md`
+- `docs/getting-started/HUMAN_ONBOARDING.md`
+- `docs/operations/HIGH_LEVERAGE_TASKS.md`
+- `docs/getting-started/MAINTAINER_GUIDE.md`
 
 If a workflow changes, these may need updates.
 
@@ -68,12 +68,12 @@ If a workflow changes, these may need updates.
 
 These explain systems and artifacts.
 
-- `docs/ARCHITECTURE.md`
-- `docs/BENCHMARKING.md`
-- `docs/BENCHMARK_GOVERNANCE.md`
-- `docs/EVIDENCE_CERTIFICATE.md`
+- `docs/engineering/ARCHITECTURE.md`
+- `docs/evidence/BENCHMARKING.md`
+- `docs/evidence/BENCHMARK_GOVERNANCE.md`
+- `docs/evidence/EVIDENCE_CERTIFICATE.md`
 - `docs/VIRTUAL_ASSAY_SCOPE.md`
-- `docs/SIMULATION_BENCHMARK.md`
+- `docs/evidence/SIMULATION_BENCHMARK.md`
 
 If code behavior changes, these may need updates.
 
@@ -81,9 +81,9 @@ If code behavior changes, these may need updates.
 
 These help outsiders safely evaluate or reuse the project.
 
-- `docs/COLLABORATION_PLAYBOOK.md`
-- `docs/WET_LAB_HANDOFF.md`
-- `docs/PRE_REGISTERED_PILOT_TEMPLATE.md`
+- `docs/review/COLLABORATION_PLAYBOOK.md`
+- `docs/review/WET_LAB_HANDOFF.md`
+- `docs/review/PRE_REGISTERED_PILOT_TEMPLATE.md`
 - `docs/ADOPTION_STRATEGY.md`
 - `docs/OPEN_BIOTECH_STACK.md`
 - `docs/PROOF_LADDER.md`
@@ -96,18 +96,18 @@ If external-facing language changes, these need review.
 
 Update:
 
-- `docs/METRICS_CURRENT.md`
+- `docs/evidence/METRICS_CURRENT.md`
 - `outputs/metrics_snapshot.json` if generated
-- `docs/BENCHMARKING.md` if benchmark meaning changed
-- `docs/ROADMAP.md` or `docs/50_LOOP_PLAN.md` if milestone changed
+- `docs/evidence/BENCHMARKING.md` if benchmark meaning changed
+- `docs/research/ROADMAP.md` or `docs/50_LOOP_PLAN.md` if milestone changed
 
 ### Benchmark added or changed
 
 Update:
 
-- `docs/BENCHMARKING.md`
-- `docs/BENCHMARK_GOVERNANCE.md` if governance status changes
-- `docs/METRICS_CURRENT.md` after result exists
+- `docs/evidence/BENCHMARKING.md`
+- `docs/evidence/BENCHMARK_GOVERNANCE.md` if governance status changes
+- `docs/evidence/METRICS_CURRENT.md` after result exists
 - Makefile target where appropriate
 - tests for benchmark behavior
 
@@ -115,10 +115,10 @@ Update:
 
 Update:
 
-- `docs/ARCHITECTURE.md`
-- `docs/METRICS_CURRENT.md` if metrics changed
-- `docs/DECISION_RULES.md` if gates changed
-- `docs/EVIDENCE_CERTIFICATE.md` if certificate semantics changed
+- `docs/engineering/ARCHITECTURE.md`
+- `docs/evidence/METRICS_CURRENT.md` if metrics changed
+- `docs/evidence/DECISION_RULES.md` if gates changed
+- `docs/evidence/EVIDENCE_CERTIFICATE.md` if certificate semantics changed
 - `README.md` if user workflow changed
 
 ### Safety or release boundary changed
@@ -129,8 +129,8 @@ Update:
 - `RESPONSIBLE_USE.md`
 - `MODEL_RELEASE_POLICY.md`
 - `CONTRIBUTING.md`
-- `docs/MAINTAINER_GUIDE.md`
-- `docs/COLLABORATION_PLAYBOOK.md`
+- `docs/getting-started/MAINTAINER_GUIDE.md`
+- `docs/review/COLLABORATION_PLAYBOOK.md`
 
 Human safety review required.
 
@@ -140,8 +140,8 @@ Update:
 
 - `AGENTS.md`
 - `CLAUDE.md`
-- `docs/AGENT_ONBOARDING.md`
-- `docs/HIGH_LEVERAGE_TASKS.md`
+- `docs/getting-started/AGENT_ONBOARDING.md`
+- `docs/operations/HIGH_LEVERAGE_TASKS.md`
 - `docs/PROJECT_INDEX.md`
 
 ### New important doc added

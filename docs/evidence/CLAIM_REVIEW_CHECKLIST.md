@@ -74,7 +74,7 @@ For benchmark statements, ask:
 5. Which known shortcut?
 6. Which claim does the benchmark gate?
 7. What does the benchmark not prove?
-8. Is `docs/METRICS_CURRENT.md` the source of truth?
+8. Is `docs/evidence/METRICS_CURRENT.md` the source of truth?
 
 Avoid copying stale metrics into multiple docs.
 

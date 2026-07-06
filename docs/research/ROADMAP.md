@@ -10,7 +10,7 @@ Changes:
   to check for ``scripts/build_lab_batch_pack.py`` instead of ``make
   lab-batch-pack``. Updated loops_completed to 50.
 - ``docs/50_LOOP_PLAN.md`` — Added Loop 50 entry. Next loop set to "None."
-- ``docs/METRICS_CURRENT.md`` — Changelog updated.
+- ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated.
 - 2021 tests passing.
 
 ## v0.5.69 — Culmination Reproducibility Report (Loop 49) ✓ (2026-07-06)
@@ -30,7 +30,7 @@ Changes:
 - ``tests/test_full_reproducibility_report.py`` — 8 tests.
 - ``docs/50_LOOP_PLAN.md`` — Loop 49 ✅. All 49 loops marked complete.
   Current position updated to "Phase 4 Complete".
-- ``docs/METRICS_CURRENT.md`` — Changelog updated. Test count: 2021.
+- ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated. Test count: 2021.
 - 2021 tests passing (2013 existing + 8 new).
 
 **Honest finding:** No wet-lab data exists. The pipeline is ready for
@@ -42,13 +42,13 @@ Checklist for public release of OpenAMP results. A reviewer can reproduce
 all findings from the contents of this pack.
 
 Changes:
-- ``docs/PUBLICATION_PACK.md`` — 12 sections: pipeline code and version,
+- ``docs/review/PUBLICATION_PACK.md`` — 12 sections: pipeline code and version,
   input data, scoring outputs, benchmark results, candidate panel, wet-lab
   results, calibration, reproducibility evidence, negative results, safety
   and governance, README for reproduction, preprint preparation. References
   7 related governance docs.
 - ``docs/50_LOOP_PLAN.md`` — Loop 48 ✅. Next: Loop 49.
-- ``docs/METRICS_CURRENT.md`` — Changelog updated.
+- ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated.
 - No code changes. 2013 tests still pass.
 
 ## v0.5.67 — Data-Return Validation Tool (Loop 47) ✓ (2026-07-06)
@@ -61,7 +61,7 @@ Changes:
   control failures. Exit 0 all pass, 3 any fail, 2 missing files.
 - ``tests/test_validate_lab_data_return.py`` — 8 tests.
 - ``docs/50_LOOP_PLAN.md`` — Loop 47 ✅. Next: Loop 48.
-- ``docs/METRICS_CURRENT.md`` — Changelog updated. Test count: 2008.
+- ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated. Test count: 2008.
 - 2008 tests passing.
 
 ## v0.5.65 — Lab Batch Pack Chain-of-Custody Hashes (Loop 45) ✓ (2026-07-06)
@@ -79,7 +79,7 @@ Changes:
 - `tests/test_lab_batch_pack.py` — covers custody-file generation, successful
   verification, tamper detection, and CLI verification mode.
 - `docs/50_LOOP_PLAN.md` — Loop 45 ✅. Next: Loop 46.
-- `docs/METRICS_CURRENT.md` — version and changelog synced.
+- `docs/evidence/METRICS_CURRENT.md` — version and changelog synced.
 
 Honest boundary:
 - These hashes verify identity and archive integrity only.
@@ -96,7 +96,7 @@ Changes:
   12 fields, 9 decision types, conditional dissent-requires-notes.
 - ``tests/test_decision_log_schema.py`` — 11 tests.
 - ``docs/50_LOOP_PLAN.md`` — Loop 43 ✅. Next: Loop 45.
-- ``docs/METRICS_CURRENT.md`` — Changelog updated. Test count: 2000.
+- ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated. Test count: 2000.
 - 2000 tests passing.
 
 ## v0.5.62 — Simulation Uncertainty in Evidence ✓ (2026-07-06)
@@ -116,7 +116,7 @@ Changes:
   evidence certificates can carry them without schema drift.
 - ``tests/test_simulation_mode_cli.py`` — covers ranked output, report columns,
   evidence-certificate inclusion, and schema validation for the new fields.
-- ``docs/VIRTUAL_ASSAY_SCOPE.md`` and ``docs/SIMULATION_BENCHMARK.md`` — synced
+- ``docs/VIRTUAL_ASSAY_SCOPE.md`` and ``docs/evidence/SIMULATION_BENCHMARK.md`` — synced
   to current behavior.
 
 Honest finding:
@@ -130,19 +130,19 @@ Phase 4 begins with a comprehensive onboarding document for CRO or academic
 lab partners. Covers everything needed to run the Wave 0.5 panel.
 
 Changes:
-- ``docs/LAB_PARTNER_ONBOARDING.md`` — Full onboarding pack: candidate panel
+- ``docs/review/LAB_PARTNER_ONBOARDING.md`` — Full onboarding pack: candidate panel
   summary (24 candidates, 15 families), synthesis instructions (SPPS, purity,
   modifications), assay protocols (MIC, hemolysis, serum stability), data
   return JSON format with required fields, positive/negative controls, safety
   and biosecurity (BSL-2), timeline (5–8 weeks), and related document links.
 - ``docs/50_LOOP_PLAN.md`` — Loop 40 ✅. Phase 4 status: "In progress — Loop 40 ✅".
   Next: Loop 41.
-- ``docs/METRICS_CURRENT.md`` — Changelog entry updated.
+- ``docs/evidence/METRICS_CURRENT.md`` — Changelog entry updated.
 - No code changes. 1966 tests still pass.
 
 ## v0.5.60 — Simulation Benchmark Report (Loop 39) ✓ (2026-07-06)
 
-Closed the benchmark-report gap with `docs/SIMULATION_BENCHMARK.md`.
+Closed the benchmark-report gap with `docs/evidence/SIMULATION_BENCHMARK.md`.
 
 The report consolidates:
 - AMP-vs-decoy simulation ablation.
@@ -172,10 +172,10 @@ Changes:
   check, successful simulation, missing module, graceful failure,
   exception handling, baseline fallback, metadata propagation, custom
   scope, error result schema.
-- ``docs/ARCHITECTURE.md`` — Extension points section expanded with
+- ``docs/engineering/ARCHITECTURE.md`` — Extension points section expanded with
   ``ExternalSimulationAdapter`` usage example and documentation.
 - ``docs/50_LOOP_PLAN.md`` — Loop 38 ✅. Next: Loop 39.
-- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.59. Test count: 1966.
+- ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.59. Test count: 1966.
 - 1965 tests passing (1953 existing + 12 new — one test deduplicated).
 
 ## v0.5.58 — Simulation Cheap-Baseline Benchmark (Loop 36) ✓ (2026-07-06)
@@ -190,8 +190,8 @@ Changes:
   bench-simulation-baselines`` target.
 - ``tests/test_benchmark_simulation_baselines.py`` — 13 tests.
 - ``docs/50_LOOP_PLAN.md`` — Loop 36 ✅. Next: Loop 38.
-- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.58. Test count: 1953.
-- ``docs/BENCHMARKING.md`` — Added bench-simulation-baselines (22 targets).
+- ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.58. Test count: 1953.
+- ``docs/evidence/BENCHMARKING.md`` — Added bench-simulation-baselines (22 targets).
 
 **Honest finding: 0/4 simulation signals beat their cheapest baseline.**
 - bacterial_binding (0.4876) vs mean_eisenberg (0.5469): delta=−0.0593
@@ -266,7 +266,7 @@ Changes:
   hemolysis detection AUROC (inverted for safety-type scorers).
 - ``Makefile`` — Added ``bench-simulation-ablation-within-amp`` target.
 - ``docs/50_LOOP_PLAN.md`` — Loop 34 ✅ (re-interpreted). Next: Loop 35.
-- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.55. Test count: 1928.
+- ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.55. Test count: 1928.
 - 1928 tests passing (1905 existing + 23 updated).
 
 **Honest finding:**
@@ -292,8 +292,8 @@ Changes:
   ``outputs/simulation_ablation.json``.
 - ``docs/50_LOOP_PLAN.md`` — Loop 33 ✅ (re-interpreted as ablation benchmark).
   Next: Loop 34.
-- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.54. Test count: 1922.
-- ``docs/ARCHITECTURE.md`` — Package map updated.
+- ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.54. Test count: 1922.
+- ``docs/engineering/ARCHITECTURE.md`` — Package map updated.
 - 1922 tests passing (1905 existing + 17 new).
 
 **Honest finding:**
@@ -324,7 +324,7 @@ Changes:
   (magainin helical, protegrin/tachyplesin beta-sheet, proline-rich non-helical,
   melittin ambiguous — documented limitation), and empty sequence.
 - ``docs/50_LOOP_PLAN.md`` — Loop 32 ✅. Next: Loop 33.
-- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.53. Test count: 1905.
+- ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.53. Test count: 1905.
 - 1905 tests passing (1871 existing + 34 new).
 
 ## v0.5.52 — Membrane Interaction Proxy (Loop 31) ✓ (2026-07-06)
@@ -346,7 +346,7 @@ Changes:
   normalization, selectivity ratio, uncertainty, proxy contract, known-reference
   comparison (magainin more selective than melittin), empty sequence, and version.
 - ``docs/50_LOOP_PLAN.md`` — Loop 31 ✅. Phase 3 status updated. Next: Loop 32.
-- ``docs/METRICS_CURRENT.md`` — Pipeline version bumped to v0.5.52.
+- ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version bumped to v0.5.52.
   Test count: 1873.
 - 1873 tests passing (1843 existing + 30 new).
 
@@ -365,12 +365,12 @@ Changes:
   uncertainty > 0.5 cannot affect selection), ablation requirement (each
   module must beat cheap heuristic baseline), 3 integration modes
   (off/info/weighted), calibration gate for weighted mode, and 5 exit criteria.
-- ``docs/BENCHMARKING.md`` — Complete rewrite: all 19 benchmarks organized
+- ``docs/evidence/BENCHMARKING.md`` — Complete rewrite: all 19 benchmarks organized
   into 6 categories (core discrimination, honesty, selectivity/safety,
   composite/ablation, regression/CI, deferred). Each benchmark has make target,
   purpose, target metric, and verification command.
-- ``docs/METRICS_CURRENT.md`` — Test count corrected: 1832+ → 1843.
-- ``docs/NOVELTY_AUDIT_GUIDE.md`` — Fixed stale script reference:
+- ``docs/evidence/METRICS_CURRENT.md`` — Test count corrected: 1832+ → 1843.
+- ``docs/evidence/NOVELTY_AUDIT_GUIDE.md`` — Fixed stale script reference:
   ``scripts/download_uniprot_amps.py`` → ``scripts/download_novelty_dbs.py --uniprot``.
 - ``docs/50_LOOP_PLAN.md`` — Loop 30 marked ✅. Phase 3 status updated to
   "In progress — Loop 30 ✅".
@@ -384,7 +384,7 @@ existed. This release adds the template and closes Phase 2 with all 5 exit
 criteria met.
 
 Changes:
-- ``docs/NEGATIVE_RESULT_ARCHIVE.md`` — Full template with 18-field entry
+- ``docs/evidence/NEGATIVE_RESULT_ARCHIVE.md`` — Full template with 18-field entry
   schema (required/conditional markers), procedures for when/what to archive,
   automation notes (auto-append by ``calibration-intake`` and ``filter_wave*``
   scripts), and explicit limitations. Covers pre-selection rejects, selected
@@ -392,7 +392,7 @@ Changes:
 - ``docs/50_LOOP_PLAN.md`` — Phase 2 header marked ✅ complete, status updated
   to v0.5.50, Loop 29 ✅, all 5 exit criteria now show green, Current Position
   updated to Phase 3 ready.
-- ``docs/METRICS_CURRENT.md`` — Bumped to v0.5.50, changelog entry.
+- ``docs/evidence/METRICS_CURRENT.md`` — Bumped to v0.5.50, changelog entry.
 - 1843 total tests passing. No code changes.
 
 ## v0.5.49 — Policy Version Bump Workflow with CI Guard ✓ (2026-07-06)
@@ -428,14 +428,14 @@ new contributors and agents about the current state of the repo. Also fixed a du
 step number in the target future data flow.
 
 Changes:
-- ``docs/ARCHITECTURE.md``: moved ``calibration`` and ``active_learning`` from
+- ``docs/engineering/ARCHITECTURE.md``: moved ``calibration`` and ``active_learning`` from
   "Potential future packages" to the main package map with version annotations.
   Removed the stale ``analysis`` future-package entry. Fixed duplicate step "8."
   in the target future data flow (→ steps 8–10 with correct numbering).
 - ``docs/50_LOOP_PLAN.md``: updated "Current Position" from "Loop 25 of 29"
   to "Loop 27 of 29", added Loops 23–27 to the completed Phase 2 table, fixed
   "Next loop" reference to Loop 28, updated Phase 2 exit-criteria tracking.
-- ``docs/METRICS_CURRENT.md``: test count updated to 1834.
+- ``docs/evidence/METRICS_CURRENT.md``: test count updated to 1834.
 
 No code changes. 1834 tests still pass.
 
@@ -684,12 +684,12 @@ Why it matters:
 
 ## v0.5 — Lab-batch package ✓
 
-- pre-registration template (`docs/SELECTION_RULE.md`);
+- pre-registration template (`docs/evidence/SELECTION_RULE.md`);
 - batch manifest (`outputs/run_manifest.json` with SHA-256 input hashes);
 - candidate certificates (JSON + `schemas/candidate.schema.json`);
-- expert-review checklist (`docs/EXPERT_REVIEW_PACK.md`);
-- wet-lab handoff guide (`docs/WET_LAB_HANDOFF.md`);
-- safe publication template (`docs/NOMINATION_REPORT.md`).
+- expert-review checklist (`docs/review/EXPERT_REVIEW_PACK.md`);
+- wet-lab handoff guide (`docs/review/WET_LAB_HANDOFF.md`);
+- safe publication template (`docs/evidence/NOMINATION_REPORT.md`).
 
 ## v0.5.x — Scoring enhancements (shipped alongside v0.5)
 
@@ -722,9 +722,9 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 - CLI integration tests — gold-standard, external-predict, pilot-confident, diversity-check (PRs #74–#79/#82/#85)
 - Lab-results directory loading + toxicity flag branch coverage (PR #80)
 - Wet-lab probability analysis (`docs/WET_LAB_PROBABILITY.md`) — per-family P(MIC≤16) breakdown, composite P(≥1 active) = 99.95% (PRs #81/#87)
-- Assay pre-registration (`docs/ASSAY_PREREGISTRATION.md`) — MRSA USA300, serum stability gate, RPMI-1640 arm for SEED-009 (PR #83)
+- Assay pre-registration (`docs/review/ASSAY_PREREGISTRATION.md`) — MRSA USA300, serum stability gate, RPMI-1640 arm for SEED-009 (PR #83)
 - SEED-007 helix-wheel length fix 18 AA → 11 AA (PR #84)
-- `novelty-check-broad` CLI + 72-AMP curated database: 16/20 NOVEL, 3 KNOWN_VARIANT, 1 CLOSE_RELATIVE (`docs/NOVELTY_BROAD_CHECK.md`) (PR #86)
+- `novelty-check-broad` CLI + 72-AMP curated database: 16/20 NOVEL, 3 KNOWN_VARIANT, 1 CLOSE_RELATIVE (`docs/evidence/NOVELTY_BROAD_CHECK.md`) (PR #86)
 - SEED-003 reclassification: RRWQWRMKKLG-class KNOWN_VARIANT; P(MIC≤16) raised 50–65% → 60–75%; publication novelty 25–40% → 10–20% (PR #87)
 - EXPERT_REVIEW_PACK.md overhauled: 7-seed mechanism table, full 20-candidate novelty table, SEED-008/009 special notes, Melittin safety blind spot (PR #88)
 - WET_LAB_HANDOFF SEED-003 special notes: KNOWN_VARIANT classification (SAR value retained), Met oxidation risk, aggregation caution, C-terminal amidation recommendation (PR #89)
@@ -914,7 +914,7 @@ Changes:
 - `tests/test_triage_benchmark.py`: 12 new tests for strict triage (structure
   + findings)
 - `outputs/metrics_snapshot.json`: regenerated with strict triage results
-- `docs/METRICS_CURRENT.md`: strict triage results table and interpretation
+- `docs/evidence/METRICS_CURRENT.md`: strict triage results table and interpretation
 
 Key honest finding: **No scorer triages correctly with composition-matched
 decoys.** The standard triage "success" of selectivity_proxy and
@@ -945,7 +945,7 @@ Changes:
 - `Makefile`: `bench-feature-decomp` target
 - `tests/test_feature_decomp.py`: 20 tests covering structure, findings, and snapshot integration
 - `outputs/metrics_snapshot.json`: regenerated with feature decomposition results
-- `docs/METRICS_CURRENT.md`: feature decomposition results table and interpretation
+- `docs/evidence/METRICS_CURRENT.md`: feature decomposition results table and interpretation
 
 Key honest finding: **The selectivity proxy ignores the strongest discriminative
 features.** `hydrophobic_fraction` (AUROC 0.6745, CI 0.58-0.77) is the single best
@@ -1064,12 +1064,12 @@ It must NOT replace the ensemble activity gate — it is a complementary signal.
   (per-family breakdown, calibration engine, active learning).
 - New script: `scripts/benchmark_cross_dataset.py`
 - New target: `make bench-cross-dataset`
-- Docs: `docs/METRICS_CURRENT.md` (new section), `docs/BENCHMARK_CARD.md` (new section),
+- Docs: `docs/evidence/METRICS_CURRENT.md` (new section), `docs/evidence/BENCHMARK_CARD.md` (new section),
   `docs/50_LOOP_PLAN.md` (Phase 1 ✅)
 
 ## v0.5.34 — Benchmark Card Consolidation ✓ (2026-07-05)
 
-- Consolidated all Phase 1 benchmark findings into `docs/BENCHMARK_CARD.md`
+- Consolidated all Phase 1 benchmark findings into `docs/evidence/BENCHMARK_CARD.md`
 - Card now covers: expanded benchmark (500+500), multi-negative (4 decoy sets),
   cluster-split-500, easy baseline, order-dependence (7/31 features),
   precision@k (top-20 perfect), within-AMP selectivity (rich_selectivity 0.714),
@@ -1269,11 +1269,11 @@ review (2026-06-28). Progress on these would materially raise breakthrough proba
 | Gap | Why it matters | Effort estimate |
 |-----|----------------|-----------------|
 | ~~Large-scale benchmark (≥ 500 AMPs vs composition-matched decoys, cluster-split)~~ | ~~Current AUROC 0.8420 measured on 43+44 demo set (n=87, CI₉₅: 0.76–0.91); may not generalise~~ | **Partial** (PR #110: expanded to 95 AMPs + 96 decoys, n=191, AUROC=0.7832, CI₉₅: 0.72–0.84; 52 new public-domain AMPs from 12 taxonomic classes; covers defensins, proline-rich, lantibiotics — a more honest estimate. Cluster-split benchmark added: cluster-aware CI 0.7061–0.8526, representative AUROC 0.7607. 500+ target still deferred to v1.0+) |
-| External predictor ensemble adapters (CAMPR4, AMPScanner, dbAMP, AntiCP2, Macrel) | Independent second opinions on activity; required for scientific credibility. Wave 0.5 has completed external evidence for AMPScanner v2, AMPActiPred, Macrel web, HemoFinder, and AntiCP 2.0 with CAMPR4 excluded; see `docs/METRICS_CURRENT.md`. The reusable generic 5-tool pilot-panel workflow still requires a filled `outputs/external_predict_results.csv` per future panel. Macrel v1.6.0 CLI ONNX bug documented PR #77 — all sequences (incl. canonical AMPs magainin-2, LL-37) misclassified as NAMP; use web server at big-data-biology.org/software/macrel. AMPlify omitted: GPU/ONNX env incompatible with current deps | Partial (Wave 0.5 complete; generic future-panel Gate 6 remains panel-specific) |
+| External predictor ensemble adapters (CAMPR4, AMPScanner, dbAMP, AntiCP2, Macrel) | Independent second opinions on activity; required for scientific credibility. Wave 0.5 has completed external evidence for AMPScanner v2, AMPActiPred, Macrel web, HemoFinder, and AntiCP 2.0 with CAMPR4 excluded; see `docs/evidence/METRICS_CURRENT.md`. The reusable generic 5-tool pilot-panel workflow still requires a filled `outputs/external_predict_results.csv` per future panel. Macrel v1.6.0 CLI ONNX bug documented PR #77 — all sequences (incl. canonical AMPs magainin-2, LL-37) misclassified as NAMP; use web server at big-data-biology.org/software/macrel. AMPlify omitted: GPU/ONNX env incompatible with current deps | Partial (Wave 0.5 complete; generic future-panel Gate 6 remains panel-specific) |
 | ~~True novelty check against APD3, DRAMP v3.0, dbAMP~~ | ~~Current novelty scored against 45-sequence seed set only; may overestimate novelty~~ | **Done** (v0.5.7: BioPython BLOSUM62 local alignment vs 27,234 AMPs from APD6+DRAMP+UniProt; Wave 0.5 novelty corrected from 53/60 RELATED_NOVEL → 39 CLOSE_RELATIVE + 19 KNOWN_VARIANT + 1 RELATED_NOVEL) |
 | ~~AUPRC alongside AUROC~~ | ~~Better metric for class-imbalanced AMP datasets~~ | **Done** (PR #58; updated PR #72) — pipeline AUPRC = 0.8627 |
 | Wet-lab result integration (active-learning round 2) | Required to move from 15–30% to 50%+ credible probability | Requires wet-lab |
-| ~~Pre-registration of assay protocol before synthesis~~ | ~~Strengthens causal inference; reduces reporting bias~~ | **Done** (docs/ASSAY_PREREGISTRATION.md — PRs #83; includes MRSA USA300, serum stability, Gate P3 aligned) |
+| ~~Pre-registration of assay protocol before synthesis~~ | ~~Strengthens causal inference; reduces reporting bias~~ | **Done** (docs/review/ASSAY_PREREGISTRATION.md — PRs #83; includes MRSA USA300, serum stability, Gate P3 aligned) |
 | Public benchmark paper (replicable, cluster-split, open datasets) | Sets community standard; enables external validation | Large |
 
 ## v0.5.19 — Calibration Intake Module ✓ (2026-07-04)
@@ -1324,7 +1324,7 @@ Changes:
 
 Key honest limitation: this module does NOT trigger recalibration. It is the
 intake valve that produces a review artifact for a separate, human-reviewed
-recalibration workflow (see `docs/DECISION_RULES.md` and `docs/WAVE2_PLAN.md`).
+recalibration workflow (see `docs/evidence/DECISION_RULES.md` and `docs/research/WAVE2_PLAN.md`).
 Cohort metrics are descriptive only; they do not validate the pipeline, do not
 control for selection bias from the pre-registered shortlist, and must not be
 used to rewrite scoring weights after the fact.

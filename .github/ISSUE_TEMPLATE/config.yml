@@ -7,5 +7,5 @@ contact_links:
     url: https://github.com/Open-Problem-Lab/OpenAMP-Foundry/blob/main/docs/PROJECT_INDEX.md
     about: Start here to find the right docs for humans, agents, reviewers, labs, and maintainers.
   - name: Claim review checklist
-    url: https://github.com/Open-Problem-Lab/OpenAMP-Foundry/blob/main/docs/CLAIM_REVIEW_CHECKLIST.md
+    url: https://github.com/Open-Problem-Lab/OpenAMP-Foundry/blob/main/docs/evidence/CLAIM_REVIEW_CHECKLIST.md
     about: Use this before proposing public scientific wording or release claims.

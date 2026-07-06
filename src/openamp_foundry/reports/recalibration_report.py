@@ -270,7 +270,7 @@ def write_recalibration_report_markdown(
         "3. **Check** that the proposed deltas respect all prohibited actions."
     )
     lines.append("4. **Sign** a dated decision-log entry if approved.")
-    lines.append("   (See `docs/DECISION_RULES.md` for the required format.)")
+    lines.append("   (See `docs/evidence/DECISION_RULES.md` for the required format.)")
     lines.append("5. **Apply** the approved weight changes by editing")
     lines.append("   the scoring config file.")
     lines.append("6. **Regenerate** all benchmark outputs after applying.")

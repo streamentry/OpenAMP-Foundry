@@ -6,7 +6,7 @@
 > Known/control candidates are not novelty claims.
 > High-risk candidates are labeled explicitly.
 > Historical note: this baseline freeze predates the completed Wave 0.5 external screen.
-> Current external-predictor status now lives in `docs/METRICS_CURRENT.md` and `docs/ROADMAP.md`.
+> Current external-predictor status now lives in `docs/evidence/METRICS_CURRENT.md` and `docs/research/ROADMAP.md`.
 
 Generated: 2026-06-29
 
@@ -76,7 +76,7 @@ and classifies each candidate into a role that guides Wave 1 panel construction.
 ## External Predictor Status
 
 Historical baseline state only: at the time this file was frozen, external predictor fields had not yet been filled.
-That is no longer the current repo state. The completed Wave 0.5 external screen is summarized in `docs/METRICS_CURRENT.md`, `docs/ROADMAP.md`, and `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md`.
+That is no longer the current repo state. The completed Wave 0.5 external screen is summarized in `docs/evidence/METRICS_CURRENT.md`, `docs/research/ROADMAP.md`, and `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md`.
 
 The original manual-submission tool stack was:
 

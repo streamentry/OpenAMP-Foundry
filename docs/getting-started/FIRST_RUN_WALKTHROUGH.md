@@ -16,7 +16,7 @@ Read:
 
 - [`README.md`](../README.md)
 - [`SAFETY.md`](../SAFETY.md)
-- [`docs/COMMAND_SURFACE.md`](COMMAND_SURFACE.md)
+- [`docs/getting-started/COMMAND_SURFACE.md`](COMMAND_SURFACE.md)
 - [`docs/PROOF_LADDER.md`](PROOF_LADDER.md)
 
 ## Expected setup
@@ -78,7 +78,7 @@ A certificate is review infrastructure.
 
 It is not biological proof.
 
-See [`docs/EVIDENCE_CERTIFICATE.md`](EVIDENCE_CERTIFICATE.md).
+See [`docs/evidence/EVIDENCE_CERTIFICATE.md`](../evidence/EVIDENCE_CERTIFICATE.md).
 
 ## Run basic checks
 
@@ -94,13 +94,13 @@ They do not support scientific claims about candidates.
 
 ## Run benchmark checks
 
-Benchmark commands are documented in [`docs/BENCHMARKING.md`](BENCHMARKING.md).
+Benchmark commands are documented in [`docs/evidence/BENCHMARKING.md`](../evidence/BENCHMARKING.md).
 
 Benchmark results should be interpreted through:
 
-- [`docs/BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md)
-- [`docs/METRICS_CURRENT.md`](METRICS_CURRENT.md)
-- [`docs/CLAIM_REVIEW_CHECKLIST.md`](CLAIM_REVIEW_CHECKLIST.md)
+- [`docs/evidence/BENCHMARK_GOVERNANCE.md`](../evidence/BENCHMARK_GOVERNANCE.md)
+- [`docs/evidence/METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md)
+- [`docs/evidence/CLAIM_REVIEW_CHECKLIST.md`](../evidence/CLAIM_REVIEW_CHECKLIST.md)
 
 A benchmark pass means a specific computational check passed under stated assumptions.
 
@@ -114,7 +114,7 @@ It does not prove real-world biological value.
 | Import error | Package not installed editable or wrong Python environment. | Re-run `pip install -e .[dev]`. |
 | Missing output directory | Generated artifacts were not created yet or directory is ignored. | Run demo again and inspect Makefile target. |
 | Schema validation fails | Artifact format changed or stale output exists. | Regenerate outputs and inspect schema docs. |
-| Benchmark differs from docs | Stale metrics or local change. | Check `docs/METRICS_CURRENT.md` and rerun relevant benchmark. |
+| Benchmark differs from docs | Stale metrics or local change. | Check `docs/evidence/METRICS_CURRENT.md` and rerun relevant benchmark. |
 
 ## First contribution after first run
 

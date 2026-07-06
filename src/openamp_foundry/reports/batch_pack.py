@@ -541,7 +541,7 @@ def write_batch_pack_markdown(pack: dict[str, Any], path: str | Path) -> None:
         "- [ ] Safety officer reviews toxicity risk flags",
         "- [ ] PI or qualified reviewer approves batch release",
         "- [ ] CRO or lab partner is selected and contacted",
-        "- [ ] Pre-registered pass/fail criteria locked (see `docs/SELECTION_RULE.md`)",
+        "- [ ] Pre-registered pass/fail criteria locked (see `docs/evidence/SELECTION_RULE.md`)",
         "",
         "**No candidate may proceed without human expert sign-off.**",
         "",

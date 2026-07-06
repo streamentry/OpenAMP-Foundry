@@ -87,10 +87,10 @@ negative in a too-small reference set, not a true novel finding.
 
 PR #110 corrected both documents:
 
-- `docs/WET_LAB_HANDOFF.md`: table corrected, IP NOTE expanded to all three SEED-019/020
+- `docs/review/WET_LAB_HANDOFF.md`: table corrected, IP NOTE expanded to all three SEED-019/020
   candidates with DRAMP accession numbers, Novelty prose rewritten, VAR_008 added as the
   CLEAR (no patent hit) fallback.
-- `docs/EXPERT_REVIEW_PACK.md`: family table and wave 0.5b addendum rewritten; explicit
+- `docs/review/EXPERT_REVIEW_PACK.md`: family table and wave 0.5b addendum rewritten; explicit
   ⚠ correction block added naming the DRAMP05502/05504 alignments.
 - Local `outputs/wave1_final_panel.csv`: novelty_class corrected to CLOSE_RELATIVE for
   VAR_004 and VAR_002 with POSSIBLE_PATENT_RISK noted.

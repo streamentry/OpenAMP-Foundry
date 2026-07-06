@@ -23,8 +23,8 @@ Before changing anything, read:
 3. [`../RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — allowed and disallowed use.
 4. [`../MISSION.md`](../MISSION.md) — scientific boundaries.
 5. [`PROJECT_INDEX.md`](PROJECT_INDEX.md) — navigation map.
-6. [`METRICS_CURRENT.md`](METRICS_CURRENT.md) — current evidence and known weaknesses.
-7. [`DECISION_RULES.md`](DECISION_RULES.md) — gates and thresholds.
+6. [`METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md) — current evidence and known weaknesses.
+7. [`DECISION_RULES.md`](../evidence/DECISION_RULES.md) — gates and thresholds.
 
 If there is a conflict, safety and claim discipline win.
 

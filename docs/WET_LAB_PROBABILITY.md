@@ -4,7 +4,7 @@
 > family passing multi-step wet-lab validation and generating a publishable breakthrough finding.
 > Generated: 2026-06-28. Updated 2026-06-29 (expanded benchmark PR #110). Reviewed against `outputs/pilot_panel.csv`
 > (7 scaffold families, 20 candidates, pipeline AUROC = 0.7832, bootstrap CI₉₅: 0.72–0.84,
-> expanded 95-AMP + 96-decoy benchmark, n=191). See `docs/NOVELTY_BROAD_CHECK.md` for broad
+> expanded 95-AMP + 96-decoy benchmark, n=191). See `docs/evidence/NOVELTY_BROAD_CHECK.md` for broad
 > novelty analysis (72-AMP reference database); 16/20 candidates confirmed NOVEL, 3 KNOWN_VARIANT
 > (SEED-003, SEED-001 positive control), 1 CLOSE_RELATIVE (SEED-005).
 
@@ -444,14 +444,14 @@ Pipeline calibration: AUROC 0.7832 on expanded 191-sequence benchmark (95 AMPs +
 peptides; PR #110). Historical baseline: AUROC 0.8420 on original 87-sequence demo set (43 AMPs +
 44 background; PR #72). Gold-standard calibration: Magainin-2 ensemble=0.872 (above panel),
 Melittin=0.844 (within), Defensin-HNP1=0.820 (within), Temporin-A=0.803 (within).
-See `docs/GOLD_STANDARD_CALIBRATION.md`.
+See `docs/evidence/GOLD_STANDARD_CALIBRATION.md`.
 NP1=0.820 (within), Temporin-A=0.803 (within).
-See `docs/GOLD_STANDARD_CALIBRATION.md`.
+See `docs/evidence/GOLD_STANDARD_CALIBRATION.md`.
 (within).
-See `docs/GOLD_STANDARD_CALIBRATION.md`.
+See `docs/evidence/GOLD_STANDARD_CALIBRATION.md`.
 2 (above panel),
 Melittin=0.844 (within), Defensin-HNP1=0.820 (within), Temporin-A=0.803 (within).
-See `docs/GOLD_STANDARD_CALIBRATION.md`.
+See `docs/evidence/GOLD_STANDARD_CALIBRATION.md`.
 s/GOLD_STANDARD_CALIBRATION.md`.
 GOLD_STANDARD_CALIBRATION.md`.
 _CALIBRATION.md`.

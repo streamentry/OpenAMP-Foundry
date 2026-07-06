@@ -27,7 +27,7 @@ The pilot does not ask whether any candidate is a drug, therapy, cure, clinical 
 - [`WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — safe expert-review handoff guide.
 - [`PROOF_LADDER.md`](PROOF_LADDER.md) — evidence levels and claim ladder.
 - [`CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) — gate before any recalibration.
-- [`NEGATIVE_RESULT_ARCHIVE.md`](NEGATIVE_RESULT_ARCHIVE.md) — safe negative-result format.
+- [`NEGATIVE_RESULT_ARCHIVE.md`](../evidence/NEGATIVE_RESULT_ARCHIVE.md) — safe negative-result format.
 
 ## Pilot identity
 

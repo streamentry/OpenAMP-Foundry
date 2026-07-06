@@ -39,7 +39,7 @@ make test
 ```
 
 4. Open the generated outputs and inspect what the pipeline actually produces.
-5. Read [`docs/METRICS_CURRENT.md`](METRICS_CURRENT.md) before trusting any performance claim.
+5. Read [`docs/evidence/METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md) before trusting any performance claim.
 
 ## First two hours
 
@@ -47,10 +47,10 @@ Read the docs that match your role.
 
 ### Engineer path
 
-- [`docs/ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`docs/engineering/ARCHITECTURE.md`](../engineering/ARCHITECTURE.md)
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md)
-- [`docs/BENCHMARKING.md`](BENCHMARKING.md)
-- [`docs/DECISION_RULES.md`](DECISION_RULES.md)
+- [`docs/evidence/BENCHMARKING.md`](../evidence/BENCHMARKING.md)
+- [`docs/evidence/DECISION_RULES.md`](../evidence/DECISION_RULES.md)
 
 Then look for a small issue in CLI ergonomics, tests, reports, schemas, or doc consistency.
 
@@ -59,15 +59,15 @@ Then look for a small issue in CLI ergonomics, tests, reports, schemas, or doc c
 - [`VISION.md`](../VISION.md)
 - [`GOAL.md`](../GOAL.md)
 - [`docs/PROOF_LADDER.md`](PROOF_LADDER.md)
-- [`docs/METRICS_CURRENT.md`](METRICS_CURRENT.md)
-- [`docs/BENCHMARKING.md`](BENCHMARKING.md)
+- [`docs/evidence/METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md)
+- [`docs/evidence/BENCHMARKING.md`](../evidence/BENCHMARKING.md)
 
 Then look for a weak benchmark, missing baseline, leakage risk, uncontrolled comparison, or overclaim.
 
 ### Lab-review path
 
-- [`docs/WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md)
-- [`docs/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md)
+- [`docs/review/WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md)
+- [`docs/review/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md)
 - [`docs/PROOF_LADDER.md`](PROOF_LADDER.md)
 - [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md)
 
@@ -78,7 +78,7 @@ Then review whether the evidence package would help a qualified scientist decide
 - [`SAFETY.md`](../SAFETY.md)
 - [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md)
 - [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md)
-- [`docs/DECISION_RULES.md`](DECISION_RULES.md)
+- [`docs/evidence/DECISION_RULES.md`](../evidence/DECISION_RULES.md)
 
 Then look for release risk, overclaiming, unsafe defaults, unclear boundaries, or missing human-review gates.
 

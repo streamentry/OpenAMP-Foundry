@@ -88,8 +88,8 @@ class TestDocsConsistent:
 
     def test_doc_metrics_current_md_is_authoritative(self):
         """METRICS_CURRENT.md must exist and contain current AUROC."""
-        metrics = DOCS_DIR / "METRICS_CURRENT.md"
-        assert metrics.exists(), "docs/METRICS_CURRENT.md not found"
+        metrics = DOCS_DIR / "evidence" / "METRICS_CURRENT.md"
+        assert metrics.exists(), "docs/evidence/METRICS_CURRENT.md not found"
         text = metrics.read_text(encoding="utf-8")
         assert CURRENT_AUROC in text, (
             f"METRICS_CURRENT.md missing current AUROC {CURRENT_AUROC}"
@@ -109,7 +109,7 @@ class TestDocsConsistent:
         assert payload["standard"]["n_total"] == CURRENT_N_TOTAL
 
     def test_doc_simulation_benchmark_report_records_blocked_weighted_mode(self):
-        report = (DOCS_DIR / "SIMULATION_BENCHMARK.md").read_text(encoding="utf-8")
+        report = (DOCS_DIR / "evidence" / "SIMULATION_BENCHMARK.md").read_text(encoding="utf-8")
         assert "Current verdict: simulation remains informational only." in report
         assert "`weighted` simulation remains blocked." in report
         assert "Simulation does not improve ranking" in report
@@ -122,7 +122,7 @@ class TestDocsConsistent:
         assert "uncertainty" in scope
         assert "Current ablation evidence does not justify weighted ranking impact." in scope
         assert "Weighted simulation remains blocked" in scope
-        assert "docs/SIMULATION_BENCHMARK.md" in scope
+        assert "docs/evidence/SIMULATION_BENCHMARK.md" in scope
 
     def test_doc_metrics_snapshot_includes_ranking_policy(self):
         """Snapshot must encode the current ranking recommendation contract."""
@@ -186,7 +186,7 @@ class TestDocsConsistent:
         """Docs must not present missing Wave 0.5 generated CSVs as committed facts."""
         files_present = all(path.exists() for path in WAVE05_GENERATED_OUTPUTS)
 
-        metrics_text = (DOCS_DIR / "METRICS_CURRENT.md").read_text(encoding="utf-8")
+        metrics_text = (DOCS_DIR / "evidence" / "METRICS_CURRENT.md").read_text(encoding="utf-8")
         summary_text = (DOCS_DIR / "WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md").read_text(
             encoding="utf-8"
         )
@@ -202,9 +202,9 @@ class TestDocsConsistent:
         scaffold_text = (DOCS_DIR / "WAVE_0_5_SCAFFOLD_DIVERSIFICATION_PLAN.md").read_text(
             encoding="utf-8"
         )
-        prereg_text = (DOCS_DIR / "ASSAY_PREREGISTRATION.md").read_text(encoding="utf-8")
-        checklist_text = (DOCS_DIR / "PRE_WET_LAB_CHECKLIST.md").read_text(encoding="utf-8")
-        wave1_text = (DOCS_DIR / "WAVE_1_PANEL_RECOMMENDATION.md").read_text(encoding="utf-8")
+        prereg_text = (DOCS_DIR / "review" / "ASSAY_PREREGISTRATION.md").read_text(encoding="utf-8")
+        checklist_text = (DOCS_DIR / "review" / "PRE_WET_LAB_CHECKLIST.md").read_text(encoding="utf-8")
+        wave1_text = (DOCS_DIR / "research" / "WAVE_1_PANEL_RECOMMENDATION.md").read_text(encoding="utf-8")
 
         assert "Historical note: this baseline freeze predates the completed Wave 0.5 external screen." in baseline_text
         assert "Historical baseline state only" in baseline_text
@@ -220,10 +220,10 @@ class TestDocsConsistent:
         consensus_text = (DOCS_DIR / "EXTERNAL_PREDICTOR_CONSENSUS.md").read_text(
             encoding="utf-8"
         )
-        decision_text = (DOCS_DIR / "DECISION_RULES.md").read_text(encoding="utf-8")
+        decision_text = (DOCS_DIR / "evidence" / "DECISION_RULES.md").read_text(encoding="utf-8")
         reviewer_text = (DOCS_DIR / "REVIEWER_SUMMARY.md").read_text(encoding="utf-8")
-        roadmap_text = (DOCS_DIR / "ROADMAP.md").read_text(encoding="utf-8")
-        expert_text = (DOCS_DIR / "EXPERT_REVIEW_PACK.md").read_text(encoding="utf-8")
+        roadmap_text = (DOCS_DIR / "research" / "ROADMAP.md").read_text(encoding="utf-8")
+        expert_text = (DOCS_DIR / "review" / "EXPERT_REVIEW_PACK.md").read_text(encoding="utf-8")
 
         assert "generic pilot-panel consensus workflow" in consensus_text
         assert "Wave 0.5 activity consensus" in consensus_text
@@ -245,9 +245,9 @@ class TestDocsConsistent:
     def test_doc_lab_batch_pack_chain_of_custody_current(self):
         """Loop 45 must stay marked as shipped with identity-hash boundaries."""
         loop_text = (DOCS_DIR / "50_LOOP_PLAN.md").read_text(encoding="utf-8")
-        roadmap_text = (DOCS_DIR / "ROADMAP.md").read_text(encoding="utf-8")
-        metrics_text = (DOCS_DIR / "METRICS_CURRENT.md").read_text(encoding="utf-8")
-        onboarding_text = (DOCS_DIR / "LAB_PARTNER_ONBOARDING.md").read_text(
+        roadmap_text = (DOCS_DIR / "research" / "ROADMAP.md").read_text(encoding="utf-8")
+        metrics_text = (DOCS_DIR / "evidence" / "METRICS_CURRENT.md").read_text(encoding="utf-8")
+        onboarding_text = (DOCS_DIR / "review" / "LAB_PARTNER_ONBOARDING.md").read_text(
             encoding="utf-8"
         )
 
@@ -266,17 +266,17 @@ class TestFeatureDecompositionDocsConsistent:
     """Guard against drift between feature decomposition docs and reality."""
 
     def test_metrics_current_has_feature_decomposition_section(self):
-        text = (DOCS_DIR / "METRICS_CURRENT.md").read_text(encoding="utf-8")
+        text = (DOCS_DIR / "evidence" / "METRICS_CURRENT.md").read_text(encoding="utf-8")
         assert "Feature Decomposition" in text
         assert "hydrophobic_fraction" in text
         assert "0.6745" in text
 
     def test_roadmap_has_v0515_entry(self):
-        text = (DOCS_DIR / "ROADMAP.md").read_text(encoding="utf-8")
+        text = (DOCS_DIR / "research" / "ROADMAP.md").read_text(encoding="utf-8")
         assert "v0.5.15" in text
         assert "Feature Decomposition Benchmark" in text
         assert "feature_decomp.py" in text
 
     def test_metrics_current_last_updated_is_2026_07_03(self):
-        text = (DOCS_DIR / "METRICS_CURRENT.md").read_text(encoding="utf-8")
+        text = (DOCS_DIR / "evidence" / "METRICS_CURRENT.md").read_text(encoding="utf-8")
         assert "2026-07-03" in text

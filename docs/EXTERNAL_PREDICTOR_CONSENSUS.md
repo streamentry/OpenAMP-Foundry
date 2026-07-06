@@ -31,7 +31,7 @@ unresolved for any future panel until that panel has a filled
 `outputs/external_predict_results.csv` and a generated consensus report.
 
 Current Wave 0.5 status is different: the completed Wave 0.5 screen is summarized in
-`docs/METRICS_CURRENT.md`. CAMPR4 was not submitted, so Wave 0.5 activity consensus is
+`docs/evidence/METRICS_CURRENT.md`. CAMPR4 was not submitted, so Wave 0.5 activity consensus is
 based on three activity predictors (AMPScanner v2, AMPActiPred, Macrel web server) plus
 separate HemoFinder and AntiCP 2.0 safety annotations. Do not treat this generic 5-tool
 template as evidence that Wave 0.5 remains wholly pending.
@@ -73,4 +73,4 @@ openamp-foundry external-consensus \
 
 - `outputs/external_predict_checklist.md` — Manual submission guide
 - `src/openamp_foundry/reports/external_consensus.py` — Implementation
-- `docs/ASSAY_PREREGISTRATION.md` — Pre-registered assay protocol
+- `docs/review/ASSAY_PREREGISTRATION.md` — Pre-registered assay protocol

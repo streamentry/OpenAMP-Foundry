@@ -19,7 +19,7 @@ Current state:
 - `MembraneProxy` and `StructureProxy` exist.
 - Simulation outputs can be surfaced in informational reports where supported by the CLI.
 - Current ablation evidence does not justify weighted ranking impact.
-- `docs/SIMULATION_BENCHMARK.md` is the source of truth for current simulation benchmark verdicts.
+- `docs/evidence/SIMULATION_BENCHMARK.md` is the source of truth for current simulation benchmark verdicts.
 - Weighted simulation remains blocked until the simulation gate passes with stronger evidence.
 
 ## Core principle

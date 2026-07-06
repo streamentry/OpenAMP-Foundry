@@ -10,7 +10,7 @@ from typing import Callable, Dict, List, Optional
 class SimulationResult:
     """Schema for outputs from any virtual assay or simulation module.
     
-    This exact schema is mandated by docs/ARCHITECTURE.md.
+    This exact schema is mandated by docs/engineering/ARCHITECTURE.md.
     """
     module: str
     version: str

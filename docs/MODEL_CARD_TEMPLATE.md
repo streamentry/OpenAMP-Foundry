@@ -103,7 +103,7 @@ Every nontrivial component should answer:
 | Does it beat the baseline? | yes / no / partial / unknown |
 | Can it affect ranking? | yes / no / gated |
 | What failure downgraded it? | TBD |
-| Where are metrics recorded? | `docs/METRICS_CURRENT.md` |
+| Where are metrics recorded? | `docs/evidence/METRICS_CURRENT.md` |
 
 A component that fails its cheap baseline may remain informational, but must not silently gain authority.
 

@@ -131,9 +131,9 @@ The explanation should distinguish current implemented behavior from future road
 
 The benchmark summary should include:
 
-- current source-of-truth metrics from [`METRICS_CURRENT.md`](METRICS_CURRENT.md);
-- benchmark commands from [`BENCHMARKING.md`](BENCHMARKING.md);
-- benchmark status from [`BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md);
+- current source-of-truth metrics from [`METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md);
+- benchmark commands from [`BENCHMARKING.md`](../evidence/BENCHMARKING.md);
+- benchmark status from [`BENCHMARK_GOVERNANCE.md`](../evidence/BENCHMARK_GOVERNANCE.md);
 - cheap baselines;
 - confidence intervals where available;
 - known shortcuts;
@@ -279,7 +279,7 @@ Do not imply that a reviewer endorsed claims outside their review scope.
 - [`WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — safe expert-review handoff guide.
 - [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — pilot planning template.
 - [`PROOF_LADDER.md`](PROOF_LADDER.md) — claim levels.
-- [`BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) — benchmark lifecycle.
+- [`BENCHMARK_GOVERNANCE.md`](../evidence/BENCHMARK_GOVERNANCE.md) — benchmark lifecycle.
 - [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release boundaries.
 
 ## Final standard

@@ -3,8 +3,8 @@
 ## Overview
 
 Start from `docs/README.md`, then use the relevant domain hub. For scientific
-work, read the current truth source `docs/METRICS_CURRENT.md`, then
-`docs/ROADMAP.md`, then `AGENTS.md`. Treat computational scores as triage only.
+work, read the current truth source `docs/evidence/METRICS_CURRENT.md`, then
+`docs/research/ROADMAP.md`, then `AGENTS.md`. Treat computational scores as triage only.
 Do not describe candidates as active, safe, therapeutic, or validated without
 qualified lab evidence.
 
@@ -68,8 +68,8 @@ sequenceDiagram
 
 ## Start Here
 
-1. Read `AGENTS.md`, `CLAUDE.md`, `MISSION.md`, and `docs/METRICS_CURRENT.md`.
-2. Treat `docs/METRICS_CURRENT.md` plus `outputs/metrics_snapshot.json` as the
+1. Read `AGENTS.md`, `CLAUDE.md`, `MISSION.md`, and `docs/evidence/METRICS_CURRENT.md`.
+2. Treat `docs/evidence/METRICS_CURRENT.md` plus `outputs/metrics_snapshot.json` as the
    current benchmark truth when docs disagree.
 3. Preserve the safety boundary: dry-lab scoring and evidence only. No wet-lab
    protocols, pathogen enablement, toxicity-maximizing objectives, or biological

@@ -62,7 +62,7 @@ body:
       options:
         - label: `docs/PROOF_LADDER.md` reviewed.
           required: true
-        - label: `docs/CLAIM_REVIEW_CHECKLIST.md` reviewed.
+        - label: `docs/evidence/CLAIM_REVIEW_CHECKLIST.md` reviewed.
           required: true
         - label: Dry-lab outputs are not described as biological proof.
           required: true

@@ -63,7 +63,7 @@
 **Scope note:** This generic Gate 6 is not the same as the completed Wave 0.5 external
 screen. Wave 0.5 used three submitted activity predictors with CAMPR4 excluded and
 separate HemoFinder/AntiCP safety annotations; see W0.5-3 and W0.5-4 below plus
-`docs/METRICS_CURRENT.md`.
+`docs/evidence/METRICS_CURRENT.md`.
 
 ## Gate 7 — Human Expert Review
 

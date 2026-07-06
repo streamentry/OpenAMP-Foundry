@@ -193,7 +193,7 @@ def _run_ip_report(args: argparse.Namespace) -> int:
         "- This report is a **computational novelty assessment**, not a legal patentability opinion.",
         "- Full prior-art search (APD3, DRAMP, patent databases) is required before filing.",
         "- Competitor sequence database (AMP-Designer, AMPGAN v3, LSSAMP, etc.) not yet checked.",
-        "- See `docs/NOVELTY_CHECKLIST.md` for a step-by-step external verification guide.",
+        "- See `docs/evidence/NOVELTY_CHECKLIST.md` for a step-by-step external verification guide.",
     ])
 
     Path(args.out).write_text("\n".join(lines) + "\n", encoding="utf-8")

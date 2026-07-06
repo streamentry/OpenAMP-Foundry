@@ -81,7 +81,7 @@ Benchmark gates should answer:
 - Did leakage appear?
 - Did a benchmark card change?
 - Are confidence intervals or known caveats recorded?
-- Does `docs/METRICS_CURRENT.md` match current behavior?
+- Does `docs/evidence/METRICS_CURRENT.md` match current behavior?
 
 Benchmark gates should not be silently relaxed.
 
