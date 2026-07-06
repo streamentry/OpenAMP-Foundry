@@ -2,22 +2,16 @@
 
 from __future__ import annotations
 
-import json
-import os
 import tempfile
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
-import pytest
 import yaml
 
 from openamp_foundry.calibration.policy import (
     LockedChange,
     PolicyRule,
-    ProhibitedAction,
-    RateLimit,
     RecalibrationPolicy,
-    ReviewerArtefact,
 )
 from openamp_foundry.calibration.policy_version import (
     VersionValidation,

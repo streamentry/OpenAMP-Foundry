@@ -810,8 +810,6 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
         BudgetExceededError,
         PolicyViolationError,
         compute_weight_update,
-        write_weight_update_proposal_json,
-        write_weight_update_proposal_markdown,
     )
     from openamp_foundry.calibration.recalibration_gate import GateVerdict
 
@@ -899,7 +897,7 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
         notes = prop_section.get("notes", [])
         print(f"  Notes: {', '.join(notes) if notes else '(none)'}")
         print(f"{'=' * 60}")
-        print(f"DRY RUN — no files written, no weight changes applied.")
+        print("DRY RUN — no files written, no weight changes applied.")
     else:
         if args.out_json:
             write_recalibration_report_json(report, args.out_json)

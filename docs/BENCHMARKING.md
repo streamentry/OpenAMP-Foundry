@@ -73,7 +73,7 @@ documented result in `docs/METRICS_CURRENT.md` and
 | Benchmark | Purpose | Reason deferred |
 |-----------|---------|----------------|
 | Time split | Test future generalization | Metadata not available for most sequences |
-| Virtual-assay ablation | Test whether simulation modules improve triage | Phase 3 — no modules exist yet |
+| Virtual-assay ablation | Test whether simulation modules improve triage | Shipped: `make bench-simulation-ablation`, `make bench-simulation-ablation-within-amp`, `make simulation-gate` |
 | Biologically plausible charge-balanced negative set | Honest non-charge signal test | Requires curated negative sequences — see v0.5.41 recommendation |
 
 ## Minimum report fields

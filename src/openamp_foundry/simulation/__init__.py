@@ -1,5 +1,6 @@
 """Virtual assay simulation layer for OpenAMP Foundry."""
 
+from .gate import SimulationGateVerdict, evaluate_simulation_gate
 from .interfaces import (
     EmulatorBaseline,
     SimulationResult,
@@ -14,4 +15,6 @@ __all__ = [
     "EmulatorBaseline",
     "MembraneProxy",
     "StructureProxy",
+    "SimulationGateVerdict",
+    "evaluate_simulation_gate",
 ]

@@ -4,8 +4,6 @@ import json
 import subprocess
 import sys
 
-import pytest
-
 from openamp_foundry.simulation.membrane import MembraneProxy
 from openamp_foundry.simulation.structure import StructureProxy
 from scripts.benchmark_simulation_ablation import (
@@ -141,7 +139,7 @@ def test_cli_within_amp_exit_code():
 
 def test_cli_writes_output_json(tmp_path):
     out = tmp_path / "ablation.json"
-    result = subprocess.run(
+    subprocess.run(
         [sys.executable, "scripts/benchmark_simulation_ablation.py",
          "--mode", "amp-vs-decoy", "--out", str(out)],
         capture_output=True, text=True,

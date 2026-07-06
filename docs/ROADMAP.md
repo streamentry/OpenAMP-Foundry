@@ -1,5 +1,33 @@
 # Roadmap
 
+## v0.5.56 — Simulation Weighted-Mode Gate (Loop 35) ✓ (2026-07-06)
+
+Phase 3 had a real honesty gap: the scope doc described `weighted` simulation
+mode, but no executable guard converted ablation evidence into an allow/block
+decision. That left future agents one edit away from integration theater.
+
+Changes:
+- ``src/openamp_foundry/simulation/gate.py`` — fail-closed gate that consumes
+  current AMP-vs-decoy and within-AMP ablation artifacts and returns a
+  machine-readable permission verdict for simulation integration mode.
+- ``openamp-foundry bench simulation-gate`` — CLI wrapper with exit code `0`
+  only when weighted mode is honestly allowed, `3` otherwise.
+- ``Makefile`` — ``make simulation-gate`` target writing
+  ``outputs/simulation_gate_verdict.json`` from both ablation artifacts.
+- ``docs/VIRTUAL_ASSAY_SCOPE.md`` — corrected stale claim that `rank` already
+  accepts `--simulation-mode`; current state now says weighted mode is blocked
+  until the gate passes.
+- ``tests/test_simulation_gate.py`` — 6 tests covering blocked current-state
+  verdicts, positive-path permission, fail-closed missing artifacts, and CLI
+  exit behavior.
+- Full verification after this loop: ``1927 passed, 7 skipped``.
+
+**Honest finding:**
+- Weighted simulation remains blocked. Current ablations do not justify ranking
+  impact.
+- This is not a modeling advance. It is a truthfulness and architecture
+  advance: the repo now has an executable brake against simulation theater.
+
 ## v0.5.55 — Within-AMP Simulation Ablation (Loop 34) ✓ (2026-07-06)
 
 Extended the simulation ablation benchmark to test modules on their

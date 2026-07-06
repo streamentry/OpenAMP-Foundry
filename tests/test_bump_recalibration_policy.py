@@ -6,11 +6,7 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
-
-import pytest
-import yaml
 
 from openamp_foundry.calibration.policy import load_recalibration_policy
 
@@ -327,4 +323,3 @@ class TestBumpRecalibrationPolicy:
         assert loaded_2.policy_version == 3
         assert loaded_2.human_reviewer == "r2"
         assert loaded_2.locked_at == "2026-08-02"
-

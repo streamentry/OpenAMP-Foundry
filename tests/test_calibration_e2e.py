@@ -1235,7 +1235,6 @@ class TestFullCalibrationLoop:
 
         # Reconstruct GateVerdict from the gate output
         from openamp_foundry.calibration.recalibration_gate import (
-            GateVerdict,
             evaluate_recalibration_gate,
         )
 

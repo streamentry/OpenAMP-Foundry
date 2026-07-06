@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version
+.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -41,6 +41,9 @@ help:
 	@echo "  make bench-order-dependent    Analyze which features survive scrambling (order-dependence)"
 	@echo "  make bench-precision-at-k    Precision@k operating characteristic (small-k triage, threshold calibration)"
 	@echo "  make bench-per-family        Per-family benchmark — stratify 500 AMPs by structural class, per-class AUROC"
+	@echo "  make bench-simulation-ablation  Simulation ablation on AMP-vs-decoy benchmark"
+	@echo "  make bench-simulation-ablation-within-amp  Simulation ablation on hemolytic vs selective AMPs"
+	@echo "  make simulation-gate        Fail-closed gate for weighted simulation mode"
 	@echo "  make bench-gate               Benchmark regression gate (AUROC drift check)"
 	@echo "  make regenerate-all           Run all pipeline + benchmarks and verify determinism"
 	@echo "  make bench-hidden-active      Hidden-positive recovery on mixed benchmark set"
@@ -444,6 +447,12 @@ bench-simulation-ablation:
 bench-simulation-ablation-within-amp:
 	PYTHONPATH=src $(PYTHON) scripts/benchmark_simulation_ablation.py \
 		--mode within-amp --out outputs/simulation_ablation_within_amp.json
+
+simulation-gate:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench simulation-gate \
+		--amp-vs-decoy-json outputs/simulation_ablation.json \
+		--within-amp-json outputs/simulation_ablation_within_amp.json \
+		--out outputs/simulation_gate_verdict.json
 
 bench-cross-dataset:
 	PYTHONPATH=src $(PYTHON) scripts/benchmark_cross_dataset.py \

@@ -9,9 +9,15 @@ an impressive-looking model that does not improve decision quality is noise.
 
 ## Status
 
-**Phase 3 — Planning.** No virtual-assay modules are implemented in the
-production pipeline. This document describes the intended scope and
-constraints. Implementation starts with Loop 31.
+**Phase 3 — experimental modules implemented, production integration still gated.**
+`MembraneProxy` (Loop 31) and `StructureProxy` (Loop 32) exist, and both now
+have explicit ablation evidence. Current state:
+
+- `bench-simulation-ablation` shows simulation composite degrades AMP-vs-decoy.
+- `bench-simulation-ablation-within-amp` shows simulation scores do not beat
+  `rich_selectivity` on hemolysis detection.
+- `bench simulation-gate` therefore blocks `weighted` mode and downgrades to
+  `info` until the evidence changes.
 
 ## Core Principle
 
@@ -88,9 +94,12 @@ The virtual assay layer supports three modes:
 |------|--------|-------------|
 | `off` (default) | No simulation scores computed. Current pipeline. | Production candidate ranking |
 | `info` | Simulation scores computed and included in reports only. No ranking impact. | Benchmarking, exploration |
-| `weighted` | Simulation scores affect ranking if each module clears its ablation bar. | Only after ablation validation |
+| `weighted` | Simulation scores affect ranking only if the simulation gate passes on current ablation artifacts. | Only after ablation validation |
 
-The `rank` CLI accepts `--simulation-mode` to select the mode.
+The `rank` CLI does **not** yet expose `--simulation-mode`. That omission is
+intentional until a module clears the gate honestly. Current executable policy:
+`openamp-foundry bench simulation-gate` may return `weighted` permission in the
+future, but production ranking remains simulation-free today.
 
 ## Calibration Requirement
 

@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
+from pathlib import Path
 
 def _run_bench(args: argparse.Namespace) -> int:
     from openamp_foundry.data.loaders import load_candidates_csv
@@ -320,3 +321,19 @@ def _run_active_learning_bench(args: argparse.Namespace) -> int:
     out_dict = result.to_dict()
     print(json.dumps(out_dict, indent=2))
     return 0
+
+
+def _run_simulation_gate(args: argparse.Namespace) -> int:
+    """Validate whether virtual-assay scores may affect ranking."""
+    from openamp_foundry.simulation.gate import evaluate_simulation_gate
+
+    verdict = evaluate_simulation_gate(
+        amp_vs_decoy_path=args.amp_vs_decoy_json,
+        within_amp_path=args.within_amp_json,
+        required_mode=args.required_mode,
+    ).to_dict()
+
+    if args.out:
+        Path(args.out).write_text(json.dumps(verdict, indent=2) + "\n")
+    print(json.dumps(verdict, indent=2))
+    return 0 if verdict["may_use_weighted_mode"] else 3
