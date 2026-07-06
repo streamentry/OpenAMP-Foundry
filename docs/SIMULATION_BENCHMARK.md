@@ -1,14 +1,50 @@
 # Simulation Benchmark Report
 
-## Status
+## Phase 3 Closeout
+
+Phase 3 (virtual assay scaffolding, Loops 30–39) built two simulation modules,
+three benchmarks, a weighted-mode gate, a CLI flag, and an external adapter
+protocol. Simulation does not improve ranking. The honest finding across all
+benchmarks: **simulation does not improve ranking**.
 
 Current verdict: simulation remains informational only.
+Weighted mode is blocked by the gate and will remain blocked until a
+future module demonstrably beats its cheapest heuristic baseline.
 
-The shipped membrane and structure proxies do not improve candidate ranking
-against the repo's current benchmark bar. They may still help humans inspect a
-candidate, but they must not affect ranking weights.
+`weighted` simulation remains blocked.
 
-Simulation does not improve ranking on the current benchmark set.
+---
+
+## What Was Built
+
+| Loop | Module | Status |
+|:----:|--------|:------:|
+| 30 | Virtual assay scope document | ✅ Scope defined |
+| 31 | MembraneProxy (Wimley-White scales) | ✅ Ships in info mode |
+| 32 | StructureProxy (Chou-Fasman 3-state) | ✅ Ships in info mode |
+| 33 | AMP-vs-decoy ablation benchmark | ✅ No improvement |
+| 34 | Within-AMP hemolysis ablation | ✅ No improvement |
+| 35 | Weighted-mode simulation gate | ✅ Blocks weighted mode |
+| 36 | Cheap-baseline comparison benchmark | ✅ 0/4 signals beat baselines |
+| 37 | `rank --simulation-mode` CLI flag | ✅ Users can inspect scores |
+| 38 | `ExternalSimulationAdapter` protocol | ✅ Third-party integration ready |
+| 39 | This report | ✅ Phase 3 closed |
+
+---
+
+## Phase 3 Exit Criteria
+
+| Criterion | Required | Status | Evidence |
+|-----------|----------|:------:|----------|
+| ≥2 simulation modules exist and are benchmarked | ✅ | ✅ Met | MembraneProxy (Loop 31), StructureProxy (Loop 32). Both benchmarked (Loops 33–36) |
+| Simulation improves strict triage by >0.03 AUROC on any pairwise metric | Delta > 0.03 | ❌ Not met | Best simulation helix_weight AUROC 0.6458; best existing rich_selectivity AUROC 0.7453 (delta −0.0995) |
+| Modules that fail ablation are removed or permanently experimental | All failed | ✅ Met | All modules flagged permanent experimental (Loop 36 verdict) |
+| Uncertainty propagated through to evidence certificate | Via `SimulationResult` | ✅ Met | Each module returns `uncertainty` in range [0, 1]; information added to scores dict in info mode |
+| External adapter protocol documented | ARCHITECTURE.md | ✅ Met | `ExternalSimulationAdapter` documented in ARCHITECTURE.md extension points (Loop 38) |
+
+**Verdict: Phase 3 exit criteria partially met. Simulation does NOT earn ranking impact, but the infrastructure and honesty guardrails are complete.**
+
+---
 
 ## Reproducible Commands
 
@@ -31,6 +67,8 @@ PYTHONPATH=src python3 -m openamp_foundry.cli bench simulation-gate \
 Exit code `3` is expected for benchmarks or gates that correctly reject
 weighted simulation.
 
+---
+
 ## Current Results
 
 | Benchmark | Baseline / incumbent | Simulation result | Delta | Verdict |
@@ -41,6 +79,8 @@ weighted simulation.
 | Cheap baseline: selectivity ratio | Selectivity proxy AUROC `0.3905` | Selectivity ratio AUROC `0.3615` | `-0.0290` | No improvement |
 | Cheap baseline: helix weight | Helix propensity AUROC `0.6489` | Helix weight AUROC `0.6458` | `-0.0031` | No improvement |
 | Cheap baseline: non-helical flag | Proline fraction AUROC `0.4929` | Non-helical flag AUROC `0.4124` | `-0.0805` | No improvement |
+
+---
 
 ## Gate Decision
 
@@ -53,14 +93,29 @@ Reasons:
 - Cheap-baseline comparison shows zero of four simulation signals beat their
   simplest meaningful heuristic.
 
+Weighted mode will remain blocked until a future module passes all three checks.
+
+---
+
 ## Interpretation
 
-Known fact from current benchmark artifacts: the current simulation layer is
-not ready to influence ranking.
+The current simulation layer (1D Chou-Fasman propensities, averaged Wimley-White
+scales) is not rich enough to beat existing heuristics. Two reasons dominate:
 
-Logical inference: future simulation work needs richer inputs than the current
-1D propensities. A more complex module still has to beat cheap baselines before
-it earns ranking impact.
+1. **Composition dominance**: The existing pipeline already extracts charge,
+   hydrophobicity, aromatic fraction, and GRAVY — features that correlate
+   strongly with membrane interaction. Averaged hydrophobicity scales add
+   little beyond what these composition features already capture.
+
+2. **No structural context**: 1D per-residue averages lose all sequence-order
+   and spatial information. A proper membrane interaction model requires
+   coarse-grained dynamics (Martini), structural ensembles (AlphaFold), or
+   at minimum a windowed context that captures local sequence patterns.
+
+Future simulation work must use fundamentally richer inputs than 1D propensities.
+Any new module must still beat its cheap baseline before earning ranking impact.
+
+---
 
 ## Policy
 
@@ -71,3 +126,17 @@ Until this report changes with stronger evidence:
 - Evidence certificates may include simulation values only as experimental
   context, not as activity, safety, or selectivity proof.
 - No public claim may imply simulation-validated antimicrobial activity.
+- Any future simulation module must pass the gate (Loop 35) before affecting
+  ranking. The gate will not be bypassed even if the module appears plausible.
+
+---
+
+## Transition to Phase 4
+
+Phase 4 (wet-lab readiness, Loops 40–49) shifts focus from virtual assay
+scaffolding to preparing for real lab partners. The simulation modules ship
+in info mode — usable for human inspection but not trusted for ranking.
+
+The honest signal from Phase 3 is: **simulation is not ready to compress
+wet-lab experiments.** Phase 4 work should prioritize getting the existing
+pipeline into a lab partnership rather than deepening the simulation layer.

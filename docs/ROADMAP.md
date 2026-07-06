@@ -1,5 +1,21 @@
 # Roadmap
 
+## v0.5.61 — Lab Partner Onboarding Pack (Loop 40) ✓ (2026-07-06)
+
+Phase 4 begins with a comprehensive onboarding document for CRO or academic
+lab partners. Covers everything needed to run the Wave 0.5 panel.
+
+Changes:
+- ``docs/LAB_PARTNER_ONBOARDING.md`` — Full onboarding pack: candidate panel
+  summary (24 candidates, 15 families), synthesis instructions (SPPS, purity,
+  modifications), assay protocols (MIC, hemolysis, serum stability), data
+  return JSON format with required fields, positive/negative controls, safety
+  and biosecurity (BSL-2), timeline (5–8 weeks), and related document links.
+- ``docs/50_LOOP_PLAN.md`` — Loop 40 ✅. Phase 4 status: "In progress — Loop 40 ✅".
+  Next: Loop 41.
+- ``docs/METRICS_CURRENT.md`` — Changelog entry updated.
+- No code changes. 1966 tests still pass.
+
 ## v0.5.60 — Simulation Benchmark Report (Loop 39) ✓ (2026-07-06)
 
 Closed the benchmark-report gap with `docs/SIMULATION_BENCHMARK.md`.

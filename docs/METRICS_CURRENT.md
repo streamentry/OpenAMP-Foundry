@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (simulation benchmark report — v0.5.60)
+> **Last updated:** 2026-07-06 (lab partner onboarding — v0.5.61)
+> **New in v0.5.61:** `docs/LAB_PARTNER_ONBOARDING.md` — CRO onboarding pack with panel summary, synthesis instructions, assay protocols, data return format, controls, safety, timeline. No code changes. 1966 tests.
 > **New in v0.5.60:** `docs/SIMULATION_BENCHMARK.md` consolidates simulation ablation, cheap-baseline comparison, and weighted-mode gate results. Current conclusion: simulation does not improve ranking; `weighted` remains blocked.
 > **New in v0.5.59:** `ExternalSimulationAdapter` protocol — wraps third-party callables into `VirtualAssayProxy`. Availability check, graceful error handling, metadata override. ARCHITECTURE.md docs updated. 12 tests. 1965 total.
 > **New in v0.5.58:** Per-signal cheap-baseline comparison: 0/4 simulation signals beat their cheapest heuristic. All simulation modules remain permanently experimental. `make bench-simulation-baselines`. 13 tests. 1953 total.

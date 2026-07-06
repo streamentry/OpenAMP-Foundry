@@ -124,7 +124,7 @@ Prepare for real wet-lab partners. Make the pack reviewable, the evidence tracea
 
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
-| 40 | No assay-partner onboarding pack. A new CRO gets no README for how to run the panel | `docs/LAB_PARTNER_ONBOARDING.md`: panel manifest, synthesis instructions, assay protocol references, data return schema, positive/negative control sequences | A new CRO can read this and know exactly what to do |
+| 40 ✅ | No assay-partner onboarding pack. A new CRO gets no README for how to run the panel | `docs/LAB_PARTNER_ONBOARDING.md`: panel manifest, synthesis instructions, assay protocol references, data return schema, positive/negative control sequences, safety notes, timeline, controls. v0.5.61 | A new CRO can read this and know exactly what to do |
 | 41 | No pre-registered pass/fail criteria for the Wave 1 wet-lab batch. ASSAY_PREREGISTRATION exists but criteria are not machine-checkable | `configs/wave1_pass_fail.yaml`: machine-readable pass/fail gates for Wave 1 (MIC ≤ 32 for ≥ N candidates, hemolysis ≤ 10% for ≥ M candidates, at least 1 control passes) | CI validates criteria against lab result schema |
 | 42 | No expert-review GitHub template. Review process is ad-hoc | `.github/ISSUE_TEMPLATE/expert_review.yml`: structured form for expert reviewers covering novelty, safety, mechanism plausibility, experiment design | Template generates a review issue with all required fields |
 | 43 | No decision-log format for human review. AGENTS.md requires human review for 6 decision types but no machine-readable log format exists | `schemas/decision_log.schema.json`: JSON Schema for human review decisions. Fields: date, reviewer, decision_type, evidence_refs, reasoning_notes, dissent_flag | Schema validates against real decision examples |
@@ -180,8 +180,8 @@ If no data arrives, virtual assay scaffolding continues independently.
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
 Phase 2: ✅ Complete (Loops 18–29)
-Phase 3: In progress — Loop 38 ✅ (Loops 30–39)
-Phase 4: Not started (Loops 40–49)
+Phase 3: ✅ Complete (Loops 30–39)
+Phase 4: In progress — Loop 40 ✅ (Loops 40–49)
 ```
 
 ### Completed
@@ -241,7 +241,7 @@ Phase 4: Not started (Loops 40–49)
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**Next loop:** Loop 40 — lab partner onboarding pack.
+**Next loop:** Loop 41 — pre-registered pass/fail criteria (configs/wave1_pass_fail.yaml).
 
 **Phase 2 exit criteria (all 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest
