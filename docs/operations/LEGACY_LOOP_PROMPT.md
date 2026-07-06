@@ -25,11 +25,11 @@ Read these first:
 - MISSION.md
 - README.md
 - docs/engineering/ARCHITECTURE.md
-- docs/PLAN.md
+- docs/research/PLAN.md
 - docs/research/ROADMAP.md
 - docs/evidence/METRICS_CURRENT.md
-- docs/CALIBRATION_POLICY.md (if present — pre-registered recalibration gate)
-- docs/SAFE_SCOPE.md
+- docs/evidence/CALIBRATION_POLICY.md (if present — pre-registered recalibration gate)
+- docs/trust/SAFE_SCOPE.md
 
 Agent-friendly package note: The calibration module (`src/openamp_foundry/calibration/`)
 now exposes its public API at the package level. Use

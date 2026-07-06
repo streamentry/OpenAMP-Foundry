@@ -246,7 +246,7 @@ Second-batch hit rate improves over first-batch hit rate without changing succes
 
 Phase 5 is deliberately staged: the policy + gate ship before any
 recalibration engine exists, so the engine cannot be silently
-applied. See `docs/CALIBRATION_POLICY.md` for the exact gate contract.
+applied. See `docs/evidence/CALIBRATION_POLICY.md` for the exact gate contract.
 
 ### Phase 6 — Scientific credibility
 

@@ -45,7 +45,7 @@ These docs define current project truth.
 | `MODEL_RELEASE_POLICY.md` | Artifact release boundaries. |
 | `docs/evidence/METRICS_CURRENT.md` | Current benchmark metrics. |
 | `docs/evidence/DECISION_RULES.md` | Gates and thresholds. |
-| `docs/CALIBRATION_POLICY.md` | Recalibration gate policy. |
+| `docs/evidence/CALIBRATION_POLICY.md` | Recalibration gate policy. |
 | `docs/PROJECT_INDEX.md` | Navigation hub. |
 
 These must be kept current.
@@ -72,7 +72,7 @@ These explain systems and artifacts.
 - `docs/evidence/BENCHMARKING.md`
 - `docs/evidence/BENCHMARK_GOVERNANCE.md`
 - `docs/evidence/EVIDENCE_CERTIFICATE.md`
-- `docs/VIRTUAL_ASSAY_SCOPE.md`
+- `docs/evidence/VIRTUAL_ASSAY_SCOPE.md`
 - `docs/evidence/SIMULATION_BENCHMARK.md`
 
 If code behavior changes, these may need updates.
@@ -84,9 +84,9 @@ These help outsiders safely evaluate or reuse the project.
 - `docs/review/COLLABORATION_PLAYBOOK.md`
 - `docs/review/WET_LAB_HANDOFF.md`
 - `docs/review/PRE_REGISTERED_PILOT_TEMPLATE.md`
-- `docs/ADOPTION_STRATEGY.md`
-- `docs/OPEN_BIOTECH_STACK.md`
-- `docs/PROOF_LADDER.md`
+- `docs/research/ADOPTION_STRATEGY.md`
+- `docs/research/OPEN_BIOTECH_STACK.md`
+- `docs/evidence/PROOF_LADDER.md`
 
 If external-facing language changes, these need review.
 
@@ -99,7 +99,7 @@ Update:
 - `docs/evidence/METRICS_CURRENT.md`
 - `outputs/metrics_snapshot.json` if generated
 - `docs/evidence/BENCHMARKING.md` if benchmark meaning changed
-- `docs/research/ROADMAP.md` or `docs/50_LOOP_PLAN.md` if milestone changed
+- `docs/research/ROADMAP.md` or `docs/research/50_LOOP_PLAN.md` if milestone changed
 
 ### Benchmark added or changed
 

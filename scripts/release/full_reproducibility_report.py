@@ -94,14 +94,14 @@ def build_report() -> dict:
 
     # 5. Phase 4 readiness
     phase4_exit = {
-        "lab_partner_onboarding": "docs/LAB_PARTNER_ONBOARDING.md",
+        "lab_partner_onboarding": "docs/review/LAB_PARTNER_ONBOARDING.md",
         "pass_fail_criteria": "configs/wave1_pass_fail.yaml",
         "expert_review_template": ".github/ISSUE_TEMPLATE/expert_review.yml",
         "decision_log_schema": "schemas/decision_log.schema.json",
         "lab_batch_pack": "scripts/build_lab_batch_pack.py",
-        "analysis_plan": "docs/WAVE1_ANALYSIS_PLAN.md",
+        "analysis_plan": "docs/research/WAVE1_ANALYSIS_PLAN.md",
         "data_return_validation": "scripts/validate_lab_data_return.py",
-        "publication_pack": "docs/PUBLICATION_PACK.md",
+        "publication_pack": "docs/review/PUBLICATION_PACK.md",
     }
     exists = {k: Path(repo_root / v).exists() for k, v in phase4_exit.items()}
     report["sections"]["phase_4_readiness"] = {

@@ -18,7 +18,7 @@ laboratory protocols.
 - [Assay preregistration](ASSAY_PREREGISTRATION.md)
 - [Pre-wet-lab checklist](PRE_WET_LAB_CHECKLIST.md)
 - [Publication pack](PUBLICATION_PACK.md)
-- [Negative result archive](../NEGATIVE_RESULT_ARCHIVE.md)
+- [Negative result archive](../evidence/NEGATIVE_RESULT_ARCHIVE.md)
 
 All experimental decisions remain with qualified humans under appropriate
 institutional oversight.

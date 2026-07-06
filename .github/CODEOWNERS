@@ -21,7 +21,7 @@ docs/review/PRE_REGISTERED_PILOT_TEMPLATE.md @Open-Problem-Lab/maintainers
 
 # Benchmarks, calibration, data, and model release need responsible review.
 docs/evidence/BENCHMARK_GOVERNANCE.md @Open-Problem-Lab/maintainers
-docs/CALIBRATION_POLICY.md @Open-Problem-Lab/maintainers
-docs/DATA_GOVERNANCE.md @Open-Problem-Lab/maintainers
-docs/MODEL_CARD_TEMPLATE.md @Open-Problem-Lab/maintainers
+docs/evidence/CALIBRATION_POLICY.md @Open-Problem-Lab/maintainers
+docs/trust/DATA_GOVERNANCE.md @Open-Problem-Lab/maintainers
+docs/trust/MODEL_CARD_TEMPLATE.md @Open-Problem-Lab/maintainers
 configs/recalibration_policy.yaml @Open-Problem-Lab/maintainers

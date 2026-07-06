@@ -117,7 +117,7 @@ Bac2A proline-rich intracellular. Novel mechanism (DnaK binding).
 ## Wave 0.5 Novelty Audit (2026-06-29)
 
 > Separate audit for Wave 0.5 scaffold diversification candidates.
-> Full details: `docs/WAVE_0_5_NOVELTY_AUDIT.md`
+> Full details: `docs/research/WAVE_0_5_NOVELTY_AUDIT.md`
 > Machine-readable: `outputs/wave0_5_novelty_audit.csv`
 
 ### Summary

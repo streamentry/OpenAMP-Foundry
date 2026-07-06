@@ -25,12 +25,12 @@ correlated-failure risk. The goal is not more candidates — it is more independ
 
 | Phase | Action | Output |
 |---|---|---|
-| 1 — Baseline Freeze | Locked Wave 0 panel state | `docs/WAVE_0_5_BASELINE.md`, `outputs/wave0_5_baseline.csv` |
+| 1 — Baseline Freeze | Locked Wave 0 panel state | `docs/research/WAVE_0_5_BASELINE.md`, `outputs/wave0_5_baseline.csv` |
 | 2 — Scaffold Search | Defined 10 new independent families | (design parameters in `scripts/generate_wave0_5_candidates.py`) |
 | 3 — Candidate Generation | Generated 118 raw candidates | `outputs/wave0_5_raw_candidates.csv` |
 | 4 — Internal Filter | Shortlisted 60 at internal gates | `outputs/wave0_5_internal_shortlist.csv` |
-| 5 — External Predictors | Planned manual submissions; later completed and summarized in current-state docs | `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md`, `docs/evidence/METRICS_CURRENT.md` |
-| 6 — Novelty Audit | Classified 60 shortlist vs 92 references | `outputs/wave0_5_novelty_audit.csv`, `docs/WAVE_0_5_NOVELTY_AUDIT.md` |
+| 5 — External Predictors | Planned manual submissions; later completed and summarized in current-state docs | `docs/research/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md`, `docs/evidence/METRICS_CURRENT.md` |
+| 6 — Novelty Audit | Classified 60 shortlist vs 92 references | `outputs/wave0_5_novelty_audit.csv`, `docs/research/WAVE_0_5_NOVELTY_AUDIT.md` |
 | 7 — Panel Selection | Selected 24-candidate Wave 1 panel | `outputs/wave1_final_panel.csv`, `docs/research/WAVE_1_PANEL_RECOMMENDATION.md` |
 | 8 — Evidence Certificates | Generated machine-readable certs | `outputs/evidence_wave0_5/*.json` |
 | 9 — Docs Update | Updated all docs | `docs/evidence/METRICS_CURRENT.md`, `docs/research/ROADMAP.md`, etc. |
@@ -70,7 +70,7 @@ correlated-failure risk. The goal is not more candidates — it is more independ
 
 | Task | Status | Blocker |
 |---|---|---|
-| External predictor screen (all 60 shortlist) | COMPLETE | Reflected in `docs/evidence/METRICS_CURRENT.md` and `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md` |
+| External predictor screen (all 60 shortlist) | COMPLETE | Reflected in `docs/evidence/METRICS_CURRENT.md` and `docs/research/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md` |
 | Wave 0.5 Gate W0.5-3 (activity consensus) | COMPLETE | Gate result recorded after external screen |
 | Wave 0.5 Gate W0.5-4 (safety annotation) | COMPLETE | Gate result recorded after external screen |
 | FTO (freedom-to-operate) for CLOSE_RELATIVE candidates | PENDING | Legal review |

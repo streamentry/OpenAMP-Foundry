@@ -122,7 +122,7 @@ Ask:
 
 Use direct comments like:
 
-- “Please map this claim to `docs/PROOF_LADDER.md`.”
+- “Please map this claim to `docs/evidence/PROOF_LADDER.md`.”
 - “This needs a cheap-baseline comparison before it can affect ranking.”
 - “This reads like validation, but the evidence is dry-lab only.”
 - “Please add release status.”

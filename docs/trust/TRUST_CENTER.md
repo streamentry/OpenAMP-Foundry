@@ -35,15 +35,15 @@ OpenAMP has several trust surfaces.
 | Surface | Trust question | Source of truth |
 |---|---|---|
 | Safety | Could this increase misuse risk? | `SAFETY.md`, `RESPONSIBLE_USE.md`, `MODEL_RELEASE_POLICY.md` |
-| Claims | Does wording exceed evidence? | `docs/PROOF_LADDER.md` |
+| Claims | Does wording exceed evidence? | `docs/evidence/PROOF_LADDER.md` |
 | Benchmarks | Could the result be shortcut-driven? | `docs/evidence/BENCHMARK_GOVERNANCE.md`, `docs/evidence/METRICS_CURRENT.md` |
 | Candidates | Why was this candidate selected? | `docs/evidence/EVIDENCE_CERTIFICATE.md` |
 | External review | Can outsiders reject the package? | `docs/review/EXTERNAL_REVIEW_PACKET.md` |
-| Data | Can the data be used and redistributed? | `DATA_LICENSE_NOTICE.md`, `docs/DATA_GOVERNANCE.md` |
-| Models | Should this model/artifact be released? | `MODEL_RELEASE_POLICY.md`, `docs/MODEL_CARD_TEMPLATE.md` |
-| Calibration | Can the system update without cherry-picking? | `docs/CALIBRATION_POLICY.md` |
+| Data | Can the data be used and redistributed? | `DATA_LICENSE_NOTICE.md`, `docs/trust/DATA_GOVERNANCE.md` |
+| Models | Should this model/artifact be released? | `MODEL_RELEASE_POLICY.md`, `docs/trust/MODEL_CARD_TEMPLATE.md` |
+| Calibration | Can the system update without cherry-picking? | `docs/evidence/CALIBRATION_POLICY.md` |
 | Agents | Can agents work safely? | `AGENTS.md`, `docs/getting-started/AGENT_ONBOARDING.md` |
-| Maintainers | Can the project survive growth? | `docs/getting-started/MAINTAINER_GUIDE.md`, `docs/RELEASE_CHECKLIST.md` |
+| Maintainers | Can the project survive growth? | `docs/getting-started/MAINTAINER_GUIDE.md`, `docs/trust/RELEASE_CHECKLIST.md` |
 
 ## Trust architecture
 

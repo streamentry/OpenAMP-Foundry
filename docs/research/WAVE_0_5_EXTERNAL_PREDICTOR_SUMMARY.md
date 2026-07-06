@@ -150,5 +150,5 @@ If not achieved, return to Phase 3 and generate additional candidates.
 ## See Also
 
 - `outputs/wave0_5_internal_shortlist.csv` — 60 candidates with internal scores
-- `docs/WAVE_0_5_BASELINE.md` — Wave 0 panel baseline
-- `docs/EXTERNAL_PREDICTOR_CONSENSUS.md` — Wave 0 consensus (same tool stack)
+- `docs/research/WAVE_0_5_BASELINE.md` — Wave 0 panel baseline
+- `docs/evidence/EXTERNAL_PREDICTOR_CONSENSUS.md` — Wave 0 consensus (same tool stack)

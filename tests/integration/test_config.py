@@ -22,20 +22,20 @@ class TestLoadConfig:
         assert result["nested"]["a"] == 1
 
     def test_loads_default_pipeline_config(self):
-        default = Path(__file__).parents[1] / "configs" / "pipeline.yaml"
+        default = Path(__file__).parents[2] / "configs" / "pipeline.yaml"
         result = load_config(default)
         assert "filters" in result
         assert "weights" in result
         assert "selection" in result
 
     def test_default_config_weights_are_positive(self):
-        default = Path(__file__).parents[1] / "configs" / "pipeline.yaml"
+        default = Path(__file__).parents[2] / "configs" / "pipeline.yaml"
         result = load_config(default)
         for name, w in result["weights"].items():
             assert w > 0, f"Weight '{name}' must be positive, got {w}"
 
     def test_default_config_filters_present(self):
-        default = Path(__file__).parents[1] / "configs" / "pipeline.yaml"
+        default = Path(__file__).parents[2] / "configs" / "pipeline.yaml"
         result = load_config(default)
         filters = result["filters"]
         assert "min_length" in filters
@@ -43,7 +43,7 @@ class TestLoadConfig:
         assert filters["min_length"] < filters["max_length"]
 
     def test_default_config_selection_present(self):
-        default = Path(__file__).parents[1] / "configs" / "pipeline.yaml"
+        default = Path(__file__).parents[2] / "configs" / "pipeline.yaml"
         result = load_config(default)
         sel = result["selection"]
         assert "top_n" in sel
@@ -54,7 +54,7 @@ class TestLoadConfig:
         assert 0.0 <= sel["max_disagreement"] <= 1.0
 
     def test_phase3_config_selection_present(self):
-        phase3 = Path(__file__).parents[1] / "configs" / "phase3.yaml"
+        phase3 = Path(__file__).parents[2] / "configs" / "phase3.yaml"
         result = load_config(phase3)
         sel = result["selection"]
         assert "top_n" in sel
@@ -65,13 +65,13 @@ class TestLoadConfig:
         assert 0.0 <= sel["max_disagreement"] <= 1.0
 
     def test_phase3_config_weights_are_positive(self):
-        phase3 = Path(__file__).parents[1] / "configs" / "phase3.yaml"
+        phase3 = Path(__file__).parents[2] / "configs" / "phase3.yaml"
         result = load_config(phase3)
         for name, w in result["weights"].items():
             assert w > 0, f"phase3.yaml weight '{name}' must be positive, got {w}"
 
     def test_phase3_config_filters_present(self):
-        phase3 = Path(__file__).parents[1] / "configs" / "phase3.yaml"
+        phase3 = Path(__file__).parents[2] / "configs" / "phase3.yaml"
         result = load_config(phase3)
         filters = result["filters"]
         assert "min_length" in filters

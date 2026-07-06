@@ -148,9 +148,9 @@ A top-level README in the release package should include:
 
 ## Related Documents
 
-- `docs/RELEASE_CHECKLIST.md` — General release process.
+- `docs/trust/RELEASE_CHECKLIST.md` — General release process.
 - `docs/evidence/CLAIM_REVIEW_CHECKLIST.md` — Claim verification before publication.
-- `docs/DATA_GOVERNANCE.md` — Data licensing and redistribution policy.
+- `docs/trust/DATA_GOVERNANCE.md` — Data licensing and redistribution policy.
 - `docs/engineering/ARTIFACT_VERSIONING.md` — Versioning scheme for pipeline outputs.
-- `docs/MODEL_CARD_TEMPLATE.md` — Model card format for released scorers.
-- `docs/TRUST_CENTER.md` — Trust and safety documentation hub.
+- `docs/trust/MODEL_CARD_TEMPLATE.md` — Model card format for released scorers.
+- `docs/trust/TRUST_CENTER.md` — Trust and safety documentation hub.

@@ -4,7 +4,7 @@
 > vision for a future virtual wet-lab layer. It is NOT a description of current
 > pipeline capability. Do not cite or present as implemented functionality.
 > For the current architecture, see `docs/engineering/ARCHITECTURE.md` and
-> `docs/VIRTUAL_ASSAY_SCOPE.md`. For the current roadmap, see `docs/research/ROADMAP.md`.
+> `docs/evidence/VIRTUAL_ASSAY_SCOPE.md`. For the current roadmap, see `docs/research/ROADMAP.md`.
 
 This is **exactly the right "bend reality" question**.
 

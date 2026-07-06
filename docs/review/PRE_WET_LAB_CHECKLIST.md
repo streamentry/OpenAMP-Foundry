@@ -251,7 +251,7 @@ infectious disease specialist — ideally someone who:
 
 | Document | Purpose |
 |----------|---------|
-| `docs/REVIEWER_SUMMARY.md` | 2-page quick overview — start here |
+| `docs/review/REVIEWER_SUMMARY.md` | 2-page quick overview — start here |
 | `docs/review/EXPERT_REVIEW_PACK.md` | Full expert review packet with all candidate data |
 | `docs/evidence/NOVELTY_AUDIT_FULL.md` | Novelty classification against 120-AMP library |
 | `docs/evidence/BENCHMARK_CARD.md` | Benchmark methodology and metrics |

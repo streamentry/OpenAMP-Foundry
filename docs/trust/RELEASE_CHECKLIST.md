@@ -48,7 +48,7 @@ A release is a trust event.
 
 ### 4. Evidence and claims
 
-- [ ] Claims mapped to `docs/PROOF_LADDER.md`.
+- [ ] Claims mapped to `docs/evidence/PROOF_LADDER.md`.
 - [ ] Dry-lab outputs are not described as biological proof.
 - [ ] Unsupported claims listed or avoided.
 - [ ] Positive evidence is not overgeneralized.
@@ -118,7 +118,7 @@ A release is a trust event.
 
 ## Claim level
 
-Mapped to `docs/PROOF_LADDER.md`: Level <n>.
+Mapped to `docs/evidence/PROOF_LADDER.md`: Level <n>.
 
 ## What this does not prove
 

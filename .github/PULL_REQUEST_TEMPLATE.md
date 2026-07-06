@@ -37,7 +37,7 @@ See `docs/getting-started/MAINTAINER_GUIDE.md`.
 
 ## Claim discipline
 
-- [ ] Claims are mapped to `docs/PROOF_LADDER.md`
+- [ ] Claims are mapped to `docs/evidence/PROOF_LADDER.md`
 - [ ] Dry-lab outputs are not described as biological proof
 - [ ] No “AI discovered an antibiotic” / “drug candidate” / “safe” / “clinically useful” language unless evidence level supports it
 - [ ] Unsupported claims are explicitly listed or avoided

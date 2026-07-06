@@ -20,10 +20,10 @@ This is the documentation front door. Start with a route, not the file list.
 
 ## Three documents that prevent most mistakes
 
-1. [Trust Center](TRUST_CENTER.md) defines the safety, evidence, and release
+1. [Trust Center](trust/TRUST_CENTER.md) defines the safety, evidence, and release
    architecture.
-2. [Proof Ladder](PROOF_LADDER.md) limits claims to their evidence level.
-3. [Current Metrics](../evidence/METRICS_CURRENT.md) records current measured performance
+2. [Proof Ladder](evidence/PROOF_LADDER.md) limits claims to their evidence level.
+3. [Current Metrics](evidence/METRICS_CURRENT.md) records current measured performance
    and known weaknesses.
 
 ## Documentation map
@@ -48,11 +48,11 @@ flowchart TD
 
 - Safety: [`../SAFETY.md`](../SAFETY.md) and
   [`../RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md).
-- Claims: [`PROOF_LADDER.md`](PROOF_LADDER.md) and
-  [`CLAIM_REVIEW_CHECKLIST.md`](../evidence/CLAIM_REVIEW_CHECKLIST.md).
-- Metrics: [`METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md).
-- Current work: [`ROADMAP.md`](research/ROADMAP.md) and
-  [`NEXT_100_PR_MAP.md`](research/NEXT_100_PR_MAP.md).
+- Claims: [`evidence/PROOF_LADDER.md`](evidence/PROOF_LADDER.md) and
+  [`evidence/CLAIM_REVIEW_CHECKLIST.md`](evidence/CLAIM_REVIEW_CHECKLIST.md).
+- Metrics: [`evidence/METRICS_CURRENT.md`](evidence/METRICS_CURRENT.md).
+- Current work: [`research/ROADMAP.md`](research/ROADMAP.md) and
+  [`research/NEXT_100_PR_MAP.md`](research/NEXT_100_PR_MAP.md).
 - Full document catalog: [`PROJECT_INDEX.md`](PROJECT_INDEX.md).
 
 Documents describing a wave, audit, recommendation, or dated plan are records

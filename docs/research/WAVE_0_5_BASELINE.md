@@ -76,7 +76,7 @@ and classifies each candidate into a role that guides Wave 1 panel construction.
 ## External Predictor Status
 
 Historical baseline state only: at the time this file was frozen, external predictor fields had not yet been filled.
-That is no longer the current repo state. The completed Wave 0.5 external screen is summarized in `docs/evidence/METRICS_CURRENT.md`, `docs/research/ROADMAP.md`, and `docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md`.
+That is no longer the current repo state. The completed Wave 0.5 external screen is summarized in `docs/evidence/METRICS_CURRENT.md`, `docs/research/ROADMAP.md`, and `docs/research/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md`.
 
 The original manual-submission tool stack was:
 

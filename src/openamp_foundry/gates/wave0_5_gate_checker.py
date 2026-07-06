@@ -108,7 +108,7 @@ def check_w05_3_activity_consensus(consensus_path: Path) -> W05GateResult:
             status="PENDING",
             value=f"{len(pending_rows)}/{len(rows)} rows PENDING",
             threshold=f">= {int(MIN_ACTIVITY_CONSENSUS_FRACTION * 100)}% STRONG_ACTIVITY",
-            detail="External predictor submissions required. See docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md",
+            detail="External predictor submissions required. See docs/research/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md",
         )
 
     strong = sum(1 for r in rows if r.get("activity_consensus") == "STRONG_ACTIVITY")
@@ -145,7 +145,7 @@ def check_w05_4_safety_annotation(consensus_path: Path) -> W05GateResult:
             status="PENDING",
             value=f"{len(missing)}/{len(rows)} missing",
             threshold="100% annotated",
-            detail=f"{len(missing)} candidates need HemoFinder/AntiCP submissions. See docs/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md",
+            detail=f"{len(missing)} candidates need HemoFinder/AntiCP submissions. See docs/research/WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md",
         )
 
     return W05GateResult(

@@ -58,7 +58,7 @@ Then look for a small issue in CLI ergonomics, tests, reports, schemas, or doc c
 
 - [`VISION.md`](../VISION.md)
 - [`GOAL.md`](../GOAL.md)
-- [`docs/PROOF_LADDER.md`](PROOF_LADDER.md)
+- [`docs/evidence/PROOF_LADDER.md`](PROOF_LADDER.md)
 - [`docs/evidence/METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md)
 - [`docs/evidence/BENCHMARKING.md`](../evidence/BENCHMARKING.md)
 
@@ -68,7 +68,7 @@ Then look for a weak benchmark, missing baseline, leakage risk, uncontrolled com
 
 - [`docs/review/WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md)
 - [`docs/review/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md)
-- [`docs/PROOF_LADDER.md`](PROOF_LADDER.md)
+- [`docs/evidence/PROOF_LADDER.md`](PROOF_LADDER.md)
 - [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md)
 
 Then review whether the evidence package would help a qualified scientist decide whether a small assay batch is worth considering.

@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this template for non-toy data contributions or dataset review. Read `DATA_LICENSE_NOTICE.md` and `docs/DATA_GOVERNANCE.md` first.
+        Use this template for non-toy data contributions or dataset review. Read `DATA_LICENSE_NOTICE.md` and `docs/trust/DATA_GOVERNANCE.md` first.
   - type: textarea
     id: dataset
     attributes:

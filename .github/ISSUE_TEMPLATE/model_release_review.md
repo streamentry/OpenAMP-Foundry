@@ -82,8 +82,8 @@ body:
         - MODEL_RELEASE_POLICY.md
         - SAFETY.md
         - RESPONSIBLE_USE.md
-        - docs/MODEL_CARD_TEMPLATE.md
-        - docs/RELEASE_CHECKLIST.md
+        - docs/trust/MODEL_CARD_TEMPLATE.md
+        - docs/trust/RELEASE_CHECKLIST.md
     validations:
       required: true
   - type: checkboxes

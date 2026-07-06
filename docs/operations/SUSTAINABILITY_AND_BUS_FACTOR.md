@@ -89,11 +89,11 @@ The repo is succession-ready when these are current:
 - `SAFETY.md`;
 - `MODEL_RELEASE_POLICY.md`;
 - `docs/PROJECT_INDEX.md`;
-- `docs/TRUST_CENTER.md`;
+- `docs/trust/TRUST_CENTER.md`;
 - `docs/evidence/METRICS_CURRENT.md`;
 - `docs/research/NEXT_100_PR_MAP.md`;
-- `docs/RELEASE_CHECKLIST.md`;
-- `docs/RISK_REGISTER.md`.
+- `docs/trust/RELEASE_CHECKLIST.md`;
+- `docs/trust/RISK_REGISTER.md`.
 
 ## Documentation debt policy
 

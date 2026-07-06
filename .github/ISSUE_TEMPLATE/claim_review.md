@@ -60,7 +60,7 @@ body:
     attributes:
       label: Checks
       options:
-        - label: `docs/PROOF_LADDER.md` reviewed.
+        - label: `docs/evidence/PROOF_LADDER.md` reviewed.
           required: true
         - label: `docs/evidence/CLAIM_REVIEW_CHECKLIST.md` reviewed.
           required: true

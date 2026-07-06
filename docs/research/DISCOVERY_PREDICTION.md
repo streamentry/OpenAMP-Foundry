@@ -16,7 +16,7 @@ improvements already implemented or recommended.
 
 **Bottom line (post-PR #110, 7 scaffold families, AUROC 0.7832 on expanded 95-AMP + 96-decoy benchmark; original demo set AUROC 0.8420):** The pilot panel has a
 ~99.95% probability of yielding ≥1 candidate with MIC ≤ 16 µg/mL (P(zero active) = 0.000508
-across 7 families; per-family breakdown in [`docs/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md))
+across 7 families; per-family breakdown in [`docs/research/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md))
 and **~10–20%** probability of generating high-impact publication material (up from 5–12%
 before computational improvements). The higher per-candidate estimate (internal model) is
 corrected to 10–20% by accounting for near-seed correlation and 7 effective independent scaffold
@@ -690,7 +690,7 @@ is meaningfully higher (mean ensemble 0.821, mean safety 0.991). The 3 excluded 
 mechanism-diverse seeds — a net improvement.
 
 > **For a per-family detailed analysis** with attrition model and assay guidance, see
-> [`docs/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md). That document distinguishes
+> [`docs/research/WET_LAB_PROBABILITY.md`](WET_LAB_PROBABILITY.md). That document distinguishes
 > "publishable novel result" (~30–50%) from "high-impact scenario tier" (~8–18% with MDR added).
 
 | Outcome | Internal model (n=20 independent) | Calibrated estimate (n=7 scaffolds, post-PR #72) |
@@ -701,7 +701,7 @@ mechanism-diverse seeds — a net improvement.
 
 *"Publishable novel result" bar is lower than "high-impact" — single-lab first characterisation
 in a peptide science journal, not requiring independent external replication. See
-`docs/WET_LAB_PROBABILITY.md` Section 3 for the composite probability derivation.
+`docs/research/WET_LAB_PROBABILITY.md` Section 3 for the composite probability derivation.
 
 The MIC-only probability (Stage 1) is harder to correct without a formal per-scaffold Stage 1
 rate; it is left as a qualitative adjustment toward the lower end of the 61–71% range. The

@@ -11,7 +11,7 @@ from openamp_foundry.evidence.schemas import validate_json_schema
 from openamp_foundry.features.physchem import compute_features
 from openamp_foundry.types import PeptideCandidate, ScoredCandidate
 
-_SCHEMA = Path(__file__).parents[1] / "schemas" / "candidate.schema.json"
+_SCHEMA = Path(__file__).parents[2] / "schemas" / "candidate.schema.json"
 
 
 def test_certificate_validates():

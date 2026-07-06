@@ -34,10 +34,10 @@ Before making nontrivial changes, agents should read:
 2. [`SAFETY.md`](SAFETY.md) — safety policy.
 3. [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md) — allowed and disallowed uses.
 4. [`docs/getting-started/AGENT_ONBOARDING.md`](docs/getting-started/AGENT_ONBOARDING.md) — task workflow.
-5. [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) — claim levels.
+5. [`docs/evidence/PROOF_LADDER.md`](docs/evidence/PROOF_LADDER.md) — claim levels.
 6. [`docs/operations/HIGH_LEVERAGE_TASKS.md`](docs/operations/HIGH_LEVERAGE_TASKS.md) — task priority map.
 7. [`docs/research/NEXT_100_PR_MAP.md`](docs/research/NEXT_100_PR_MAP.md) — PR-sized backlog.
-8. [`docs/TRUST_CENTER.md`](docs/TRUST_CENTER.md) — trust architecture.
+8. [`docs/trust/TRUST_CENTER.md`](docs/trust/TRUST_CENTER.md) — trust architecture.
 
 If these docs conflict, safety and claim discipline win.
 
@@ -179,7 +179,7 @@ Agents must follow:
 - [`SAFETY.md`](SAFETY.md)
 - [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md)
 - [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md)
-- [`docs/SAFETY_DOC_AUDIT.md`](docs/SAFETY_DOC_AUDIT.md)
+- [`docs/trust/SAFETY_DOC_AUDIT.md`](docs/trust/SAFETY_DOC_AUDIT.md)
 
 ## Benchmark rule
 
@@ -207,7 +207,7 @@ Agents must not present proxy models as validated biology.
 
 A virtual-assay module may affect ranking only when the documented gate allows it.
 
-Use [`docs/VIRTUAL_ASSAY_SCOPE.md`](docs/VIRTUAL_ASSAY_SCOPE.md) and [`docs/evidence/SIMULATION_BENCHMARK.md`](docs/evidence/SIMULATION_BENCHMARK.md).
+Use [`docs/evidence/VIRTUAL_ASSAY_SCOPE.md`](docs/evidence/VIRTUAL_ASSAY_SCOPE.md) and [`docs/evidence/SIMULATION_BENCHMARK.md`](docs/evidence/SIMULATION_BENCHMARK.md).
 
 ## Data and model rule
 
@@ -218,9 +218,9 @@ Agents must not commit or release non-toy data, sensitive model artifacts, or ca
 Use:
 
 - [`DATA_LICENSE_NOTICE.md`](DATA_LICENSE_NOTICE.md)
-- [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md)
+- [`docs/trust/DATA_GOVERNANCE.md`](docs/trust/DATA_GOVERNANCE.md)
 - [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md)
-- [`docs/MODEL_CARD_TEMPLATE.md`](docs/MODEL_CARD_TEMPLATE.md)
+- [`docs/trust/MODEL_CARD_TEMPLATE.md`](docs/trust/MODEL_CARD_TEMPLATE.md)
 - [`docs/engineering/ARTIFACT_VERSIONING.md`](docs/engineering/ARTIFACT_VERSIONING.md)
 
 ## Reproducibility rule

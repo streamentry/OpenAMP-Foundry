@@ -10,7 +10,7 @@ from openamp_foundry.evidence.schemas import validate_json_schema
 
 DEMO_CANDIDATES = "examples/sequences/demo_candidates.csv"
 DEMO_REFS = "examples/known_reference/demo_known_amps.csv"
-CERT_SCHEMA = Path(__file__).parents[1] / "schemas" / "candidate.schema.json"
+CERT_SCHEMA = Path(__file__).parents[2] / "schemas" / "candidate.schema.json"
 
 
 def test_simulation_mode_off_default_has_no_sim_scores():

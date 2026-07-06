@@ -227,7 +227,7 @@ def test_disagreement_gate_config_values_documented(tmp_path):
     exceeds disagreement 0.41 (verified across 709-sequence phase3 pool), so raising to
     0.45 accommodates known mechanism divergence without admitting genuinely uncertain ones.
     """
-    repo_root = Path(__file__).parents[1]
+    repo_root = Path(__file__).parents[2]
     pipeline_cfg = load_config(repo_root / "configs" / "pipeline.yaml")
     phase3_cfg = load_config(repo_root / "configs" / "phase3.yaml")
 
@@ -249,7 +249,7 @@ def test_phase3_config_has_stricter_safety_filter_than_pipeline():
 
     A candidate with safety=0.50 passes pipeline.yaml but is blocked by phase3.yaml.
     """
-    repo_root = Path(__file__).parents[1]
+    repo_root = Path(__file__).parents[2]
     pipeline_cfg = load_config(repo_root / "configs" / "pipeline.yaml")
     phase3_cfg = load_config(repo_root / "configs" / "phase3.yaml")
 
@@ -338,7 +338,7 @@ def test_all_proline_pipeline_scores_and_disagreement(tmp_path):
     assert act < 0.25
     # Disagreement ≈ 0.33: passes both pipeline and phase3 gate (both 0.45)
     assert 0.25 < dis < 0.45, f"PPPPPPPP disagreement expected ~0.33, got {dis}"
-    repo_root = Path(__file__).parents[1]
+    repo_root = Path(__file__).parents[2]
     pipeline_max = float(load_config(repo_root / "configs" / "pipeline.yaml")["selection"]["max_disagreement"])
     phase3_max = float(load_config(repo_root / "configs" / "phase3.yaml")["selection"]["max_disagreement"])
     assert dis < pipeline_max, "PPPPPPPP should pass the pipeline disagreement gate"

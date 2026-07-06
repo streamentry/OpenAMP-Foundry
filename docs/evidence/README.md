@@ -2,7 +2,7 @@
 
 ## Claim discipline
 
-- [Proof ladder](../PROOF_LADDER.md)
+- [Proof ladder](PROOF_LADDER.md)
 - [Claim review checklist](CLAIM_REVIEW_CHECKLIST.md)
 - [Current metrics](METRICS_CURRENT.md)
 
@@ -12,7 +12,7 @@
 - [Benchmark governance](BENCHMARK_GOVERNANCE.md)
 - [Benchmark card](BENCHMARK_CARD.md)
 - [Simulation benchmark](SIMULATION_BENCHMARK.md)
-- [Calibration policy](../CALIBRATION_POLICY.md)
+- [Calibration policy](CALIBRATION_POLICY.md)
 
 ## Candidate evidence
 

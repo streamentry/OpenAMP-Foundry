@@ -17,7 +17,7 @@ Read:
 - [`README.md`](../README.md)
 - [`SAFETY.md`](../SAFETY.md)
 - [`docs/getting-started/COMMAND_SURFACE.md`](COMMAND_SURFACE.md)
-- [`docs/PROOF_LADDER.md`](PROOF_LADDER.md)
+- [`docs/evidence/PROOF_LADDER.md`](PROOF_LADDER.md)
 
 ## Expected setup
 

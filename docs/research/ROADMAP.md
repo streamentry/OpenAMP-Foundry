@@ -9,7 +9,7 @@ Changes:
 - ``scripts/full_reproducibility_report.py`` — Fixed lab_batch_pack path
   to check for ``scripts/build_lab_batch_pack.py`` instead of ``make
   lab-batch-pack``. Updated loops_completed to 50.
-- ``docs/50_LOOP_PLAN.md`` — Added Loop 50 entry. Next loop set to "None."
+- ``docs/research/50_LOOP_PLAN.md`` — Added Loop 50 entry. Next loop set to "None."
 - ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated.
 - 2021 tests passing.
 
@@ -28,7 +28,7 @@ Changes:
   limitations (6 documented caveats).
 - ``Makefile`` — Added ``full-reproducibility-report`` target.
 - ``tests/test_full_reproducibility_report.py`` — 8 tests.
-- ``docs/50_LOOP_PLAN.md`` — Loop 49 ✅. All 49 loops marked complete.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 49 ✅. All 49 loops marked complete.
   Current position updated to "Phase 4 Complete".
 - ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated. Test count: 2021.
 - 2021 tests passing (2013 existing + 8 new).
@@ -47,7 +47,7 @@ Changes:
   results, calibration, reproducibility evidence, negative results, safety
   and governance, README for reproduction, preprint preparation. References
   7 related governance docs.
-- ``docs/50_LOOP_PLAN.md`` — Loop 48 ✅. Next: Loop 49.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 48 ✅. Next: Loop 49.
 - ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated.
 - No code changes. 2013 tests still pass.
 
@@ -60,7 +60,7 @@ Changes:
   ``schemas/lab_result.schema.json``, reports per-file errors, detects
   control failures. Exit 0 all pass, 3 any fail, 2 missing files.
 - ``tests/test_validate_lab_data_return.py`` — 8 tests.
-- ``docs/50_LOOP_PLAN.md`` — Loop 47 ✅. Next: Loop 48.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 47 ✅. Next: Loop 48.
 - ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated. Test count: 2008.
 - 2008 tests passing.
 
@@ -78,7 +78,7 @@ Changes:
   against an existing zip.
 - `tests/test_lab_batch_pack.py` — covers custody-file generation, successful
   verification, tamper detection, and CLI verification mode.
-- `docs/50_LOOP_PLAN.md` — Loop 45 ✅. Next: Loop 46.
+- `docs/research/50_LOOP_PLAN.md` — Loop 45 ✅. Next: Loop 46.
 - `docs/evidence/METRICS_CURRENT.md` — version and changelog synced.
 
 Honest boundary:
@@ -95,7 +95,7 @@ Changes:
 - ``schemas/decision_log.schema.json`` — Draft 2020-12 JSON Schema with
   12 fields, 9 decision types, conditional dissent-requires-notes.
 - ``tests/test_decision_log_schema.py`` — 11 tests.
-- ``docs/50_LOOP_PLAN.md`` — Loop 43 ✅. Next: Loop 45.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 43 ✅. Next: Loop 45.
 - ``docs/evidence/METRICS_CURRENT.md`` — Changelog updated. Test count: 2000.
 - 2000 tests passing.
 
@@ -116,7 +116,7 @@ Changes:
   evidence certificates can carry them without schema drift.
 - ``tests/test_simulation_mode_cli.py`` — covers ranked output, report columns,
   evidence-certificate inclusion, and schema validation for the new fields.
-- ``docs/VIRTUAL_ASSAY_SCOPE.md`` and ``docs/evidence/SIMULATION_BENCHMARK.md`` — synced
+- ``docs/evidence/VIRTUAL_ASSAY_SCOPE.md`` and ``docs/evidence/SIMULATION_BENCHMARK.md`` — synced
   to current behavior.
 
 Honest finding:
@@ -135,7 +135,7 @@ Changes:
   modifications), assay protocols (MIC, hemolysis, serum stability), data
   return JSON format with required fields, positive/negative controls, safety
   and biosecurity (BSL-2), timeline (5–8 weeks), and related document links.
-- ``docs/50_LOOP_PLAN.md`` — Loop 40 ✅. Phase 4 status: "In progress — Loop 40 ✅".
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 40 ✅. Phase 4 status: "In progress — Loop 40 ✅".
   Next: Loop 41.
 - ``docs/evidence/METRICS_CURRENT.md`` — Changelog entry updated.
 - No code changes. 1966 tests still pass.
@@ -174,7 +174,7 @@ Changes:
   scope, error result schema.
 - ``docs/engineering/ARCHITECTURE.md`` — Extension points section expanded with
   ``ExternalSimulationAdapter`` usage example and documentation.
-- ``docs/50_LOOP_PLAN.md`` — Loop 38 ✅. Next: Loop 39.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 38 ✅. Next: Loop 39.
 - ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.59. Test count: 1966.
 - 1965 tests passing (1953 existing + 12 new — one test deduplicated).
 
@@ -189,7 +189,7 @@ Changes:
   vs helix_propensity, non_helical vs proline_fraction. ``make
   bench-simulation-baselines`` target.
 - ``tests/test_benchmark_simulation_baselines.py`` — 13 tests.
-- ``docs/50_LOOP_PLAN.md`` — Loop 36 ✅. Next: Loop 38.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 36 ✅. Next: Loop 38.
 - ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.58. Test count: 1953.
 - ``docs/evidence/BENCHMARKING.md`` — Added bench-simulation-baselines (22 targets).
 
@@ -238,7 +238,7 @@ Changes:
   only when weighted mode is honestly allowed, `3` otherwise.
 - ``Makefile`` — ``make simulation-gate`` target writing
   ``outputs/simulation_gate_verdict.json`` from both ablation artifacts.
-- ``docs/VIRTUAL_ASSAY_SCOPE.md`` — corrected stale claim that `rank` already
+- ``docs/evidence/VIRTUAL_ASSAY_SCOPE.md`` — corrected stale claim that `rank` already
   accepts `--simulation-mode`; current state now says weighted mode is blocked
   until the gate passes.
 - ``tests/test_simulation_gate.py`` — 6 tests covering blocked current-state
@@ -265,7 +265,7 @@ Changes:
   ``examples/validation/hemolysis_reference.csv``. Reports per-score
   hemolysis detection AUROC (inverted for safety-type scorers).
 - ``Makefile`` — Added ``bench-simulation-ablation-within-amp`` target.
-- ``docs/50_LOOP_PLAN.md`` — Loop 34 ✅ (re-interpreted). Next: Loop 35.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 34 ✅ (re-interpreted). Next: Loop 35.
 - ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.55. Test count: 1928.
 - 1928 tests passing (1905 existing + 23 updated).
 
@@ -290,7 +290,7 @@ Changes:
   computes per-module AUROC, and a combined simulation composite AUROC.
   ``make bench-simulation-ablation`` target. Output written to
   ``outputs/simulation_ablation.json``.
-- ``docs/50_LOOP_PLAN.md`` — Loop 33 ✅ (re-interpreted as ablation benchmark).
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 33 ✅ (re-interpreted as ablation benchmark).
   Next: Loop 34.
 - ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.54. Test count: 1922.
 - ``docs/engineering/ARCHITECTURE.md`` — Package map updated.
@@ -323,7 +323,7 @@ Changes:
   normalization, dominant state, non-helical flag, known reference comparisons
   (magainin helical, protegrin/tachyplesin beta-sheet, proline-rich non-helical,
   melittin ambiguous — documented limitation), and empty sequence.
-- ``docs/50_LOOP_PLAN.md`` — Loop 32 ✅. Next: Loop 33.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 32 ✅. Next: Loop 33.
 - ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version v0.5.53. Test count: 1905.
 - 1905 tests passing (1871 existing + 34 new).
 
@@ -345,7 +345,7 @@ Changes:
 - ``tests/test_membrane_proxy.py`` — 27 tests covering scale lookup,
   normalization, selectivity ratio, uncertainty, proxy contract, known-reference
   comparison (magainin more selective than melittin), empty sequence, and version.
-- ``docs/50_LOOP_PLAN.md`` — Loop 31 ✅. Phase 3 status updated. Next: Loop 32.
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 31 ✅. Phase 3 status updated. Next: Loop 32.
 - ``docs/evidence/METRICS_CURRENT.md`` — Pipeline version bumped to v0.5.52.
   Test count: 1873.
 - 1873 tests passing (1843 existing + 30 new).
@@ -359,7 +359,7 @@ was missing ~11 of 19 benchmarks; METRICS_CURRENT.md test count was stale
 (1832+ → 1843); NOVELTY_AUDIT_GUIDE.md referenced a nonexistent script.
 
 Changes:
-- ``docs/VIRTUAL_ASSAY_SCOPE.md`` — Phase 3 scope document covering 4 planned
+- ``docs/evidence/VIRTUAL_ASSAY_SCOPE.md`` — Phase 3 scope document covering 4 planned
   modules (membrane binding, structure ensemble, selectivity ratio, stability),
   12 explicitly NOT-modeled effects, uncertainty policy (modules with
   uncertainty > 0.5 cannot affect selection), ablation requirement (each
@@ -372,7 +372,7 @@ Changes:
 - ``docs/evidence/METRICS_CURRENT.md`` — Test count corrected: 1832+ → 1843.
 - ``docs/evidence/NOVELTY_AUDIT_GUIDE.md`` — Fixed stale script reference:
   ``scripts/download_uniprot_amps.py`` → ``scripts/download_novelty_dbs.py --uniprot``.
-- ``docs/50_LOOP_PLAN.md`` — Loop 30 marked ✅. Phase 3 status updated to
+- ``docs/research/50_LOOP_PLAN.md`` — Loop 30 marked ✅. Phase 3 status updated to
   "In progress — Loop 30 ✅".
 - ``scripts/__init__.py`` — Populated with module docstring.
 - 1843 tests passing. No code changes to pipeline.
@@ -389,7 +389,7 @@ Changes:
   automation notes (auto-append by ``calibration-intake`` and ``filter_wave*``
   scripts), and explicit limitations. Covers pre-selection rejects, selected
   but untested, lab-tested inactives, lab-tested toxic, and control failures.
-- ``docs/50_LOOP_PLAN.md`` — Phase 2 header marked ✅ complete, status updated
+- ``docs/research/50_LOOP_PLAN.md`` — Phase 2 header marked ✅ complete, status updated
   to v0.5.50, Loop 29 ✅, all 5 exit criteria now show green, Current Position
   updated to Phase 3 ready.
 - ``docs/evidence/METRICS_CURRENT.md`` — Bumped to v0.5.50, changelog entry.
@@ -432,7 +432,7 @@ Changes:
   "Potential future packages" to the main package map with version annotations.
   Removed the stale ``analysis`` future-package entry. Fixed duplicate step "8."
   in the target future data flow (→ steps 8–10 with correct numbering).
-- ``docs/50_LOOP_PLAN.md``: updated "Current Position" from "Loop 25 of 29"
+- ``docs/research/50_LOOP_PLAN.md``: updated "Current Position" from "Loop 25 of 29"
   to "Loop 27 of 29", added Loops 23–27 to the completed Phase 2 table, fixed
   "Next loop" reference to Loop 28, updated Phase 2 exit-criteria tracking.
 - ``docs/evidence/METRICS_CURRENT.md``: test count updated to 1834.
@@ -721,7 +721,7 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 
 - CLI integration tests — gold-standard, external-predict, pilot-confident, diversity-check (PRs #74–#79/#82/#85)
 - Lab-results directory loading + toxicity flag branch coverage (PR #80)
-- Wet-lab probability analysis (`docs/WET_LAB_PROBABILITY.md`) — per-family P(MIC≤16) breakdown, composite P(≥1 active) = 99.95% (PRs #81/#87)
+- Wet-lab probability analysis (`docs/research/WET_LAB_PROBABILITY.md`) — per-family P(MIC≤16) breakdown, composite P(≥1 active) = 99.95% (PRs #81/#87)
 - Assay pre-registration (`docs/review/ASSAY_PREREGISTRATION.md`) — MRSA USA300, serum stability gate, RPMI-1640 arm for SEED-009 (PR #83)
 - SEED-007 helix-wheel length fix 18 AA → 11 AA (PR #84)
 - `novelty-check-broad` CLI + 72-AMP curated database: 16/20 NOVEL, 3 KNOWN_VARIANT, 1 CLOSE_RELATIVE (`docs/evidence/NOVELTY_BROAD_CHECK.md`) (PR #86)
@@ -777,7 +777,7 @@ Implemented during the pre-wet-lab improvement loop (PRs #31–#54):
 
 ## v0.5.5 — Wave 0.5 Scaffold Diversification ✓ (2026-06-29)
 
-- Baseline freeze of Wave 0 panel (20 candidates, 7 families, `docs/WAVE_0_5_BASELINE.md`)
+- Baseline freeze of Wave 0 panel (20 candidates, 7 families, `docs/research/WAVE_0_5_BASELINE.md`)
 - 10 new seed families designed: SEED-010 (histatin), SEED-011 (Pro-kinked), SEED-012 (Gly-rich), SEED-013 (pleurocidin), SEED-014 (cathelicidin-mini), SEED-015 (KFLK de novo), SEED-016 (RRWK dual-Trp), SEED-017 (Pro-kinked Leu/Phe), SEED-018 (GKRK scattered-charge), SEED-019 (Arg-Val alternating)
 - 118 raw candidates generated across 10 new families (`scripts/generate_wave0_5_candidates.py`)
 - 60 candidates shortlisted at internal gates (activity≥0.70, safety≥0.75, novelty≥0.50, `scripts/filter_wave0_5_candidates.py`)
@@ -1065,7 +1065,7 @@ It must NOT replace the ensemble activity gate — it is a complementary signal.
 - New script: `scripts/benchmark_cross_dataset.py`
 - New target: `make bench-cross-dataset`
 - Docs: `docs/evidence/METRICS_CURRENT.md` (new section), `docs/evidence/BENCHMARK_CARD.md` (new section),
-  `docs/50_LOOP_PLAN.md` (Phase 1 ✅)
+  `docs/research/50_LOOP_PLAN.md` (Phase 1 ✅)
 
 ## v0.5.34 — Benchmark Card Consolidation ✓ (2026-07-05)
 
@@ -1386,7 +1386,7 @@ Changes:
   loader (happy + every rejection mode), gate evaluator (every minimum
   condition), prohibited-action audit, rate-limit status, reviewer-
   artefact status, writers, end-to-end CLI smoke. Total 1647 passing.
-- `docs/CALIBRATION_POLICY.md`: human-readable overview of the policy,
+- `docs/evidence/CALIBRATION_POLICY.md`: human-readable overview of the policy,
   the gate, the permanent floor, rate limits, and how to update.
 
 Key honest limitations (must read before relying on the gate):

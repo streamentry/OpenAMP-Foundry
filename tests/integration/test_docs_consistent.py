@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 DOCS_DIR = REPO_ROOT / "docs"
 
 # Current authoritative benchmark values — single source of truth
@@ -116,7 +116,7 @@ class TestDocsConsistent:
         assert "sim_max_uncertainty" in report
 
     def test_virtual_assay_scope_records_uncertainty_certificate_contract(self):
-        scope = (DOCS_DIR / "VIRTUAL_ASSAY_SCOPE.md").read_text(encoding="utf-8")
+        scope = (DOCS_DIR / "evidence" / "VIRTUAL_ASSAY_SCOPE.md").read_text(encoding="utf-8")
         assert "evidence" in scope
         assert "certificates" in scope
         assert "uncertainty" in scope
@@ -175,7 +175,7 @@ class TestDocsConsistent:
 
     def test_doc_wet_lab_probability_has_honest_correction(self):
         """WET_LAB_PROBABILITY.md must contain an honest lower-bound estimate."""
-        path = DOCS_DIR / "WET_LAB_PROBABILITY.md"
+        path = DOCS_DIR / "research" / "WET_LAB_PROBABILITY.md"
         assert path.exists()
         text = path.read_text(encoding="utf-8")
         assert "55–80%" in text or "55-80" in text or "honest" in text.lower(), (
@@ -187,7 +187,7 @@ class TestDocsConsistent:
         files_present = all(path.exists() for path in WAVE05_GENERATED_OUTPUTS)
 
         metrics_text = (DOCS_DIR / "evidence" / "METRICS_CURRENT.md").read_text(encoding="utf-8")
-        summary_text = (DOCS_DIR / "WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md").read_text(
+        summary_text = (DOCS_DIR / "research" / "WAVE_0_5_EXTERNAL_PREDICTOR_SUMMARY.md").read_text(
             encoding="utf-8"
         )
 
@@ -198,8 +198,8 @@ class TestDocsConsistent:
 
     def test_doc_wave05_historical_docs_do_not_pose_as_live_pending_state(self):
         """Historical Wave 0.5 docs must label superseded pending steps as historical."""
-        baseline_text = (DOCS_DIR / "WAVE_0_5_BASELINE.md").read_text(encoding="utf-8")
-        scaffold_text = (DOCS_DIR / "WAVE_0_5_SCAFFOLD_DIVERSIFICATION_PLAN.md").read_text(
+        baseline_text = (DOCS_DIR / "research" / "WAVE_0_5_BASELINE.md").read_text(encoding="utf-8")
+        scaffold_text = (DOCS_DIR / "research" / "WAVE_0_5_SCAFFOLD_DIVERSIFICATION_PLAN.md").read_text(
             encoding="utf-8"
         )
         prereg_text = (DOCS_DIR / "review" / "ASSAY_PREREGISTRATION.md").read_text(encoding="utf-8")
@@ -217,11 +217,11 @@ class TestDocsConsistent:
 
     def test_doc_external_predictor_gate_distinguishes_generic_from_wave05(self):
         """Live docs must not imply the completed Wave 0.5 screen is still wholly pending."""
-        consensus_text = (DOCS_DIR / "EXTERNAL_PREDICTOR_CONSENSUS.md").read_text(
+        consensus_text = (DOCS_DIR / "evidence" / "EXTERNAL_PREDICTOR_CONSENSUS.md").read_text(
             encoding="utf-8"
         )
         decision_text = (DOCS_DIR / "evidence" / "DECISION_RULES.md").read_text(encoding="utf-8")
-        reviewer_text = (DOCS_DIR / "REVIEWER_SUMMARY.md").read_text(encoding="utf-8")
+        reviewer_text = (DOCS_DIR / "review" / "REVIEWER_SUMMARY.md").read_text(encoding="utf-8")
         roadmap_text = (DOCS_DIR / "research" / "ROADMAP.md").read_text(encoding="utf-8")
         expert_text = (DOCS_DIR / "review" / "EXPERT_REVIEW_PACK.md").read_text(encoding="utf-8")
 
@@ -244,7 +244,7 @@ class TestDocsConsistent:
 
     def test_doc_lab_batch_pack_chain_of_custody_current(self):
         """Loop 45 must stay marked as shipped with identity-hash boundaries."""
-        loop_text = (DOCS_DIR / "50_LOOP_PLAN.md").read_text(encoding="utf-8")
+        loop_text = (DOCS_DIR / "research" / "50_LOOP_PLAN.md").read_text(encoding="utf-8")
         roadmap_text = (DOCS_DIR / "research" / "ROADMAP.md").read_text(encoding="utf-8")
         metrics_text = (DOCS_DIR / "evidence" / "METRICS_CURRENT.md").read_text(encoding="utf-8")
         onboarding_text = (DOCS_DIR / "review" / "LAB_PARTNER_ONBOARDING.md").read_text(
