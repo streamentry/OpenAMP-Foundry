@@ -18,10 +18,10 @@ The long-term infrastructure ambition is described in [`VISION.md`](VISION.md), 
 
 | You are | Read first | Then read |
 |---|---|---|
-| New human contributor | [`docs/FIRST_RUN_WALKTHROUGH.md`](docs/FIRST_RUN_WALKTHROUGH.md) | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/COMMAND_SURFACE.md`](docs/COMMAND_SURFACE.md) |
+| New human contributor | [`docs/README.md`](docs/README.md) | [`docs/FIRST_RUN_WALKTHROUGH.md`](docs/FIRST_RUN_WALKTHROUGH.md), [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | AI agent | [`AGENTS.md`](AGENTS.md) | [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md), [`docs/HUMAN_AGENT_COLLABORATION.md`](docs/HUMAN_AGENT_COLLABORATION.md) |
 | Reviewer | [`docs/REVIEWER_ONBOARDING.md`](docs/REVIEWER_ONBOARDING.md) | [`docs/CLAIM_REVIEW_CHECKLIST.md`](docs/CLAIM_REVIEW_CHECKLIST.md), [`docs/RISK_REGISTER.md`](docs/RISK_REGISTER.md) |
-| Computational scientist | [`docs/METRICS_CURRENT.md`](docs/METRICS_CURRENT.md) | [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md), [`docs/BENCHMARK_GOVERNANCE.md`](docs/BENCHMARK_GOVERNANCE.md) |
+| Computational scientist | [`docs/evidence/README.md`](docs/evidence/README.md) | [`docs/METRICS_CURRENT.md`](docs/METRICS_CURRENT.md), [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md) |
 | Data/schema/model contributor | [`docs/SCHEMA_REGISTRY.md`](docs/SCHEMA_REGISTRY.md) | [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md), [`docs/ADAPTER_AUTHOR_GUIDE.md`](docs/ADAPTER_AUTHOR_GUIDE.md) |
 | Wet-lab/domain expert | [`docs/WET_LAB_HANDOFF.md`](docs/WET_LAB_HANDOFF.md) | [`docs/EXTERNAL_REVIEW_PACKET.md`](docs/EXTERNAL_REVIEW_PACKET.md), [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](docs/PRE_REGISTERED_PILOT_TEMPLATE.md) |
 | Safety reviewer | [`docs/TRUST_CENTER.md`](docs/TRUST_CENTER.md) | [`SAFETY.md`](SAFETY.md), [`SECURITY.md`](SECURITY.md) |
@@ -155,7 +155,8 @@ openamp-foundry/
   configs/                               # scoring and recalibration policy
   data/README.md                         # data directory rules
   models/README.md                       # model directory rules
-  docs/PROJECT_INDEX.md                  # human/agent navigation hub
+  docs/README.md                         # task-based documentation front door
+  docs/PROJECT_INDEX.md                  # exhaustive document catalog
   docs/TRUST_CENTER.md                   # safety/evidence/governance trust front door
   docs/OPEN_INFRASTRUCTURE_MOAT.md       # durable infrastructure thesis
   docs/NUMBER_ONE_REPO_STANDARD.md       # category-leader standard
@@ -191,9 +192,24 @@ openamp-foundry/
   examples/                              # toy datasets only
   outputs/.gitkeep                       # generated files ignored by git
   schemas/                               # JSON schemas
-  scripts/                               # helper entrypoints
+  scripts/                               # helper entrypoints and compatibility shims
+  scripts/benchmarks/                    # canonical benchmark and baseline entrypoints
+  scripts/calibration/                   # canonical calibration workflow entrypoints
+  scripts/external/                      # canonical external predictor and handoff entrypoints
+  scripts/lab/                           # canonical lab handoff entrypoints
+  scripts/novelty/                       # canonical novelty DB and audit entrypoints
+  scripts/release/                       # canonical demo, evidence, and reproducibility entrypoints
+  scripts/research/                      # canonical exploratory generation and screening scripts
+  scripts/waves/                         # canonical wave-program generation and panel scripts
   src/openamp_foundry/                   # Python package
-  tests/                                 # baseline tests
+  tests/                                 # repository tests
+  tests/benchmarks/                      # benchmark and regression-gate tests
+  tests/calibration/                     # calibration workflow tests
+  tests/external/                        # external workflow and report tests
+  tests/lab/                             # lab handoff and return-validation tests
+  tests/novelty/                         # novelty scoring and novelty-pressure tests
+  tests/release/                         # release artifact and reproducibility tests
+  tests/waves/                           # wave-program gate tests
 ```
 
 ## Philosophy

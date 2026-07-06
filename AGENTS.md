@@ -90,6 +90,14 @@ read relevant docs
 
 A good agent task should leave the repo easier for the next human or agent.
 
+Structural note:
+
+- `docs/README.md` is the documentation front door.
+- `scripts/benchmarks/` is the canonical home for benchmark entrypoints.
+- `tests/benchmarks/` is the canonical home for benchmark-focused tests.
+- Flat benchmark script paths under `scripts/*.py` may exist as compatibility
+  shims, not as the preferred place for new work.
+
 ## Good agent tasks
 
 Good tasks are narrow, reviewable, and safe.

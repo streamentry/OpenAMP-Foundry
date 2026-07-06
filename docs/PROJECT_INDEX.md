@@ -11,6 +11,29 @@ OpenAMP Foundry has many documents because the project is not only code. It is a
 
 Use this index to find the right document for the job without wandering through the repo.
 
+## Folder guides
+
+These files are not policy documents, but they are the fastest way to orient a
+new contributor inside a large subtree:
+
+- [`../scripts/AGENTS.md`](../scripts/AGENTS.md) — script layout and compatibility rules.
+- [`../scripts/benchmarks/AGENTS.md`](../scripts/benchmarks/AGENTS.md) — canonical benchmark entrypoints.
+- [`../scripts/calibration/AGENTS.md`](../scripts/calibration/AGENTS.md) — canonical calibration entrypoints.
+- [`../scripts/external/AGENTS.md`](../scripts/external/AGENTS.md) — canonical external predictor and handoff entrypoints.
+- [`../scripts/lab/AGENTS.md`](../scripts/lab/AGENTS.md) — canonical lab handoff entrypoints.
+- [`../scripts/novelty/AGENTS.md`](../scripts/novelty/AGENTS.md) — canonical novelty and patent-risk entrypoints.
+- [`../scripts/release/AGENTS.md`](../scripts/release/AGENTS.md) — canonical release and reproducibility entrypoints.
+- [`../scripts/research/AGENTS.md`](../scripts/research/AGENTS.md) — canonical exploratory generation and screening entrypoints.
+- [`../scripts/waves/AGENTS.md`](../scripts/waves/AGENTS.md) — canonical wave-program entrypoints.
+- [`../tests/AGENTS.md`](../tests/AGENTS.md) — test layout expectations.
+- [`../tests/benchmarks/AGENTS.md`](../tests/benchmarks/AGENTS.md) — benchmark test scope.
+- [`../tests/calibration/AGENTS.md`](../tests/calibration/AGENTS.md) — calibration test scope.
+- [`../tests/external/AGENTS.md`](../tests/external/AGENTS.md) — external workflow test scope.
+- [`../tests/lab/AGENTS.md`](../tests/lab/AGENTS.md) — lab handoff test scope.
+- [`../tests/novelty/AGENTS.md`](../tests/novelty/AGENTS.md) — novelty test scope.
+- [`../tests/release/AGENTS.md`](../tests/release/AGENTS.md) — release test scope.
+- [`../tests/waves/AGENTS.md`](../tests/waves/AGENTS.md) — wave-program test scope.
+
 ## The shortest accurate description
 
 OpenAMP Foundry is an open, safety-first dry-lab foundry for antimicrobial peptide discovery.

@@ -187,7 +187,7 @@ per the schema in `docs/NEGATIVE_RESULT_ARCHIVE.md`.
 ## 9. Related Documents
 
 - `configs/wave1_pass_fail.yaml` — Machine-readable pass/fail criteria.
-- `scripts/check_wave1_pass_fail.py` — CLI to validate batch results.
+- `scripts/lab/check_wave1_pass_fail.py` — CLI to validate batch results.
 - `docs/ASSAY_PREREGISTRATION.md` — Pre-registered assay protocol.
 - `docs/LAB_PARTNER_ONBOARDING.md` — Lab partner instructions.
 - `schemas/lab_result.schema.json` — Data return schema.

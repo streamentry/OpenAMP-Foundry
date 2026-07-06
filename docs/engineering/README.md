@@ -7,6 +7,12 @@
 - [CI and quality gates](../CI_AND_QUALITY_GATES.md)
 - [Diagrams](../diagrams.md)
 
+Current structural convention:
+
+- Canonical benchmark scripts live in `scripts/benchmarks/`.
+- Benchmark-focused tests live in `tests/benchmarks/`.
+- Flat top-level script paths may exist only as compatibility wrappers.
+
 ## Reproducible artifacts
 
 - [Schema registry](../SCHEMA_REGISTRY.md)

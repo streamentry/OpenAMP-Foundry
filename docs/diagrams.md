@@ -305,12 +305,12 @@ Thresholds (identity = matches / query length, BLOSUM62 local):
 
 | Stage | Code | Output |
 |-------|------|--------|
-| 0 | `build_db()`, `build_kmer_index()` in `scripts/generate_expert_1000.py`; DBs in `data/novelty_db/` | in-memory corpus + 5-mer index |
-| 1–4 | `scripts/generate_expert_1000.py` · `src/openamp_foundry/scoring/expert.py` | `outputs/expert_1000_candidates.{csv,fasta}` |
+| 0 | `build_db()`, `build_kmer_index()` in `scripts/research/generate_expert_1000.py`; DBs in `data/novelty_db/` | in-memory corpus + 5-mer index |
+| 1–4 | `scripts/research/generate_expert_1000.py` · `src/openamp_foundry/scoring/expert.py` | `outputs/expert_1000_candidates.{csv,fasta}` |
 | 2c | `src/openamp_foundry/qc/presynth_check.py` | synthesis liability flags |
-| 3 | `scripts/run_expanded_novelty_audit.py` | independent novelty re-audit |
-| 5 | `scripts/screen_1000_candidates.py` (Macrel) + web predictors | `outputs/screening_1000/` |
-| 6 | `scripts/run_patent_blastp.py` | `outputs/patent_blastp_*/ip_clearance_report.md` |
+| 3 | `scripts/novelty/run_expanded_novelty_audit.py` | independent novelty re-audit |
+| 5 | `scripts/research/screen_1000_candidates.py` (Macrel) + web predictors | `outputs/screening_1000/` |
+| 6 | `scripts/novelty/run_patent_blastp.py` | `outputs/patent_blastp_*/ip_clearance_report.md` |
 | 7 | `docs/WET_LAB_HANDOFF.md` | synthesis order + assay plan |
 
 *See `docs/NOVELTY_AUDIT_GUIDE.md` for the canonical novelty methodology and database provenance.*

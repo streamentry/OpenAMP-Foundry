@@ -25,4 +25,8 @@
 Cheap baselines are adversaries, not optional decorations. A method that does
 not beat its relevant cheap baseline must not gain ranking authority.
 
+Canonical benchmark entrypoints live in `scripts/benchmarks/`. Flat
+`scripts/benchmark_*.py` paths remain transitional wrappers for historical
+commands and docs.
+
 Return to the [documentation home](../README.md).

@@ -15,8 +15,8 @@ qualified lab evidence.
   synthesis, expert, and rich selectivity scorers.
 - `src/openamp_foundry/selection/`: ensemble/expert ranking, diversity, pilot
   panel selection, and structural-class floors.
-- `src/openamp_foundry/benchmark/` plus `scripts/benchmark_*.py`: benchmark
-  honesty checks.
+- `src/openamp_foundry/benchmark/` plus `scripts/benchmarks/`: benchmark
+  honesty checks and regression entrypoints.
 - `src/openamp_foundry/calibration/`: lab-result intake, gate, and proposal-only
   recalibration.
 

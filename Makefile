@@ -189,33 +189,33 @@ bench-cluster-split-500:
 	@echo "Cluster-split on expanded 500-AMP set complete."
 
 bench-easy-baseline:
-	PYTHONPATH=src $(PYTHON) scripts/baseline_trivial.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/baseline_trivial.py \
 		--amp-csv examples/validation/known_amps_500.csv \
 		--decoy-csv examples/validation/random_background_500.csv
 	@echo "Easy baseline benchmark complete."
 
 bench-charge-matched:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_charge_matched.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_charge_matched.py \
 		--amp-csv examples/validation/known_amps_500.csv \
 		--decoy-csv examples/validation/random_background_500.csv \
 		--out outputs/benchmark_charge_matched.json
 	@echo "Charge-matched decoy benchmark complete."
 
 bench-order-dependent:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_order_dependent.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_order_dependent.py \
 		--amp-csv examples/validation/known_amps_500.csv \
 		--out outputs/benchmark_order_dependent.json
 	@echo "Order-dependent features benchmark complete."
 
 bench-precision-at-k:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_precision_at_k.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_precision_at_k.py \
 		--amp-csv examples/validation/known_amps_500.csv \
 		--decoy-csv examples/validation/random_background_500.csv \
 		--out outputs/benchmark_precision_at_k.json
 	@echo "Precision@k calibration benchmark complete."
 
 bench-per-family:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_per_family.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_per_family.py \
 		--amp-csv examples/validation/known_amps_500.csv \
 		--decoy-csv examples/validation/random_background_500.csv \
 		--out outputs/benchmark_per_family.json
@@ -244,7 +244,7 @@ bench-triage:
 		--out outputs/triage_benchmark_report.json
 
 bench-gate:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_gate.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_gate.py \
 		--baseline outputs/metrics_snapshot.json \
 		--tolerance 0.02 \
 		--out outputs/bench_gate_report.md
@@ -397,16 +397,16 @@ validate-policy-version:
 		--decision-log-dir decision_logs/
 
 bump-policy-version:
-	PYTHONPATH=src $(PYTHON) scripts/bump_recalibration_policy.py \
+	PYTHONPATH=src $(PYTHON) scripts/calibration/bump_recalibration_policy.py \
 		$(if $(HUMAN_REVIEWER),--human-reviewer "$(HUMAN_REVIEWER)",) \
 		$(if $(DRY_RUN),--dry-run,)
 
 bump-policy-version-dry-run:
-	PYTHONPATH=src $(PYTHON) scripts/bump_recalibration_policy.py \
+	PYTHONPATH=src $(PYTHON) scripts/calibration/bump_recalibration_policy.py \
 		--human-reviewer "DRY_RUN" --dry-run
 
 calibration-loop:
-	PYTHONPATH=src $(PYTHON) scripts/run_calibration_loop.py \
+	PYTHONPATH=src $(PYTHON) scripts/calibration/run_calibration_loop.py \
 		--out-dir outputs/calibration_loop \
 		--seed 42 --n-batch-2 10
 
@@ -426,30 +426,30 @@ wave0-5-gate-check:
 	PYTHONPATH=src $(PYTHON) src/openamp_foundry/gates/wave0_5_gate_checker.py
 
 wave0-5-novelty-audit:
-	PYTHONPATH=src $(PYTHON) scripts/run_wave0_5_novelty_audit.py
+	PYTHONPATH=src $(PYTHON) scripts/waves/run_wave0_5_novelty_audit.py
 
 wave0-5-novelty-audit-v2:
-	$(PYTHON) scripts/run_wave0_5_novelty_audit_v2.py
+	$(PYTHON) scripts/waves/run_wave0_5_novelty_audit_v2.py
 
 wave0-5-fill-external:
-	PYTHONPATH=src $(PYTHON) scripts/fill_wave0_5_external_results.py
+	PYTHONPATH=src $(PYTHON) scripts/waves/fill_wave0_5_external_results.py
 
 wave0-5-panel: wave0-5-fill-external
-	PYTHONPATH=src $(PYTHON) scripts/select_wave1_panel.py
+	PYTHONPATH=src $(PYTHON) scripts/waves/select_wave1_panel.py
 
 wave0-5-evidence:
-	PYTHONPATH=src $(PYTHON) scripts/generate_wave0_5_evidence_certs.py
+	PYTHONPATH=src $(PYTHON) scripts/waves/generate_wave0_5_evidence_certs.py
 
 bench-simulation-ablation:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_simulation_ablation.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_simulation_ablation.py \
 		--mode amp-vs-decoy --out outputs/simulation_ablation.json
 
 bench-simulation-ablation-within-amp:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_simulation_ablation.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_simulation_ablation.py \
 		--mode within-amp --out outputs/simulation_ablation_within_amp.json
 
 bench-simulation-baselines:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_simulation_baselines.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_simulation_baselines.py \
 		--out outputs/simulation_baselines.json
 
 simulation-gate:
@@ -459,31 +459,31 @@ simulation-gate:
 		--out outputs/simulation_gate_verdict.json
 
 bench-cross-dataset:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_cross_dataset.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_cross_dataset.py \
 		--out outputs/cross_dataset_benchmark.json
 
 bench-multi-negatives:
-	PYTHONPATH=src $(PYTHON) scripts/benchmark_multi_negatives.py \
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_multi_negatives.py \
 		--out outputs/multi_negative_benchmark.json
 
 regenerate-all:
-	PYTHONPATH=src $(PYTHON) scripts/regenerate_all.py
+	PYTHONPATH=src $(PYTHON) scripts/release/regenerate_all.py
 
 full-reproducibility-report:
-	PYTHONPATH=src $(PYTHON) scripts/full_reproducibility_report.py
+	PYTHONPATH=src $(PYTHON) scripts/release/full_reproducibility_report.py
 
 metrics-snapshot:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench metrics-snapshot \
 		--out outputs/metrics_snapshot.json
 
 wave0-5b-generate:
-	PYTHONPATH=src $(PYTHON) scripts/generate_wave0_5b_candidates.py
+	PYTHONPATH=src $(PYTHON) scripts/waves/generate_wave0_5b_candidates.py
 
 wave0-5b-filter: wave0-5b-generate
-	PYTHONPATH=src $(PYTHON) scripts/filter_wave0_5b_candidates.py
+	PYTHONPATH=src $(PYTHON) scripts/waves/filter_wave0_5b_candidates.py
 
 lab-batch-pack:
-	PYTHONPATH=src $(PYTHON) scripts/build_lab_batch_pack.py \
+	PYTHONPATH=src $(PYTHON) scripts/lab/build_lab_batch_pack.py \
 		--panel-csv outputs/phase3_ranked.jsonl \
 		--evidence-dir outputs/evidence_wave0_5 \
 		--out outputs/lab_batch_pack.zip \

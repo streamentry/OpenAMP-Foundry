@@ -1,4 +1,6 @@
-# OpenAMP Foundry — reusable entrypoint scripts.
+"""OpenAMP Foundry script-entrypoint package.
 
-# Scripts in this directory are standalone entrypoints.
-# They are not imported as a Python package.
+Canonical implementations now live in subpackages such as ``scripts.benchmarks``
+and ``scripts.release``. Flat files under ``scripts/`` are compatibility
+wrappers for historical paths and direct shell muscle memory.
+"""

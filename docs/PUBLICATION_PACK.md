@@ -64,7 +64,7 @@ A reviewer should be able to reproduce all findings from the contents of this pa
 ## 6. Wet-Lab Results (if available)
 
 - [ ] Raw lab result JSONs (one per candidate per assay).
-- [ ] Pass/fail criteria check output (`check_wave1_pass_fail.py` verdict).
+- [ ] Pass/fail criteria check output (`scripts/lab/check_wave1_pass_fail.py` verdict).
 - [ ] Primary analysis results (MIC ≤ 32 hit rate).
 - [ ] Secondary analysis (selectivity index, TI > 10).
 - [ ] Exploratory analysis (per-family, structural class, calibration).
