@@ -6,10 +6,12 @@ from .interfaces import (
     VirtualAssayProxy,
 )
 from .membrane import MembraneProxy
+from .structure import StructureProxy
 
 __all__ = [
     "SimulationResult",
     "VirtualAssayProxy",
     "EmulatorBaseline",
     "MembraneProxy",
+    "StructureProxy",
 ]

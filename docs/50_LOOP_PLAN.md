@@ -100,7 +100,7 @@ Build the multi-resolution virtual assay layer: structure proxies, membrane inte
 |------|-----------|-------------|-------------|
 | 30 ✅ | No explicit virtual-assay scope document; stale BENCHMARKING.md; stale test count in METRICS_CURRENT.md; broken script ref in NOVELTY_AUDIT_GUIDE.md | `docs/VIRTUAL_ASSAY_SCOPE.md` — scope doc with modeled/NOT-modeled effects, uncertainty policy, ablation requirement, integration modes. Rewrote `docs/BENCHMARKING.md` with all 19 benchmarks. Fixed test count, script ref, scripts/__init__.py. | Scope doc reviewable; BENCHMARKING.md matches Makefile; 1843 tests |
 | 31 ✅ | No membrane interaction proxy. The simulation module had only a dummy placeholder | `simulation/membrane.py`: MembraneProxy with Wimley-White interfacial and octanol scales, bacterial/mammalian binding scores, selectivity ratio, and uncertainty. BomanBaseline clamped. v0.5.52 | 30 tests, 1873 total. Magainin more selective than melittin (verified by test). Membrane proxy initialised, benchmark deferred to Loop 34 |
-| 32 | No structure ensemble proxy. Current pipeline assumes all AMPs are helical | `simulation/structure.py`: secondary structure prediction (helix/coil/sheet propensity from sequence). Generates 3-state ensemble weights. Flags non-helical candidates | For known beta-sheet AMPs (protegrin, tachyplesin), reports low helix confidence |
+| 32 ✅ | No structure ensemble proxy. Current pipeline assumes all AMPs are helical | `simulation/structure.py`: StructureProxy with Chou-Fasman 3-state propensities, normalized ensemble weights, non_helical flag. v0.5.53 | 34 tests, 1905 total. Protegrin/tachyplesin non-helical (✅), magainin not non-helical (✅). Melittin ambiguous — Chou-Fasman limitation documented |
 | 33 | No selectivity ratio module that combines bacterial and mammalian membrane scores | `simulation/selectivity_ratio.py`: ratio of bacterial membrane binding to RBC membrane binding proxy. Reports as `selectivity_ratio` with uncertainty | Distinguishes known selective (magainin) from known hemolytic (melittin) at ratio > 2x |
 | 34 | No benchmark set for membrane proxy calibration | `examples/validation/membrane_reference.csv`: 30+ AMPs with known membrane activity (pore-forming, carpet, toroidal pore). Literature-sourced with citations | Dataset card exists with source, citation, and known limitations |
 | 35 | No per-module ablation: each simulation module must beat a cheap heuristic baseline before affecting selection | `benchmark/simulation_ablation.py`: compares each simulation module against trivial baseline (single-feature proxy). Reports delta AUROC for each | Any module with delta ≤ 0 is flagged as `NO_IMPROVEMENT` and disabled from production pipeline |
@@ -180,7 +180,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
 Phase 2: ✅ Complete (Loops 18–29)
-Phase 3: In progress — Loop 31 ✅ (Loops 30–39)
+Phase 3: In progress — Loop 32 ✅ (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```
 
@@ -241,7 +241,7 @@ Phase 4: Not started (Loops 40–49)
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**Next loop:** Loop 32 — Phase 3 (structure ensemble proxy).
+**Next loop:** Loop 33 — Phase 3 (selectivity ratio module).
 
 **Phase 2 exit criteria (all 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest

@@ -1,5 +1,25 @@
 # Roadmap
 
+## v0.5.53 — Structure Ensemble Proxy (Loop 32) ✓ (2026-07-06)
+
+Second Phase 3 simulation module. Chou-Fasman 3-state secondary structure
+prediction (helix/sheet/coil). Flags non-helical candidates where the
+helic-centric activity scorer is unreliable.
+
+Changes:
+- ``src/openamp_foundry/simulation/structure.py`` — ``StructureProxy`` implementing
+  ``VirtualAssayProxy`` with Chou-Fasman helix/sheet/coil propensity parameters.
+  Generates normalized 3-state ensemble weights, raw propensities, and
+  ``non_helical`` flag (True if dominant state != helix or helix_weight < 0.33).
+  ``HelicityBaseline`` for cheap-baseline comparison.
+- ``tests/test_structure_proxy.py`` — 34 tests covering scale lookup,
+  normalization, dominant state, non-helical flag, known reference comparisons
+  (magainin helical, protegrin/tachyplesin beta-sheet, proline-rich non-helical,
+  melittin ambiguous — documented limitation), and empty sequence.
+- ``docs/50_LOOP_PLAN.md`` — Loop 32 ✅. Next: Loop 33.
+- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.53. Test count: 1905.
+- 1905 tests passing (1871 existing + 34 new).
+
 ## v0.5.52 — Membrane Interaction Proxy (Loop 31) ✓ (2026-07-06)
 
 Phase 3 begins implementation. Membrane proxy uses Wimley-White interfacial
