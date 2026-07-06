@@ -1,51 +1,110 @@
 # Architecture
 
-## System overview
+## Purpose
+
+This document describes the OpenAMP Foundry architecture as scientific infrastructure, not only software architecture.
+
+The system is designed to make antimicrobial peptide candidate selection reproducible, auditable, safety-aware, and reviewable.
+
+## Prime rule
+
+**Architecture should make unsupported claims structurally difficult.**
+
+A good architecture does not merely compute scores. It preserves provenance, uncertainty, baselines, release status, and review boundaries.
+
+## Current production architecture
 
 ```text
-CSV/JSONL candidates
+candidate records
   -> loaders
   -> validation
   -> feature extraction
   -> independent scorers
-  -> ensemble scorer
+  -> ensemble or configured ranker
   -> novelty checker
+  -> safety-risk and feasibility checks
   -> diversity selector
-  -> evidence certificate
+  -> evidence certificates
+  -> run manifest
   -> report
 ```
 
-This is the **current production architecture**: a deterministic dry-lab candidate foundry.
+This is the current dry-lab candidate foundry.
 
-The repo’s longer-range architecture is a layered system:
+It can support computational nomination and expert-review packaging.
+
+It does not prove biological activity, safety, or clinical value.
+
+## Trust architecture
+
+The technical architecture is surrounded by a trust architecture:
 
 ```text
-candidate generation / import
-  -> dry-lab filtering and ranking
-  -> higher-fidelity virtual assay proxies
-  -> small real assay batch
-  -> calibration / active learning
-  -> next-round candidate selection
+safe scope
+  -> deterministic commands
+  -> schemas
+  -> run manifests
+  -> evidence certificates
+  -> benchmark cards
+  -> proof ladder
+  -> release status
+  -> external review packets
+  -> decision records
 ```
 
-The purpose of the added layers is not simulation theater. It is to improve which experiments are chosen next.
+The trust layer is as important as the scoring layer.
+
+## Longer-range architecture
+
+The mature system should become a wet-lab compression engine:
+
+```text
+candidate generation or import
+  -> dry-lab validation and ranking
+  -> benchmark-challenged proxy models
+  -> uncertainty-aware panel construction
+  -> qualified external review
+  -> structured result summaries
+  -> calibration intake
+  -> recalibration gate
+  -> human decision record
+  -> next-round selection
+```
+
+The purpose of added layers is not simulation theater.
+
+The purpose is to improve which questions qualified humans choose to test next.
 
 ## Package map
 
 | Package | Role |
 |---|---|
-| `openamp_foundry.data` | loading and normalizing candidate/reference data |
-| `openamp_foundry.features` | physicochemical feature extraction |
-| `openamp_foundry.scoring` | activity, safety, hemolysis risk, novelty, synthesis, ensemble, expert composite, rich selectivity scoring |
-| `openamp_foundry.selection` | ranking (ensemble or expert composite), diversity selection, and optional structural-class floors for bias-aware pilot panels |
-| `openamp_foundry.evidence` | JSON certificate generation and validation |
-| `openamp_foundry.reports` | human-readable and machine-readable batch, calibration, and wet-lab review reports |
-| `openamp_foundry.benchmark` | leakage checks, cluster-split benchmark, expert ablation benchmark, within-AMP selectivity benchmark, triage benchmark, per-feature selectivity decomposition, and evaluation scaffolding |
-| `openamp_foundry.generators` | safe, bounded toy candidate generation |
-| `openamp_foundry.simulation` | membrane proxy (Loop 31), structure proxy (Loop 32), simulation ablation benchmark (Loop 33), dummy stub, interfaces |
-| `openamp_foundry.calibration` | lab-result intake (v0.5.19), pre-registered recalibration policy + gate (v0.5.20), engine + report (v0.5.36/v0.5.44), policy version tracking (v0.5.40) |
-| `openamp_foundry.active_learning` | batch-2 selector (v0.5.45) and recovery benchmark (v0.5.46) for choosing informative next experiments under uncertainty |
-| `openamp_foundry.analysis` | diversity clustering, panel similarity, family structural warnings, audit helpers |
+| `openamp_foundry.data` | Loading and normalizing candidate/reference data. |
+| `openamp_foundry.features` | Physicochemical feature extraction. |
+| `openamp_foundry.scoring` | Activity-likeness, safety-risk, novelty, feasibility, ensemble, and related scorers. |
+| `openamp_foundry.selection` | Ranking, diversity selection, and panel construction guards. |
+| `openamp_foundry.evidence` | Evidence certificate generation and validation. |
+| `openamp_foundry.reports` | Human-readable and machine-readable reports. |
+| `openamp_foundry.benchmark` | Leakage checks, baseline comparisons, ablations, and benchmark scaffolding. |
+| `openamp_foundry.generators` | Safe, bounded toy candidate generation. |
+| `openamp_foundry.simulation` | Experimental virtual-assay proxy interfaces and ablations. |
+| `openamp_foundry.calibration` | Structured result intake, recalibration gates, and proposal generation. |
+| `openamp_foundry.active_learning` | Informative next-batch selection under uncertainty. |
+| `openamp_foundry.analysis` | Diversity, similarity, structural-class, and audit helpers. |
+
+Package behavior must remain aligned with docs under [`docs/PROJECT_INDEX.md`](PROJECT_INDEX.md).
+
+## Core artifacts
+
+| Artifact | Purpose | Source doc |
+|---|---|---|
+| Evidence certificate | Explains candidate selection or rejection. | [`EVIDENCE_CERTIFICATE.md`](EVIDENCE_CERTIFICATE.md) |
+| Run manifest | Records command, inputs, config, commit, hashes, and claim boundaries. | [`RUN_MANIFEST_STANDARD.md`](RUN_MANIFEST_STANDARD.md) |
+| Benchmark card | Documents benchmark purpose, data, baselines, and limits. | [`BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) |
+| Dataset card | Documents source, license, labels, preprocessing, bias, and release status. | [`DATA_GOVERNANCE.md`](DATA_GOVERNANCE.md) |
+| Model or adapter card | Documents model/adapter scope, benchmarks, limitations, and release status. | [`MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md) |
+| Review packet | Packages artifacts for qualified external review. | [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) |
+| Decision record | Records important governance decisions. | [`DECISION_RECORD_TEMPLATE.md`](DECISION_RECORD_TEMPLATE.md) |
 
 ## Threat model
 
@@ -53,113 +112,98 @@ The system is designed to reduce these failures:
 
 | Failure | Mitigation |
 |---|---|
-| Cherry-picking candidates | Predefined ranking rule and evidence certificate |
-| Rediscovering known AMPs | Novelty score and reference matching |
-| Unsafe optimization | No toxicity-maximizing objectives; safety penalties by default |
-| Model self-confirmation | Separate generator and judges |
-| Dataset leakage | Cluster/time split plan and leakage checks |
-| Overclaiming | Explicit confidence and failure modes |
-| Simulation theater | Require calibration, abstention rules, and baseline comparisons |
-| Misuse by unsafe forks | Controlled release policy for high-capability components |
+| Cherry-picking candidates | Predefined selection rules, manifests, and evidence certificates. |
+| Rediscovering known references | Novelty audit and nearest-neighbor reporting. |
+| Unsafe optimization | Safety policy, release policy, safety-risk penalties, human review. |
+| Model self-confirmation | Cheap-baseline comparisons and benchmark governance. |
+| Dataset leakage | Leakage checks, dataset cards, split documentation. |
+| Overclaiming | Proof ladder, claim review checklist, reviewer onboarding. |
+| Simulation theater | Virtual assay scope, simulation benchmark, ranking gates. |
+| Unreviewed release | Model release policy, release checklist, CODEOWNERS intent. |
+| Agent drift | Agent operating contract, issue labels, human-agent collaboration model. |
+| Artifact drift | Schema registry and artifact versioning policy. |
 
 ## Data flow
 
-1. Load candidate sequences.
-2. Normalize to uppercase canonical amino-acid symbols.
-3. Reject invalid sequences.
-4. Compute features.
+1. Load candidate records.
+2. Normalize and validate records.
+3. Reject invalid inputs with explicit errors.
+4. Compute dry-lab features.
 5. Score independently.
-6. Rank by weighted ensemble.
-7. Select diverse candidates.
-8. Write JSONL results.
-9. Generate one certificate per selected candidate.
-10. Generate a human-readable report.
-11. Record the ranking-policy rationale used for the run so reviewers can see
-    whether the batch used the broad default gate or the narrower safety-aware
-    alternative.
-12. Optionally reserve pilot slots for under-ranked structural classes so the
-    assay panel can compensate for measured benchmark blind spots.
+6. Apply configured ranking and safety-aware tradeoffs.
+7. Audit novelty and similarity.
+8. Select diverse candidates or panel roles.
+9. Write structured outputs.
+10. Generate evidence certificates.
+11. Generate run manifest.
+12. Generate human-readable report.
+13. Validate artifacts where schemas exist.
+14. Map claims to proof-ladder level.
 
-## Target future data flow
+## Result-learning flow
 
-When the project is mature enough, the extended loop should look like:
+When qualified result summaries exist:
 
-1. Generate or import candidate sequences.
-2. Run the current dry-lab validation, feature extraction, scoring, novelty, and diversity pipeline.
-3. Send a smaller frontier set to higher-fidelity selectivity and stability proxy models.
-4. Estimate uncertainty and identify where the model is likely wrong.
-5. Select a very small assay batch that balances likely winners with high-information probes.
-6. Ingest qualified wet-lab outcomes through versioned schemas.
-7. Convert raw result JSON into a control-aware review artifact before any recalibration decision.
-8. **Pre-registered recalibration gate (v0.5.20)**: evaluate the intake
-   report against `configs/recalibration_policy.yaml` and obtain a binary
-   `may_recalibrate` verdict. If `false`, recalibration is forbidden
-   regardless of what the report says. If `true`, a human reviewer may
-   propose a weight change that respects every prohibited action.
-9. Recalibrate decision rules without rewriting success definitions after the fact.
-10. Measure whether the added modeling layer actually reduced wasted experiments.
+1. Ingest structured result summaries.
+2. Join results to prior predictions.
+3. Preserve controls, quality flags, and limitations at a safe abstraction level.
+4. Generate calibration intake artifact.
+5. Run recalibration gate.
+6. Record whether recalibration may be considered.
+7. Generate proposal if allowed.
+8. Require human review and decision record.
+9. Apply changes only after review.
+10. Preserve rejections as useful evidence.
 
 ## Extension points
 
-Later external predictors should be added as adapters. Each adapter must return:
+Future extension points include:
 
-```json
-{
-  "tool": "predictor-name",
-  "version": "x.y.z",
-  "score": 0.0,
-  "confidence": "low|medium|high",
-  "notes": []
-}
-```
+- scorers;
+- external predictors;
+- virtual-assay proxies;
+- dataset loaders;
+- benchmark modules;
+- report generators;
+- evidence-certificate fields;
+- review packet generators;
+- calibration proposal engines.
 
-Adapters must not silently download model weights or send sequences to third-party services without explicit user consent.
+Every extension point should answer:
 
-### Internal simulation modules
+1. What does this component do?
+2. What is it not for?
+3. Does it need a card?
+4. What baseline challenges it?
+5. Can it affect ranking?
+6. What is its release status?
+7. What failure mode is expected?
 
-Any future simulation or emulator module must implement `VirtualAssayProxy`
-(in `openamp_foundry.simulation`) and return a `SimulationResult`:
+Use [`ADAPTER_AUTHOR_GUIDE.md`](ADAPTER_AUTHOR_GUIDE.md) for external adapters.
 
-```python
-@dataclass
-class SimulationResult:
-    module: str
-    version: str
-    scope: list[str]
-    scores: dict[str, float]
-    uncertainty: float
-    calibration_set: str | None
-    validated_against: list[str]
-    notes: list[str]
-```
+## Adapter policy
 
-If calibration data is absent or weak, the `uncertainty` field must surface that directly.
+Adapters must not silently:
 
-### External simulation adapters
+- transmit sequences or sensitive metadata;
+- download model artifacts;
+- change ranking authority;
+- hide unavailable dependencies;
+- convert external scores into proof;
+- publish restricted outputs.
 
-Third-party tools (Martini MD, AlphaFold, REST APIs) can be integrated
-via `ExternalSimulationAdapter`:
+Default adapter mode should be `off` or `info` until gates support stronger use.
 
-```python
-from openamp_foundry.simulation import ExternalSimulationAdapter, SimulationResult
+## Schema and compatibility policy
 
-def run_martini(sequence: str) -> SimulationResult:
-    # ... call external tool, map output to SimulationResult ...
-    ...
+Schemas and structured artifacts should follow:
 
-adapter = ExternalSimulationAdapter(
-    name="martini_membrane",
-    version="0.1.0",
-    simulate_fn=run_martini,
-    required_module="martini",       # optional: fail gracefully if missing
-    scope=["membrane_binding"],
-)
-result = adapter.simulate("GIGKFLHSAKKFGKAFVGEIMNS")
-```
+- [`SCHEMA_REGISTRY.md`](SCHEMA_REGISTRY.md)
+- [`ARTIFACT_VERSIONING.md`](ARTIFACT_VERSIONING.md)
+- [`RUN_MANIFEST_STANDARD.md`](RUN_MANIFEST_STANDARD.md)
 
-The adapter:
-- Wraps any callable `(str) -> SimulationResult` into the standard interface.
-- Checks `is_available()` before running (avoids ImportError crashes).
-- Returns `uncertainty=1.0` error result if the wrapped function raises.
-- Propagates the adapter's `name`, `version`, and `scope` into the result.
-- Falls back to `EmulatorBaseline` returning 0.5 for cheap-baseline comparison.
+Breaking changes to core artifacts require compatibility review.
+
+## Final standard
+
+OpenAMP architecture is successful when a skeptical reviewer can inspect an artifact and understand how it was produced, what it supports, what it does not support, and what review is still required.
