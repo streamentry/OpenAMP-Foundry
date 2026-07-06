@@ -126,7 +126,7 @@ Prepare for real wet-lab partners. Make the pack reviewable, the evidence tracea
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
 | 40 ✅ | No assay-partner onboarding pack. A new CRO gets no README for how to run the panel | `docs/LAB_PARTNER_ONBOARDING.md`: panel manifest, synthesis instructions, assay protocol references, data return schema, positive/negative control sequences, safety notes, timeline, controls. v0.5.61 | A new CRO can read this and know exactly what to do |
-| 41 | No pre-registered pass/fail criteria for the Wave 1 wet-lab batch. ASSAY_PREREGISTRATION exists but criteria are not machine-checkable | `configs/wave1_pass_fail.yaml`: machine-readable pass/fail gates for Wave 1 (MIC ≤ 32 for ≥ N candidates, hemolysis ≤ 10% for ≥ M candidates, at least 1 control passes) | CI validates criteria against lab result schema |
+| 41 ✅ | No pre-registered pass/fail criteria for the Wave 1 wet-lab batch. ASSAY_PREREGISTRATION exists but criteria are not machine-checkable | `configs/wave1_pass_fail.yaml`: machine-readable pass/fail gates (MIC ≤ 32 for ≥ 3 candidates, TI > 10 for ≥ 1, positive control within range, 0 toxic, ≥ 20 tested). `scripts/check_wave1_pass_fail.py`: validation CLI, exit 0/3/2. v0.5.62 | 11 tests, 1977 total. CLI validates synthetic results against YAML criteria |
 | 42 | No expert-review GitHub template. Review process is ad-hoc | `.github/ISSUE_TEMPLATE/expert_review.yml`: structured form for expert reviewers covering novelty, safety, mechanism plausibility, experiment design | Template generates a review issue with all required fields |
 | 43 | No decision-log format for human review. AGENTS.md requires human review for 6 decision types but no machine-readable log format exists | `schemas/decision_log.schema.json`: JSON Schema for human review decisions. Fields: date, reviewer, decision_type, evidence_refs, reasoning_notes, dissent_flag | Schema validates against real decision examples |
 | 44 | No candidate batch pack that a lab partner can download as a single artifact | `scripts/build_lab_batch_pack.py`: generates a zip with candidate CSV, evidence certificates, synthesis order, assay protocol refs, controls manifest, and data return template | `make lab-batch-pack` produces a single zip with all required files |
@@ -242,7 +242,7 @@ Phase 4: In progress — Loop 40 ✅ (Loops 40–49)
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**Next loop:** Loop 41 — pre-registered pass/fail criteria (configs/wave1_pass_fail.yaml).
+**Next loop:** Loop 42 — expert-review GitHub template.
 
 **Phase 2 exit criteria (all 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest

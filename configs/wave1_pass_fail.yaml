@@ -1,0 +1,69 @@
+# Wave 1 Wet-Lab Pass/Fail Criteria
+#
+# Pre-registered before any wet-lab data is seen.
+# Machine-readable gates checked by check_wave1_pass_fail.py.
+# Locked: do not modify without a signed deviation record.
+
+pipeline_version: "0.5.x"
+locked_at: "2026-07-06"
+locked_by: "OpenAMP agent (pre-registration template)"
+
+# Primary endpoint: MIC ≤ 32 ug/mL against E. coli ATCC 25922
+primary_endpoint:
+  organism: "Escherichia coli ATCC 25922"
+  assay_type: MIC
+  max_mic_ugml: 32
+  min_passing_candidates: 3
+
+# Secondary endpoint: MIC ≤ 32 ug/mL and TI > 10 (selective hit)
+secondary_endpoint:
+  max_mic_ugml: 32
+  min_therapeutic_index: 10
+  min_passing_candidates: 1
+
+# Confirmed hit definition
+confirmed_hit:
+  mic_ugml_max: 32
+  ti_min: 10
+  positive_control_required: true
+  min_confirmed_hits: 1
+
+# Hemolysis safety gate
+hemolysis:
+  assay_type: hemolysis_RBC
+  # Therapeutic index = HC50 / MIC. TI > 10 = selective.
+  # TI < 2 = toxic (exclude from further consideration).
+  ti_toxic_threshold: 2
+  ti_selective_threshold: 10
+  # No candidate with TI < 2 is acceptable in a passing batch
+  max_toxic_candidates: 0
+
+# Serum stability (optional, informational)
+serum_stability:
+  assay_type: serum_stability
+  pass_criterion: "> 50% intact at 60 min"
+  # Informational only — does not gate the batch
+
+# Positive control requirements
+positive_controls:
+  - candidate_id: "SEED-001_VAR_064"
+    expected_mic_min_ugml: 4
+    expected_mic_max_ugml: 32
+    description: "Magainin-1 derivative — validates assay is working"
+
+# Batch-level acceptance
+batch_level:
+  # Batch is valid only if all these pass
+  positive_control_passed: true
+  negative_control_passed: true
+  min_total_candidates_tested: 20
+  # No data points excluded without documented justification
+  require_all_results_reported: true
+
+# Negative result reporting
+negative_result_archive:
+  # All tested candidates must have entries, even if inactive
+  # Archive to outputs/negative_result_archive.csv via calibration-intake
+  require_inactive_reported: true
+  require_toxic_reported: true
+  require_control_failures_reported: true
