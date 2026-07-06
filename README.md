@@ -18,14 +18,15 @@ The long-term infrastructure ambition is described in [`VISION.md`](VISION.md), 
 
 | You are | Read first | Then read |
 |---|---|---|
-| New human contributor | [`docs/HUMAN_ONBOARDING.md`](docs/HUMAN_ONBOARDING.md) | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md) |
-| AI agent | [`AGENTS.md`](AGENTS.md) | [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md), [`docs/NEXT_100_PR_MAP.md`](docs/NEXT_100_PR_MAP.md) |
+| New human contributor | [`docs/HUMAN_ONBOARDING.md`](docs/HUMAN_ONBOARDING.md) | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/COMMAND_SURFACE.md`](docs/COMMAND_SURFACE.md) |
+| AI agent | [`AGENTS.md`](AGENTS.md) | [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md), [`docs/HUMAN_AGENT_COLLABORATION.md`](docs/HUMAN_AGENT_COLLABORATION.md) |
+| Reviewer | [`docs/REVIEWER_ONBOARDING.md`](docs/REVIEWER_ONBOARDING.md) | [`docs/CLAIM_REVIEW_CHECKLIST.md`](docs/CLAIM_REVIEW_CHECKLIST.md), [`docs/BENCHMARK_GOVERNANCE.md`](docs/BENCHMARK_GOVERNANCE.md) |
 | Computational scientist | [`docs/METRICS_CURRENT.md`](docs/METRICS_CURRENT.md) | [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md), [`docs/BENCHMARK_GOVERNANCE.md`](docs/BENCHMARK_GOVERNANCE.md) |
 | Wet-lab/domain expert | [`docs/WET_LAB_HANDOFF.md`](docs/WET_LAB_HANDOFF.md) | [`docs/EXTERNAL_REVIEW_PACKET.md`](docs/EXTERNAL_REVIEW_PACKET.md), [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](docs/PRE_REGISTERED_PILOT_TEMPLATE.md) |
-| Safety reviewer | [`docs/TRUST_CENTER.md`](docs/TRUST_CENTER.md) | [`SAFETY.md`](SAFETY.md), [`docs/SAFETY_DOC_AUDIT.md`](docs/SAFETY_DOC_AUDIT.md) |
+| Safety reviewer | [`docs/TRUST_CENTER.md`](docs/TRUST_CENTER.md) | [`SAFETY.md`](SAFETY.md), [`SECURITY.md`](SECURITY.md) |
 | Data/model contributor | [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md) | [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md), [`docs/MODEL_CARD_TEMPLATE.md`](docs/MODEL_CARD_TEMPLATE.md) |
-| Funder/institution | [`VISION.md`](VISION.md) | [`GOAL.md`](GOAL.md), [`docs/ADOPTION_STRATEGY.md`](docs/ADOPTION_STRATEGY.md) |
-| Maintainer | [`docs/MAINTAINER_GUIDE.md`](docs/MAINTAINER_GUIDE.md) | [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md), [`docs/DOCS_MAINTENANCE.md`](docs/DOCS_MAINTENANCE.md) |
+| Funder/institution | [`VISION.md`](VISION.md) | [`GOAL.md`](GOAL.md), [`docs/ADOPTION_METRICS.md`](docs/ADOPTION_METRICS.md) |
+| Maintainer | [`GOVERNANCE.md`](GOVERNANCE.md) | [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md), [`docs/CI_AND_QUALITY_GATES.md`](docs/CI_AND_QUALITY_GATES.md) |
 
 ## Why this repo exists
 
@@ -138,48 +139,7 @@ python -m openamp_foundry.cli validate \
   --schema schemas/candidate.schema.json
 ```
 
-Turn qualified result-summary JSON files into a reproducible review artifact:
-
-```bash
-python -m openamp_foundry.cli lab-result-report \
-  --results-dir outputs/lab_results \
-  --out-json outputs/lab_result_report.json \
-  --out-md outputs/lab_result_report.md
-```
-
-Join panel predictions with validated result summaries:
-
-```bash
-python -m openamp_foundry.cli calibration-intake \
-  --predictions outputs/predictions.csv \
-  --results-dir outputs/lab_results \
-  --panel-name "wave1" \
-  --out-json outputs/calibration_intake_report.json
-```
-
-Evaluate whether a calibration-intake report satisfies the pre-registered recalibration policy:
-
-```bash
-python -m openamp_foundry.cli recalibration-gate \
-  --intake outputs/calibration_intake_report.json \
-  --policy configs/recalibration_policy.yaml \
-  --out-json outputs/gate_verdict.json
-```
-
-Exit code 0 means the gate allows recalibration consideration; exit code 3 means the policy rejects it.
-
-Bias-aware pilot panel selection for under-ranked structural classes:
-
-```bash
-python -m openamp_foundry.cli pilot-panel \
-  --ranked outputs/demo_ranked.jsonl \
-  --out-csv outputs/pilot_panel.csv \
-  --min-per-structural-class 1
-```
-
-This is a panel-construction guard, not a claim that those classes are better.
-It only prevents the current charge-dominated ranker from excluding low-charge,
-proline-rich, short, or cysteine-rich scaffolds by default.
+For command interpretation, read [`docs/COMMAND_SURFACE.md`](docs/COMMAND_SURFACE.md). Commands produce artifacts; artifacts support claims only when the proof ladder allows them.
 
 ## Repository map
 
@@ -189,13 +149,16 @@ openamp-foundry/
   VISION.md                              # long-term infrastructure vision
   GOAL.md                                # milestones, kill rules, metrics
   MISSION.md                             # project mission and claim boundaries
-  AGENTS.md                              # agent operating contract and safety mission
+  GOVERNANCE.md                          # decision governance
+  AGENTS.md                              # agent operating contract
   CLAUDE.md                              # concise collaborator guidance
   CONTRIBUTING.md                        # contributor workflow and PR checklist
   SAFETY.md                              # safety policy
+  SECURITY.md                            # security and safety-sensitive reporting
   RESPONSIBLE_USE.md                     # allowed/disallowed use
   MODEL_RELEASE_POLICY.md                # model and artifact release policy
   DATA_LICENSE_NOTICE.md                 # data license and redistribution policy
+  CITATION.cff                           # citation metadata
   .github/PULL_REQUEST_TEMPLATE.md       # PR checklist
   .github/ISSUE_TEMPLATE/                # agent, benchmark, data, safety, release, claim templates
   configs/                               # scoring and recalibration policy
@@ -205,6 +168,12 @@ openamp-foundry/
   docs/TRUST_CENTER.md                   # safety/evidence/governance trust front door
   docs/NUMBER_ONE_REPO_STANDARD.md       # category-leader standard
   docs/NEXT_100_PR_MAP.md                # PR-sized roadmap for compounding work
+  docs/COMMAND_SURFACE.md                # command workflows and claim boundaries
+  docs/CI_AND_QUALITY_GATES.md           # CI and quality gates
+  docs/HUMAN_AGENT_COLLABORATION.md      # human-agent collaboration model
+  docs/REVIEWER_ONBOARDING.md            # reviewer guide
+  docs/ADOPTION_METRICS.md               # adoption metrics focused on trust
+  docs/DECISION_RECORD_TEMPLATE.md       # decision record template
   docs/HUMAN_ONBOARDING.md               # human contributor onboarding
   docs/AGENT_ONBOARDING.md               # agent task protocol
   docs/WHY_WORK_ON_OPENAMP.md            # contributor positioning thesis
