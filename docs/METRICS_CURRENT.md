@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (lab batch pack — v0.5.63)
+> **Last updated:** 2026-07-06 (decision-log schema — v0.5.64)
+> **New in v0.5.64:** `schemas/decision_log.schema.json` — 12-field JSON Schema for human review decisions. Covers 9 decision types from AGENTS.md §8. Dissent conditional. 11 tests. 2000 total.
 > **New in v0.5.63:** `scripts/build_lab_batch_pack.py` — generates single zip with candidate CSV, 36 evidence certs, protocol refs, controls manifest, data return template. `make lab-batch-pack`. 10 tests. 1989 total.
 > **New in v0.5.62:** Pre-registered pass/fail criteria + simulation uncertainty in evidence. `configs/wave1_pass_fail.yaml` + `scripts/check_wave1_pass_fail.py`. `rank info` now propagates simulation uncertainty into evidence certs. 17 tests.
 > **New in v0.5.61:** `docs/LAB_PARTNER_ONBOARDING.md` — CRO onboarding pack with panel summary, synthesis instructions, assay protocols, data return format, controls, safety, timeline. No code changes.
@@ -1118,7 +1119,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1989 |
+| Total tests | 2000 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 

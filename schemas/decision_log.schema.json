@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Human Review Decision Log",
+  "description": "Schema for human review decisions required by AGENTS.md §8.",
+  "type": "object",
+  "required": [
+    "entry_id",
+    "date",
+    "reviewer_name",
+    "decision_type",
+    "decision",
+    "evidence_refs",
+    "reasoning_notes"
+  ],
+  "properties": {
+    "entry_id": {
+      "type": "string",
+      "description": "Unique identifier (e.g. 'DR-2026-07-06-001')"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date of the review decision"
+    },
+    "reviewer_name": {
+      "type": "string",
+      "description": "Full name of the human reviewer"
+    },
+    "reviewer_affiliation": {
+      "type": "string",
+      "description": "Reviewer institution or organisation (optional)"
+    },
+    "decision_type": {
+      "type": "string",
+      "enum": [
+        "publish_candidate_sequences",
+        "contact_lab",
+        "release_generator_weights",
+        "change_safety_policy",
+        "external_scientific_claim",
+        "submit_paper_or_press_release",
+        "recalibration_approval",
+        "expert_review_override",
+        "other"
+      ],
+      "description": "Type of decision being logged, matching AGENTS.md §8 categories"
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["approved", "rejected", "deferred"],
+      "description": "The human reviewer's decision"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "References to evidence that informed the decision (PR URLs, document paths, issue numbers)"
+    },
+    "reasoning_notes": {
+      "type": "string",
+      "description": "Free-text rationale for the decision"
+    },
+    "dissent_flag": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if any reviewer dissented from the majority decision"
+    },
+    "dissent_notes": {
+      "type": "string",
+      "description": "Explanation of dissenting viewpoint, if dissent_flag is true"
+    },
+    "supersedes": {
+      "type": "string",
+      "description": "entry_id of a previous decision that this entry overrides"
+    },
+    "related_entries": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Related entry_ids for tracking chains of decisions"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "dissent_flag": { "const": true } } },
+      "then": { "required": ["dissent_notes"] }
+    }
+  ]
+}

@@ -1,5 +1,18 @@
 # Roadmap
 
+## v0.5.64 — Decision-Log Schema (Loop 43) ✓ (2026-07-06)
+
+Machine-readable JSON Schema for human review decisions, covering the
+9 decision types required by AGENTS.md §8.
+
+Changes:
+- ``schemas/decision_log.schema.json`` — Draft 2020-12 JSON Schema with
+  12 fields, 9 decision types, conditional dissent-requires-notes.
+- ``tests/test_decision_log_schema.py`` — 11 tests.
+- ``docs/50_LOOP_PLAN.md`` — Loop 43 ✅. Next: Loop 45.
+- ``docs/METRICS_CURRENT.md`` — Changelog updated. Test count: 2000.
+- 2000 tests passing.
+
 ## v0.5.62 — Simulation Uncertainty in Evidence ✓ (2026-07-06)
 
 Closed the remaining Phase 3 evidence-propagation gap: simulation uncertainty
