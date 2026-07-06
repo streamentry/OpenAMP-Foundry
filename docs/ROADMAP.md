@@ -1,5 +1,23 @@
 # Roadmap
 
+## v0.5.50 — Negative-Result Archive Template + Phase 2 Closeout ✓ (2026-07-06)
+
+Phase 2 exit criteria required a public negative-result archive format but none
+existed. This release adds the template and closes Phase 2 with all 5 exit
+criteria met.
+
+Changes:
+- ``docs/NEGATIVE_RESULT_ARCHIVE.md`` — Full template with 18-field entry
+  schema (required/conditional markers), procedures for when/what to archive,
+  automation notes (auto-append by ``calibration-intake`` and ``filter_wave*``
+  scripts), and explicit limitations. Covers pre-selection rejects, selected
+  but untested, lab-tested inactives, lab-tested toxic, and control failures.
+- ``docs/50_LOOP_PLAN.md`` — Phase 2 header marked ✅ complete, status updated
+  to v0.5.50, Loop 29 ✅, all 5 exit criteria now show green, Current Position
+  updated to Phase 3 ready.
+- ``docs/METRICS_CURRENT.md`` — Bumped to v0.5.50, changelog entry.
+- 1843 total tests passing. No code changes.
+
 ## v0.5.49 — Policy Version Bump Workflow with CI Guard ✓ (2026-07-06)
 
 The `policy_version.py` module had `validate_policy_version()` and

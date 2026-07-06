@@ -1,8 +1,8 @@
 # 50-Loop Execution Plan
 
-> **Status:** Strategic roadmap. Updated v0.5.47.
-> **Current state:** 1834 tests, pipeline AUROC 0.7792, calibration pipeline complete (intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report + batch-2 selector + recovery benchmark + end-to-end integration + pytest golden-path test),
-> Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 Loops 18–27 complete,
+> **Status:** Strategic roadmap. Updated v0.5.50.
+> **Current state:** 1843 tests, pipeline AUROC 0.7792, calibration pipeline complete (intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report + batch-2 selector + recovery benchmark + end-to-end integration + pytest golden-path test + policy bump workflow + negative result archive),
+> > Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 complete (Loops 18–29),
 > cluster-split/selectivity/triage now gated in CI, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
@@ -62,9 +62,11 @@ Strengthen every benchmark against self-deception. Expand datasets. Add honest f
 
 ---
 
-## Phase 2 — Calibration Engine & Wet-Lab Feedback (Loops 18–29)
+## Phase 2 — Calibration Engine & Wet-Lab Feedback (Loops 18–29) ✅
 
 Build the recalibration engine gated by the policy. Implement active-learning batch selection. Prepare for real wet-lab data ingestion.
+
+**All 5 exit criteria met.** Pipeline advances to Phase 3.
 
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|
@@ -79,14 +81,14 @@ Build the recalibration engine gated by the policy. Implement active-learning ba
 | 26 ✅ | No integration between active-learning selector and the calibration pipeline | `scripts/run_calibration_loop.py`: end-to-end script that generates synthetic lab results → builds intake → evaluates gate → computes weight proposal (dry-run) → selects batch-2 → writes manifest. `make calibration-loop` target. | Full chain verified end-to-end on synthetic data; all 5 steps produce valid output files |
 | 27 ✅ | No end-to-end regression test for the full calibration loop (the "golden path") in pytest | `tests/test_calibration_e2e.py` — `TestFullCalibrationLoop.test_full_calibration_loop_via_cli`: generates synthetic results → CLI intake → gate → engine proposal → batch-2 selector → validates all output artifacts. Uses subprocess CLI calls for every step with temp directory isolation. | 1834 tests passing; full golden path tested on every PR |
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
-| 29 | Negative result archive template | `docs/NEGATIVE_RESULT_ARCHIVE.md`: template for publishing failures alongside pipeline scores | Lab partner can fill the template |
+| 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: template for publishing failed candidates, assay conditions, pipeline scores, and control failures. Pre-selection rejects auto-recorded by filter scripts; lab-tested inactives appended by calibration-intake. Entry schema defined with required/conditional fields. v0.5.50. | Template is complete enough for a lab partner to fill; schema prevents missing fields |
 
-**Phase 2 exit criteria:**
-- `make calibration-full-loop` runs from clean checkout, produces batch-2 manifest
-- Recalibration engine correctly rejects when policy forbids it
-- Active-learning selector benchmarked against random baseline
-- Negative-result archive template exists
-- Policy bump workflow has CI guard
+**Phase 2 exit criteria (all 5 met ✅):**
+- ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest
+- ✅ Recalibration engine correctly rejects when policy forbids it
+- ✅ Active-learning selector benchmarked against random baseline
+- ✅ Policy bump workflow has CI guard
+- ✅ Negative-result archive template exists
 
 ---
 
@@ -177,7 +179,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 ```
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
-Phase 2: Loop 28 of 29 (policy bump workflow shipped — Loop 29 next)
+Phase 2: ✅ Complete (Loops 18–29)
 Phase 3: Not started (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```
@@ -237,12 +239,13 @@ Phase 4: Not started (Loops 40–49)
 | 26 ✅ | No integration between active-learning selector and the calibration pipeline | `scripts/run_calibration_loop.py`: end-to-end script that generates synthetic lab results → builds intake → evaluates gate → computes weight proposal (dry-run) → selects batch-2 → writes manifest. `make calibration-loop` target. | Full chain verified end-to-end on synthetic data; all 5 steps produce valid output files |
 | 27 ✅ | No end-to-end regression test for the full calibration loop (the "golden path") in pytest | `tests/test_calibration_e2e.py` — `TestFullCalibrationLoop.test_full_calibration_loop_via_cli`: generates synthetic results → CLI intake → gate → engine proposal → batch-2 selector → validates all output artifacts. Uses subprocess CLI calls for every step with temp directory isolation. | 1834 tests passing; full golden path tested on every PR |
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
+| 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**Next loop:** Loop 29 — Phase 2 (negative-result archive template).
+**Next loop:** Loop 30 — Phase 3 (virtual assay scope document).
 
-**Phase 2 exit criteria (5 of 5 met ✅):**
+**Phase 2 exit criteria (all 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest
 - ✅ Recalibration engine correctly rejects when policy forbids it
 - ✅ Active-learning selector benchmarked against random baseline
 - ✅ Policy bump workflow has CI guard
-- ❌ Negative-result archive template (Loop 29)
+- ✅ Negative-result archive template exists

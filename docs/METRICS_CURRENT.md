@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (policy version bump workflow — v0.5.49)
+> **Last updated:** 2026-07-06 (negative-result archive + Phase 2 closeout — v0.5.50)
+> **New in v0.5.50:** Negative-result archive template — `docs/NEGATIVE_RESULT_ARCHIVE.md` with full 18-field entry schema, automation notes, and limitations. Phase 2 exit criteria: all 5 met ✅. No code changes.
 > **New in v0.5.49:** Policy version bump workflow — `scripts/bump_recalibration_policy.py` (standalone CLI, decision-log guard, dry-run mode, auto-increment + write). CI guard in `ci.yml` validates policy version against base branch when `configs/recalibration_policy.yaml` changes. `make bump-policy-version` Makefile target. 9 tests. 1843 total passing. Phase 2 exit: 5 of 5 criteria met.
 > **New in v0.5.48:** Fixed stale ARCHITECTURE.md package map — calibration and active_learning were listed as "Potential future packages" despite shipping in v0.5.19+ and v0.5.45+. Moved to main package map with version annotations. Updated 50_LOOP_PLAN.md "Current Position" and completed Phase 2 table. No code changes.
 > **New in v0.5.47:** Full calibration loop end-to-end pytest test added — `TestFullCalibrationLoop.test_full_calibration_loop_via_cli` exercises all 5 pipeline steps via CLI subprocess calls in temp directory isolation. Validates every output artifact. Oldest "golden path" regression test. 1834 total passing.
@@ -30,7 +31,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.49
+> **Pipeline version:** v0.5.50
 > **Branch:** main
 
 ---
