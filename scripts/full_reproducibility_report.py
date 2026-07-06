@@ -26,7 +26,7 @@ def build_report() -> dict:
         "report_type": "full_reproducibility",
         "pipeline_version": __version__,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "loops_completed": 49,
+        "loops_completed": 50,
         "phases_completed": {
             "phase_0_structure": True,
             "phase_1_benchmark_honesty": True,
@@ -98,7 +98,7 @@ def build_report() -> dict:
         "pass_fail_criteria": "configs/wave1_pass_fail.yaml",
         "expert_review_template": ".github/ISSUE_TEMPLATE/expert_review.yml",
         "decision_log_schema": "schemas/decision_log.schema.json",
-        "lab_batch_pack": "make lab-batch-pack",
+        "lab_batch_pack": "scripts/build_lab_batch_pack.py",
         "analysis_plan": "docs/WAVE1_ANALYSIS_PLAN.md",
         "data_return_validation": "scripts/validate_lab_data_return.py",
         "publication_pack": "docs/PUBLICATION_PACK.md",

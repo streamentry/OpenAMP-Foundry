@@ -242,7 +242,11 @@ Phase 4: ✅ Complete (Loops 40–49)
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**All 50 loops complete.**
+**Next loop:** None. All 50 loops complete. See Loop 50 below.
+
+| Loop | Bottleneck | Deliverable | Verification |
+|------|-----------|-------------|-------------|
+| 50 ✅ | Reproducibility report lab_batch_pack check used wrong path (Makefile target, not file path); plan header stale | Fixed `full_reproducibility_report.py` to check for script. Updated plan docs. v0.5.70 | Report now correctly shows all Phase 4 artifacts. 2021 tests |
 
 **Phase 2 exit criteria (all 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest

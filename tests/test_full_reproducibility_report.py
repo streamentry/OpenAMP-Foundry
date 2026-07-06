@@ -10,7 +10,7 @@ from scripts.full_reproducibility_report import build_report
 def test_report_builds():
     report = build_report()
     assert report["report_type"] == "full_reproducibility"
-    assert report["loops_completed"] == 49
+    assert report["loops_completed"] == 50
     assert "sections" in report
 
 

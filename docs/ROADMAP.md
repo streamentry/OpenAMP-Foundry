@@ -1,5 +1,18 @@
 # Roadmap
 
+## v0.5.70 — Loop 50: Reproducibility Report Polish ✓ (2026-07-06)
+
+Fixed lab_batch_pack check in reproducibility report (was checking for
+a Makefile target; now checks for the build script). All 50 loops complete.
+
+Changes:
+- ``scripts/full_reproducibility_report.py`` — Fixed lab_batch_pack path
+  to check for ``scripts/build_lab_batch_pack.py`` instead of ``make
+  lab-batch-pack``. Updated loops_completed to 50.
+- ``docs/50_LOOP_PLAN.md`` — Added Loop 50 entry. Next loop set to "None."
+- ``docs/METRICS_CURRENT.md`` — Changelog updated.
+- 2021 tests passing.
+
 ## v0.5.69 — Culmination Reproducibility Report (Loop 49) ✓ (2026-07-06)
 
 All 49 loops complete. Final reproducibility report documents pipeline
