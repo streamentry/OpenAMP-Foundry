@@ -5,9 +5,11 @@ from .interfaces import (
     SimulationResult,
     VirtualAssayProxy,
 )
+from .membrane import MembraneProxy
 
 __all__ = [
     "SimulationResult",
     "VirtualAssayProxy",
     "EmulatorBaseline",
+    "MembraneProxy",
 ]

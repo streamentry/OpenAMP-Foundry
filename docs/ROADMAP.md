@@ -1,5 +1,28 @@
 # Roadmap
 
+## v0.5.52 — Membrane Interaction Proxy (Loop 31) ✓ (2026-07-06)
+
+Phase 3 begins implementation. Membrane proxy uses Wimley-White interfacial
+(bacterial) and octanol (mammalian) hydrophobicity scales to compute
+coarse-grained binding energy scores, combined with hydrophobic moment
+for amphipathicity. Selectivity ratio distinguishes bacterial-preferring
+from hemolytic candidates. Uncertainty estimate gates experimental modules
+(> 0.5 = cannot affect selection).
+
+Changes:
+- ``src/openamp_foundry/simulation/membrane.py`` — ``MembraneProxy`` implementing
+  ``VirtualAssayProxy`` with literature-validated Wimley-White scales
+  (Wimley & White 1996 Nat Struct Biol 3:842-848). Produces ``SimulationResult``
+  with bacterial/mammalian binding scores, selectivity ratio, and uncertainty.
+  ``BomanBaseline`` clamped to [0, 1] for baseline comparison.
+- ``tests/test_membrane_proxy.py`` — 27 tests covering scale lookup,
+  normalization, selectivity ratio, uncertainty, proxy contract, known-reference
+  comparison (magainin more selective than melittin), empty sequence, and version.
+- ``docs/50_LOOP_PLAN.md`` — Loop 31 ✅. Phase 3 status updated. Next: Loop 32.
+- ``docs/METRICS_CURRENT.md`` — Pipeline version bumped to v0.5.52.
+  Test count: 1873.
+- 1873 tests passing (1843 existing + 30 new).
+
 ## v0.5.51 — Virtual Assay Scope + Doc Drift Fix (Loop 30) ✓ (2026-07-06)
 
 Phase 3 begins with a scope document defining what the virtual assay layer
