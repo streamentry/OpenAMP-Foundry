@@ -5,7 +5,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (charge-matched decoy benchmark — v0.5.39)
+> **Last updated:** 2026-07-06 (charge-balanced synthetic control — v0.5.41)
+> **New in v0.5.41:** Added exact charge-balanced synthetic controls. These
+> preserve each AMP's length and K/R/D/E/H counts, then resample neutral
+> positions from a fixed neutral residue background. This is not a biological
+> negative set, but it is a hard control for the trivial cationic prior. Result:
+> charge-density AUROC falls to `0.5000`, while pipeline AUROC falls to `0.5103`
+> (`pipeline_minus_charge_density=+0.0103`). The current broad AMP-vs-decoy
+> signal is therefore not proven to survive exact charge control.
 > **New in v0.5.38:** `pilot-panel` now supports an optional `--min-per-structural-class` floor using the same six classes as the v0.5.37 benchmark. This is a panel-construction bias control, not evidence that the under-ranked classes are stronger candidates.
 > **New in v0.5.39:** Added charge-matched decoy benchmark to test whether the ensemble retains signal after controlling the trivial charge-density gap between positives and decoys. Current decoy pool does **not** support exact charge matching (`mean_abs_charge_density_delta=0.1296`), and charge density still beats the ensemble (`0.8166` vs `0.7792`). Treat raw AMP-vs-decoy AUROC as charge-inflated until a better charge-balanced negative set exists. See `outputs/benchmark_charge_matched.json`.
 > **New in v0.5.35:** Cross-dataset generalization benchmark: DRAMP AMPs (database-independent test) achieve AUROC 0.7803 vs baseline 0.7832 (Δ=-0.0029). Pipeline generalises strongly — heuristic features are source-independent, not memorizing APD6/UniProt biases. Phase 1 exit criterion #5 (cross-dataset results) satisfied. See `outputs/cross_dataset_benchmark.json`.
@@ -15,7 +22,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.39
+> **Pipeline version:** v0.5.41
 > **Branch:** main
 
 ---
@@ -205,6 +212,44 @@ Interpretation:
 
 This benchmark is informational, not a regression gate. Its job is honesty:
 separate genuine ensemble discrimination from the trivial cationic prior.
+
+### Charge-Balanced Synthetic Control Benchmark
+
+> Added 2026-07-06 (v0.5.41). This benchmark creates one deterministic
+> synthetic negative control per AMP. Each synthetic control preserves the AMP's
+> length and exact K/R/D/E/H counts, then resamples all neutral positions from a
+> fixed neutral residue background.
+>
+> Run: `make bench-charge-matched`
+
+Purpose: force charge density to be non-discriminative and ask whether the
+current pipeline still separates AMPs from a charge-equivalent synthetic
+background.
+
+Primary output:
+- `outputs/benchmark_charge_balanced_synthetic.json`
+
+Observed result:
+- `mean_abs_charge_density_delta = 0.0000`
+- `max_abs_charge_density_delta = 0.0000`
+- `charge_density_auroc = 0.5000`
+- `pipeline_auroc = 0.5103`
+- `pipeline_minus_charge_density = +0.0103`
+
+Interpretation:
+- This is a negative result for broad AMP-vs-decoy discrimination after exact
+  charge control. The pipeline is only barely above chance on this synthetic
+  control.
+- The control is intentionally synthetic and should not be mistaken for a real
+  inactive-peptide distribution.
+- The result strengthens the current benchmark warning: the pipeline's value
+  must be judged on safety-aware, novelty-aware, and wet-lab-calibrated
+  selection, not raw AMP-vs-generic-decoy AUROC.
+
+Next benchmark bottleneck:
+- Build a biologically plausible charge-balanced negative set or a benchmark
+  framed around the actual objective: active, low-hemolysis, novel, synthesizable
+  candidates versus toxic, copied, unstable, or inactive controls.
 
 ### Order-Dependent Features Benchmark (which features survive scrambling?)
 

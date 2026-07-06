@@ -7,7 +7,9 @@ from openamp_foundry.benchmark.charge_matched import (
     auroc_from_scores,
     charge_density,
     greedy_charge_matched_decoys,
+    run_charge_balanced_synthetic_benchmark,
     run_charge_matched_benchmark,
+    synthesize_charge_balanced_decoy,
 )
 
 
@@ -36,6 +38,25 @@ def test_greedy_charge_matched_decoys_uses_each_decoy_once():
     assert len({match["decoy_id"] for match in matches}) == 2
 
 
+def test_synthetic_charge_balanced_decoy_preserves_charge_density():
+    record = SequenceRecord("AMP-1", "KRDHAAAILL")
+
+    decoy = synthesize_charge_balanced_decoy(record)
+
+    assert decoy.record_id == "SYN-AMP-1"
+    assert len(decoy.sequence) == len(record.sequence)
+    assert charge_density(decoy.sequence) == charge_density(record.sequence)
+
+
+def test_synthetic_charge_balanced_decoy_is_deterministic():
+    record = SequenceRecord("AMP-1", "KRDHAAAILL")
+
+    first = synthesize_charge_balanced_decoy(record, seed=7)
+    second = synthesize_charge_balanced_decoy(record, seed=7)
+
+    assert first == second
+
+
 def test_run_charge_matched_benchmark_reports_adversarial_metrics(tmp_path):
     amp_csv = tmp_path / "amps.csv"
     decoy_csv = tmp_path / "decoys.csv"
@@ -58,3 +79,21 @@ def test_run_charge_matched_benchmark_reports_adversarial_metrics(tmp_path):
     assert "pipeline_auroc" in result
     assert "charge_density_auroc" in result
     assert result["matches_preview"]
+
+
+def test_run_charge_balanced_synthetic_benchmark_reports_exact_charge_control(tmp_path):
+    amp_csv = tmp_path / "amps.csv"
+    with amp_csv.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["id", "sequence"])
+        writer.writeheader()
+        writer.writerow({"id": "A1", "sequence": "KWKLFKKIGAVLKVL"})
+        writer.writerow({"id": "A2", "sequence": "RLLRLLRLLR"})
+
+    result = run_charge_balanced_synthetic_benchmark(amp_csv)
+
+    assert result["benchmark"] == "charge_balanced_synthetic_decoys"
+    assert result["n_positives"] == 2
+    assert result["n_synthetic_decoys"] == 2
+    assert result["max_abs_charge_density_delta"] == 0.0
+    assert result["charge_density_auroc"] == 0.5
+    assert result["decoys_preview"]

@@ -1,5 +1,34 @@
 # Roadmap
 
+## v0.5.41 — Exact Charge-Balanced Synthetic Control ✓ (2026-07-06)
+
+The v0.5.39 charge-matched benchmark showed that the available background decoy
+pool cannot exactly match AMP charge density. This left one unresolved
+benchmark-honesty question: does the pipeline retain broad AMP-vs-decoy signal
+when the cationic prior is removed exactly?
+
+Changes:
+- Added deterministic synthetic charge-balanced controls that preserve each
+  AMP's length and K/R/D/E/H counts while resampling neutral positions.
+- Added `outputs/benchmark_charge_balanced_synthetic.json` through the existing
+  `make bench-charge-matched` workflow.
+- Added the synthetic-control result to `outputs/metrics_snapshot.json`.
+
+Result:
+- Exact charge control succeeded (`mean_abs_charge_density_delta=0.0000`).
+- Charge-density AUROC became chance (`0.5000`).
+- Pipeline AUROC collapsed to near chance (`0.5103`).
+
+Why it matters:
+- This is evidence against the stronger claim that the current broad
+  AMP-vs-decoy benchmark contains robust non-charge discrimination.
+- The synthetic controls are not biological negatives, so this does not prove
+  the pipeline lacks useful signal. It proves the current raw-discrimination
+  benchmark is not enough.
+- Next honest work should shift toward biologically plausible charge-balanced
+  negatives or objective-aligned benchmarks: selective/non-hemolytic/novel/
+  synthesizable candidates versus toxic, copied, unstable, or inactive controls.
+
 ## v0.5.38 — Charge-Matched Decoy Honesty Benchmark ✓ (2026-07-06)
 
 The easy-baseline benchmark already showed that charge density alone beats the

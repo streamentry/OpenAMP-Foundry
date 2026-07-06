@@ -8,6 +8,161 @@
     "phase3_config": "configs/phase3.yaml",
     "standard_config": "configs/pipeline.yaml"
   },
+  "charge_balanced_synthetic_decoys": {
+    "benchmark": "charge_balanced_synthetic_decoys",
+    "charge_density_auroc": 0.5,
+    "decoy_policy": "Synthetic control preserving length and K/R/D/E/H counts; neutral positions resampled from a fixed neutral residue background.",
+    "decoys_preview": [
+      {
+        "positive_charge_density": 0.183,
+        "positive_id": "EXT-AP02717",
+        "synthetic_charge_density": 0.183,
+        "synthetic_decoy_id": "SYN-EXT-AP02717",
+        "synthetic_sequence": "FKPYWGVTSMWTHKTRL"
+      },
+      {
+        "positive_charge_density": 0.16,
+        "positive_id": "REF-GAE1-001",
+        "synthetic_charge_density": 0.16,
+        "synthetic_decoy_id": "SYN-REF-GAE1-001",
+        "synthetic_sequence": "KWKLGKSSWQVCLNVWKLSWGLTAA"
+      },
+      {
+        "positive_charge_density": 0.1788,
+        "positive_id": "REF-MAG-003",
+        "synthetic_charge_density": 0.1788,
+        "synthetic_decoy_id": "SYN-REF-MAG-003",
+        "synthetic_sequence": "VLKLSASTIPKWGKGIPSYHPYK"
+      },
+      {
+        "positive_charge_density": -0.0909,
+        "positive_id": "EXT-AP02769",
+        "synthetic_charge_density": -0.0909,
+        "synthetic_decoy_id": "SYN-EXT-AP02769",
+        "synthetic_sequence": "FVWTWNTNEATAELVGTIWTSG"
+      },
+      {
+        "positive_charge_density": 0.0769,
+        "positive_id": "EXT-sp_P84116_TP1A_RANBO",
+        "synthetic_charge_density": 0.0769,
+        "synthetic_decoy_id": "SYN-EXT-sp_P84116_TP1A_RANBO",
+        "synthetic_sequence": "GPTYGKQLSACSS"
+      },
+      {
+        "positive_charge_density": 0.3142,
+        "positive_id": "EXT-AP04657",
+        "synthetic_charge_density": 0.3142,
+        "synthetic_decoy_id": "SYN-EXT-AP04657",
+        "synthetic_sequence": "NRPGKGRSCFKGWKAGSHRGLRLSRSVVR"
+      },
+      {
+        "positive_charge_density": 0.3142,
+        "positive_id": "EXT-AP00155",
+        "synthetic_charge_density": 0.3142,
+        "synthetic_decoy_id": "SYN-EXT-AP00155",
+        "synthetic_sequence": "VKSVRNRLTGAGGMRCKRKWRSLCVRHTC"
+      },
+      {
+        "positive_charge_density": 0.2069,
+        "positive_id": "EXT-sp_P36191_CTXB_CERCA",
+        "synthetic_charge_density": 0.2069,
+        "synthetic_decoy_id": "SYN-EXT-sp_P36191_CTXB_CERCA",
+        "synthetic_sequence": "LKFAVMWSLKKCYKTCILWKSVKWGSSFG"
+      },
+      {
+        "positive_charge_density": 0.2353,
+        "positive_id": "EXT-AP02716",
+        "synthetic_charge_density": 0.2353,
+        "synthetic_decoy_id": "SYN-EXT-AP02716",
+        "synthetic_sequence": "KTVVGWRIYCKPKMGIL"
+      },
+      {
+        "positive_charge_density": 0.1,
+        "positive_id": "EXT-AP00055",
+        "synthetic_charge_density": 0.1,
+        "synthetic_decoy_id": "SYN-EXT-AP00055",
+        "synthetic_sequence": "VPCCQMCSSKMIAWKSAGSG"
+      },
+      {
+        "positive_charge_density": 0.1667,
+        "positive_id": "EXT-AP02114",
+        "synthetic_charge_density": 0.1667,
+        "synthetic_decoy_id": "SYN-EXT-AP02114",
+        "synthetic_sequence": "ISKPKNTAKGITYAPKAFASAIML"
+      },
+      {
+        "positive_charge_density": 0.0898,
+        "positive_id": "EXT-AP00788",
+        "synthetic_charge_density": 0.0898,
+        "synthetic_decoy_id": "SYN-EXT-AP00788",
+        "synthetic_sequence": "DVCGPIVKVMVAWANWVHLWKKCHHL"
+      },
+      {
+        "positive_charge_density": 0.0,
+        "positive_id": "EXT-AP01224",
+        "synthetic_charge_density": 0.0,
+        "synthetic_decoy_id": "SYN-EXT-AP01224",
+        "synthetic_sequence": "VGQNGCVVWSGMCIN"
+      },
+      {
+        "positive_charge_density": 0.0455,
+        "positive_id": "EXT-AP03281",
+        "synthetic_charge_density": 0.0455,
+        "synthetic_decoy_id": "SYN-EXT-AP03281",
+        "synthetic_sequence": "SVWILMSKLYAMSPANFYVFWS"
+      },
+      {
+        "positive_charge_density": 0.1765,
+        "positive_id": "EXT-sp_C0HM35_B1ITC_RANTE",
+        "synthetic_charge_density": 0.1765,
+        "synthetic_decoy_id": "SYN-EXT-sp_C0HM35_B1ITC_RANTE",
+        "synthetic_sequence": "IQVAKMIWSAGKLGTKQ"
+      },
+      {
+        "positive_charge_density": 0.0769,
+        "positive_id": "EXT-AP02262",
+        "synthetic_charge_density": 0.0769,
+        "synthetic_decoy_id": "SYN-EXT-AP02262",
+        "synthetic_sequence": "AACFSPKWWFGST"
+      },
+      {
+        "positive_charge_density": 0.0769,
+        "positive_id": "EXT-AP02467",
+        "synthetic_charge_density": 0.0769,
+        "synthetic_decoy_id": "SYN-EXT-AP02467",
+        "synthetic_sequence": "QTCINSSSYKMNQ"
+      },
+      {
+        "positive_charge_density": 0.1481,
+        "positive_id": "EXT-AP02726",
+        "synthetic_charge_density": 0.1481,
+        "synthetic_decoy_id": "SYN-EXT-AP02726",
+        "synthetic_sequence": "MMSKTFFGATKTKVAGTSLNCIWSMKS"
+      },
+      {
+        "positive_charge_density": 0.183,
+        "positive_id": "EXT-sp_C0HKX3_APD_BOMTE",
+        "synthetic_charge_density": 0.183,
+        "synthetic_decoy_id": "SYN-EXT-sp_C0HKX3_APD_BOMTE",
+        "synthetic_sequence": "HQNRSVAVGRICTTVRN"
+      },
+      {
+        "positive_charge_density": -0.1,
+        "positive_id": "EXT-sp_P86977_CHIT_STRVO",
+        "synthetic_charge_density": -0.1,
+        "synthetic_decoy_id": "SYN-EXT-sp_P86977_CHIT_STRVO",
+        "synthetic_sequence": "TFLSDTGPAS"
+      }
+    ],
+    "interpretation": "Pipeline does not establish robust non-charge signal against exact charge-balanced synthetic controls.",
+    "max_abs_charge_density_delta": 0.0,
+    "mean_abs_charge_density_delta": 0.0,
+    "n_positives": 500,
+    "n_synthetic_decoys": 500,
+    "pipeline_auroc": 0.5103,
+    "pipeline_minus_charge_density": 0.0103,
+    "seed": 20260706
+  },
   "charge_matched_decoys": {
     "benchmark": "charge_matched_decoys",
     "charge_density_auroc": 0.8166,

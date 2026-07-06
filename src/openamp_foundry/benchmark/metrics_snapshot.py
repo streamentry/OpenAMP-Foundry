@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from openamp_foundry.benchmark.charge_matched import run_charge_matched_benchmark
+from openamp_foundry.benchmark.charge_matched import (
+    run_charge_balanced_synthetic_benchmark,
+    run_charge_matched_benchmark,
+)
 from openamp_foundry.benchmark.feature_decomp import (
     run_feature_decomposition_benchmark,
 )
@@ -77,6 +80,10 @@ def build_metrics_snapshot(
     charge_matched = run_charge_matched_benchmark(
         amp_csv="examples/validation/known_amps_500.csv",
         decoy_csv="examples/validation/random_background_500.csv",
+        config_path=standard_config,
+    )
+    charge_balanced_synthetic = run_charge_balanced_synthetic_benchmark(
+        amp_csv="examples/validation/known_amps_500.csv",
         config_path=standard_config,
     )
 
@@ -205,6 +212,7 @@ def build_metrics_snapshot(
             "verdict": feature_decomp["verdict"],
         },
         "charge_matched_decoys": charge_matched,
+        "charge_balanced_synthetic_decoys": charge_balanced_synthetic,
         "ranking_policy": {
             "default": ranking_policy_payload("ensemble"),
             "alternative": ranking_policy_payload("expert"),

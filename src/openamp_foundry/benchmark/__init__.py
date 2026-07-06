@@ -13,7 +13,10 @@ from openamp_foundry.benchmark.evaluate import (
     recall_at_k,
     top_k_ids,
 )
-from openamp_foundry.benchmark.charge_matched import run_charge_matched_benchmark
+from openamp_foundry.benchmark.charge_matched import (
+    run_charge_balanced_synthetic_benchmark,
+    run_charge_matched_benchmark,
+)
 from openamp_foundry.benchmark.feature_decomp import (
     run_feature_decomposition_benchmark,
 )
@@ -43,6 +46,7 @@ __all__ = [
     "random_recall_at_k",
     "recall_at_k",
     "top_k_ids",
+    "run_charge_balanced_synthetic_benchmark",
     "run_charge_matched_benchmark",
     # feature_decomp
     "run_feature_decomposition_benchmark",
