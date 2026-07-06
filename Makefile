@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine
+.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-predict pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine validate-policy-version
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -57,7 +57,8 @@ help:
 	@echo "  make recalibration-gate-example  Evaluate recalibration gate on synthetic intake example"
 	@echo "  make recalibration-gate         Evaluate recalibration gate on a real intake report"
 	@echo "  make recalibration-engine       Compute proposed weight deltas (requires gate verdict first)"
-	@echo "  make test               Run full test suite (1647 passing tests, >=80% coverage)"
+	@echo "  make validate-policy-version    Validate proposed policy version against predecessor"
+	@echo "  make test               Run full test suite (1800 passing tests, >=80% coverage)"
 	@echo "  make coverage           Test suite with per-module coverage report"
 	@echo "  make lint               Ruff lint check on src/ tests/ scripts/"
 	@echo "  make typecheck          mypy type check on src/"
@@ -375,6 +376,12 @@ recalibration-engine: lab-result-intake-example
 		--current-weights '{"activity": 0.40, "safety": 0.25, "synthesis": 0.15, "novelty": 0.20}' \
 		--out-json outputs/recalibration_proposal.json \
 		--out-md outputs/recalibration_proposal.md
+
+validate-policy-version:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli validate-policy-version \
+		--current-policy configs/recalibration_policy.yaml \
+		--previous-policy configs/recalibration_policy.yaml \
+		--decision-log-dir decision_logs/
 
 clean:
 	rm -rf outputs/*.jsonl outputs/*.md outputs/*.json outputs/evidence outputs/phase3_evidence .pytest_cache .ruff_cache

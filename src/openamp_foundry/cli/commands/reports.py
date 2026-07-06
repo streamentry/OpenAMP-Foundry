@@ -870,3 +870,49 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
     }
     print(json.dumps(summary, indent=2))
     return 0
+
+
+def _run_validate_policy_version(args: argparse.Namespace) -> int:
+    """Validate a proposed policy version against its predecessor."""
+    from openamp_foundry.calibration.policy import load_recalibration_policy
+    from openamp_foundry.calibration.policy_version import validate_policy_version
+
+    current_path = Path(args.current_policy)
+    previous_path = Path(args.previous_policy)
+
+    if not current_path.exists():
+        payload = {
+            "status": "error",
+            "error": f"Current policy not found: {current_path}",
+        }
+        print(json.dumps(payload))
+        return 2
+
+    if not previous_path.exists():
+        payload = {
+            "status": "error",
+            "error": f"Previous policy not found: {previous_path}",
+        }
+        print(json.dumps(payload))
+        return 2
+
+    current_policy = load_recalibration_policy(current_path)
+    previous_policy = load_recalibration_policy(previous_path)
+
+    result = validate_policy_version(
+        current_policy=current_policy,
+        previous_policy=previous_policy,
+        decision_log_dir=args.decision_log_dir,
+        today=args.today,
+    )
+
+    payload = {
+        "status": "valid" if result.passed else "invalid",
+        "passed": result.passed,
+        "version_valid": result.version_valid,
+        "locked_changes_preserved": result.locked_changes_preserved,
+        "decision_log_valid": result.decision_log_valid,
+        "reasons": list(result.reasons),
+    }
+    print(json.dumps(payload, indent=2))
+    return 0 if result.passed else 3

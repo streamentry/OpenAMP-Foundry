@@ -29,6 +29,27 @@ Why it matters:
   negatives or objective-aligned benchmarks: selective/non-hemolytic/novel/
   synthesizable candidates versus toxic, copied, unstable, or inactive controls.
 
+## v0.5.40 — Policy Version Tracking ✓ (2026-07-06)
+
+The recalibration workflow had no version protection — a silent unaudited policy
+change could bypass all safety constraints. This release adds a machine-readable
+version gate between every policy proposal and its predecessor.
+
+Changes:
+- Added `calibration/policy_version.py` with:
+  - `validate_policy_version()` — checks version increment, locked-changes
+    preservation, and decision-log recency (30-day window).
+  - `auto_increment_version()` — produces a new policy YAML dict with
+    `policy_version + 1` and updated metadata.
+  - `VersionValidation` dataclass with per-check booleans and reasons.
+- CLI: `openamp-foundry validate-policy-version` with `--current-policy`,
+  `--previous-policy`, `--decision-log-dir`, `--today` flags. Exit code 0
+  if valid, 3 if invalid.
+- Makefile: `make validate-policy-version` target with decision-log check.
+- Created `decision_logs/DECISION_LOG_2026-07-06.md` as the initial log entry.
+- 29 tests covering log-date parsing, log-file discovery, version validation
+  (pass/fail per check), auto-increment, and round-trip serialization.
+
 ## v0.5.38 — Charge-Matched Decoy Honesty Benchmark ✓ (2026-07-06)
 
 The easy-baseline benchmark already showed that charge density alone beats the

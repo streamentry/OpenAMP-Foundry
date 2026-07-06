@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -845,6 +845,36 @@ def build_parser() -> argparse.ArgumentParser:
         help="Similarity >= this value → CLOSE_RELATIVE (default: 0.50).",
     )
 
+    validate_policy_version = sub.add_parser(
+        "validate-policy-version",
+        help=(
+            "Validate a proposed recalibration policy version against its "
+            "predecessor. Checks version increment, locked-changes "
+            "preservation, and decision-log recency. Exit code 0 if valid, "
+            "3 if invalid."
+        ),
+    )
+    validate_policy_version.add_argument(
+        "--current-policy",
+        required=True,
+        help="Path to the proposed new policy YAML.",
+    )
+    validate_policy_version.add_argument(
+        "--previous-policy",
+        required=True,
+        help="Path to the previously committed policy YAML.",
+    )
+    validate_policy_version.add_argument(
+        "--decision-log-dir",
+        default=None,
+        help="Optional directory containing DECISION_LOG_<date>.md files.",
+    )
+    validate_policy_version.add_argument(
+        "--today",
+        default=None,
+        help="ISO date (YYYY-MM-DD) for 'today'. Defaults to actual today.",
+    )
+
     return parser
 
 
@@ -956,6 +986,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "novelty-check-broad":
         return _run_novelty_check_broad(args)
+
+    if args.command == "validate-policy-version":
+        return _run_validate_policy_version(args)
 
     parser.error("unknown command")
     return 2

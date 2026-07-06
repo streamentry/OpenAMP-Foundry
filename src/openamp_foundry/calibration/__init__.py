@@ -61,6 +61,12 @@ from openamp_foundry.calibration.recalibration_gate import (
     write_gate_verdict_markdown,
 )
 
+from openamp_foundry.calibration.policy_version import (
+    VersionValidation,
+    validate_policy_version,
+    auto_increment_version,
+)
+
 __all__ = [
     # Constants
     "MIN_COHORT_SIZE",
@@ -98,4 +104,8 @@ __all__ = [
     "WeightUpdateProposal",
     "PolicyViolationError",
     "BudgetExceededError",
+    # Policy version
+    "validate_policy_version",
+    "auto_increment_version",
+    "VersionValidation",
 ]
