@@ -4,7 +4,7 @@
 
 This page is the front door for humans and AI agents.
 
-OpenAMP Foundry has many documents because the project is not only code. It is a scientific operating system for honest antimicrobial peptide candidate selection: code, evidence, safety policy, benchmark discipline, calibration, and eventual wet-lab feedback.
+OpenAMP Foundry has many documents because the project is not only code. It is a scientific operating system for honest antimicrobial peptide candidate selection: code, evidence, safety policy, benchmark discipline, calibration, release governance, and eventual wet-lab feedback.
 
 Use this index to find the right document for the job without wandering through the repo.
 
@@ -56,6 +56,18 @@ Read in this order:
 
 First useful contribution: add a leakage-resistant benchmark, improve reference curation, challenge a scorer with a cheaper baseline, or add an adapter with documented limitations.
 
+### Data or model contributor
+
+Read in this order:
+
+1. [`DATA_LICENSE_NOTICE.md`](../DATA_LICENSE_NOTICE.md) — data license and redistribution policy.
+2. [`docs/DATA_GOVERNANCE.md`](DATA_GOVERNANCE.md) — dataset cards, labels, leakage, release status.
+3. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — model and artifact release policy.
+4. [`docs/MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md) — required model/adapter card structure.
+5. [`docs/ARTIFACT_VERSIONING.md`](ARTIFACT_VERSIONING.md) — artifact compatibility rules.
+
+First useful contribution: add a dataset card, model card, schema example, adapter card, or license/release-status clarification.
+
 ### Microbiologist, peptide scientist, or wet-lab partner
 
 Read in this order:
@@ -72,11 +84,11 @@ First useful contribution: review whether candidate evidence packages are interp
 
 Read in this order:
 
-1. [`SAFETY.md`](../SAFETY.md) — safety posture.
-2. [`docs/SAFETY_DOC_AUDIT.md`](SAFETY_DOC_AUDIT.md) — documentation safety audit and remediation record.
-3. [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — user-facing boundaries.
-4. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release rules.
-5. [`docs/EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — safety packet structure.
+1. [`docs/TRUST_CENTER.md`](TRUST_CENTER.md) — safety, evidence, release, and governance overview.
+2. [`SAFETY.md`](../SAFETY.md) — safety posture.
+3. [`docs/SAFETY_DOC_AUDIT.md`](SAFETY_DOC_AUDIT.md) — documentation safety audit and remediation record.
+4. [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — user-facing boundaries.
+5. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release rules.
 
 First useful contribution: identify where an artifact could be misread, over-released, overclaimed, or used outside scope.
 
@@ -86,8 +98,8 @@ Read in this order:
 
 1. [`VISION.md`](../VISION.md) — long-term infrastructure thesis.
 2. [`GOAL.md`](../GOAL.md) — measurable milestones.
-3. [`docs/WHY_WORK_ON_OPENAMP.md`](WHY_WORK_ON_OPENAMP.md) — why this project is worth serious effort.
-4. [`docs/OPEN_BIOTECH_STACK.md`](OPEN_BIOTECH_STACK.md) — how this could become shared biotech infrastructure.
+3. [`docs/TRUST_CENTER.md`](TRUST_CENTER.md) — trust architecture.
+4. [`docs/WHY_WORK_ON_OPENAMP.md`](WHY_WORK_ON_OPENAMP.md) — why this project is worth serious effort.
 5. [`docs/ADOPTION_STRATEGY.md`](ADOPTION_STRATEGY.md) — how the repo becomes useful to humans, agents, labs, and institutions.
 
 First useful contribution: fund independent validation, benchmark audits, safe result publication, or infrastructure work that makes the project less dependent on any one person or model.
@@ -97,9 +109,9 @@ First useful contribution: fund independent validation, benchmark audits, safe r
 Read in this order:
 
 1. [`docs/MAINTAINER_GUIDE.md`](MAINTAINER_GUIDE.md) — maintainer review rules.
-2. [`docs/DOCS_MAINTENANCE.md`](DOCS_MAINTENANCE.md) — documentation governance.
-3. [`docs/ISSUE_LABEL_TAXONOMY.md`](ISSUE_LABEL_TAXONOMY.md) — issue labels and triage rules.
-4. [`docs/NUMBER_ONE_REPO_STANDARD.md`](NUMBER_ONE_REPO_STANDARD.md) — category-leader bar.
+2. [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) — release checklist.
+3. [`docs/DOCS_MAINTENANCE.md`](DOCS_MAINTENANCE.md) — documentation governance.
+4. [`docs/ISSUE_LABEL_TAXONOMY.md`](ISSUE_LABEL_TAXONOMY.md) — issue labels and triage rules.
 5. [`docs/NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md) — next 100 PR map.
 
 First useful contribution: make the repo easier to maintain without lowering safety, evidence, or reproducibility standards.
@@ -111,6 +123,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`VISION.md`](../VISION.md) | Ambitious but grounded long-term vision. |
 | [`GOAL.md`](../GOAL.md) | Concrete milestones, kill rules, and metrics. |
 | [`MISSION.md`](../MISSION.md) | Scientific mission and claim boundaries. |
+| [`docs/TRUST_CENTER.md`](TRUST_CENTER.md) | Trust front door for safety, evidence, release, governance, and agents. |
 | [`docs/NUMBER_ONE_REPO_STANDARD.md`](NUMBER_ONE_REPO_STANDARD.md) | Defines what category leadership means. |
 | [`docs/WHY_WORK_ON_OPENAMP.md`](WHY_WORK_ON_OPENAMP.md) | Positioning: why serious contributors should choose this repo. |
 | [`docs/OPEN_BIOTECH_STACK.md`](OPEN_BIOTECH_STACK.md) | Infrastructure thesis and stack model. |
@@ -129,6 +142,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`docs/HUMAN_ONBOARDING.md`](HUMAN_ONBOARDING.md) | Human contributor onboarding. |
 | [`docs/HIGH_LEVERAGE_TASKS.md`](HIGH_LEVERAGE_TASKS.md) | Task map for humans and agents. |
 | [`docs/MAINTAINER_GUIDE.md`](MAINTAINER_GUIDE.md) | Maintainer review and governance standard. |
+| [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) | Release checklist. |
 | [`docs/DOCS_MAINTENANCE.md`](DOCS_MAINTENANCE.md) | Documentation maintenance rules. |
 | [`docs/ISSUE_LABEL_TAXONOMY.md`](ISSUE_LABEL_TAXONOMY.md) | Issue-label system. |
 
@@ -137,6 +151,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | Document | Job |
 |---|---|
 | [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) | System architecture, data flow, package map, extension points. |
+| [`docs/ARTIFACT_VERSIONING.md`](ARTIFACT_VERSIONING.md) | Artifact versioning and compatibility policy. |
 | [`docs/BENCHMARKING.md`](BENCHMARKING.md) | Current benchmark suite and commands. |
 | [`docs/BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) | Benchmark lifecycle and anti-cheating rules. |
 | [`docs/METRICS_CURRENT.md`](METRICS_CURRENT.md) | Current benchmark state and single source of truth for metrics. |
@@ -145,6 +160,18 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`docs/CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) | Recalibration gate and policy. |
 | [`docs/SIMULATION_BENCHMARK.md`](SIMULATION_BENCHMARK.md) | Current verdict on simulation modules. |
 | [`docs/VIRTUAL_ASSAY_SCOPE.md`](VIRTUAL_ASSAY_SCOPE.md) | What virtual assay modules may and may not claim. |
+
+## Data, model, and release docs
+
+| Document | Job |
+|---|---|
+| [`DATA_LICENSE_NOTICE.md`](../DATA_LICENSE_NOTICE.md) | Data license and redistribution notice. |
+| [`docs/DATA_GOVERNANCE.md`](DATA_GOVERNANCE.md) | Dataset cards, label governance, leakage, and release status. |
+| [`data/README.md`](../data/README.md) | Data directory policy. |
+| [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) | Model and artifact release policy. |
+| [`docs/MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md) | Model, scorer, simulator, generator, and adapter card template. |
+| [`models/README.md`](../models/README.md) | Models directory policy. |
+| [`docs/CLAIM_REVIEW_CHECKLIST.md`](CLAIM_REVIEW_CHECKLIST.md) | Claim review checklist. |
 
 ## External review and collaboration docs
 
@@ -167,7 +194,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`docs/SAFETY_DOC_AUDIT.md`](SAFETY_DOC_AUDIT.md) | Safety audit and remediation record for docs. |
 | [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) | Allowed and disallowed use. |
 | [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) | Release policy for models, weights, and sensitive artifacts. |
-| [`DATA_LICENSE_NOTICE.md`](../DATA_LICENSE_NOTICE.md) | Data and license rules. |
+| [`docs/TRUST_CENTER.md`](TRUST_CENTER.md) | Cross-cutting trust overview. |
 
 ## GitHub workflow files
 
@@ -177,6 +204,9 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`.github/ISSUE_TEMPLATE/agent_safe_task.md`](../.github/ISSUE_TEMPLATE/agent_safe_task.md) | Agent-safe task template. |
 | [`.github/ISSUE_TEMPLATE/benchmark_governance.md`](../.github/ISSUE_TEMPLATE/benchmark_governance.md) | Benchmark proposal/change template. |
 | [`.github/ISSUE_TEMPLATE/safety_review.md`](../.github/ISSUE_TEMPLATE/safety_review.md) | Safety/release review template. |
+| [`.github/ISSUE_TEMPLATE/model_release_review.md`](../.github/ISSUE_TEMPLATE/model_release_review.md) | Model/artifact release review template. |
+| [`.github/ISSUE_TEMPLATE/data_contribution.md`](../.github/ISSUE_TEMPLATE/data_contribution.md) | Data contribution/review template. |
+| [`.github/ISSUE_TEMPLATE/claim_review.md`](../.github/ISSUE_TEMPLATE/claim_review.md) | Claim review template. |
 
 ## Working loop for any contributor
 
@@ -203,7 +233,7 @@ Do not add a predictor that cannot be challenged by cheap baselines.
 
 Do not publish unscreened high-risk candidate lists.
 
-Do not add wet-lab protocols, pathogen-handling instructions, harmful optimization objectives, or clinical claims.
+Do not add operational biological instructions, harmful optimization objectives, or clinical claims.
 
 Do not change a success definition after seeing results.
 
