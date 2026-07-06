@@ -2,7 +2,8 @@
 
 ## Overview
 
-Start from the current truth source: `docs/METRICS_CURRENT.md`, then
+Start from `docs/README.md`, then use the relevant domain hub. For scientific
+work, read the current truth source `docs/METRICS_CURRENT.md`, then
 `docs/ROADMAP.md`, then `AGENTS.md`. Treat computational scores as triage only.
 Do not describe candidates as active, safe, therapeutic, or validated without
 qualified lab evidence.

@@ -1,5 +1,8 @@
 # Project Index
 
+> Looking for a short route instead of the exhaustive catalog? Start at the
+> [documentation home](README.md).
+
 ## Purpose
 
 This page is the front door for humans and AI agents.

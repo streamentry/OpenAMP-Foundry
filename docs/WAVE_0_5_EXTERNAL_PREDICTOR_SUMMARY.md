@@ -19,8 +19,8 @@ Wave 0.5 shortlist (60 candidates across 10 new seed families). It is preserved 
 historical process context, not as the current result state.
 
 The external screen was completed later and the authoritative current-state summary
-now lives in [`docs/METRICS_CURRENT.md`](/Users/james/.codex/worktrees/9f2e/openamp-foundry/docs/METRICS_CURRENT.md)
-and [`docs/ROADMAP.md`](/Users/james/.codex/worktrees/9f2e/openamp-foundry/docs/ROADMAP.md).
+now lives in [`METRICS_CURRENT.md`](METRICS_CURRENT.md)
+and [`ROADMAP.md`](ROADMAP.md).
 
 ---
 

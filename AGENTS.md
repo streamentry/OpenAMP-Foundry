@@ -30,13 +30,14 @@ When uncertain, agents must:
 
 Before making nontrivial changes, agents should read:
 
-1. [`SAFETY.md`](SAFETY.md) — safety policy.
-2. [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md) — allowed and disallowed uses.
-3. [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md) — task workflow.
-4. [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) — claim levels.
-5. [`docs/HIGH_LEVERAGE_TASKS.md`](docs/HIGH_LEVERAGE_TASKS.md) — task priority map.
-6. [`docs/NEXT_100_PR_MAP.md`](docs/NEXT_100_PR_MAP.md) — PR-sized backlog.
-7. [`docs/TRUST_CENTER.md`](docs/TRUST_CENTER.md) — trust architecture.
+1. [`docs/README.md`](docs/README.md) — task-based documentation map.
+2. [`SAFETY.md`](SAFETY.md) — safety policy.
+3. [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md) — allowed and disallowed uses.
+4. [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md) — task workflow.
+5. [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) — claim levels.
+6. [`docs/HIGH_LEVERAGE_TASKS.md`](docs/HIGH_LEVERAGE_TASKS.md) — task priority map.
+7. [`docs/NEXT_100_PR_MAP.md`](docs/NEXT_100_PR_MAP.md) — PR-sized backlog.
+8. [`docs/TRUST_CENTER.md`](docs/TRUST_CENTER.md) — trust architecture.
 
 If these docs conflict, safety and claim discipline win.
 
