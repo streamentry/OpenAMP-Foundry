@@ -58,6 +58,7 @@ documented result in `docs/METRICS_CURRENT.md` and
 | `bench-triage` | Multi-class: selective > hemolytic > decoy ranking in a single panel | gate_triage passes all 3 pairwise AUROCs; strict triage (composition-matched) fails honestly | `make bench-triage` |
 | `bench-expert-ablation` | Ablate expert composite components on n=191 | Document per-component AUROC; expert lower than ensemble on AMP-vs-decoy (by design) | `make bench-expert-ablation` |
 | `bench-expert-ablation-500` | Ablate expert composite on expanded n=1000 | Re-run on diverse set; 2 components reclassified from n=191 | `make bench-expert-ablation-500` |
+| `bench-simulation-ablation` | Ablate MembraneProxy + StructureProxy on 500-AMP benchmark | Composite degrades AMP-vs-decoy (expected — modules are for within-AMP tasks); bacterial_binding alone AUROC 0.7512 (non-charge signal) | `make bench-simulation-ablation` |
 
 ### Regression / CI
 
