@@ -156,7 +156,9 @@ def run_ranking_pipeline(
         structure = StructureProxy()
         sim_keys = [
             "bacterial_binding", "mammalian_binding", "selectivity_ratio",
-            "helix_weight", "sheet_weight", "coil_weight", "non_helical",
+            "membrane_uncertainty", "helix_weight", "sheet_weight",
+            "coil_weight", "non_helical", "structure_uncertainty",
+            "max_uncertainty",
         ]
         sim_totals: dict[str, float] = {k: 0.0 for k in sim_keys}
         for sc in scored:
@@ -166,10 +168,22 @@ def run_ranking_pipeline(
                 val = mem_result.scores.get(key, 0.0)
                 sc.scores[f"sim_{key}"] = val
                 sim_totals[key] += val
+            sc.scores["sim_membrane_uncertainty"] = mem_result.uncertainty
+            sim_totals["membrane_uncertainty"] += mem_result.uncertainty
             for key in ["helix_weight", "sheet_weight", "coil_weight", "non_helical"]:
                 val = struct_result.scores.get(key, 0.0)
                 sc.scores[f"sim_{key}"] = val
                 sim_totals[key] += val
+            sc.scores["sim_structure_uncertainty"] = struct_result.uncertainty
+            sim_totals["structure_uncertainty"] += struct_result.uncertainty
+            max_uncertainty = max(mem_result.uncertainty, struct_result.uncertainty)
+            sc.scores["sim_max_uncertainty"] = max_uncertainty
+            sim_totals["max_uncertainty"] += max_uncertainty
+            if max_uncertainty > 0.5:
+                sc.known_failure_modes.append(
+                    "Simulation proxy uncertainty exceeds 0.5; simulation outputs "
+                    "must not affect selection."
+                )
         n = len(scored) if scored else 1
         simulation_keys = [f"sim_{k}" for k in sim_keys]
         simulation_averages = {k: round(v / n, 4) for k, v in sim_totals.items()}

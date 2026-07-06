@@ -18,6 +18,9 @@ have explicit ablation evidence. Current state:
   `rich_selectivity` on hemolysis detection.
 - `bench simulation-gate` therefore blocks `weighted` mode and downgrades to
   `info` until the evidence changes.
+- `rank --simulation-mode info` propagates membrane, structure, and maximum
+  simulation uncertainty into ranked JSONL rows, Markdown reports, and evidence
+  certificates. These values are informational only.
 
 ## Core Principle
 
@@ -69,6 +72,12 @@ If calibration data is absent or weak, the `uncertainty` field must
 surface that directly. A module with `uncertainty > 0.5` (on a 0–1 scale
 where 0 = fully constrained, 1 = unconstrained) is experimental and must
 not affect selection.
+
+When `rank --simulation-mode info` is used, selected-candidate evidence
+certificates include `sim_membrane_uncertainty`,
+`sim_structure_uncertainty`, and `sim_max_uncertainty`. These fields expose
+proxy uncertainty for reviewers; they do not change ranking, filtering, or
+selection.
 
 ## Ablation Requirement
 
@@ -149,6 +158,6 @@ Phase 3 is complete when:
    `weighted` mode.
 3. Modules that fail the ablation are either removed or permanently
    marked experimental.
-4. Uncertainty is propagated through to the evidence certificate.
+4. Uncertainty is propagated through to the evidence certificate. ✅
 5. The external adapter protocol (`ExternalSimulationAdapter`) is
    documented in ARCHITECTURE.md.

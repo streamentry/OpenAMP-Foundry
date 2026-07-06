@@ -1,5 +1,30 @@
 # Roadmap
 
+## v0.5.62 — Simulation Uncertainty in Evidence ✓ (2026-07-06)
+
+Closed the remaining Phase 3 evidence-propagation gap: simulation uncertainty
+now travels with selected candidates instead of living only inside proxy return
+objects.
+
+Changes:
+- ``src/openamp_foundry/pipeline.py`` — `rank --simulation-mode info` now
+  writes three informational uncertainty fields into candidate scores:
+  ``sim_membrane_uncertainty``, ``sim_structure_uncertainty``, and
+  ``sim_max_uncertainty``. Candidates above the `0.5` uncertainty bar gain an
+  explicit failure-mode note stating that simulation outputs must not affect
+  selection.
+- ``schemas/candidate.schema.json`` — documents the three uncertainty keys so
+  evidence certificates can carry them without schema drift.
+- ``tests/test_simulation_mode_cli.py`` — covers ranked output, report columns,
+  evidence-certificate inclusion, and schema validation for the new fields.
+- ``docs/VIRTUAL_ASSAY_SCOPE.md`` and ``docs/SIMULATION_BENCHMARK.md`` — synced
+  to current behavior.
+
+Honest finding:
+- This does not improve ranking.
+- It improves reviewability: virtual-assay outputs now carry their own
+  uncertainty wherever selected-candidate evidence is consumed.
+
 ## v0.5.61 — Lab Partner Onboarding Pack (Loop 40) ✓ (2026-07-06)
 
 Phase 4 begins with a comprehensive onboarding document for CRO or academic

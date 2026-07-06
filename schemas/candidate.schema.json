@@ -38,6 +38,18 @@
         "disagreement": {
           "type": "number", "minimum": 0, "maximum": 1,
           "description": "Absolute difference between activity_likeness and boman_activity. High values indicate scoring uncertainty."
+        },
+        "sim_membrane_uncertainty": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Experimental membrane-proxy uncertainty. Informational only unless weighted simulation is explicitly allowed."
+        },
+        "sim_structure_uncertainty": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Experimental structure-proxy uncertainty. Informational only unless weighted simulation is explicitly allowed."
+        },
+        "sim_max_uncertainty": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Maximum virtual-assay proxy uncertainty for this candidate. Values above 0.5 must not affect selection."
         }
       }
     },

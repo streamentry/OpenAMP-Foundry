@@ -113,6 +113,15 @@ class TestDocsConsistent:
         assert "Current verdict: simulation remains informational only." in report
         assert "`weighted` simulation remains blocked." in report
         assert "Simulation does not improve ranking" in report
+        assert "sim_max_uncertainty" in report
+
+    def test_virtual_assay_scope_records_uncertainty_certificate_contract(self):
+        scope = (DOCS_DIR / "VIRTUAL_ASSAY_SCOPE.md").read_text(encoding="utf-8")
+        assert "evidence" in scope
+        assert "certificates" in scope
+        assert "sim_membrane_uncertainty" in scope
+        assert "sim_structure_uncertainty" in scope
+        assert "sim_max_uncertainty" in scope
 
     def test_doc_metrics_snapshot_includes_ranking_policy(self):
         """Snapshot must encode the current ranking recommendation contract."""

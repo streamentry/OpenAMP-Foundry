@@ -1,8 +1,9 @@
 # 50-Loop Execution Plan
 
-> **Status:** Strategic roadmap. Updated v0.5.56.
-> **Current state:** 1927 passing tests, pipeline AUROC 0.7792, calibration pipeline complete (intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report + batch-2 selector + recovery benchmark + end-to-end integration + pytest golden-path test + policy bump workflow + negative result archive),
+> **Status:** Strategic roadmap. Updated v0.5.62.
+> **Current state:** 1961 passing tests, pipeline AUROC 0.7792, calibration pipeline complete (intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report + batch-2 selector + recovery benchmark + end-to-end integration + pytest golden-path test + policy bump workflow + negative result archive),
 > > Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 complete (Loops 18–29),
+> Phase 3 complete (Loops 30–39 + v0.5.62 uncertainty evidence hardening),
 > cluster-split/selectivity/triage now gated in CI, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
@@ -92,7 +93,7 @@ Build the recalibration engine gated by the policy. Implement active-learning ba
 
 ---
 
-## Phase 3 — Virtual Assay Scaffolding (Loops 30–39)
+## Phase 3 — Virtual Assay Scaffolding (Loops 30–40) ✅
 
 Build the multi-resolution virtual assay layer: structure proxies, membrane interaction models, uncertainty-aware surrogates. Every module must justify itself against cheap heuristics.
 
@@ -118,7 +119,7 @@ Build the multi-resolution virtual assay layer: structure proxies, membrane inte
 
 ---
 
-## Phase 4 — Wet-Lab Readiness & External Validation (Loops 40–49)
+## Phase 4 — Wet-Lab Readiness & External Validation (Loops 41–50)
 
 Prepare for real wet-lab partners. Make the pack reviewable, the evidence traceable, and the process pre-registered.
 

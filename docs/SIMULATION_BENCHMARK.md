@@ -125,6 +125,9 @@ Until this report changes with stronger evidence:
 - `weighted` simulation remains blocked.
 - Evidence certificates may include simulation values only as experimental
   context, not as activity, safety, or selectivity proof.
+- Evidence certificates now include `sim_membrane_uncertainty`,
+  `sim_structure_uncertainty`, and `sim_max_uncertainty` when simulation
+  info mode is used.
 - No public claim may imply simulation-validated antimicrobial activity.
 - Any future simulation module must pass the gate (Loop 35) before affecting
   ranking. The gate will not be bypassed even if the module appears plausible.
