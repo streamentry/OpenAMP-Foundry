@@ -478,3 +478,10 @@ wave0-5b-generate:
 
 wave0-5b-filter: wave0-5b-generate
 	PYTHONPATH=src $(PYTHON) scripts/filter_wave0_5b_candidates.py
+
+lab-batch-pack:
+	PYTHONPATH=src $(PYTHON) scripts/build_lab_batch_pack.py \
+		--panel-csv outputs/phase3_ranked.jsonl \
+		--evidence-dir outputs/evidence_wave0_5 \
+		--out outputs/lab_batch_pack.zip \
+		--manifest-out outputs/lab_batch_pack_manifest.json

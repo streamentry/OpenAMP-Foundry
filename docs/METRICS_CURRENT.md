@@ -5,8 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (simulation uncertainty in evidence — v0.5.62)
-> **New in v0.5.62:** `rank --simulation-mode info` now propagates `sim_membrane_uncertainty`, `sim_structure_uncertainty`, and `sim_max_uncertainty` into ranked outputs and selected-candidate evidence certificates. This is reviewability only; `weighted` remains blocked. Current suite: 1961 passed, 7 skipped.
+> **Last updated:** 2026-07-06 (lab batch pack — v0.5.63)
+> **New in v0.5.63:** `scripts/build_lab_batch_pack.py` — generates single zip with candidate CSV, 36 evidence certs, protocol refs, controls manifest, data return template. `make lab-batch-pack`. 10 tests. 1989 total.
+> **New in v0.5.62:** Pre-registered pass/fail criteria + simulation uncertainty in evidence. `configs/wave1_pass_fail.yaml` + `scripts/check_wave1_pass_fail.py`. `rank info` now propagates simulation uncertainty into evidence certs. 17 tests.
 > **New in v0.5.61:** `docs/LAB_PARTNER_ONBOARDING.md` — CRO onboarding pack with panel summary, synthesis instructions, assay protocols, data return format, controls, safety, timeline. No code changes.
 > **New in v0.5.60:** `docs/SIMULATION_BENCHMARK.md` consolidates simulation ablation, cheap-baseline comparison, and weighted-mode gate results. Current conclusion: simulation does not improve ranking; `weighted` remains blocked.
 > **New in v0.5.59:** `ExternalSimulationAdapter` protocol — wraps third-party callables into `VirtualAssayProxy`. Availability check, graceful error handling, metadata override. ARCHITECTURE.md docs updated. 12 tests. 1965 total.
@@ -1117,7 +1118,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1961 |
+| Total tests | 1989 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 
