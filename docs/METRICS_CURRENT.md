@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (simulation cheap-baseline benchmark — v0.5.58)
+> **Last updated:** 2026-07-06 (external simulation adapter — v0.5.59)
+> **New in v0.5.59:** `ExternalSimulationAdapter` protocol — wraps third-party callables into `VirtualAssayProxy`. Availability check, graceful error handling, metadata override. ARCHITECTURE.md docs updated. 13 tests. 1966 total.
 > **New in v0.5.58:** Per-signal cheap-baseline comparison: 0/4 simulation signals beat their cheapest heuristic. All simulation modules remain permanently experimental. `make bench-simulation-baselines`. 13 tests. 1953 total.
 > **New in v0.5.57:** `rank --simulation-mode info` runs MembraneProxy + StructureProxy on every candidate, adds `sim_*` scores to JSONL output and Markdown report. 6 new CLI tests. 1940 total.
 > **New in v0.5.56:** `openamp-foundry bench simulation-gate` converts both
@@ -43,7 +44,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.58
+> **Pipeline version:** v0.5.59
 > **Branch:** main
 
 ---
@@ -1113,7 +1114,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1953 |
+| Total tests | 1966 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 

@@ -115,7 +115,10 @@ Later external predictors should be added as adapters. Each adapter must return:
 
 Adapters must not silently download model weights or send sequences to third-party services without explicit user consent.
 
-Any future simulation or emulator module must implement the `VirtualAssayProxy` interface (in `openamp_foundry.simulation`) and return a `SimulationResult` object matching this schema:
+### Internal simulation modules
+
+Any future simulation or emulator module must implement `VirtualAssayProxy`
+(in `openamp_foundry.simulation`) and return a `SimulationResult`:
 
 ```python
 @dataclass
@@ -131,3 +134,32 @@ class SimulationResult:
 ```
 
 If calibration data is absent or weak, the `uncertainty` field must surface that directly.
+
+### External simulation adapters
+
+Third-party tools (Martini MD, AlphaFold, REST APIs) can be integrated
+via `ExternalSimulationAdapter`:
+
+```python
+from openamp_foundry.simulation import ExternalSimulationAdapter, SimulationResult
+
+def run_martini(sequence: str) -> SimulationResult:
+    # ... call external tool, map output to SimulationResult ...
+    ...
+
+adapter = ExternalSimulationAdapter(
+    name="martini_membrane",
+    version="0.1.0",
+    simulate_fn=run_martini,
+    required_module="martini",       # optional: fail gracefully if missing
+    scope=["membrane_binding"],
+)
+result = adapter.simulate("GIGKFLHSAKKFGKAFVGEIMNS")
+```
+
+The adapter:
+- Wraps any callable `(str) -> SimulationResult` into the standard interface.
+- Checks `is_available()` before running (avoids ImportError crashes).
+- Returns `uncertainty=1.0` error result if the wrapped function raises.
+- Propagates the adapter's `name`, `version`, and `scope` into the result.
+- Falls back to `EmulatorBaseline` returning 0.5 for cheap-baseline comparison.

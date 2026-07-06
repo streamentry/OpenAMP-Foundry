@@ -1,5 +1,28 @@
 # Roadmap
 
+## v0.5.59 — External Simulation Adapter Protocol (Loop 38) ✓ (2026-07-06)
+
+API contract for third-party simulation modules (Martini MD, AlphaFold,
+REST APIs). Completes Phase 3 exit criterion 5 (external adapter protocol).
+
+Changes:
+- ``src/openamp_foundry/simulation/interfaces.py`` — Added
+  ``ExternalSimulationAdapter`` class wrapping any callable ``(str) ->
+  SimulationResult`` into the ``VirtualAssayProxy`` interface. Features:
+  optional ``required_module`` availability check, graceful error handling
+  (returns ``uncertainty=1.0`` on failure), metadata override (adapter's
+  name/version/scope applied to result), ``is_available()`` method,
+  ``_error_result()`` helper.
+- ``tests/test_external_adapter.py`` — 13 tests covering: availability
+  check, successful simulation, missing module, graceful failure,
+  exception handling, baseline fallback, metadata propagation, custom
+  scope, error result schema.
+- ``docs/ARCHITECTURE.md`` — Extension points section expanded with
+  ``ExternalSimulationAdapter`` usage example and documentation.
+- ``docs/50_LOOP_PLAN.md`` — Loop 38 ✅. Next: Loop 39.
+- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.59. Test count: 1966.
+- 1966 tests passing (1953 existing + 13 new).
+
 ## v0.5.58 — Simulation Cheap-Baseline Benchmark (Loop 36) ✓ (2026-07-06)
 
 Per-signal comparison: does each simulation output beat its cheapest
