@@ -107,7 +107,7 @@ Build the multi-resolution virtual assay layer: structure proxies, membrane inte
 | 36 ✅ | No per-module cheap-baseline benchmark for within-domain simulation value | `scripts/benchmark_simulation_baselines.py`: compares each simulation signal (bacterial_binding, selectivity_ratio, helix_weight, non_helical) against its cheapest heuristic baseline (mean_eisenberg, selectivity_proxy, helix_propensity, proline_fraction). v0.5.58 | 13 tests, 1953 total. Honest finding: 0/4 signals beat baselines. All simulation modules remain permanently experimental. Weighted mode remains blocked |
 | 37 ✅ | No `--simulation-mode` CLI flag. Simulation modules exist but users cannot access them | Added `--simulation-mode` to `rank` CLI: `off` (default) and `info` (runs MembraneProxy + StructureProxy, adds `sim_*` keys to scores, includes in JSONL/report). Weighted blocked by gate (Loop 35). v0.5.57 | 6 tests, 1940 total. Demo pipeline with `--simulation-mode info` produces sim scores for all 10 candidates. Report includes sim columns |
 | 38 ✅ | No API contract for third-party simulation modules (e.g. Martini MD, AlphaFold) | `simulation/interfaces.py` extended with `ExternalSimulationAdapter` protocol. ARCHITECTURE.md extension points documented. v0.5.59 | 13 tests, 1966 total. Adapter wraps any callable, checks availability, handles errors, propagates metadata |
-| 39 | Virtual-assay benchmark report comparing simulation-augmented vs simulation-free ranking on the strict triage set | `docs/SIMULATION_BENCHMARK.md`: head-to-head comparison of sel_vs_dec, hem_vs_dec, sel_vs_hem AUROCs with and without simulation. If simulation doesn't improve strict triage, say so explicitly | Honest: if delta ≤ 0, report "simulation did not improve triage" |
+| 39 ✅ | Virtual-assay benchmark report comparing simulation-augmented vs simulation-free ranking on the strict triage set | `docs/SIMULATION_BENCHMARK.md`: head-to-head report for simulation ablation, cheap-baseline comparison, and weighted-mode gate. v0.5.60. | Honest result: simulation did not improve ranking; weighted mode remains blocked. |
 
 **Phase 3 exit criteria:**
 - At least 2 simulation modules exist and are benchmarked
@@ -241,7 +241,7 @@ Phase 4: Not started (Loops 40–49)
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**Next loop:** Loop 39 — Phase 3 (virtual-assay benchmark report).
+**Next loop:** Loop 40 — lab partner onboarding pack.
 
 **Phase 2 exit criteria (all 5 met ✅):**
 - ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest

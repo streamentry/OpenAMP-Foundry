@@ -108,6 +108,12 @@ class TestDocsConsistent:
         assert payload["standard"]["n_negatives"] == CURRENT_N_NEGATIVES
         assert payload["standard"]["n_total"] == CURRENT_N_TOTAL
 
+    def test_doc_simulation_benchmark_report_records_blocked_weighted_mode(self):
+        report = (DOCS_DIR / "SIMULATION_BENCHMARK.md").read_text(encoding="utf-8")
+        assert "Current verdict: simulation remains informational only." in report
+        assert "`weighted` simulation remains blocked." in report
+        assert "Simulation does not improve ranking" in report
+
     def test_doc_metrics_snapshot_includes_ranking_policy(self):
         """Snapshot must encode the current ranking recommendation contract."""
         payload = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))

@@ -1,5 +1,20 @@
 # Roadmap
 
+## v0.5.60 — Simulation Benchmark Report (Loop 39) ✓ (2026-07-06)
+
+Closed the benchmark-report gap with `docs/SIMULATION_BENCHMARK.md`.
+
+The report consolidates:
+- AMP-vs-decoy simulation ablation.
+- Within-AMP hemolysis detection ablation.
+- Per-signal cheap-baseline comparison.
+- Weighted-mode gate decision.
+
+**Honest finding:**
+- Simulation does not improve ranking.
+- Weighted mode remains blocked.
+- Simulation values may remain visible only in `info` mode.
+
 ## v0.5.59 — External Simulation Adapter Protocol (Loop 38) ✓ (2026-07-06)
 
 API contract for third-party simulation modules (Martini MD, AlphaFold,

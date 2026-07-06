@@ -92,7 +92,7 @@ def test_cli_output_contains_verdict():
 
 def test_cli_writes_output_json(tmp_path):
     out = tmp_path / "baselines.json"
-    result = subprocess.run(
+    subprocess.run(
         [sys.executable, "scripts/benchmark_simulation_baselines.py", "--out", str(out)],
         capture_output=True, text=True,
         env={"PYTHONPATH": "src"},

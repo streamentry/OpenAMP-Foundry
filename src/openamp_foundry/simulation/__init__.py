@@ -17,4 +17,6 @@ __all__ = [
     "EmulatorBaseline",
     "MembraneProxy",
     "StructureProxy",
+    "SimulationGateVerdict",
+    "evaluate_simulation_gate",
 ]

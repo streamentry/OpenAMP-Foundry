@@ -176,6 +176,7 @@ openamp-foundry/
   docs/EVIDENCE_CERTIFICATE.md         # candidate certificate spec
   docs/LEGACY_LOOP_PROMPT.md           # reusable execution loop prompt
   docs/METRICS_CURRENT.md              # current benchmark summary
+  docs/SIMULATION_BENCHMARK.md         # virtual-assay benchmark verdict
   docs/NEW_VISION.md                   # next-horizon wet-lab compression vision
   docs/PLAN.md                         # detailed execution plan
   docs/ROADMAP.md                      # shipped milestones and next horizons
