@@ -78,8 +78,8 @@ Build the recalibration engine gated by the policy. Implement active-learning ba
 | 25 ✅ | No active-learning benchmark on synthetic data. Can the selector recover known "hidden active" candidates better than random? | `active_learning/benchmark.py`: multi-round recovery benchmark with pre-registered thresholds (max_rounds_to_first=3, min_recall=0.33). CLI `bench active-learning`. v0.5.46. 8 tests. | Recovery verified: selector recovers hidden actives within pre-registered thresholds; compared against random baseline (20-trial average) |
 | 26 ✅ | No integration between active-learning selector and the calibration pipeline | `scripts/run_calibration_loop.py`: end-to-end script that generates synthetic lab results → builds intake → evaluates gate → computes weight proposal (dry-run) → selects batch-2 → writes manifest. `make calibration-loop` target. | Full chain verified end-to-end on synthetic data; all 5 steps produce valid output files |
 | 27 ✅ | No end-to-end regression test for the full calibration loop (the "golden path") in pytest | `tests/test_calibration_e2e.py` — `TestFullCalibrationLoop.test_full_calibration_loop_via_cli`: generates synthetic results → CLI intake → gate → engine proposal → batch-2 selector → validates all output artifacts. Uses subprocess CLI calls for every step with temp directory isolation. | 1834 tests passing; full golden path tested on every PR |
-| 28 | The recalibration policy (v0.5.20) has version 1. No bump workflow exists for when real data arrives | `scripts/bump_recalibration_policy.py`: bumps `policy_version`, requires a non-empty decision-log entry dated within 30 days. CI guard enforces this | CI rejects policy PRs without valid decision log |
-| 29 | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/NEGATIVE_RESULT_ARCHIVE.md`: template for publishing failed candidates, assay conditions, and pipeline scores alongside the negative result | Template is complete enough for a lab partner to fill |
+| 28 | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: bumps version, requires 30-day decision-log entry. CI guard | CI rejects policy PRs without valid decision log |
+| 29 | Negative result archive template | `docs/NEGATIVE_RESULT_ARCHIVE.md`: template for publishing failures alongside pipeline scores | Lab partner can fill the template |
 
 **Phase 2 exit criteria:**
 - `make calibration-full-loop` runs from clean checkout, produces batch-2 manifest
@@ -177,7 +177,7 @@ If no data arrives, virtual assay scaffolding continues independently.
 ```
 Phase 0: ✅ Complete (Loops 1–8)
 Phase 1: ✅ Complete (Loops 9–17)
-Phase 2: Loop 25 of 29 (recovery benchmark shipped — Loop 26 next)
+Phase 2: Loop 27 of 29 (full-loop pytest test shipped — Loop 28 next)
 Phase 3: Not started (Loops 30–39)
 Phase 4: Not started (Loops 40–49)
 ```
@@ -231,5 +231,17 @@ Phase 4: Not started (Loops 40–49)
 | 20 ✅ | No lab-result simulator for testing the calibration loop without real data | `examples/lab_results_generator.py`: generates synthetic lab results at configurable cohort sizes, effect sizes, and noise levels. v0.5.42. 7 assay types, schema-valid, integrates with calibration-intake. | Files validate against lab_result.schema.json; end-to-end verified with `make generate-synthetic-lab-results` → `calibration-intake` (20 candidates matched, 0 orphans) |
 | 21 ✅ | Recalibration engine: the gate existed but no engine. Real weight-update code needs to be safe, auditable, and gated | `calibration/engine.py`: `compute_weight_update()` returns `WeightUpdateProposal`. Control theory: delta = learning_rate × (observed_accuracy − target_accuracy). Conservative LR 0.05. L1 budget enforced. v0.5.36 | 1735 tests; CLI recalibration-engine exits 0 on proposal, 3 on violations, 2 on missing files; 12 engine tests |
 | 22 ✅ | No dry-run mode for recalibration engine. User can't preview what weights would change | `--dry-run` flag: compute and log proposed weight changes without applying them. Outputs comparison table (current vs proposed). v0.5.43. 1 test, Makefile target. | Dry run produces diff without side effects; verified with `make recalibration-engine-dry-run` + manual inspection |
+| 23 ✅ | No weight-change report that a human reviewer can inspect | `reports/recalibration_report.py`: generates human-readable report with before/after weights, rationale, policy-rule results, gate-verdict context, and explicit "human review required" banner. Schema validation via `schemas/recalibration_report.schema.json`. v0.5.44. 9 tests. | Report validates against schema; gate verdict details preserved; CLI uses combined report for JSON/MD output |
+| 24 ✅ | No second-batch selection logic. The gate allows recalibration, but how do we pick the next 8–12 candidates? | `active_learning/selector.py`: implements uncertainty sampling + diversity + safety gate. CLI `select-batch`. v0.5.45. 11 tests. | Selection respects safety constraints; top-5 include at least 1 high-uncertainty probe; all blocked candidates rejected; CLI produces valid JSON manifest |
+| 25 ✅ | No active-learning benchmark on synthetic data. Can the selector recover known "hidden active" candidates better than random? | `active_learning/benchmark.py`: multi-round recovery benchmark with pre-registered thresholds (max_rounds_to_first=3, min_recall=0.33). CLI `bench active-learning`. v0.5.46. 8 tests. | Recovery verified: selector recovers hidden actives within pre-registered thresholds; compared against random baseline (20-trial average) |
+| 26 ✅ | No integration between active-learning selector and the calibration pipeline | `scripts/run_calibration_loop.py`: end-to-end script that generates synthetic lab results → builds intake → evaluates gate → computes weight proposal (dry-run) → selects batch-2 → writes manifest. `make calibration-loop` target. | Full chain verified end-to-end on synthetic data; all 5 steps produce valid output files |
+| 27 ✅ | No end-to-end regression test for the full calibration loop (the "golden path") in pytest | `tests/test_calibration_e2e.py` — `TestFullCalibrationLoop.test_full_calibration_loop_via_cli`: generates synthetic results → CLI intake → gate → engine proposal → batch-2 selector → validates all output artifacts. Uses subprocess CLI calls for every step with temp directory isolation. | 1834 tests passing; full golden path tested on every PR |
 
-**Next loop:** Loop 26 — Phase 2 (Integration between active-learning selector and calibration pipeline).
+**Next loop:** Loop 28 — Phase 2 (policy version bump workflow + CI guard).
+
+**Phase 2 exit criteria (4 of 5 met):**
+- ✅ `make calibration-loop` runs from clean checkout, produces batch-2 manifest
+- ✅ Recalibration engine correctly rejects when policy forbids it
+- ✅ Active-learning selector benchmarked against random baseline
+- ❌ Negative-result archive template (Loop 29)
+- ❌ Policy bump workflow has CI guard (Loop 28)

@@ -43,13 +43,9 @@ The purpose of the added layers is not simulation theater. It is to improve whic
 | `openamp_foundry.benchmark` | leakage checks, cluster-split benchmark, expert ablation benchmark, within-AMP selectivity benchmark, triage benchmark, per-feature selectivity decomposition, and evaluation scaffolding |
 | `openamp_foundry.generators` | safe, bounded toy candidate generation |
 | `openamp_foundry.simulation` | membrane/selectivity/stability proxy modeling (scaffolded) |
-
-Potential future packages, only if benchmarked honestly:
-
-| Future package | Intended role |
-|---|---|
-| `openamp_foundry.calibration` | lab-result intake (v0.5.19), pre-registered recalibration policy + gate (v0.5.20); future recalibration engine goes here, gated by `recalibration_gate` |
-| `openamp_foundry.active_learning` | choosing informative next experiments under uncertainty |
+| `openamp_foundry.calibration` | lab-result intake (v0.5.19), pre-registered recalibration policy + gate (v0.5.20), engine + report (v0.5.36/v0.5.44), policy version tracking (v0.5.40) |
+| `openamp_foundry.active_learning` | batch-2 selector (v0.5.45) and recovery benchmark (v0.5.46) for choosing informative next experiments under uncertainty |
+| `openamp_foundry.analysis` | diversity clustering, panel similarity, family structural warnings, audit helpers |
 
 ## Threat model
 
@@ -100,8 +96,8 @@ When the project is mature enough, the extended loop should look like:
    `may_recalibrate` verdict. If `false`, recalibration is forbidden
    regardless of what the report says. If `true`, a human reviewer may
    propose a weight change that respects every prohibited action.
-8. Recalibrate decision rules without rewriting success definitions after the fact.
-9. Measure whether the added modeling layer actually reduced wasted experiments.
+9. Recalibrate decision rules without rewriting success definitions after the fact.
+10. Measure whether the added modeling layer actually reduced wasted experiments.
 
 ## Extension points
 

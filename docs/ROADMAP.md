@@ -1,5 +1,24 @@
 # Roadmap
 
+## v0.5.48 — Architecture documentation cleanup ✓ (2026-07-06)
+
+ARCHITECTURE.md listed ``calibration`` and ``active_learning`` as "Potential future
+packages" even though both shipped long ago (v0.5.19+ and v0.5.45+). This misled
+new contributors and agents about the current state of the repo. Also fixed a duplicate
+step number in the target future data flow.
+
+Changes:
+- ``docs/ARCHITECTURE.md``: moved ``calibration`` and ``active_learning`` from
+  "Potential future packages" to the main package map with version annotations.
+  Removed the stale ``analysis`` future-package entry. Fixed duplicate step "8."
+  in the target future data flow (→ steps 8–10 with correct numbering).
+- ``docs/50_LOOP_PLAN.md``: updated "Current Position" from "Loop 25 of 29"
+  to "Loop 27 of 29", added Loops 23–27 to the completed Phase 2 table, fixed
+  "Next loop" reference to Loop 28, updated Phase 2 exit-criteria tracking.
+- ``docs/METRICS_CURRENT.md``: test count updated to 1834.
+
+No code changes. 1834 tests still pass.
+
 ## v0.5.47 — Full Calibration Loop End-to-End Test ✓ (2026-07-06)
 
 The calibration pipeline (synthetic generator → intake → gate → engine → batch-2 selector)

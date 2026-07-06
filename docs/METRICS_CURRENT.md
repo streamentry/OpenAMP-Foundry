@@ -5,7 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (calibration loop integration — v0.5.46)
+> **Last updated:** 2026-07-06 (architecture docs cleanup — v0.5.48)
+> **New in v0.5.48:** Fixed stale ARCHITECTURE.md package map — calibration and active_learning were listed as "Potential future packages" despite shipping in v0.5.19+ and v0.5.45+. Moved to main package map with version annotations. Updated 50_LOOP_PLAN.md "Current Position" and completed Phase 2 table. No code changes.
+> **New in v0.5.47:** Full calibration loop end-to-end pytest test added — `TestFullCalibrationLoop.test_full_calibration_loop_via_cli` exercises all 5 pipeline steps via CLI subprocess calls in temp directory isolation. Validates every output artifact. Oldest "golden path" regression test. 1834 total passing.
 > **New in v0.5.46:** Active-learning recovery benchmark added — `run_active_learning_benchmark()` simulates multi-round recovery of hidden active candidates via `select_batch_2` vs 20-trial random baseline. Pre-registered thresholds: PREREGISTERED_MAX_ROUNDS_TO_FIRST_RECOVERY=3, PREREGISTERED_MIN_RECALL=0.33. `openamp-foundry bench active-learning` CLI. 8 tests. 1832 total passing.
 > **New in v0.5.45:** Active-learning batch-2 selector added — `select_batch_2()` uses uncertainty (model disagreement + ensemble proximity to 0.5), diversity (sequence similarity vs batch-1), and safety/selectivity gates with min-uncertainty-probe guarantee. `openamp-foundry select-batch` CLI. 11 tests.
 > **New in v0.5.44:** Recalibration report with JSON Schema validation added — `schemas/recalibration_report.schema.json` (Draft 2020-12), `build_recalibration_report()` combines gate verdict + weight proposal, `validate_recalibration_report()`, CLI `--out-json` and `--out-md`. 9 tests.
@@ -27,7 +29,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.46
+> **Pipeline version:** v0.5.48
 > **Branch:** main
 
 ---
