@@ -1,5 +1,34 @@
 # Roadmap
 
+## v0.5.54 — Simulation Ablation Benchmark (Loop 33) ✓ (2026-07-06)
+
+First honest test of whether Phase 3 simulation modules improve
+discrimination. Original Loop 33 (selectivity ratio module) was superseded
+by Loop 31's membrane proxy — replaced with a more useful ablation benchmark.
+
+Changes:
+- ``scripts/benchmark_simulation_ablation.py`` — Standalone benchmark script
+  that scores 500 AMPs + 500 decoys with MembraneProxy and StructureProxy,
+  computes per-module AUROC, and a combined simulation composite AUROC.
+  ``make bench-simulation-ablation`` target. Output written to
+  ``outputs/simulation_ablation.json``.
+- ``docs/50_LOOP_PLAN.md`` — Loop 33 ✅ (re-interpreted as ablation benchmark).
+  Next: Loop 34.
+- ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.54. Test count: 1922.
+- ``docs/ARCHITECTURE.md`` — Package map updated.
+- 1922 tests passing (1905 existing + 17 new).
+
+**Honest finding:**
+- Simulation composite delta=−0.1153 (degrades AMP-vs-decoy discrimination).
+- **Expected**: modules are designed for within-AMP differentiation, not AMP-vs-decoy.
+- ``bacterial_binding`` alone achieves AUROC 0.7512 — **genuine non-charge signal**
+  from Wimley-White interfacial scale + hydrophobic moment. First evidence that
+  simulation modules add non-charge discriminative power.
+- ``selectivity_ratio`` is anti-signal (0.3976), ``helix_weight`` anti-signal
+  (0.4246), ``non_helical_flag`` near-random (0.561).
+- Implication: simulation modules need a within-AMP benchmark to demonstrate
+  value. AMP-vs-decoy AUROC is the wrong test.
+
 ## v0.5.53 — Structure Ensemble Proxy (Loop 32) ✓ (2026-07-06)
 
 Second Phase 3 simulation module. Chou-Fasman 3-state secondary structure

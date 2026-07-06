@@ -437,6 +437,10 @@ wave0-5-panel: wave0-5-fill-external
 wave0-5-evidence:
 	PYTHONPATH=src $(PYTHON) scripts/generate_wave0_5_evidence_certs.py
 
+bench-simulation-ablation:
+	PYTHONPATH=src $(PYTHON) scripts/benchmark_simulation_ablation.py \
+		--out outputs/simulation_ablation.json
+
 bench-cross-dataset:
 	PYTHONPATH=src $(PYTHON) scripts/benchmark_cross_dataset.py \
 		--out outputs/cross_dataset_benchmark.json
