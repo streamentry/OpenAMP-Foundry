@@ -12,18 +12,19 @@ The larger mission is more ambitious:
 
 > Build an open **wet-lab compression engine** for AMP discovery: a system that helps qualified scientists decide which small number of experiments are most worth running next, then learns from those outcomes.
 
-The long-term infrastructure ambition is described in [`VISION.md`](VISION.md), [`GOAL.md`](GOAL.md), and [`docs/OPEN_BIOTECH_STACK.md`](docs/OPEN_BIOTECH_STACK.md).
+The long-term infrastructure ambition is described in [`VISION.md`](VISION.md), [`GOAL.md`](GOAL.md), [`docs/OPEN_BIOTECH_STACK.md`](docs/OPEN_BIOTECH_STACK.md), and [`docs/NUMBER_ONE_REPO_STANDARD.md`](docs/NUMBER_ONE_REPO_STANDARD.md).
 
 ## Start here
 
 | You are | Read first | Then read |
 |---|---|---|
 | New human contributor | [`docs/HUMAN_ONBOARDING.md`](docs/HUMAN_ONBOARDING.md) | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md) |
-| AI agent | [`AGENTS.md`](AGENTS.md) | [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md), [`CLAUDE.md`](CLAUDE.md) |
-| Computational scientist | [`docs/METRICS_CURRENT.md`](docs/METRICS_CURRENT.md) | [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md), [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) |
-| Wet-lab/domain expert | [`docs/WET_LAB_HANDOFF.md`](docs/WET_LAB_HANDOFF.md) | [`docs/COLLABORATION_PLAYBOOK.md`](docs/COLLABORATION_PLAYBOOK.md), [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) |
+| AI agent | [`AGENTS.md`](AGENTS.md) | [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md), [`docs/HIGH_LEVERAGE_TASKS.md`](docs/HIGH_LEVERAGE_TASKS.md) |
+| Computational scientist | [`docs/METRICS_CURRENT.md`](docs/METRICS_CURRENT.md) | [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md), [`docs/BENCHMARK_GOVERNANCE.md`](docs/BENCHMARK_GOVERNANCE.md) |
+| Wet-lab/domain expert | [`docs/WET_LAB_HANDOFF.md`](docs/WET_LAB_HANDOFF.md) | [`docs/EXTERNAL_REVIEW_PACKET.md`](docs/EXTERNAL_REVIEW_PACKET.md), [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](docs/PRE_REGISTERED_PILOT_TEMPLATE.md) |
 | Safety reviewer | [`SAFETY.md`](SAFETY.md) | [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md), [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md) |
-| Funder/institution | [`VISION.md`](VISION.md) | [`GOAL.md`](GOAL.md), [`docs/WHY_WORK_ON_OPENAMP.md`](docs/WHY_WORK_ON_OPENAMP.md) |
+| Funder/institution | [`VISION.md`](VISION.md) | [`GOAL.md`](GOAL.md), [`docs/ADOPTION_STRATEGY.md`](docs/ADOPTION_STRATEGY.md) |
+| Maintainer | [`docs/MAINTAINER_GUIDE.md`](docs/MAINTAINER_GUIDE.md) | [`docs/DOCS_MAINTENANCE.md`](docs/DOCS_MAINTENANCE.md), [`docs/ISSUE_LABEL_TAXONOMY.md`](docs/ISSUE_LABEL_TAXONOMY.md) |
 
 ## Why this repo exists
 
@@ -42,7 +43,7 @@ This repo gives you a safe starting point for:
 - selecting diverse candidates;
 - generating auditable JSON evidence certificates;
 - running a demo pipeline without downloading external biological datasets;
-- expanding later with real predictors and CRO/lab validation.
+- expanding later with real predictors and qualified external validation.
 
 It also establishes the architecture and governance needed for a future **virtual assay layer** that can improve experiment selection without pretending to replace biology.
 
@@ -60,7 +61,7 @@ candidate sequences
   -> novelty score against references
   -> ensemble rank
   -> evidence certificate
-  -> lab-ready shortlist, if human review approves
+  -> expert-review package, if human review approves
 ```
 
 The present repo answers:
@@ -193,30 +194,38 @@ openamp-foundry/
   MODEL_RELEASE_POLICY.md              # model and artifact release policy
   .github/workflows/ci.yml             # CI checks
   configs/pipeline.yaml                # scoring weights and thresholds
-  configs/phase3.yaml                  # wet-lab-ready batch configuration
+  configs/phase3.yaml                  # advanced batch configuration
   configs/recalibration_policy.yaml    # pre-registered recalibration policy
   data/README.md                       # data policy and external data notes
   docs/PROJECT_INDEX.md                # human/agent navigation hub
+  docs/NUMBER_ONE_REPO_STANDARD.md     # category-leader standard
   docs/HUMAN_ONBOARDING.md             # human contributor onboarding
   docs/AGENT_ONBOARDING.md             # agent task protocol
   docs/WHY_WORK_ON_OPENAMP.md          # contributor positioning thesis
   docs/OPEN_BIOTECH_STACK.md           # Linux-for-biotech infrastructure thesis
+  docs/ADOPTION_STRATEGY.md            # adoption strategy
   docs/PROOF_LADDER.md                 # evidence levels and claim ladder
   docs/COLLABORATION_PLAYBOOK.md       # external collaboration rules
+  docs/EXTERNAL_REVIEW_PACKET.md       # external review packet standard
+  docs/PRE_REGISTERED_PILOT_TEMPLATE.md # non-protocol pilot planning template
   docs/HIGH_LEVERAGE_TASKS.md          # task map for humans and agents
-  docs/50_LOOP_PLAN.md                 # 50-loop strategic execution plan
+  docs/MAINTAINER_GUIDE.md             # maintainer review rules
+  docs/DOCS_MAINTENANCE.md             # documentation governance
+  docs/ISSUE_LABEL_TAXONOMY.md         # issue labels and triage system
+  docs/50_LOOP_PLAN.md                 # strategic execution plan
   docs/ARCHITECTURE.md                 # architecture and threat model
-  docs/BENCHMARKING.md                 # leakage-resistant benchmark plan
-  docs/CALIBRATION_POLICY.md           # pre-registered recalibration policy
+  docs/BENCHMARKING.md                 # benchmark suite
+  docs/BENCHMARK_GOVERNANCE.md         # benchmark lifecycle and governance
+  docs/CALIBRATION_POLICY.md           # recalibration gate policy
   docs/DECISION_RULES.md               # pre-registered pass/fail gates
   docs/EVIDENCE_CERTIFICATE.md         # candidate certificate spec
   docs/LEGACY_LOOP_PROMPT.md           # reusable execution loop prompt
   docs/METRICS_CURRENT.md              # current benchmark summary
   docs/SIMULATION_BENCHMARK.md         # virtual-assay benchmark verdict
-  docs/NEW_VISION.md                   # next-horizon wet-lab compression vision
+  docs/VIRTUAL_ASSAY_SCOPE.md          # virtual-assay scope and gates
   docs/PLAN.md                         # detailed execution plan
   docs/ROADMAP.md                      # shipped milestones and next horizons
-  docs/WET_LAB_HANDOFF.md              # assay package and wet-lab review notes
+  docs/WET_LAB_HANDOFF.md              # safe expert-review handoff guide
   examples/                            # toy datasets only
   models/README.md                     # model-release rules; no weights shipped
   outputs/.gitkeep                     # generated files ignored by git
@@ -258,5 +267,3 @@ The longer-range milestone is:
 - Third-party data: not bundled unless redistribution is allowed.
 - Generator weights and unscreened candidate lists: not released by default.
 - Project name and logo: trademark retained.
-
-See [`DATA_LICENSE_NOTICE.md`](DATA_LICENSE_NOTICE.md) and [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md).
