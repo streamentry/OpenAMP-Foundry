@@ -1,211 +1,248 @@
 # Lab Partner Onboarding Guide
 
+## Status
+
+**Safe external-review onboarding. Not a wet-lab protocol.**
+
+This document is for qualified organizations evaluating whether to review, audit, or independently test OpenAMP-nominated antimicrobial peptide candidates under their own approved procedures.
+
+It does not provide experimental instructions, organism-handling guidance, assay recipes, culturing conditions, or clinical recommendations.
+
 ## Purpose
 
-This document tells a qualified CRO or academic lab partner everything they
-need to run the nominated antimicrobial peptide panel. It covers the candidate
-list, synthesis instructions, assay protocols, data return format, and controls.
+OpenAMP Foundry produces computational candidate-selection evidence.
 
-**This is a dry-lab nomination.** The pipeline scores are computational
-predictions, not biological proof. No antimicrobial activity has been
-demonstrated in vitro or in vivo.
+A qualified lab partner may use that evidence to decide whether a candidate panel deserves further expert review or possible independent testing.
 
----
+The project’s role is to provide:
 
-## Candidate Panel
+- candidate rationale;
+- provenance;
+- evidence certificates;
+- benchmark caveats;
+- baseline comparisons;
+- safety-risk flags;
+- novelty summaries;
+- result-intake schemas;
+- pre-registration artifacts;
+- claim boundaries.
 
-The nominated panel is **Wave 0.5**: 24 candidates across 15 scaffold families.
-See `outputs/wave1_final_panel.csv` for the latest list.
+The partner’s role is to decide whether any experimental work is appropriate under its own biosafety, ethics, procurement, and quality systems.
 
-### Panel composition
+## What this document replaces
 
-| Role | Count | Description |
-|------|:-----:|-------------|
-| BALANCED_LEAD | 15 | Predicted active + safe + novel |
-| HIGH_UPSIDE_RISKY | 4 | Higher predicted activity, higher safety risk |
-| POSITIVE_CONTROL | 1 | Known active AMP (magainin-1 derivative, SEED-001_VAR_064) |
-| SAR_CONTROL | 4 | Known-variant sequences for SAR comparison |
+Older versions of this guide mixed onboarding with operational assay detail.
 
-### Families represented
+That is no longer the standard.
 
-| Family | Mechanism | Key risk |
-|--------|-----------|----------|
-| SEED-006 | Mastoparan-X, wasp-venom helix insertion | Mast-cell degranulation |
-| SEED-007 | Bombolitin-II, bumblebee venom | Met oxidation at pos 6 |
-| SEED-008 | Puroindoline-a, Trp-rich interfacial | DKP risk (F-Pro), HemoFinder HIGH |
-| SEED-009 | Bac2A, proline-rich intracellular | AntiCP risk, RPMI-1640 arm recommended |
-| SEED-010–019 | Wave 0.5 diversified scaffolds | See evidence certificates |
+OpenAMP should not be a wet-lab protocol repository. It should be an auditable computational handoff system for qualified experts.
 
----
+Operational experimental design belongs with qualified partners under institutional oversight, not in this repository.
 
-## Synthesis Instructions
+## What a lab partner receives
 
-### Peptide supplier
+A serious OpenAMP partner package should include:
 
-Any qualified SPPS provider (e.g., GenScript, LifeTein, BioMatik).
-
-### Format
-
-- Lyophilized powder, > 95% purity by HPLC.
-- 1–2 mg per peptide (sufficient for MIC + hemolysis screening).
-- Trifluoroacetate (TFA) counterion is acceptable.
-- Store at −20°C, desiccated, upon receipt.
-
-### Modifications
-
-| Modification | Recommendation |
-|-------------|---------------|
-| C-terminal amidation | Recommended for all candidates (mimics natural processing) |
-| N-terminal acetylation | Recommended (prevents pyroglutamate formation if N-term Q) |
-| Met-containing peptides | Request norleucine (Nle) substitution to prevent oxidation |
-| Cys-containing peptides | Require linear synthesis (no disulfide formation during synthesis) |
-
-### QC requirements
-
-- HPLC trace and MS confirmation required for each peptide.
-- Purity ≥ 90% minimum; ≥ 95% preferred.
-- Report observed mass vs expected mass (Da).
-
----
-
-## Assay Protocols
-
-### Primary screen: MIC (minimum inhibitory concentration)
-
-| Parameter | Value |
-|-----------|-------|
-| Strains | *S. aureus* ATCC 29213, *E. coli* ATCC 25922 (minimum) |
-| Method | Broth microdilution (CLSI M07) |
-| Medium | Mueller-Hinton broth (MHB) |
-| Concentration range | 0.5–256 µg/mL (2-fold serial dilution) |
-| Incubation | 18–24 h at 37°C |
-| Readout | MIC = lowest concentration with no visible growth |
-
-Reference: CLSI M07, CLSI M100.
-
-### Secondary screen: Hemolysis (RBC)
-
-| Parameter | Value |
-|-----------|-------|
-| RBC source | Human erythrocytes (fresh, ≤ 24 h old) |
-| Method | Hemoglobin release at 540 nm |
-| Concentration range | Same as MIC range |
-| Positive control | 1% Triton X-100 (100% hemolysis) |
-| Negative control | PBS buffer (0% hemolysis) |
-| Readout | HC50 = concentration causing 50% hemolysis |
-
-Reference: Standard RBC hemolysis assay (Evans et al. 2013).
-
-### Optional: Serum stability
-
-| Parameter | Value |
-|-----------|-------|
-| Serum | 25% human serum in PBS |
-| Time points | 0, 30, 60, 120, 240 min |
-| Readout | RP-HPLC peak area vs t=0 |
-
-Reference: Nguyen et al. (2010) J Biol Chem.
-
----
-
-## Data Return Format
-
-Return results as **JSON files** matching `schemas/lab_result.schema.json`.
-One file per candidate per assay type.
-
-### Required fields per file
-
-```json
-{
-  "candidate_id": "SEED-007_VAR_001",
-  "assay_type": "MIC",
-  "organism": "Staphylococcus aureus ATCC 29213",
-  "result_value": 8.0,
-  "result_unit": "ug/mL",
-  "positive_control_value": 2.0,
-  "positive_control_unit": "ug/mL",
-  "negative_control_value": null,
-  "incubation_hours": 20,
-  "temperature_celsius": 37,
-  "medium": "MHB",
-  "lab": "Partner Lab Name",
-  "assay_date": "2026-08-15",
-  "notes": "",
-  "disclaimer": "SYNTHETIC — replace with real data"
-}
+```text
+partner_packet/
+  README.md
+  candidate_manifest.json
+  evidence_certificates/
+  selection_rule.md
+  benchmark_summary.md
+  baseline_comparison.md
+  novelty_summary.md
+  safety_risk_summary.md
+  synthesis_feasibility_summary.md
+  diversity_rationale.md
+  proof_ladder_statement.md
+  unsupported_claims.md
+  pre_registered_pilot_template.md
+  result_intake_schema_reference.md
+  release_review.md
 ```
 
-### Files
+See [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) for the full packet standard.
 
-- One JSON per candidate per assay → `SEED-007_VAR_001_MIC.json`
-- Place all files in a single directory.
-- See `schemas/lab_result.schema.json` for the full schema specification.
+## What a lab partner does not receive from this repo
 
----
+OpenAMP should not provide:
 
-## Controls
+- wet-lab protocols;
+- organism culture instructions;
+- pathogen-handling guidance;
+- assay operating conditions;
+- human-subject or biospecimen procedures;
+- instructions for optimizing toxicity, persistence, delivery, or immune evasion;
+- unscreened high-risk candidate dumps;
+- claims that a dry-lab candidate is active, safe, therapeutic, or clinically useful.
 
-### Positive control
+## Candidate-panel overview
 
-| ID | Sequence | Expected MIC | Purpose |
-|----|----------|:-----------:|---------|
-| SEED-001_VAR_064 | (magainin-1 derivative) | 4–32 µg/mL | Validate assay is working |
+The candidate panel should be described at an evidence-package level, not as a public dump of unreviewed sequences.
 
-### Negative control (if applicable)
+A panel summary may include:
 
-A scrambled / inactive variant can be provided upon request to validate
-specificity.
+- number of candidates;
+- number of scaffold families or clusters;
+- role distribution: leads, controls, baseline challengers, uncertainty probes, diversity probes;
+- proof-ladder level;
+- novelty categories;
+- safety-risk categories;
+- synthesis-feasibility categories;
+- known model blind spots;
+- release status.
 
-### Assay acceptance criteria
+Full candidate identities or sequences should be released only according to [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md), [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md), and safety review.
 
-The batch is valid only if:
+## Partner evaluation questions
 
-- Positive control MIC falls within 2-fold of expected value.
-- No contamination in negative controls (sterility check).
-- Hemolysis positive control (Triton X-100) produces ≥ 90% hemolysis.
-- Hemolysis negative control (PBS) produces ≤ 5% hemolysis.
+A qualified partner should be able to answer:
 
----
+1. Does the candidate package have enough provenance to audit selection?
+2. Are the evidence certificates interpretable?
+3. Are novelty claims conservative?
+4. Are safety-risk concerns visible?
+5. Are benchmark caveats explicit?
+6. Are cheap baselines included?
+7. Are controls and comparison groups adequate at the planning level?
+8. Are success and failure criteria pre-registered?
+9. Are unsupported claims clearly listed?
+10. Is release scope safe and appropriate?
 
-## Safety and Biosecurity
+## Required OpenAMP artifacts before partner review
 
-All candidates are short antimicrobial peptides (10–30 AA). They are not:
+Before asking a partner to review a panel, OpenAMP should provide:
 
-- Known toxins or virulence factors.
-- Genetically modified organisms.
-- Select agents (CDC/HHS list).
+| Artifact | Required? | Purpose |
+|---|---:|---|
+| Candidate manifest | Yes | Lists candidate IDs, roles, proof level, and release status. |
+| Evidence certificates | Yes | Explain why each candidate was selected or rejected. |
+| Selection rule | Yes | Shows how the panel was built. |
+| Baseline comparison | Yes | Prevents “better than nothing” interpretation. |
+| Benchmark summary | Yes | Shows current evidence and caveats. |
+| Novelty summary | Yes | Prevents rediscovery from being called discovery. |
+| Safety-risk summary | Yes | Makes predicted concerns visible. |
+| Synthesis-feasibility summary | Yes | Gives broad feasibility flags for qualified review. |
+| Proof-ladder statement | Yes | Defines what claims are allowed. |
+| Result-intake schema reference | Yes | Defines how partner results can return safely. |
+| Release review | Yes | Defines what can be published. |
 
-Standard BSL-2 practices are sufficient for MIC and hemolysis assays.
-No special biocontainment is required.
+## Pre-registration expectation
 
----
+Any serious pilot should freeze the following before results are known:
 
-## Timeline
+- candidate panel;
+- selection rule;
+- baseline panel logic;
+- success criteria;
+- failure criteria;
+- result-intake format;
+- claim boundaries;
+- release boundaries;
+- reviewer roles.
 
-| Milestone | Typical duration |
-|-----------|:----------------:|
-| Synthesis and QC | 2–4 weeks |
-| MIC screening (2 strains × 24 candidates) | 1–2 weeks |
-| Hemolysis assay (24 candidates) | 1 week |
-| Data return and analysis | 1 week |
+Use [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md).
 
-Total estimated: **5–8 weeks** from synthesis order to data return.
+## Result return format
 
----
+OpenAMP can accept structured result summaries through `schemas/lab_result.schema.json` and related calibration-intake tooling.
 
-## Contact
+Result artifacts should preserve:
 
-For questions about candidate selection, protocol modifications, or data return:
-open an issue at `github.com/Open-Problem-Lab/OpenAMP-Foundry` with the
-`lab-partner` label.
+- candidate identifier;
+- panel identifier;
+- assay type at an appropriate abstraction level;
+- endpoint summary;
+- quality/control interpretation supplied by the qualified partner;
+- whether the result is interpretable;
+- whether it supports recalibration consideration;
+- limitations;
+- safe publication status.
 
----
+Operational experimental details should not be added to this repository.
 
-## Related Documents
+## Publication and claim boundaries
 
-- `docs/WET_LAB_HANDOFF.md` — Detailed wet-lab procedure and score interpretation.
-- `docs/ASSAY_PREREGISTRATION.md` — Pre-registered assay parameters.
-- `docs/EXPERT_REVIEW_PACK.md` — Expert review documentation.
-- `schemas/lab_result.schema.json` — Machine-readable data return schema.
-- `outputs/wave1_final_panel.csv` — Current candidate list.
-- `outputs/evidence_wave0_5/` — Evidence certificates for each candidate.
+Before any public result is described, map it to [`PROOF_LADDER.md`](PROOF_LADDER.md).
+
+Dry-lab candidate package:
+
+> computationally nominated candidate.
+
+Qualified initial result:
+
+> candidate showed or did not show activity under specified partner-reported conditions.
+
+Independent replication:
+
+> candidate family has externally replicated early antimicrobial evidence under specified conditions.
+
+Not allowed without much stronger evidence:
+
+- drug;
+- therapy;
+- clinically useful;
+- safe in humans;
+- proven antimicrobial;
+- AI-discovered antibiotic.
+
+## Safety and governance
+
+All partner-facing work should follow:
+
+- [`SAFETY.md`](../SAFETY.md)
+- [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md)
+- [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md)
+- [`COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md)
+- [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md)
+
+If a partner requests operational experimental instructions from the repo, redirect to their institutional procedures and qualified oversight.
+
+## Partner collaboration outcomes
+
+A partner review may conclude:
+
+- package is reviewable as written;
+- package needs more baseline comparison;
+- novelty claims are too strong;
+- safety-risk review is insufficient;
+- candidate panel is not worth testing;
+- pilot design is not interpretable;
+- release should be staged or restricted;
+- structured results are suitable for calibration intake;
+- evidence is insufficient for recalibration.
+
+Negative outcomes are useful.
+
+The point is to learn whether OpenAMP’s selection process survives qualified scrutiny.
+
+## Contact and coordination
+
+Use repository issues for non-sensitive coordination.
+
+Do not post sensitive candidate lists, restricted data, operational protocols, or private partner information in public issues.
+
+Suggested labels:
+
+- `needs-domain-review`
+- `needs-safety-review`
+- `wet-lab-facing`
+- `do-not-automerge`
+
+See [`ISSUE_LABEL_TAXONOMY.md`](ISSUE_LABEL_TAXONOMY.md).
+
+## Related documents
+
+- [`WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — safe expert-review handoff guide.
+- [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — review packet standard.
+- [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — non-protocol pilot planning template.
+- [`PROOF_LADDER.md`](PROOF_LADDER.md) — evidence and claim ladder.
+- [`COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md) — safe collaboration modes.
+- `schemas/lab_result.schema.json` — machine-readable result-summary schema.
+
+## Final standard
+
+A lab partner onboarding document should make qualified collaboration easier while keeping the repository out of the business of instructing biological experimentation.
+
+That is the safe and scalable boundary.
