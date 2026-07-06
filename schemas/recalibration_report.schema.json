@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Recalibration Report",
+  "description": "Combined report joining a gate verdict with a weight-update proposal for human reviewer inspection.",
+  "type": "object",
+  "required": [
+    "report_type",
+    "schema_version",
+    "timestamp",
+    "policy_version",
+    "human_review_required",
+    "gate_verdict",
+    "proposal"
+  ],
+  "properties": {
+    "report_type": {
+      "type": "string",
+      "enum": ["recalibration_report"],
+      "description": "Fixed discriminator for this report type."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Version of this schema (semver-like, e.g. 1.0)."
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "ISO-8601 timestamp when the report was generated."
+    },
+    "policy_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Policy version in effect when the report was generated."
+    },
+    "human_review_required": {
+      "type": "boolean",
+      "enum": [true],
+      "description": "This report is a proposal only. A human must inspect, verify, and sign before any weight changes are applied."
+    },
+    "gate_verdict": {
+      "type": "object",
+      "required": [
+        "may_recalibrate",
+        "n_panel_candidates",
+        "n_matched_candidates",
+        "n_lab_results",
+        "summary"
+      ],
+      "properties": {
+        "may_recalibrate": {
+          "type": "boolean",
+          "description": "Whether the gate allows recalibration."
+        },
+        "n_panel_candidates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "n_matched_candidates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "n_lab_results": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rule_results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rule_id", "passed", "reason"],
+            "properties": {
+              "rule_id": { "type": "string" },
+              "passed": { "type": "boolean" },
+              "observed": {},
+              "threshold": {},
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "prohibited_action_audit": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["action_id", "description", "in_force"],
+            "properties": {
+              "action_id": { "type": "string" },
+              "description": { "type": "string" },
+              "in_force": { "type": "boolean", "enum": [true] }
+            }
+          }
+        },
+        "rate_limit_status": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rule_id", "status", "note"],
+            "properties": {
+              "rule_id": { "type": "string" },
+              "status": { "type": "string", "enum": ["ok", "exceeded", "unknown"] },
+              "observed": {},
+              "threshold": {},
+              "note": { "type": "string" }
+            }
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "summary": { "type": "string" }
+      }
+    },
+    "proposal": {
+      "type": "object",
+      "required": [
+        "gate_passed",
+        "l1_total",
+        "l1_budget",
+        "l1_within_budget",
+        "deltas"
+      ],
+      "properties": {
+        "gate_passed": { "type": "boolean" },
+        "l1_total": { "type": "number", "minimum": 0 },
+        "l1_budget": { "type": "number", "minimum": 0 },
+        "l1_within_budget": { "type": "boolean" },
+        "deltas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["scorer", "current_weight", "proposed_weight", "delta", "rationale"],
+            "properties": {
+              "scorer": { "type": "string" },
+              "current_weight": { "type": "number" },
+              "proposed_weight": { "type": "number" },
+              "delta": { "type": "number" },
+              "precision": { "type": ["number", "null"] },
+              "recall": { "type": ["number", "null"] },
+              "n_positive": { "type": "integer", "minimum": 0 },
+              "n_negative": { "type": "integer", "minimum": 0 },
+              "rationale": { "type": "string" }
+            }
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

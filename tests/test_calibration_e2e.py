@@ -898,3 +898,196 @@ class TestMakefileTargets:
             "Make returned 0 but recalibration-gate should exit 3 "
             "on synthetic data (cohort < 5)"
         )
+
+
+# ── Recalibration report module ────────────────────────────────────────────
+
+
+class TestRecalibrationReport:
+    """Tests for the combined recalibration report (proposal + gate verdict)."""
+
+    def _run_chain(self, tmp_path, n=5):
+        """Helper: build intake + gate + proposal for testing."""
+        _build_passing_data(tmp_path, n=n)
+        panel_csv = tmp_path / "panel.csv"
+        results_dir = tmp_path / "results"
+        policy = load_recalibration_policy(POLICY_PATH)
+        intake = build_calibration_intake_report(
+            panel_csv=panel_csv,
+            results_dir=results_dir,
+        )
+        gate = evaluate_recalibration_gate(
+            intake_report=intake,
+            policy=policy,
+            project_root=REPO_ROOT,
+        )
+        l1_budget = next(
+            (rl.threshold for rl in policy.rate_limits if rl.id == "WEIGHT_CHANGE_L1_BUDGET"),
+            0.1,
+        )
+        proposal = compute_weight_update(
+            intake_report=intake,
+            gate_verdict=gate,
+            current_weights={"activity": 0.40, "safety": 0.25},
+            policy_l1_budget=l1_budget,
+        )
+        return proposal, gate
+
+    def test_build_report_shape(self, tmp_path):
+        """Report dict contains all top-level keys."""
+        from openamp_foundry.reports.recalibration_report import (
+            build_recalibration_report,
+        )
+
+        proposal, gate = self._run_chain(tmp_path)
+        report = build_recalibration_report(proposal, gate)
+        assert report["report_type"] == "recalibration_report"
+        assert report["schema_version"] == "1.0"
+        assert report["human_review_required"] is True
+        assert "gate_verdict" in report
+        assert "proposal" in report
+        assert isinstance(report["timestamp"], str)
+
+    def test_build_report_gate_context(self, tmp_path):
+        """Gate verdict details are preserved in the report."""
+        from openamp_foundry.reports.recalibration_report import (
+            build_recalibration_report,
+        )
+
+        proposal, gate = self._run_chain(tmp_path)
+        report = build_recalibration_report(proposal, gate)
+        gv = report["gate_verdict"]
+        assert "may_recalibrate" in gv
+        assert "rule_results" in gv
+        assert "prohibited_action_audit" in gv
+        assert "rate_limit_status" in gv
+        assert "summary" in gv
+        assert "reasons" in gv
+        assert isinstance(gv["rule_results"], list)
+        assert isinstance(gv["prohibited_action_audit"], list)
+
+    def test_build_report_proposal_shape(self, tmp_path):
+        """Proposal section has correct keys."""
+        from openamp_foundry.reports.recalibration_report import (
+            build_recalibration_report,
+        )
+
+        proposal, gate = self._run_chain(tmp_path)
+        report = build_recalibration_report(proposal, gate)
+        prop = report["proposal"]
+        assert "gate_passed" in prop
+        assert "l1_total" in prop
+        assert "l1_budget" in prop
+        assert "l1_within_budget" in prop
+        assert "deltas" in prop
+        assert "notes" in prop
+        assert isinstance(prop["deltas"], list)
+
+    def test_build_report_delta_fields(self, tmp_path):
+        """Each delta has required fields."""
+        from openamp_foundry.reports.recalibration_report import (
+            build_recalibration_report,
+        )
+
+        proposal, gate = self._run_chain(tmp_path)
+        report = build_recalibration_report(proposal, gate)
+        for d in report["proposal"]["deltas"]:
+            assert "scorer" in d
+            assert "current_weight" in d
+            assert "proposed_weight" in d
+            assert "delta" in d
+            assert "rationale" in d
+            assert isinstance(d["scorer"], str)
+            assert isinstance(d["current_weight"], (int, float))
+
+    def test_validate_report_against_schema(self, tmp_path):
+        """Report validates against the JSON Schema."""
+        from openamp_foundry.reports.recalibration_report import (
+            build_recalibration_report,
+            validate_recalibration_report,
+        )
+
+        proposal, gate = self._run_chain(tmp_path)
+        report = build_recalibration_report(proposal, gate)
+        is_valid, errors = validate_recalibration_report(report)
+        assert is_valid, f"Schema validation failed: {errors}"
+        assert len(errors) == 0
+
+    def test_write_report_json(self, tmp_path):
+        """JSON output can be read back and validates."""
+        from openamp_foundry.reports.recalibration_report import (
+            build_recalibration_report,
+            validate_recalibration_report,
+            write_recalibration_report_json,
+        )
+
+        proposal, gate = self._run_chain(tmp_path)
+        report = build_recalibration_report(proposal, gate)
+        out = tmp_path / "test_report.json"
+        write_recalibration_report_json(report, out)
+        assert out.exists()
+        loaded = json.loads(out.read_text())
+        assert loaded["report_type"] == "recalibration_report"
+        is_valid, errors = validate_recalibration_report(loaded)
+        assert is_valid, f"Schema validation failed after write/read: {errors}"
+
+    def test_write_report_markdown(self, tmp_path):
+        """Markdown output includes required sections."""
+        from openamp_foundry.reports.recalibration_report import (
+            build_recalibration_report,
+            write_recalibration_report_markdown,
+        )
+
+        proposal, gate = self._run_chain(tmp_path)
+        report = build_recalibration_report(proposal, gate)
+        out = tmp_path / "test_report.md"
+        write_recalibration_report_markdown(report, out)
+        assert out.exists()
+        text = out.read_text()
+        assert "Recalibration Report" in text
+        assert "HUMAN REVIEW REQUIRED" in text
+        assert "Gate verdict" in text
+        assert "Proposed weight updates" in text
+        assert "Next steps" in text
+
+    def test_report_schema_rejects_missing_fields(self, tmp_path):
+        """Schema validation catches missing required fields."""
+        from openamp_foundry.reports.recalibration_report import (
+            validate_recalibration_report,
+        )
+
+        bad_report = {"report_type": "recalibration_report"}
+        is_valid, errors = validate_recalibration_report(bad_report)
+        assert not is_valid
+        assert len(errors) > 0
+
+    def test_report_schema_rejects_human_review_false(self, tmp_path):
+        """Schema enforces human_review_required=True."""
+        from openamp_foundry.reports.recalibration_report import (
+            validate_recalibration_report,
+        )
+
+        report = {
+            "report_type": "recalibration_report",
+            "schema_version": "1.0",
+            "timestamp": "2026-07-06T12:00:00",
+            "policy_version": 1,
+            "human_review_required": False,
+            "gate_verdict": {
+                "may_recalibrate": True,
+                "n_panel_candidates": 5,
+                "n_matched_candidates": 5,
+                "n_lab_results": 10,
+                "summary": "test",
+            },
+            "proposal": {
+                "gate_passed": True,
+                "l1_total": 0.0,
+                "l1_budget": 0.1,
+                "l1_within_budget": True,
+                "deltas": [],
+            },
+        }
+        is_valid, errors = validate_recalibration_report(report)
+        assert not is_valid
+        assert len(errors) > 0

@@ -1,5 +1,33 @@
 # Roadmap
 
+## v0.5.44 — Recalibration Report with Schema Validation ✓ (2026-07-06)
+
+The existing weight-update proposal markdown writer was embedded in engine.py
+and lacked gate-verdict context. This release adds a standalone recalibration
+report module with a JSON Schema, validation, and a combined report that joins
+gate verdict details with the weight-change proposal.
+
+Changes:
+- Added ``schemas/recalibration_report.schema.json`` — JSON Schema (Draft 2020-12)
+  for the combined recalibration report. Enforces: report_type discriminator,
+  schema_version, human_review_required=True, required gate-verdict fields
+  (may_recalibrate, cohort counts, summary), required proposal fields
+  (gate_passed, L1 totals, deltas). Each delta requires scorer, current_weight,
+  proposed_weight, delta, and rationale.
+- Added ``reports/recalibration_report.py`` — ``build_recalibration_report()``
+  combines a ``WeightUpdateProposal`` and ``GateVerdict`` into a single report
+  dict. ``write_recalibration_report_json()`` and
+  ``write_recalibration_report_markdown()`` produce the combined output.
+  ``validate_recalibration_report()`` validates against the schema.
+- The CLI ``recalibration-engine`` now uses the combined report for both
+  ``--out-json`` and ``--out-md`` output. The ``--dry-run`` diff also includes
+  gate-verdict summary (rule count, prohibited action count).
+- Updated ``reports/__init__.py`` to export the new symbols.
+- Added 9 tests: report shape, gate context preservation, proposal shape,
+  delta field completeness, schema validation (valid + missing fields +
+  human_review_required=True enforcement), JSON write+validate round-trip,
+  markdown output with required sections.
+
 ## v0.5.43 — Dry-Run Mode for Recalibration Engine ✓ (2026-07-06)
 
 The recalibration engine computed proposals but had no way to preview what

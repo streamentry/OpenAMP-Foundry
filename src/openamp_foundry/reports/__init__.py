@@ -31,6 +31,12 @@ from openamp_foundry.reports.pilot_panel import (
     write_pilot_csv,
     write_pilot_markdown,
 )
+from openamp_foundry.reports.recalibration_report import (
+    build_recalibration_report,
+    validate_recalibration_report,
+    write_recalibration_report_json,
+    write_recalibration_report_markdown,
+)
 
 __all__ = [
     # batch_pack
@@ -55,4 +61,9 @@ __all__ = [
     # pilot_panel
     "write_pilot_csv",
     "write_pilot_markdown",
+    # recalibration_report
+    "build_recalibration_report",
+    "validate_recalibration_report",
+    "write_recalibration_report_json",
+    "write_recalibration_report_markdown",
 ]

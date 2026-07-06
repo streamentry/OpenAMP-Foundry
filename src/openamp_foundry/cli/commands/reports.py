@@ -837,6 +837,12 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
         summary=gate_data.get("summary", ""),
     )
 
+    from openamp_foundry.reports.recalibration_report import (
+        build_recalibration_report,
+        write_recalibration_report_json,
+        write_recalibration_report_markdown,
+    )
+
     try:
         proposal = compute_weight_update(
             intake_report=intake,
@@ -860,6 +866,10 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
         print(json.dumps(payload))
         return 3
 
+    # Build the combined recalibration report (proposal + gate verdict)
+    report = build_recalibration_report(proposal, gate_verdict)
+    prop_section = report.get("proposal", {})
+
     is_dry_run = getattr(args, "dry_run", False)
     dry_run_label = " [DRY RUN — no changes applied]" if is_dry_run else ""
 
@@ -867,35 +877,45 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
         # Print diff table instead of writing files
         print(f"Recalibration Engine Proposal{dry_run_label}")
         print(f"{'=' * 60}")
-        print(f"  Timestamp:      {proposal.timestamp}")
-        print(f"  Gate passed:    {proposal.gate_passed}")
-        print(f"  Policy version: {proposal.policy_version}")
-        print(f"  L1 total:       {proposal.l1_total:.4f} / budget {proposal.l1_budget:.4f}")
-        print(f"  L1 within budget: {proposal.l1_within_budget}")
+        print(f"  Timestamp:      {report['timestamp']}")
+        print(f"  Report type:    {report['report_type']}")
+        print(f"  Schema version: {report['schema_version']}")
+        print(f"  Policy version: {report['policy_version']}")
+        print(f"  Gate passed:    {prop_section.get('gate_passed')}")
+        print(f"  L1 total:       {prop_section.get('l1_total', 0):.4f} / budget {prop_section.get('l1_budget', 0):.4f}")
+        print(f"  L1 within budget: {prop_section.get('l1_within_budget')}")
+        gv = report.get("gate_verdict", {})
+        n_rules = len(gv.get("rule_results", []))
+        n_actions = len(gv.get("prohibited_action_audit", []))
+        print(f"  Gate rules:     {n_rules} minimum conditions, {n_actions} prohibited actions")
         print()
         print(f"  {'Scorer':<20} {'Current':>8} {'Proposed':>8} {'Delta':>8}  {'Rationale'}")
         print(f"  {'-'*20} {'-'*8} {'-'*8} {'-'*8}  {'-'*40}")
-        for d in proposal.deltas:
-            sign = "+" if d.delta >= 0 else ""
-            print(f"  {d.scorer:<20} {d.current_weight:>8.4f} {d.proposed_weight:>8.4f} {sign}{d.delta:>7.4f}  {d.rationale[:60]}")
+        for d in prop_section.get("deltas", []):
+            sign = "+" if d["delta"] >= 0 else ""
+            print(f"  {d['scorer']:<20} {d['current_weight']:>8.4f} {d['proposed_weight']:>8.4f} {sign}{d['delta']:>7.4f}  {d['rationale'][:60]}")
         print()
-        print(f"  N deltas: {len(proposal.deltas)}")
-        print(f"  Notes: {', '.join(proposal.notes) if proposal.notes else '(none)'}")
+        print(f"  N deltas: {len(prop_section.get('deltas', []))}")
+        notes = prop_section.get("notes", [])
+        print(f"  Notes: {', '.join(notes) if notes else '(none)'}")
         print(f"{'=' * 60}")
         print(f"DRY RUN — no files written, no weight changes applied.")
     else:
         if args.out_json:
-            write_weight_update_proposal_json(proposal, args.out_json)
+            write_recalibration_report_json(report, args.out_json)
         if args.out_md:
-            write_weight_update_proposal_markdown(proposal, args.out_md)
+            write_recalibration_report_markdown(report, args.out_md)
 
     summary = {
         "status": "ok",
-        "gate_passed": proposal.gate_passed,
-        "n_deltas": len(proposal.deltas),
-        "l1_total": round(proposal.l1_total, 4),
-        "l1_within_budget": proposal.l1_within_budget,
-        "timestamp": proposal.timestamp,
+        "report_type": "recalibration_report",
+        "schema_version": "1.0",
+        "gate_passed": prop_section.get("gate_passed"),
+        "n_deltas": len(prop_section.get("deltas", [])),
+        "l1_total": round(prop_section.get("l1_total", 0), 4),
+        "l1_within_budget": prop_section.get("l1_within_budget"),
+        "timestamp": report["timestamp"],
+        "human_review_required": True,
         "dry_run": is_dry_run,
     }
     print(json.dumps(summary, indent=2))
