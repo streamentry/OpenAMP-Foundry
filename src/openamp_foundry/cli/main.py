@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from openamp_foundry.cli.commands.core import _run_generate_batch
-from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot, _run_feature_decomp
+from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot, _run_feature_decomp, _run_active_learning_bench
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
@@ -255,6 +255,45 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         required=False,
         help="Optional JSON output path.",
+    )
+
+    active_learning = bench_sub.add_parser(
+        "active-learning",
+        help=(
+            "Active-learning recovery benchmark: hide known active AMPs from the "
+            "selector and measure how many rounds it takes to recover them. "
+            "Compares against random baseline. "
+            "Generates synthetic data if no pool CSV is provided."
+        ),
+    )
+    active_learning.add_argument(
+        "--pool-csv",
+        default=None,
+        help="Optional labelled pool CSV (requires 'label' column: 1=active, 0=inactive).",
+    )
+    active_learning.add_argument(
+        "--n-hidden",
+        type=int,
+        default=3,
+        help="Number of active candidates to hide (default: 3).",
+    )
+    active_learning.add_argument(
+        "--batch-size",
+        type=int,
+        default=5,
+        help="Batch size per selection round (default: 5).",
+    )
+    active_learning.add_argument(
+        "--max-rounds",
+        type=int,
+        default=5,
+        help="Maximum selection rounds (default: 5).",
+    )
+    active_learning.add_argument(
+        "--rng-seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (default: 42).",
     )
 
     generate = sub.add_parser(
@@ -1005,6 +1044,8 @@ def main(argv: list[str] | None = None) -> int:
             return _run_feature_decomp(args)
         if args.bench_command == "metrics-snapshot":
             return _run_metrics_snapshot(args)
+        if args.bench_command == "active-learning":
+            return _run_active_learning_bench(args)
         return _run_bench(args)
 
     if args.command == "generate-batch":

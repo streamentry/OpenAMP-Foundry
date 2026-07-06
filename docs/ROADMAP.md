@@ -1,5 +1,29 @@
 # Roadmap
 
+## v0.5.46 — Active-Learning Recovery Benchmark ✓ (2026-07-06)
+
+The batch-2 selector could pick candidates but there was no benchmark
+validating that it recovers known active sequences faster than random
+baseline. This release adds a multi-round recovery benchmark with
+pre-registered thresholds.
+
+Changes:
+- Added ``active_learning/benchmark.py`` — ``run_active_learning_benchmark()``
+  simulates a multi-round active-learning loop: hides N active candidates,
+  runs ``select_batch_2`` each round on the remaining pool, tracks rounds-to-
+  first-recovery and cumulative recall. Compares against a random-baseline
+  averaged over 20 trials.
+- ``generate_benchmark_pool()`` creates synthetic candidates where actives
+  have higher ensemble scores and lower disagreement than inactives.
+- Pre-registered thresholds: ``PREREGISTERED_MAX_ROUNDS_TO_FIRST_RECOVERY=3``,
+  ``PREREGISTERED_MIN_RECALL=0.33``. The ``passed`` field encodes both.
+- Added CLI ``bench active-learning`` — generates a synthetic pool inline if
+  no ``--pool-csv`` is provided.
+- Added 8 tests: pool generation, result shape, recovery assertion,
+  comparison to random, empty/absent pool rejection, threshold constants,
+  CLI integration.
+- 1832 total tests passing.
+
 ## v0.5.45 — Active-Learning Batch-2 Selector ✓ (2026-07-06)
 
 The recalibration pipeline could compute weight updates and produce a reviewable

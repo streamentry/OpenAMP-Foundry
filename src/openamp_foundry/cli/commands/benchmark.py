@@ -272,3 +272,51 @@ def _run_feature_decomp(args: argparse.Namespace) -> int:
     }
     print(json.dumps(summary, indent=2))
     return 0
+
+
+def _run_active_learning_bench(args: argparse.Namespace) -> int:
+    """Run the active-learning recovery benchmark."""
+    import tempfile
+    from pathlib import Path
+    from openamp_foundry.active_learning.benchmark import (
+        run_active_learning_benchmark,
+        write_benchmark_pool,
+        generate_benchmark_pool,
+    )
+
+    # If no pool CSV provided, generate one
+    pool_csv = getattr(args, "pool_csv", None)
+    if pool_csv and Path(pool_csv).exists():
+        result = run_active_learning_benchmark(
+            pool_csv=args.pool_csv,
+            n_hidden_actives=args.n_hidden,
+            batch_size=args.batch_size,
+            max_rounds=args.max_rounds,
+            rng_seed=args.rng_seed,
+        )
+    else:
+        # Generate synthetic pool and run benchmark inline
+        pool = generate_benchmark_pool(
+            n_total=50,
+            n_active=10,
+            rng_seed=args.rng_seed,
+        )
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".csv", delete=False, newline="",
+        ) as f:
+            tmp_csv = Path(f.name)
+            write_benchmark_pool(pool, tmp_csv)
+        try:
+            result = run_active_learning_benchmark(
+                pool_csv=tmp_csv,
+                n_hidden_actives=args.n_hidden,
+                batch_size=args.batch_size,
+                max_rounds=args.max_rounds,
+                rng_seed=args.rng_seed,
+            )
+        finally:
+            tmp_csv.unlink(missing_ok=True)
+
+    out_dict = result.to_dict()
+    print(json.dumps(out_dict, indent=2))
+    return 0

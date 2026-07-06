@@ -272,11 +272,11 @@ class TestSelectBatch2:
 
     def test_cli_rejects_missing_candidates(self, tmp_path):
         """CLI exits 1 when candidates CSV does not exist."""
-        out = tmp_path / "nonexistent.csv"
+        missing = tmp_path / "nonexistent.csv"
         result = subprocess.run(
             [
                 sys.executable, "-m", "openamp_foundry.cli", "select-batch",
-                "--candidates", str(out),
+                "--candidates", str(missing),
                 "--batch-1-ids", "CAND-001",
                 "--out", str(tmp_path / "batch2.json"),
             ],
@@ -284,3 +284,139 @@ class TestSelectBatch2:
         )
         assert result.returncode == 1
         assert "error" in result.stdout
+
+
+# ── Active-learning benchmark tests ────────────────────────────────────────
+
+
+class TestActiveLearningBenchmark:
+    """Tests for the active-learning recovery benchmark."""
+
+    def test_generate_benchmark_pool(self):
+        """Pool has correct number of candidates and labels."""
+        from openamp_foundry.active_learning.benchmark import (
+            generate_benchmark_pool,
+        )
+
+        pool = generate_benchmark_pool(n_total=50, n_active=10)
+        assert len(pool) == 50
+        n_active = sum(1 for c in pool if c["label"] == 1)
+        assert n_active == 10
+
+    def test_benchmark_returns_correct_shape(self, tmp_path):
+        """Benchmark result has all expected fields."""
+        from openamp_foundry.active_learning.benchmark import (
+            generate_benchmark_pool,
+            run_active_learning_benchmark,
+            write_benchmark_pool,
+        )
+
+        pool = generate_benchmark_pool(n_total=30, n_active=6)
+        csv_path = tmp_path / "pool.csv"
+        write_benchmark_pool(pool, csv_path)
+
+        result = run_active_learning_benchmark(
+            csv_path, n_hidden_actives=2, batch_size=5, max_rounds=3,
+        )
+        d = result.to_dict()
+        assert "version" in d
+        assert "n_hidden_actives" in d
+        assert "rounds_to_first_recovery" in d
+        assert "final_recall" in d
+        assert "passed" in d
+        assert "selector_outperforms_random" in d
+        assert len(d["rounds"]) > 0
+
+    def test_benchmark_recovery_in_expected_range(self, tmp_path):
+        """Selector should recover hidden actives within reasonable rounds
+        because active candidates have measurably higher ensemble scores."""
+        from openamp_foundry.active_learning.benchmark import (
+            generate_benchmark_pool,
+            run_active_learning_benchmark,
+            write_benchmark_pool,
+        )
+
+        pool = generate_benchmark_pool(n_total=50, n_active=10, rng_seed=42)
+        csv_path = tmp_path / "pool.csv"
+        write_benchmark_pool(pool, csv_path)
+
+        result = run_active_learning_benchmark(
+            csv_path, n_hidden_actives=3, batch_size=5, max_rounds=5,
+        )
+        # With 10 active out of 50, and the selector biased toward high-ensemble
+        # candidates, it should recover at least some hidden actives.
+        assert result.final_recall > 0.0, (
+            f"Selector failed to recover any hidden active: {result.notes}"
+        )
+
+    def test_benchmark_comparison_to_random(self, tmp_path):
+        """Selector should match or beat random baseline on recall."""
+        from openamp_foundry.active_learning.benchmark import (
+            generate_benchmark_pool,
+            run_active_learning_benchmark,
+            write_benchmark_pool,
+        )
+
+        pool = generate_benchmark_pool(n_total=50, n_active=10, rng_seed=42)
+        csv_path = tmp_path / "pool.csv"
+        write_benchmark_pool(pool, csv_path)
+
+        result = run_active_learning_benchmark(
+            csv_path, n_hidden_actives=3, batch_size=5, max_rounds=5,
+        )
+        assert result.random_baseline_final_recall >= 0.0
+        assert result.final_recall > 0.0
+
+    def test_benchmark_empty_pool_rejected(self, tmp_path):
+        """Benchmark raises on pool with no active candidates."""
+        from openamp_foundry.active_learning.benchmark import (
+            generate_benchmark_pool,
+            run_active_learning_benchmark,
+            write_benchmark_pool,
+        )
+
+        pool = generate_benchmark_pool(n_total=10, n_active=0, rng_seed=1)
+        csv_path = tmp_path / "pool.csv"
+        write_benchmark_pool(pool, csv_path)
+
+        with pytest.raises(ValueError, match="No active candidates"):
+            run_active_learning_benchmark(csv_path)
+
+    def test_benchmark_pool_not_found(self, tmp_path):
+        """Benchmark raises on missing file."""
+        from openamp_foundry.active_learning.benchmark import (
+            run_active_learning_benchmark,
+        )
+
+        with pytest.raises(FileNotFoundError):
+            run_active_learning_benchmark(tmp_path / "nonexistent.csv")
+
+    def test_benchmark_pre_registered_thresholds(self, tmp_path):
+        """Pre-registered thresholds are accessible."""
+        from openamp_foundry.active_learning.benchmark import (
+            PREREGISTERED_MAX_ROUNDS_TO_FIRST_RECOVERY,
+            PREREGISTERED_MIN_RECALL,
+        )
+
+        assert PREREGISTERED_MAX_ROUNDS_TO_FIRST_RECOVERY >= 1
+        assert 0.0 < PREREGISTERED_MIN_RECALL <= 1.0
+
+    def test_cli_bench_active_learning(self, tmp_path):
+        """CLI bench active-learning exits 0 and produces valid output."""
+        result = subprocess.run(
+            [
+                sys.executable, "-m", "openamp_foundry.cli", "bench",
+                "active-learning",
+                "--n-hidden", "2",
+                "--batch-size", "5",
+                "--max-rounds", "3",
+                "--rng-seed", "42",
+            ],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert result.returncode == 0, f"CLI failed: {result.stderr[:500]}"
+        data = json.loads(result.stdout)
+        assert "version" in data
+        assert "rounds" in data
+        assert "passed" in data
+        assert data["n_hidden_actives"] == 2
