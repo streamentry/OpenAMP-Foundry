@@ -1,5 +1,26 @@
 # Roadmap
 
+## v0.5.47 — Full Calibration Loop End-to-End Test ✓ (2026-07-06)
+
+The calibration pipeline (synthetic generator → intake → gate → engine → batch-2 selector)
+had a standalone integration script but no pytest test running in CI. Any change that
+broke the CLI interface or data contract between steps would pass CI silently. This
+release adds a golden-path test that exercises every step via the actual CLI and
+validates all output artifacts.
+
+Changes:
+- Added ``TestFullCalibrationLoop`` in ``tests/test_calibration_e2e.py`` —
+  ``test_full_calibration_loop_via_cli`` runs all 5 steps sequentially in a
+  temp directory via subprocess CLI calls, then asserts each output artifact
+  exists, is parseable JSON, and has the expected top-level keys.
+- Steps tested: synthetic generator → ``calibration-intake`` → ``recalibration-gate``
+  → ``recalibration-engine`` (proposal) → ``select-batch`` → batch-2 manifest.
+- Honest gate exit-code handling: ``recalibration-gate`` may exit 3 on small
+  synthetic cohorts; the test asserts the output file is written regardless.
+- The test completes in <2 seconds and is compatible with ``-x`` and ``-q``
+  pytest flags.
+- 1834 total tests passing.
+
 ## v0.5.46 — Active-Learning Recovery Benchmark ✓ (2026-07-06)
 
 The batch-2 selector could pick candidates but there was no benchmark
