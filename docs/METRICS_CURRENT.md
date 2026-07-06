@@ -6,7 +6,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
 > **Last updated:** 2026-07-06 (external simulation adapter — v0.5.59)
-> **New in v0.5.59:** `ExternalSimulationAdapter` protocol — wraps third-party callables into `VirtualAssayProxy`. Availability check, graceful error handling, metadata override. ARCHITECTURE.md docs updated. 13 tests. 1966 total.
+> **New in v0.5.59:** `ExternalSimulationAdapter` protocol — wraps third-party callables into `VirtualAssayProxy`. Availability check, graceful error handling, metadata override. ARCHITECTURE.md docs updated. 12 tests. 1965 total.
 > **New in v0.5.58:** Per-signal cheap-baseline comparison: 0/4 simulation signals beat their cheapest heuristic. All simulation modules remain permanently experimental. `make bench-simulation-baselines`. 13 tests. 1953 total.
 > **New in v0.5.57:** `rank --simulation-mode info` runs MembraneProxy + StructureProxy on every candidate, adds `sim_*` scores to JSONL output and Markdown report. 6 new CLI tests. 1940 total.
 > **New in v0.5.56:** `openamp-foundry bench simulation-gate` converts both
@@ -1114,7 +1114,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 1966 |
+| Total tests | 1965 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 

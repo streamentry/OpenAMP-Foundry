@@ -21,7 +21,7 @@ Changes:
   ``ExternalSimulationAdapter`` usage example and documentation.
 - ``docs/50_LOOP_PLAN.md`` — Loop 38 ✅. Next: Loop 39.
 - ``docs/METRICS_CURRENT.md`` — Pipeline version v0.5.59. Test count: 1966.
-- 1966 tests passing (1953 existing + 13 new).
+- 1965 tests passing (1953 existing + 12 new — one test deduplicated).
 
 ## v0.5.58 — Simulation Cheap-Baseline Benchmark (Loop 36) ✓ (2026-07-06)
 
