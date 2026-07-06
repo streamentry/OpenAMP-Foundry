@@ -25,9 +25,9 @@ The project never treats computational prediction as biological proof.
 Read in this order:
 
 1. [`README.md`](../README.md) — quickstart and repo map.
-2. [`CONTRIBUTING.md`](../CONTRIBUTING.md) — contribution rules and safety checklist.
-3. [`docs/COMMAND_SURFACE.md`](COMMAND_SURFACE.md) — command workflows and claim boundaries.
-4. [`docs/CI_AND_QUALITY_GATES.md`](CI_AND_QUALITY_GATES.md) — test, artifact, benchmark, claim, and safety gates.
+2. [`docs/FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) — first-run expectations and troubleshooting.
+3. [`CONTRIBUTING.md`](../CONTRIBUTING.md) — contribution rules and safety checklist.
+4. [`docs/COMMAND_SURFACE.md`](COMMAND_SURFACE.md) — command workflows and claim boundaries.
 5. [`docs/NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md) — sequenced infrastructure backlog.
 
 First useful contribution: fix a small bug, improve a test, add a doc consistency check, or make one CLI path easier to use.
@@ -52,7 +52,7 @@ Read in this order:
 2. [`docs/PROOF_LADDER.md`](PROOF_LADDER.md) — claim levels.
 3. [`docs/CLAIM_REVIEW_CHECKLIST.md`](CLAIM_REVIEW_CHECKLIST.md) — claim review.
 4. [`docs/BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) — benchmark review.
-5. [`docs/SAFETY_DOC_AUDIT.md`](SAFETY_DOC_AUDIT.md) — safety-doc audit history.
+5. [`docs/RISK_REGISTER.md`](RISK_REGISTER.md) — major risks and mitigations.
 
 First useful contribution: reject or downgrade weak claims, unclear release status, missing baselines, or unreviewable artifacts.
 
@@ -68,17 +68,17 @@ Read in this order:
 
 First useful contribution: add a leakage-resistant benchmark, improve reference curation, challenge a scorer with a cheaper baseline, or add an adapter with documented limitations.
 
-### Data or model contributor
+### Data, schema, model, or adapter contributor
 
 Read in this order:
 
 1. [`DATA_LICENSE_NOTICE.md`](../DATA_LICENSE_NOTICE.md) — data license and redistribution policy.
 2. [`docs/DATA_GOVERNANCE.md`](DATA_GOVERNANCE.md) — dataset cards, labels, leakage, release status.
-3. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — model and artifact release policy.
-4. [`docs/MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md) — required model/adapter card structure.
+3. [`docs/SCHEMA_REGISTRY.md`](SCHEMA_REGISTRY.md) — structured artifact registry.
+4. [`docs/ADAPTER_AUTHOR_GUIDE.md`](ADAPTER_AUTHOR_GUIDE.md) — safe adapter authoring.
 5. [`docs/ARTIFACT_VERSIONING.md`](ARTIFACT_VERSIONING.md) — artifact compatibility rules.
 
-First useful contribution: add a dataset card, model card, schema example, adapter card, or license/release-status clarification.
+First useful contribution: add a dataset card, schema example, adapter card, model card, validator, or license/release-status clarification.
 
 ### Microbiologist, peptide scientist, or wet-lab partner
 
@@ -90,7 +90,7 @@ Read in this order:
 4. [`docs/LAB_PARTNER_ONBOARDING.md`](LAB_PARTNER_ONBOARDING.md) — safe partner onboarding boundaries.
 5. [`docs/PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — non-protocol template for freezing pilot logic before qualified testing.
 
-First useful contribution: review whether candidate evidence packages are interpretable, whether controls are adequate at the planning level, and whether success/failure criteria are scientifically meaningful.
+First useful contribution: review whether candidate evidence packages are interpretable and whether success/failure criteria are scientifically meaningful.
 
 ### Safety reviewer
 
@@ -99,8 +99,8 @@ Read in this order:
 1. [`docs/TRUST_CENTER.md`](TRUST_CENTER.md) — safety, evidence, release, and governance overview.
 2. [`SAFETY.md`](../SAFETY.md) — safety posture.
 3. [`SECURITY.md`](../SECURITY.md) — safety-sensitive reporting.
-4. [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — user-facing boundaries.
-5. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release rules.
+4. [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release rules.
+5. [`docs/SAFETY_DOC_AUDIT.md`](SAFETY_DOC_AUDIT.md) — safety-doc audit history.
 
 First useful contribution: identify where an artifact could be misread, over-released, overclaimed, or used outside scope.
 
@@ -109,7 +109,7 @@ First useful contribution: identify where an artifact could be misread, over-rel
 Read in this order:
 
 1. [`VISION.md`](../VISION.md) — long-term infrastructure thesis.
-2. [`GOAL.md`](../GOAL.md) — measurable milestones.
+2. [`docs/OPEN_INFRASTRUCTURE_MOAT.md`](OPEN_INFRASTRUCTURE_MOAT.md) — why infrastructure can be durable.
 3. [`docs/TRUST_CENTER.md`](TRUST_CENTER.md) — trust architecture.
 4. [`docs/ADOPTION_METRICS.md`](ADOPTION_METRICS.md) — adoption metrics that value trust over hype.
 5. [`GOVERNANCE.md`](../GOVERNANCE.md) — decision governance.
@@ -122,9 +122,9 @@ Read in this order:
 
 1. [`GOVERNANCE.md`](../GOVERNANCE.md) — project governance.
 2. [`docs/MAINTAINER_GUIDE.md`](MAINTAINER_GUIDE.md) — maintainer review rules.
-3. [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) — release checklist.
-4. [`docs/DECISION_RECORD_TEMPLATE.md`](DECISION_RECORD_TEMPLATE.md) — decision record template.
-5. [`docs/CI_AND_QUALITY_GATES.md`](CI_AND_QUALITY_GATES.md) — gates and CI philosophy.
+3. [`docs/SUSTAINABILITY_AND_BUS_FACTOR.md`](SUSTAINABILITY_AND_BUS_FACTOR.md) — sustainability and bus-factor plan.
+4. [`docs/RISK_REGISTER.md`](RISK_REGISTER.md) — major risks and mitigations.
+5. [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) — release checklist.
 
 First useful contribution: make the repo easier to maintain without lowering safety, evidence, or reproducibility standards.
 
@@ -137,12 +137,14 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`MISSION.md`](../MISSION.md) | Scientific mission and claim boundaries. |
 | [`GOVERNANCE.md`](../GOVERNANCE.md) | Project decision governance. |
 | [`docs/TRUST_CENTER.md`](TRUST_CENTER.md) | Trust front door for safety, evidence, release, governance, and agents. |
+| [`docs/OPEN_INFRASTRUCTURE_MOAT.md`](OPEN_INFRASTRUCTURE_MOAT.md) | Why OpenAMP should win through reusable trust infrastructure. |
 | [`docs/NUMBER_ONE_REPO_STANDARD.md`](NUMBER_ONE_REPO_STANDARD.md) | Defines what category leadership means. |
 | [`docs/WHY_WORK_ON_OPENAMP.md`](WHY_WORK_ON_OPENAMP.md) | Positioning: why serious contributors should choose this repo. |
 | [`docs/OPEN_BIOTECH_STACK.md`](OPEN_BIOTECH_STACK.md) | Infrastructure thesis and stack model. |
 | [`docs/ADOPTION_STRATEGY.md`](ADOPTION_STRATEGY.md) | Adoption strategy for humans, agents, labs, and institutions. |
 | [`docs/ADOPTION_METRICS.md`](ADOPTION_METRICS.md) | Adoption metrics that prioritize trust and reuse over popularity. |
 | [`docs/NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md) | PR-sized roadmap for compounding work. |
+| [`docs/RISK_REGISTER.md`](RISK_REGISTER.md) | Major risks and mitigations. |
 | [`CITATION.cff`](../CITATION.cff) | Citation metadata. |
 
 ## Core operating docs
@@ -152,12 +154,14 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`AGENTS.md`](../AGENTS.md) | Operating contract for AI agents. |
 | [`CLAUDE.md`](../CLAUDE.md) | Concise collaborator guidance. |
 | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Contribution rules and PR expectations. |
+| [`docs/FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) | First-run path for humans and agents. |
 | [`docs/HUMAN_AGENT_COLLABORATION.md`](HUMAN_AGENT_COLLABORATION.md) | Human-agent collaboration model. |
 | [`docs/AGENT_ONBOARDING.md`](AGENT_ONBOARDING.md) | Safe agent task protocol. |
 | [`docs/HUMAN_ONBOARDING.md`](HUMAN_ONBOARDING.md) | Human contributor onboarding. |
 | [`docs/REVIEWER_ONBOARDING.md`](REVIEWER_ONBOARDING.md) | Reviewer guide and checklists. |
 | [`docs/HIGH_LEVERAGE_TASKS.md`](HIGH_LEVERAGE_TASKS.md) | Task map for humans and agents. |
 | [`docs/MAINTAINER_GUIDE.md`](MAINTAINER_GUIDE.md) | Maintainer review and governance standard. |
+| [`docs/SUSTAINABILITY_AND_BUS_FACTOR.md`](SUSTAINABILITY_AND_BUS_FACTOR.md) | Project sustainability and bus-factor plan. |
 | [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) | Release checklist. |
 | [`docs/DECISION_RECORD_TEMPLATE.md`](DECISION_RECORD_TEMPLATE.md) | Decision record template. |
 | [`docs/DOCS_MAINTENANCE.md`](DOCS_MAINTENANCE.md) | Documentation maintenance rules. |
@@ -167,20 +171,21 @@ First useful contribution: make the repo easier to maintain without lowering saf
 
 | Document | Job |
 |---|---|
-| [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) | System architecture, data flow, package map, extension points. |
+| [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) | System architecture, trust architecture, data flow, and extension points. |
 | [`docs/COMMAND_SURFACE.md`](COMMAND_SURFACE.md) | Commands, workflows, and claim boundaries. |
 | [`docs/CI_AND_QUALITY_GATES.md`](CI_AND_QUALITY_GATES.md) | CI, quality gates, and gate promotion. |
+| [`docs/SCHEMA_REGISTRY.md`](SCHEMA_REGISTRY.md) | Human-readable schema and artifact registry. |
+| [`docs/RUN_MANIFEST_STANDARD.md`](RUN_MANIFEST_STANDARD.md) | Provenance standard for reproducible runs. |
 | [`docs/ARTIFACT_VERSIONING.md`](ARTIFACT_VERSIONING.md) | Artifact versioning and compatibility policy. |
+| [`docs/ADAPTER_AUTHOR_GUIDE.md`](ADAPTER_AUTHOR_GUIDE.md) | Safe external adapter authoring. |
 | [`docs/BENCHMARKING.md`](BENCHMARKING.md) | Current benchmark suite and commands. |
 | [`docs/BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) | Benchmark lifecycle and anti-cheating rules. |
 | [`docs/METRICS_CURRENT.md`](METRICS_CURRENT.md) | Current benchmark state and single source of truth for metrics. |
-| [`docs/DECISION_RULES.md`](DECISION_RULES.md) | Pre-registered pass/fail gates. |
 | [`docs/EVIDENCE_CERTIFICATE.md`](EVIDENCE_CERTIFICATE.md) | Candidate certificate spec. |
 | [`docs/CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) | Recalibration gate and policy. |
-| [`docs/SIMULATION_BENCHMARK.md`](SIMULATION_BENCHMARK.md) | Current verdict on simulation modules. |
 | [`docs/VIRTUAL_ASSAY_SCOPE.md`](VIRTUAL_ASSAY_SCOPE.md) | What virtual assay modules may and may not claim. |
 
-## Data, model, and release docs
+## Data, model, release, and claims docs
 
 | Document | Job |
 |---|---|
@@ -191,6 +196,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`docs/MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md) | Model, scorer, simulator, generator, and adapter card template. |
 | [`models/README.md`](../models/README.md) | Models directory policy. |
 | [`docs/CLAIM_REVIEW_CHECKLIST.md`](CLAIM_REVIEW_CHECKLIST.md) | Claim review checklist. |
+| [`docs/PUBLICATION_POLICY.md`](PUBLICATION_POLICY.md) | Publication and public claims policy. |
 
 ## External review and collaboration docs
 
@@ -221,6 +227,10 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | File | Job |
 |---|---|
 | [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md) | PR checklist for safety, evidence, proof ladder, baselines, and review. |
+| [`.github/CODEOWNERS`](../.github/CODEOWNERS) | Review-intent ownership for sensitive areas. |
+| [`.github/ISSUE_TEMPLATE/config.yml`](../.github/ISSUE_TEMPLATE/config.yml) | Issue chooser guidance. |
+| [`.github/ISSUE_TEMPLATE/bug_report.md`](../.github/ISSUE_TEMPLATE/bug_report.md) | Bug report template. |
+| [`.github/ISSUE_TEMPLATE/documentation_improvement.md`](../.github/ISSUE_TEMPLATE/documentation_improvement.md) | Documentation improvement template. |
 | [`.github/ISSUE_TEMPLATE/agent_safe_task.md`](../.github/ISSUE_TEMPLATE/agent_safe_task.md) | Agent-safe task template. |
 | [`.github/ISSUE_TEMPLATE/benchmark_governance.md`](../.github/ISSUE_TEMPLATE/benchmark_governance.md) | Benchmark proposal/change template. |
 | [`.github/ISSUE_TEMPLATE/safety_review.md`](../.github/ISSUE_TEMPLATE/safety_review.md) | Safety/release review template. |
@@ -229,8 +239,6 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`.github/ISSUE_TEMPLATE/claim_review.md`](../.github/ISSUE_TEMPLATE/claim_review.md) | Claim review template. |
 
 ## Working loop for any contributor
-
-Every good contribution should follow the same loop:
 
 ```text
 find bottleneck
@@ -242,8 +250,6 @@ find bottleneck
   -> run checks
   -> leave the repo easier for the next person or agent
 ```
-
-The project should compound through small, verified loops rather than dramatic unsupported leaps.
 
 ## What not to do
 
