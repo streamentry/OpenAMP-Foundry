@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use OpenAMP Foundry, please cite the repository and the specific release or commit you used."
+title: "OpenAMP Foundry: Verification-first dry-lab infrastructure for antimicrobial peptide candidate triage"
+authors:
+  - name: "OpenAMP Foundry Contributors"
+version: "0.1.0"
+date-released: "2026-07-06"
+license: "Apache-2.0"
+repository-code: "https://github.com/Open-Problem-Lab/OpenAMP-Foundry"
+abstract: >-
+  OpenAMP Foundry is a verification-first, safety-constrained dry-lab foundry
+  for AI-assisted antimicrobial peptide candidate triage. The project emphasizes
+  reproducible evidence certificates, benchmark governance, claim discipline,
+  safety-aware release policy, and qualified expert review.
+keywords:
+  - antimicrobial peptides
+  - open science
+  - dry-lab triage
+  - reproducibility
+  - benchmark governance
+  - evidence certificates
+  - responsible AI
