@@ -4,41 +4,43 @@ Thank you for considering a contribution to OpenAMP Foundry.
 
 This project is a **safety-first, verification-driven** antimicrobial peptide discovery foundry. It exists to accelerate responsible antimicrobial discovery — not to enable misuse, overclaim, or publish unvalidated results.
 
-Before contributing, read:
+## Start with the right path
 
-- [SAFETY.md](SAFETY.md) — safety posture and disallowed contributions
-- [AGENTS.md](AGENTS.md) — operating principles, claim policy, and kill criteria
-- [README.md](README.md) — project scope and quickstart
-- [docs/PROJECT_INDEX.md](docs/PROJECT_INDEX.md) — navigation hub for humans and agents
-- [docs/HUMAN_ONBOARDING.md](docs/HUMAN_ONBOARDING.md) — human contributor path
-- [docs/HIGH_LEVERAGE_TASKS.md](docs/HIGH_LEVERAGE_TASKS.md) — task map by leverage and risk
+Before contributing, read the path that matches your role:
+
+| Role | Start here |
+|---|---|
+| New human contributor | [`docs/FIRST_RUN_WALKTHROUGH.md`](docs/FIRST_RUN_WALKTHROUGH.md), [`docs/HUMAN_ONBOARDING.md`](docs/HUMAN_ONBOARDING.md) |
+| AI agent | [`AGENTS.md`](AGENTS.md), [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md) |
+| Reviewer | [`docs/REVIEWER_ONBOARDING.md`](docs/REVIEWER_ONBOARDING.md) |
+| Data contributor | [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md) |
+| Model or adapter contributor | [`docs/MODEL_CARD_TEMPLATE.md`](docs/MODEL_CARD_TEMPLATE.md), [`docs/ADAPTER_AUTHOR_GUIDE.md`](docs/ADAPTER_AUTHOR_GUIDE.md) |
+| Maintainer | [`GOVERNANCE.md`](GOVERNANCE.md), [`docs/MAINTAINER_GUIDE.md`](docs/MAINTAINER_GUIDE.md) |
+
+Everyone should also read:
+
+- [`SAFETY.md`](SAFETY.md) — safety posture and disallowed contributions;
+- [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md) — allowed and disallowed use;
+- [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md) — navigation hub;
+- [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) — claim boundaries.
 
 ## Quickstart for contributors
 
 ```bash
-make install    # create .venv and install package + dev deps
-make demo       # run the demo pipeline
-make test       # run all tests
-make ci         # run full CI suite (lint + test + benchmark gate)
-make bench-gate # run benchmark regression check
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+make demo
+make test
+make lint
+make ci
 ```
 
-If all targets pass, your dev environment is ready.
-
-## Types of contributions
-
-| Type | Impact | Expectations |
-|------|--------|-------------|
-| Bug fix | Low | Tests demonstrating the bug, fix, no regressions |
-| Documentation improvement | Low-Medium | Clarifies scope, evidence, onboarding, or safety without overclaiming |
-| New feature | Medium | Tests, docs update, safety impact note |
-| New scorer/benchmark | Medium-High | Limitation documentation, evidence of honesty checks: leakage, overfitting, cheap baselines |
-| Safety policy | High | Human review required before merging |
-| Wet-lab data / sequences | High | Must be pre-approved; never publish unsafe data |
+For interpretation of commands and outputs, read [`docs/COMMAND_SURFACE.md`](docs/COMMAND_SURFACE.md).
 
 ## What high-leverage contributions look like
 
-High-leverage work usually improves at least one of these:
+High-leverage work improves at least one of these:
 
 1. **Trust** — stronger evidence, reproducibility, auditability, or safety.
 2. **Decision quality** — better selection of scarce experiment slots.
@@ -46,73 +48,110 @@ High-leverage work usually improves at least one of these:
 4. **External usefulness** — easier onboarding for labs, scientists, engineers, and reviewers.
 5. **Compounding** — changes that make future agents and humans faster without lowering standards.
 
-See [docs/HIGH_LEVERAGE_TASKS.md](docs/HIGH_LEVERAGE_TASKS.md) for concrete task categories.
+See [`docs/HIGH_LEVERAGE_TASKS.md`](docs/HIGH_LEVERAGE_TASKS.md) and [`docs/NEXT_100_PR_MAP.md`](docs/NEXT_100_PR_MAP.md).
+
+## Types of contributions
+
+| Type | Review class | Expectations |
+|---|---|---|
+| Bug fix | A/B | Tests demonstrating the bug, fix, no regressions. |
+| Documentation improvement | A/B | Clarifies scope, evidence, onboarding, safety, or reviewability without overclaiming. |
+| Schema or artifact improvement | B | Compatibility note, examples, validation, source docs updated. |
+| CLI/report improvement | B | Tests, docs, deterministic behavior where relevant. |
+| New scorer, predictor, or adapter | C | Model/adapter card, limitations, benchmark and cheap-baseline comparison. |
+| New benchmark | C | Benchmark card, dataset/license notes, cheap baselines, leakage risks. |
+| Calibration change | C/D | Gate policy respected, decision record, human review. |
+| Safety or release policy | D | Safety review required. |
+| Candidate/model/data release | D | Release review required. |
+
+See [`GOVERNANCE.md`](GOVERNANCE.md) for decision classes.
 
 ## Claim policy
 
-When contributing documentation or commit messages, follow these rules:
+When contributing documentation, code comments, commit messages, PR descriptions, or releases, use [`docs/CLAIM_REVIEW_CHECKLIST.md`](docs/CLAIM_REVIEW_CHECKLIST.md).
 
-**Allowed:**
+Allowed for dry-lab outputs:
 
-- "Computationally nominated candidate"
-- "Predicted antimicrobial peptide"
-- "Dry-lab candidate"
-- "Selected by reproducible pipeline"
-- "Novel candidate family" (if novelty analysis supports it)
+- computationally nominated candidate;
+- dry-lab candidate;
+- selected by reproducible pipeline;
+- selected for expert review;
+- evidence package;
+- benchmark-supported under stated assumptions.
 
-**Forbidden unless experimentally proven:**
+Forbidden unless evidence supports it exactly:
 
-- "AI discovered an antibiotic"
-- "Drug candidate"
-- "Safe", "Effective in humans", "Clinically useful"
-- "Cure", "Breakthrough therapy"
-- "Proven antimicrobial" (before lab validation)
-- "World-first" (unless independently verified)
-
-Use [docs/PROOF_LADDER.md](docs/PROOF_LADDER.md) to map claim strength to evidence level.
+- AI discovered an antibiotic;
+- drug candidate;
+- safe;
+- effective in humans;
+- clinically useful;
+- cure;
+- breakthrough therapy;
+- proven antimicrobial;
+- world-first.
 
 ## Before opening a PR
 
-1. Run `make ci` and confirm all gates pass.
-2. Run `make bench-gate` and confirm AUROC has not regressed.
-3. If you changed pipeline logic, run `make regenerate-all` to verify determinism.
-4. Add tests for new functionality. Aim for >80% coverage on new code.
-5. Update docs if behavior changes.
-6. Add a safety impact note to the PR description (see template below).
-7. Check that your contribution doesn't add any prohibited content:
-   - Toxicity-maximizing objectives
-   - Instructions for culturing or modifying pathogens
-   - High-risk assay protocols
-   - Unscreened candidate dumps
-   - Evasion of safety filters
-   - Claims of efficacy without assay evidence
-   - Clinical or medical advice
+1. Run relevant checks.
+2. Add or update tests for behavior changes.
+3. Update docs if behavior changes.
+4. Add a safety impact note.
+5. Add a proof-ladder note for scientific or public-facing claims.
+6. Add a release-status note for artifacts, data, models, or candidates.
+7. Add baseline comparison for scorers, predictors, simulation modules, or selection heuristics.
+8. Add or update a decision record for governance-sensitive changes.
+9. Stop and request human review for safety-sensitive changes.
+
+## Recommended checks
+
+Basic:
+
+```bash
+make test
+make lint
+make ci
+```
+
+Benchmark-sensitive:
+
+```bash
+make bench-gate
+```
+
+Pipeline-sensitive:
+
+```bash
+make regenerate-all
+```
+
+Future checks are described in [`docs/CI_AND_QUALITY_GATES.md`](docs/CI_AND_QUALITY_GATES.md).
 
 ## PR requirements
 
-Every PR must include:
+Every meaningful PR should include:
 
 1. **Clear scope** — what it does and why.
-2. **Tests** — new or updated tests that cover the change.
-3. **Documentation update** — if behavior changes.
-4. **Safety impact note** — filled out checklist (see below).
-5. **License status** — for any new data or model dependency.
-6. **Limitations** — if adding a scorer, benchmark, or prediction module.
-7. **Baseline comparison** — if adding a scorer, predictor, simulation module, or selection heuristic.
+2. **Evidence** — tests, commands, schemas, benchmarks, or docs.
+3. **Safety impact** — what safety or release surface changed.
+4. **Claim discipline** — proof-ladder level if claims are involved.
+5. **Limitations** — what the change does not prove.
+6. **Docs update** — source-of-truth docs updated when behavior changes.
+7. **Review needs** — safety, scientific, maintainer, or domain review if required.
 
 ## Safety impact note
 
-Copy this into your PR description:
+Use the PR template. At minimum, answer:
 
 ```md
 ### Safety impact
 - [ ] No biological misuse capability added
-- [ ] No wet-lab protocol added
+- [ ] No operational biological instructions added
 - [ ] No harmful optimization objective added
 - [ ] No unscreened candidate sequences published
-- [ ] No efficacy claims without assay evidence
+- [ ] No model weights or sensitive artifacts released without review
+- [ ] No efficacy, safety, clinical, or therapeutic claims without evidence
 - [ ] Limitations and failure modes documented
-- [ ] Evidence is reproducible (run includes seed, commit, config)
 ```
 
 ## Evidence note
@@ -126,36 +165,41 @@ For scorer, benchmark, adapter, simulation, calibration, or selection changes, i
 - Cheap baseline compared:
 - Result:
 - Known caveat:
+- Source-of-truth doc updated:
 ```
 
 ## Code standards
 
-- Follow existing patterns in the codebase (see AGENTS.md section on code style).
-- Use existing libraries — don't add new heavy dependencies unless justified.
-- No placeholder or TODO comments in production code.
+- Follow existing patterns.
 - Keep functions small and single-purpose.
+- Avoid heavy dependencies unless justified.
+- Preserve deterministic behavior where possible.
+- Prefer explicit errors over silent fallback.
 - Preserve negative results, failure modes, and honest limitations.
-- Never optimize for mammalian toxicity, pathogen enhancement, or immune evasion.
+- Never optimize unsafe properties or bypass safety review.
 
-## Documentation policy
+## Documentation standards
 
 - Update docs when behavior changes.
-- Document limitations for new scorers, benchmarks, or prediction modules.
-- Preserve negative results — a clean failure is more valuable than a fake success.
-- Prefer adding detailed new guidance under `docs/` unless a top-level file is explicitly part of the primary onboarding surface.
-- Keep [docs/PROJECT_INDEX.md](docs/PROJECT_INDEX.md) updated when adding important documents.
+- Keep [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md) current when adding important docs.
+- Use source-of-truth docs instead of duplicating stale metrics.
+- Mark experimental features as experimental.
+- Do not remove caveats for readability.
+- Prefer reviewable artifacts over persuasive language.
 
 ## Review process
 
-1. Automated checks must pass (lint, tests, benchmark gate).
-2. At least one human review is required for safety-significant changes.
-3. PRs that add new scorers or benchmarks need extra scrutiny for honesty and leakage.
-4. PRs that affect candidate publication, safety boundaries, or wet-lab-facing artifacts need safety review.
-5. PRs may be rejected if they fail the safety impact check.
+1. Automated checks should pass.
+2. Maintainer review is required for meaningful changes.
+3. Scientific behavior changes require benchmark and baseline scrutiny.
+4. Safety-sensitive changes require safety review.
+5. Release-sensitive changes require release review.
+6. Agent-generated changes require scope and claim review.
 
 ## Getting help
 
-- Open an issue for questions about the contribution process.
-- For safety questions, note them explicitly in the issue.
-- Read AGENTS.md for the full operating principles and decision rules.
-- Read [docs/PROJECT_INDEX.md](docs/PROJECT_INDEX.md) if you are unsure where a topic belongs.
+Open a focused issue using the closest template.
+
+For security or safety-sensitive reports, follow [`SECURITY.md`](SECURITY.md) instead of opening a public issue.
+
+Use [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md) when unsure where a topic belongs.
