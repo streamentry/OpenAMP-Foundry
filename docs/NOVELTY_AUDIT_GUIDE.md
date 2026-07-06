@@ -72,8 +72,8 @@ curl -sL "${BASE}/general_amps.fasta" -o data/novelty_db/dramp_general.fasta
 curl -sL "${BASE}/patent_amps.fasta"  -o data/novelty_db/dramp_patent.fasta
 curl -sL "${BASE}/specific_amps.fasta" -o data/novelty_db/dramp_specific.fasta
 
-# Re-download UniProt (run annually) — use the Python paginator in scripts/
-python3 scripts/download_uniprot_amps.py
+# Re-download UniProt (run annually) — use the download-novelty-dbs paginator
+python3 scripts/download_novelty_dbs.py --uniprot
 
 # Re-download ESCAPE (run when Harvard Dataverse dataset is updated)
 python3 scripts/download_novelty_dbs.py --escape

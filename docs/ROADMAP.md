@@ -1,5 +1,32 @@
 # Roadmap
 
+## v0.5.51 — Virtual Assay Scope + Doc Drift Fix (Loop 30) ✓ (2026-07-06)
+
+Phase 3 begins with a scope document defining what the virtual assay layer
+IS and IS NOT, with explicit uncertainty policy, ablation requirements, and
+integration modes. Accumulated doc drift fixed alongside: BENCHMARKING.md
+was missing ~11 of 19 benchmarks; METRICS_CURRENT.md test count was stale
+(1832+ → 1843); NOVELTY_AUDIT_GUIDE.md referenced a nonexistent script.
+
+Changes:
+- ``docs/VIRTUAL_ASSAY_SCOPE.md`` — Phase 3 scope document covering 4 planned
+  modules (membrane binding, structure ensemble, selectivity ratio, stability),
+  12 explicitly NOT-modeled effects, uncertainty policy (modules with
+  uncertainty > 0.5 cannot affect selection), ablation requirement (each
+  module must beat cheap heuristic baseline), 3 integration modes
+  (off/info/weighted), calibration gate for weighted mode, and 5 exit criteria.
+- ``docs/BENCHMARKING.md`` — Complete rewrite: all 19 benchmarks organized
+  into 6 categories (core discrimination, honesty, selectivity/safety,
+  composite/ablation, regression/CI, deferred). Each benchmark has make target,
+  purpose, target metric, and verification command.
+- ``docs/METRICS_CURRENT.md`` — Test count corrected: 1832+ → 1843.
+- ``docs/NOVELTY_AUDIT_GUIDE.md`` — Fixed stale script reference:
+  ``scripts/download_uniprot_amps.py`` → ``scripts/download_novelty_dbs.py --uniprot``.
+- ``docs/50_LOOP_PLAN.md`` — Loop 30 marked ✅. Phase 3 status updated to
+  "In progress — Loop 30 ✅".
+- ``scripts/__init__.py`` — Populated with module docstring.
+- 1843 tests passing. No code changes to pipeline.
+
 ## v0.5.50 — Negative-Result Archive Template + Phase 2 Closeout ✓ (2026-07-06)
 
 Phase 2 exit criteria required a public negative-result archive format but none
