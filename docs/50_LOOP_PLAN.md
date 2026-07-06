@@ -1,10 +1,10 @@
 # 50-Loop Execution Plan
 
-> **Status:** Strategic roadmap. Updated v0.5.62.
-> **Current state:** 1961 passing tests, pipeline AUROC 0.7792, calibration pipeline complete (intake + gate + engine + dry-run + policy-version + synthetic generator + recalibration report + batch-2 selector + recovery benchmark + end-to-end integration + pytest golden-path test + policy bump workflow + negative result archive),
-> > Phase 0 complete (Loops 1–8), Phase 1 complete (Loops 9–17), Phase 2 complete (Loops 18–29),
-> Phase 3 complete (Loops 30–39 + v0.5.62 uncertainty evidence hardening),
-> cluster-split/selectivity/triage now gated in CI, Wave 0.5 panel ready (24 candidates, 15 families), no wet-lab data yet.
+> **Status:** ✅ All 50 loops complete. v0.5.70.
+> **Current state:** 2021 passing tests, pipeline AUROC 0.7792,
+> all 5 phases complete, Wave 0.5 panel ready (24 candidates, 15 families),
+> simulation modules experimental, no wet-lab data yet.
+> Reproducibility: `make full-reproducibility-report`
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
 > Loops compound. Earlier loops unlock later ones.
