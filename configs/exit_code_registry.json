@@ -1,0 +1,23 @@
+{
+  "description": "OpenAMP Foundry CLI exit code registry",
+  "codes": {
+    "0": {"meaning": "success", "description": "Command completed successfully"},
+    "1": {"meaning": "internal_error", "description": "Unexpected error during execution"},
+    "2": {"meaning": "input_error", "description": "Missing or invalid input (file not found, bad arguments)"},
+    "3": {"meaning": "validation_failure", "description": "Validation or gate check failed (data did not pass criteria)"}
+  },
+  "command_patterns": {
+    "rank": {"expected": [0, 2], "notes": "0=success, 2=missing input"},
+    "validate": {"expected": [0, 2], "notes": "0=valid, 2=missing input"},
+    "bench leakage": {"expected": [0, 2], "notes": "0=success, 2=missing input"},
+    "pilot-panel": {"expected": [0, 2], "notes": "0=success, 2=missing input"},
+    "calibration-intake": {"expected": [0, 2], "notes": "0=success, 2=missing input"},
+    "check_wave1_pass_fail.py": {"expected": [0, 2, 3], "notes": "0=all pass, 2=input error, 3=criteria fail"},
+    "validate_lab_data_return.py": {"expected": [0, 2, 3], "notes": "0=all valid, 2=input error, 3=validation fail"},
+    "validate_negative_archive.py": {"expected": [0, 2, 3], "notes": "0=all valid, 2=input error, 3=validation fail"},
+    "validate_panel_csv.py": {"expected": [0, 2, 3], "notes": "0=valid, 2=input error, 3=invalid"},
+    "check_claims.py": {"expected": [0, 3], "notes": "0=ok, 3=findings (advisory)"},
+    "check_doc_links.py": {"expected": [0, 3], "notes": "0=ok, 3=broken links found"},
+    "check_pyproject.py": {"expected": [0, 2, 3], "notes": "0=ok, 2=input error, 3=inconsistency found"}
+  }
+}
