@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Agent Task Map",
+  "description": "Machine-readable safe task routing for AI agents.",
+  "task_categories": [
+    {
+      "category": "docs",
+      "safe_paths": ["docs/", "README.md", "CONTRIBUTING.md"],
+      "review_class": "light",
+      "forbidden_zones": ["docs/safety/", "docs/trust/"],
+      "required_checks": ["check_doc_links", "check_claims"],
+      "example_pr_size": "< 200 lines",
+      "expected_artifact": "documentation change"
+    },
+    {
+      "category": "tests",
+      "safe_paths": ["tests/"],
+      "review_class": "light",
+      "forbidden_zones": [],
+      "required_checks": ["pytest"],
+      "example_pr_size": "< 300 lines",
+      "expected_artifact": "test file"
+    },
+    {
+      "category": "schemas",
+      "safe_paths": ["schemas/"],
+      "review_class": "normal",
+      "forbidden_zones": [],
+      "required_checks": ["validate_schema", "pytest"],
+      "example_pr_size": "< 100 lines",
+      "expected_artifact": "schema file"
+    },
+    {
+      "category": "ci",
+      "safe_paths": [".github/"],
+      "review_class": "normal",
+      "forbidden_zones": [],
+      "required_checks": ["pytest"],
+      "example_pr_size": "< 50 lines",
+      "expected_artifact": "CI workflow change"
+    },
+    {
+      "category": "benchmarks",
+      "safe_paths": ["scripts/benchmarks/", "scripts/benchmark_*"],
+      "review_class": "normal",
+      "forbidden_zones": ["configs/pipeline.yaml", "configs/phase3.yaml"],
+      "required_checks": ["pytest", "bench-gate"],
+      "example_pr_size": "< 200 lines",
+      "expected_artifact": "benchmark script or card"
+    },
+    {
+      "category": "calibration",
+      "safe_paths": ["src/openamp_foundry/calibration/", "configs/recalibration_policy.yaml"],
+      "review_class": "requires_human_review",
+      "forbidden_zones": [],
+      "required_checks": ["pytest"],
+      "example_pr_size": "< 300 lines",
+      "expected_artifact": "calibration module change"
+    },
+    {
+      "category": "external_review",
+      "safe_paths": ["docs/review/"],
+      "review_class": "requires_human_review",
+      "forbidden_zones": [],
+      "required_checks": ["check_claims"],
+      "example_pr_size": "< 200 lines",
+      "expected_artifact": "review document"
+    },
+    {
+      "category": "release_safety",
+      "safe_paths": [],
+      "review_class": "blocked",
+      "forbidden_zones": ["ALL"],
+      "required_checks": [],
+      "example_pr_size": "N/A",
+      "expected_artifact": "N/A — requires human release authority"
+    }
+  ],
+  "stop_conditions": [
+    "Task broadens beyond requested scope",
+    "Change touches safety or release policy",
+    "Claim becomes stronger than evidence supports",
+    "Benchmark threshold changes",
+    "Non-toy data or candidate artifacts appear",
+    "Tests fail in an unexplained way",
+    "Uncertainty is being hidden"
+  ],
+  "non_negotiable": [
+    "Computational outputs are not biological proof",
+    "The lab is the judge",
+    "No cherry-picking — preserve negative results",
+    "Safety-first optimization",
+    "Human review required for safety, release, and scientific claims"
+  ]
+}
