@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Panel CSV Schema",
+  "description": "Required and optional columns for candidate panel CSV files.",
+  "type": "object",
+  "required": ["candidate_id", "sequence"],
+  "optional": ["source", "ensemble", "activity", "safety", "synthesis", "novelty",
+               "charge_bias", "rich_selectivity", "selectivity_proxy", "hemolysis_risk",
+               "selected", "selection_reason", "family", "mechanism", "batch"],
+  "properties": {
+    "candidate_id": {"type": "string", "description": "Unique candidate identifier"},
+    "sequence": {"type": "string", "description": "Amino-acid sequence (standard single-letter codes)"}
+  }
+}
