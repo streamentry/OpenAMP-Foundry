@@ -41,7 +41,7 @@ jobs:
         run: make bench-leakage
 
       - name: Doc link check (tolerates current 114 broken, fails on regressions)
-        run: python scripts/check_doc_links.py --max-errors 150
+        run: python scripts/check_doc_links.py --max-errors 10
 
       - name: Benchmark regression gate (AUROC drop <= 0.02 vs committed baseline)
         run: make bench-gate
