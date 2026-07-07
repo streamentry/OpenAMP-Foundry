@@ -30,7 +30,10 @@ def test_disagreement_is_lower_better():
 
 def test_all_metrics_have_description():
     data = _registry()
-    for category in data.values():
+    metric_cats = {"pipeline_metrics", "simulation_metrics", "safety_metrics"}
+    for key, category in data.items():
+        if key not in metric_cats:
+            continue
         if isinstance(category, dict):
             for name, info in category.items():
                 assert "description" in info, f"{name} missing description"
@@ -40,7 +43,10 @@ def test_all_metrics_have_description():
 def test_polarity_values():
     data = _registry()
     valid = {"higher_is_better", "lower_is_better", "depends"}
-    for category in data.values():
+    metric_cats = {"pipeline_metrics", "simulation_metrics", "safety_metrics"}
+    for key, category in data.items():
+        if key not in metric_cats:
+            continue
         if isinstance(category, dict):
             for name, info in category.items():
                 assert info["polarity"] in valid, f"{name} has invalid polarity: {info['polarity']}"

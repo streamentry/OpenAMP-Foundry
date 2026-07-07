@@ -2,7 +2,38 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Metric Polarity Registry",
   "description": "Defines whether each metric improves when higher or lower.",
+  "canonical_names": {
+    "ensemble": "ensemble",
+    "activity": "activity",
+    "safety": "safety",
+    "synthesis": "synthesis",
+    "novelty": "novelty",
+    "rich_selectivity": "rich_selectivity",
+    "hemolysis_risk": "hemolysis_risk",
+    "charge_bias": "charge_bias",
+    "bacterial_binding": "bacterial_binding",
+    "selectivity_ratio": "selectivity_ratio",
+    "helix_weight": "helix_weight",
+    "non_helical": "non_helical",
+    "auroc": "auroc",
+    "auprc": "auprc",
+    "disagreement": "disagreement"
+  },
+  "aliases": {
+    "roc_auc": "auroc",
+    "auc_roc": "auroc",
+    "pr_auc": "auprc",
+    "selectivity": "rich_selectivity",
+    "hemolysis": "hemolysis_risk",
+    "charge_density": "charge_bias",
+    "membrane_binding": "bacterial_binding"
+  },
   "pipeline_metrics": {
+    "ensemble": {"polarity": "higher_is_better", "description": "Weighted ensemble score"},
+    "activity": {"polarity": "higher_is_better", "description": "Activity-likeness score"},
+    "safety": {"polarity": "higher_is_better", "description": "Safety score"},
+    "synthesis": {"polarity": "higher_is_better", "description": "Synthesis feasibility score"},
+    "novelty": {"polarity": "higher_is_better", "description": "Novelty score"},
     "auroc": {"polarity": "higher_is_better", "description": "Area under ROC curve"},
     "auprc": {"polarity": "higher_is_better", "description": "Area under precision-recall curve"},
     "recall_at_10": {"polarity": "higher_is_better", "description": "Recall at top 10"},
@@ -21,7 +52,6 @@
     "uncertainty": {"polarity": "lower_is_better", "description": "Simulation uncertainty score"}
   },
   "safety_metrics": {
-    "safety": {"polarity": "higher_is_better", "description": "Safety score"},
     "rich_selectivity": {"polarity": "higher_is_better", "description": "Selectivity composite"},
     "hemolysis_risk": {"polarity": "lower_is_better", "description": "Predicted hemolysis risk"},
     "toxicity_count": {"polarity": "lower_is_better", "description": "Number of toxic candidates"}
