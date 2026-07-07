@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Metric Polarity Registry",
+  "description": "Defines whether each metric improves when higher or lower.",
+  "pipeline_metrics": {
+    "auroc": {"polarity": "higher_is_better", "description": "Area under ROC curve"},
+    "auprc": {"polarity": "higher_is_better", "description": "Area under precision-recall curve"},
+    "recall_at_10": {"polarity": "higher_is_better", "description": "Recall at top 10"},
+    "recall_at_20": {"polarity": "higher_is_better", "description": "Recall at top 20"},
+    "precision_at_10": {"polarity": "higher_is_better", "description": "Precision at top 10"},
+    "enrichment_factor": {"polarity": "higher_is_better", "description": "Enrichment over random"},
+    "delta": {"polarity": "depends", "description": "Improvement over baseline — check context"},
+    "disagreement": {"polarity": "lower_is_better", "description": "Model disagreement score"},
+    "charge_bias": {"polarity": "lower_is_better", "description": "Charge dominance in score"}
+  },
+  "simulation_metrics": {
+    "bacterial_binding": {"polarity": "higher_is_better", "description": "Membrane binding score"},
+    "selectivity_ratio": {"polarity": "higher_is_better", "description": "Bacterial vs mammalian selectivity"},
+    "helix_weight": {"polarity": "higher_is_better", "description": "Helical propensity weight"},
+    "non_helical": {"polarity": "lower_is_better", "description": "Non-helical flag (0=helical)"},
+    "uncertainty": {"polarity": "lower_is_better", "description": "Simulation uncertainty score"}
+  },
+  "safety_metrics": {
+    "safety": {"polarity": "higher_is_better", "description": "Safety score"},
+    "rich_selectivity": {"polarity": "higher_is_better", "description": "Selectivity composite"},
+    "hemolysis_risk": {"polarity": "lower_is_better", "description": "Predicted hemolysis risk"},
+    "toxicity_count": {"polarity": "lower_is_better", "description": "Number of toxic candidates"}
+  }
+}
