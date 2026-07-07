@@ -38,7 +38,7 @@ Adapters may not:
 
 ## Required adapter card
 
-Every adapter should have a model/adapter card using [`MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md).
+Every adapter should have a model/adapter card using [`MODEL_CARD_TEMPLATE.md`](../trust/MODEL_CARD_TEMPLATE.md).
 
 The card must include:
 

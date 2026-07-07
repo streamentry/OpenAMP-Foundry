@@ -43,7 +43,7 @@ It does not ask whether any candidate is a drug, treatment, cure, clinical candi
 
 ## Evidence level before testing
 
-Before testing, every candidate must be treated as Level 4 or below under [`PROOF_LADDER.md`](PROOF_LADDER.md): a computationally nominated candidate with a reviewable evidence package.
+Before testing, every candidate must be treated as Level 4 or below under [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md): a computationally nominated candidate with a reviewable evidence package.
 
 ## Candidate panel
 
@@ -141,7 +141,7 @@ Forbidden:
 - AI-discovered antibiotic;
 - proven.
 
-After results, claims must follow [`PROOF_LADDER.md`](PROOF_LADDER.md).
+After results, claims must follow [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md).
 
 ## Safety review
 

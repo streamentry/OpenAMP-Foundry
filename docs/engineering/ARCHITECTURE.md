@@ -92,19 +92,19 @@ The purpose is to improve which questions qualified humans choose to test next.
 | `openamp_foundry.active_learning` | Informative next-batch selection under uncertainty. |
 | `openamp_foundry.analysis` | Diversity, similarity, structural-class, and audit helpers. |
 
-Package behavior must remain aligned with docs under [`docs/PROJECT_INDEX.md`](PROJECT_INDEX.md).
+Package behavior must remain aligned with docs under [`docs/PROJECT_INDEX.md`](../PROJECT_INDEX.md).
 
 ## Core artifacts
 
 | Artifact | Purpose | Source doc |
 |---|---|---|
-| Evidence certificate | Explains candidate selection or rejection. | [`EVIDENCE_CERTIFICATE.md`](EVIDENCE_CERTIFICATE.md) |
+| Evidence certificate | Explains candidate selection or rejection. | [`EVIDENCE_CERTIFICATE.md`](../evidence/EVIDENCE_CERTIFICATE.md) |
 | Run manifest | Records command, inputs, config, commit, hashes, and claim boundaries. | [`RUN_MANIFEST_STANDARD.md`](RUN_MANIFEST_STANDARD.md) |
-| Benchmark card | Documents benchmark purpose, data, baselines, and limits. | [`BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) |
-| Dataset card | Documents source, license, labels, preprocessing, bias, and release status. | [`DATA_GOVERNANCE.md`](DATA_GOVERNANCE.md) |
-| Model or adapter card | Documents model/adapter scope, benchmarks, limitations, and release status. | [`MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md) |
-| Review packet | Packages artifacts for qualified external review. | [`EXTERNAL_REVIEW_PACKET.md`](review/EXTERNAL_REVIEW_PACKET.md) |
-| Decision record | Records important governance decisions. | [`DECISION_RECORD_TEMPLATE.md`](operations/DECISION_RECORD_TEMPLATE.md) |
+| Benchmark card | Documents benchmark purpose, data, baselines, and limits. | [`BENCHMARK_GOVERNANCE.md`](../evidence/BENCHMARK_GOVERNANCE.md) |
+| Dataset card | Documents source, license, labels, preprocessing, bias, and release status. | [`DATA_GOVERNANCE.md`](../trust/DATA_GOVERNANCE.md) |
+| Model or adapter card | Documents model/adapter scope, benchmarks, limitations, and release status. | [`MODEL_CARD_TEMPLATE.md`](../trust/MODEL_CARD_TEMPLATE.md) |
+| Review packet | Packages artifacts for qualified external review. | [`EXTERNAL_REVIEW_PACKET.md`](../review/EXTERNAL_REVIEW_PACKET.md) |
+| Decision record | Records important governance decisions. | [`DECISION_RECORD_TEMPLATE.md`](../operations/DECISION_RECORD_TEMPLATE.md) |
 
 ## Threat model
 

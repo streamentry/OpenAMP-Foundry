@@ -41,10 +41,10 @@ Before public claims, complete:
 
 Use:
 
-- [`PROOF_LADDER.md`](PROOF_LADDER.md)
+- [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md)
 - [`CLAIM_REVIEW_CHECKLIST.md`](../evidence/CLAIM_REVIEW_CHECKLIST.md)
 - [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md)
-- [`SAFETY.md`](../SAFETY.md)
+- [`SAFETY.md`](../)
 
 ## Allowed dry-lab language
 

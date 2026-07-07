@@ -27,7 +27,7 @@ If you want to make dramatic claims faster than the evidence supports, this is t
 ## First 30 minutes
 
 1. Read [`README.md`](../README.md).
-2. Read [`SAFETY.md`](../SAFETY.md).
+2. Read [`SAFETY.md`](../).
 3. Run:
 
 ```bash
@@ -48,7 +48,7 @@ Read the docs that match your role.
 ### Engineer path
 
 - [`docs/engineering/ARCHITECTURE.md`](../engineering/ARCHITECTURE.md)
-- [`CONTRIBUTING.md`](../CONTRIBUTING.md)
+- [`CONTRIBUTING.md`](../)
 - [`docs/evidence/BENCHMARKING.md`](../evidence/BENCHMARKING.md)
 - [`docs/evidence/DECISION_RULES.md`](../evidence/DECISION_RULES.md)
 
@@ -56,9 +56,9 @@ Then look for a small issue in CLI ergonomics, tests, reports, schemas, or doc c
 
 ### Scientist path
 
-- [`VISION.md`](../VISION.md)
-- [`GOAL.md`](../GOAL.md)
-- [`docs/evidence/PROOF_LADDER.md`](PROOF_LADDER.md)
+- [`VISION.md`](../)
+- [`GOAL.md`](../)
+- [`docs/evidence/PROOF_LADDER.md`](../evidence/PROOF_LADDER.md)
 - [`docs/evidence/METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md)
 - [`docs/evidence/BENCHMARKING.md`](../evidence/BENCHMARKING.md)
 
@@ -66,18 +66,18 @@ Then look for a weak benchmark, missing baseline, leakage risk, uncontrolled com
 
 ### Lab-review path
 
-- [`docs/review/WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md)
-- [`docs/review/COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md)
-- [`docs/evidence/PROOF_LADDER.md`](PROOF_LADDER.md)
-- [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md)
+- [`docs/review/WET_LAB_HANDOFF.md`](../review/WET_LAB_HANDOFF.md)
+- [`docs/review/COLLABORATION_PLAYBOOK.md`](../review/COLLABORATION_PLAYBOOK.md)
+- [`docs/evidence/PROOF_LADDER.md`](../evidence/PROOF_LADDER.md)
+- [`RESPONSIBLE_USE.md`](../)
 
 Then review whether the evidence package would help a qualified scientist decide whether a small assay batch is worth considering.
 
 ### Safety path
 
-- [`SAFETY.md`](../SAFETY.md)
-- [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md)
-- [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md)
+- [`SAFETY.md`](../)
+- [`RESPONSIBLE_USE.md`](../)
+- [`MODEL_RELEASE_POLICY.md`](../)
 - [`docs/evidence/DECISION_RULES.md`](../evidence/DECISION_RULES.md)
 
 Then look for release risk, overclaiming, unsafe defaults, unclear boundaries, or missing human-review gates.

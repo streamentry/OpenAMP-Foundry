@@ -20,17 +20,17 @@ Future work should add machine-readable schema metadata and automated schema che
 
 | Artifact type | Purpose | Stability target | Source docs |
 |---|---|---|---|
-| Candidate evidence certificate | Explains why a candidate was selected, rejected, or reviewed. | High. | [`EVIDENCE_CERTIFICATE.md`](EVIDENCE_CERTIFICATE.md) |
-| Candidate manifest | Lists panel candidates, roles, hashes, release status, and proof level. | High. | [`WET_LAB_HANDOFF.md`](review/WET_LAB_HANDOFF.md) |
+| Candidate evidence certificate | Explains why a candidate was selected, rejected, or reviewed. | High. | [`EVIDENCE_CERTIFICATE.md`](../evidence/EVIDENCE_CERTIFICATE.md) |
+| Candidate manifest | Lists panel candidates, roles, hashes, release status, and proof level. | High. | [`WET_LAB_HANDOFF.md`](../review/WET_LAB_HANDOFF.md) |
 | Run manifest | Records command, config, inputs, commit, versions, and hashes. | High. | [`RUN_MANIFEST_STANDARD.md`](RUN_MANIFEST_STANDARD.md) |
-| Benchmark card | Documents benchmark purpose, data, baselines, metrics, caveats, and status. | High. | [`BENCHMARK_GOVERNANCE.md`](BENCHMARK_GOVERNANCE.md) |
-| Dataset card | Documents dataset source, license, labels, preprocessing, bias, and release status. | High. | [`DATA_GOVERNANCE.md`](DATA_GOVERNANCE.md) |
-| Model or adapter card | Documents intended use, not-for list, data, benchmarks, safety, and release status. | High. | [`MODEL_CARD_TEMPLATE.md`](MODEL_CARD_TEMPLATE.md) |
-| External review packet | Bundles candidate, benchmark, safety, or adoption evidence for external review. | Medium-high. | [`EXTERNAL_REVIEW_PACKET.md`](review/EXTERNAL_REVIEW_PACKET.md) |
-| Result summary | Captures qualified outcome summaries at a safe abstraction level. | High. | [`CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) |
-| Calibration intake report | Joins predictions with structured result summaries. | High. | [`CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) |
-| Recalibration gate verdict | Records whether recalibration may be considered. | High. | [`CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) |
-| Decision record | Records important project decisions. | Medium-high. | [`DECISION_RECORD_TEMPLATE.md`](operations/DECISION_RECORD_TEMPLATE.md) |
+| Benchmark card | Documents benchmark purpose, data, baselines, metrics, caveats, and status. | High. | [`BENCHMARK_GOVERNANCE.md`](../evidence/BENCHMARK_GOVERNANCE.md) |
+| Dataset card | Documents dataset source, license, labels, preprocessing, bias, and release status. | High. | [`DATA_GOVERNANCE.md`](../trust/DATA_GOVERNANCE.md) |
+| Model or adapter card | Documents intended use, not-for list, data, benchmarks, safety, and release status. | High. | [`MODEL_CARD_TEMPLATE.md`](../trust/MODEL_CARD_TEMPLATE.md) |
+| External review packet | Bundles candidate, benchmark, safety, or adoption evidence for external review. | Medium-high. | [`EXTERNAL_REVIEW_PACKET.md`](../review/EXTERNAL_REVIEW_PACKET.md) |
+| Result summary | Captures qualified outcome summaries at a safe abstraction level. | High. | [`CALIBRATION_POLICY.md`](../evidence/CALIBRATION_POLICY.md) |
+| Calibration intake report | Joins predictions with structured result summaries. | High. | [`CALIBRATION_POLICY.md`](../evidence/CALIBRATION_POLICY.md) |
+| Recalibration gate verdict | Records whether recalibration may be considered. | High. | [`CALIBRATION_POLICY.md`](../evidence/CALIBRATION_POLICY.md) |
+| Decision record | Records important project decisions. | Medium-high. | [`DECISION_RECORD_TEMPLATE.md`](../operations/DECISION_RECORD_TEMPLATE.md) |
 
 ## Required schema metadata
 

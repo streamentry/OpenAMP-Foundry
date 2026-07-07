@@ -182,7 +182,7 @@ Positive results are more dangerous than negative results because they invite ov
 
 Before any public claim:
 
-1. Map the result to [`PROOF_LADDER.md`](PROOF_LADDER.md).
+1. Map the result to [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md).
 2. Check novelty carefully.
 3. Check safety-adjusted interpretation.
 4. Compare against baselines.

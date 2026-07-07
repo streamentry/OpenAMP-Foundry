@@ -19,10 +19,10 @@ The lab is the judge.
 Before changing anything, read:
 
 1. [`../AGENTS.md`](../AGENTS.md) — primary operating contract.
-2. [`../SAFETY.md`](../SAFETY.md) — safety policy.
-3. [`../RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md) — allowed and disallowed use.
-4. [`../MISSION.md`](../MISSION.md) — scientific boundaries.
-5. [`PROJECT_INDEX.md`](PROJECT_INDEX.md) — navigation map.
+2. [`../SAFETY.md`](../) — safety policy.
+3. [`../RESPONSIBLE_USE.md`](../) — allowed and disallowed use.
+4. [`../MISSION.md`](../) — scientific boundaries.
+5. [`PROJECT_INDEX.md`](../PROJECT_INDEX.md) — navigation map.
 6. [`METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md) — current evidence and known weaknesses.
 7. [`DECISION_RULES.md`](../evidence/DECISION_RULES.md) — gates and thresholds.
 

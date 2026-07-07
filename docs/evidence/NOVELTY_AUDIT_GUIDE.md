@@ -12,7 +12,7 @@ Every AMP candidate must pass a full novelty audit before wet-lab synthesis to:
 2. **Ensure scientific validity** — a "novel" label on a KNOWN_VARIANT of a published AMP is misleading.
 3. **Protect the budget** — synthesis of a patent-risk or known candidate wastes money.
 
-The single biggest mistake in OpenAMP Wave 0.5 was relying on the `novelty-check-broad` CLI tool, which uses a 72-sequence curated reference — far too small to catch patent proximity. See [`docs/postmortems/2026-06-29-seed020-novelty-patent-risk.md`](postmortems/2026-06-29-seed020-novelty-patent-risk.md) for the full incident.
+The single biggest mistake in OpenAMP Wave 0.5 was relying on the `novelty-check-broad` CLI tool, which uses a 72-sequence curated reference — far too small to catch patent proximity. See [`docs/postmortems/2026-06-29-seed020-novelty-patent-risk.md`](../postmortems/2026-06-29-seed020-novelty-patent-risk.md) for the full incident.
 
 **Rule: Always run `scripts/novelty/run_expanded_novelty_audit.py` before adding any candidate to the panel or ordering synthesis.**
 

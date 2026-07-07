@@ -23,7 +23,7 @@ Current structural convention:
 ## Extension points
 
 - [Adapter author guide](ADAPTER_AUTHOR_GUIDE.md)
-- [Model card template](../MODEL_CARD_TEMPLATE.md)
-- [Virtual assay scope](../VIRTUAL_ASSAY_SCOPE.md)
+- [Model card template](../trust/MODEL_CARD_TEMPLATE.md)
+- [Virtual assay scope](../evidence/VIRTUAL_ASSAY_SCOPE.md)
 
 Return to the [documentation home](../README.md).

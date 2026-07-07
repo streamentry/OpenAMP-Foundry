@@ -47,7 +47,7 @@ Forbidden language before sufficient evidence:
 - proven;
 - AI-discovered antibiotic.
 
-Use [`PROOF_LADDER.md`](PROOF_LADDER.md) for evidence levels.
+Use [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md) for evidence levels.
 
 ## Required packet structure
 
@@ -278,9 +278,9 @@ Do not imply that a reviewer endorsed claims outside their review scope.
 - [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — broader packet standard.
 - [`WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — safe expert-review handoff guide.
 - [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — pilot planning template.
-- [`PROOF_LADDER.md`](PROOF_LADDER.md) — claim levels.
+- [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md) — claim levels.
 - [`BENCHMARK_GOVERNANCE.md`](../evidence/BENCHMARK_GOVERNANCE.md) — benchmark lifecycle.
-- [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md) — release boundaries.
+- [`MODEL_RELEASE_POLICY.md`](../) — release boundaries.
 
 ## Final standard
 

@@ -5,8 +5,8 @@
 1. [Repository README](../../README.md)
 2. [First-run walkthrough](FIRST_RUN_WALKTHROUGH.md)
 3. [Command surface](COMMAND_SURFACE.md)
-4. [Methods](../METHODS.md)
-5. [Current metrics](../METRICS_CURRENT.md)
+4. [Methods](../engineering/METHODS.md)
+5. [Current metrics](../evidence/METRICS_CURRENT.md)
 
 ## Choose a role
 

@@ -53,7 +53,7 @@ Upgrade: stronger claim discipline.
 Verification:
 
 - no Level 6+ language for dry-lab artifacts;
-- claims map to [`PROOF_LADDER.md`](PROOF_LADDER.md);
+- claims map to [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md);
 - forbidden phrases removed or qualified.
 
 ### Task: Candidate release audit

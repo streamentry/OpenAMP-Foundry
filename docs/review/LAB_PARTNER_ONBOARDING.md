@@ -105,7 +105,7 @@ A panel summary may include:
 - known model blind spots;
 - release status.
 
-Full candidate identities or sequences should be released only according to [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md), [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md), and safety review.
+Full candidate identities or sequences should be released only according to [`MODEL_RELEASE_POLICY.md`](../), [`RESPONSIBLE_USE.md`](../), and safety review.
 
 ## Partner evaluation questions
 
@@ -176,7 +176,7 @@ Operational experimental details should not be added to this repository.
 
 ## Publication and claim boundaries
 
-Before any public result is described, map it to [`PROOF_LADDER.md`](PROOF_LADDER.md).
+Before any public result is described, map it to [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md).
 
 Dry-lab candidate package:
 
@@ -203,9 +203,9 @@ Not allowed without much stronger evidence:
 
 All partner-facing work should follow:
 
-- [`SAFETY.md`](../SAFETY.md)
-- [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md)
-- [`MODEL_RELEASE_POLICY.md`](../MODEL_RELEASE_POLICY.md)
+- [`SAFETY.md`](../)
+- [`RESPONSIBLE_USE.md`](../)
+- [`MODEL_RELEASE_POLICY.md`](../)
 - [`COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md)
 - [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md)
 
@@ -242,14 +242,14 @@ Suggested labels:
 - `wet-lab-facing`
 - `do-not-automerge`
 
-See [`ISSUE_LABEL_TAXONOMY.md`](ISSUE_LABEL_TAXONOMY.md).
+See [`ISSUE_LABEL_TAXONOMY.md`](../operations/ISSUE_LABEL_TAXONOMY.md).
 
 ## Related documents
 
 - [`WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — safe expert-review handoff guide.
 - [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — review packet standard.
 - [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — non-protocol pilot planning template.
-- [`PROOF_LADDER.md`](PROOF_LADDER.md) — evidence and claim ladder.
+- [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md) — evidence and claim ladder.
 - [`COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md) — safe collaboration modes.
 - `schemas/lab_result.schema.json` — machine-readable result-summary schema.
 

@@ -2,7 +2,7 @@
 
 **Status:** Safe expert-review handoff, not a protocol.
 **Audience:** Qualified domain experts, safety reviewers, and potential institutional partners.
-**Source-of-truth companions:** [`PROOF_LADDER.md`](PROOF_LADDER.md), [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md), [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md), [`RESPONSIBLE_USE.md`](../RESPONSIBLE_USE.md).
+**Source-of-truth companions:** [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md), [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md), [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md), [`RESPONSIBLE_USE.md`](../).
 
 ## Purpose
 
@@ -110,7 +110,7 @@ Required:
 - claim-level update;
 - next-batch recommendation or rejection.
 
-Claim level: depends on evidence; see [`PROOF_LADDER.md`](PROOF_LADDER.md).
+Claim level: depends on evidence; see [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md).
 
 ## Score interpretation for reviewers
 

@@ -205,7 +205,7 @@ Without baseline comparison, a positive outcome is hard to interpret.
 
 Responsible result publication should include:
 
-- exact claim level from [`PROOF_LADDER.md`](PROOF_LADDER.md);
+- exact claim level from [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md);
 - candidate evidence package where safe;
 - selection rule;
 - baseline comparison;

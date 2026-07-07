@@ -20,7 +20,7 @@ historical process context, not as the current result state.
 
 The external screen was completed later and the authoritative current-state summary
 now lives in [`METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md)
-and [`ROADMAP.md`](research/ROADMAP.md).
+and [`ROADMAP.md`](ROADMAP.md).
 
 ---
 

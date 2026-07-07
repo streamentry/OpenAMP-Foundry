@@ -25,8 +25,8 @@ The pilot does not ask whether any candidate is a drug, therapy, cure, clinical 
 - [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — general pilot template.
 - [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md) — review packet standard.
 - [`WET_LAB_HANDOFF.md`](WET_LAB_HANDOFF.md) — safe expert-review handoff guide.
-- [`PROOF_LADDER.md`](PROOF_LADDER.md) — evidence levels and claim ladder.
-- [`CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md) — gate before any recalibration.
+- [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md) — evidence levels and claim ladder.
+- [`CALIBRATION_POLICY.md`](../evidence/CALIBRATION_POLICY.md) — gate before any recalibration.
 - [`NEGATIVE_RESULT_ARCHIVE.md`](../evidence/NEGATIVE_RESULT_ARCHIVE.md) — safe negative-result format.
 
 ## Pilot identity
@@ -156,7 +156,7 @@ After structured result intake:
 6. Require human review before applying any change.
 7. Record the decision in a dated decision log.
 
-See [`CALIBRATION_POLICY.md`](CALIBRATION_POLICY.md).
+See [`CALIBRATION_POLICY.md`](../evidence/CALIBRATION_POLICY.md).
 
 ## Claim boundaries
 
@@ -182,7 +182,7 @@ Forbidden:
 
 ### After results
 
-Claims must follow [`PROOF_LADDER.md`](PROOF_LADDER.md).
+Claims must follow [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md).
 
 Examples:
 
