@@ -78,7 +78,10 @@ demo:
 		--out outputs/demo_ranked.jsonl \
 		--report outputs/demo_report.md \
 		--cert-dir outputs/evidence \
-		--manifest outputs/run_manifest.json
+		--manifest outputs/run_manifest.json \
+		--simulation-mode info
+
+
 
 test:
 	$(PYTEST) -q
