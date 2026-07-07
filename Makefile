@@ -71,6 +71,9 @@ help:
 	@echo "  make ci                 lint + test (CI gate)"
 	@echo "  make clean              Remove outputs/ (except CSV pilot panel)"
 
+claim-check:
+	PYTHONPATH=src $(PYTHON) scripts/safety/check_claims.py
+
 demo:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli rank \
 		--candidates examples/sequences/demo_candidates.csv \
