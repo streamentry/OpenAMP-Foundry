@@ -5,7 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-06 (loop 50 polish — v0.5.70)
+> **Last updated:** 2026-07-08 (calibration benchmark — v0.5.71)
+> **New in v0.5.71:** Calibration benchmark added — Brier score, reliability diagram, and calibration slope for pipeline ensemble scores. Honest finding: Brier=0.318 (>0.25=uninformative), slope=0.43 (ideal=1.0). Pipeline ranks well but scores are not meaningful probabilities. `make bench-calibration`. 6 tests. ~2100 total.
+>
 > **New in v0.5.65:** `scripts/lab/build_lab_batch_pack.py` now writes `chain_of_custody.json` and `MANIFEST.json` into lab batch packs. The custody file includes SHA-256 hashes for `panel.csv`, the ordered candidate list, each candidate sequence, and each evidence certificate. `--verify-pack` verifies archive integrity and detects tampering. These hashes prove identity/integrity only, not biological activity, safety, or synthesis success. 5 tests.
 > **New in v0.5.64:** `schemas/decision_log.schema.json` — 12-field JSON Schema for human review decisions. Covers 9 decision types from AGENTS.md §8. Dissent conditional. 11 tests. 2000 total.
 > **New in v0.5.63:** `scripts/lab/build_lab_batch_pack.py` — generates single zip with candidate CSV, 36 evidence certs, protocol refs, controls manifest, data return template. `make lab-batch-pack`. 10 tests. 1989 total.
@@ -1144,6 +1146,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Date | Change | Author |
 |------|--------|--------|
+| 2026-07-08 | **Calibration benchmark added:** Brier score decomposition, reliability diagram, and calibration slope for pipeline ensemble scores. Brier=0.3178 (>0.25=uninformative), skill=-0.27 (worse than base rate), slope=0.43 (ideal=1.0). Honest finding: pipeline ranks well (AUROC~0.78) but scores are not meaningful probabilities. Expanded 500-AMP set confirms same pattern (Brier=0.2772, slope=2.31 — dataset-dependent). Integrated into `make bench-500` and `make bench-calibration`. `scripts/benchmarks/benchmark_calibration.py`, JSON output to `outputs/bench_calibration*.json`. | OpenAMP loop 18 |
 | 2026-06-29 | Novelty audit v2: BioPython BLOSUM62 local alignment vs 27,234 AMPs (APD6+DRAMP+UniProt); panel updated (15 families, 4 SAR_CONTROL); all 7 gates PASS | OpenAMP Wave 0.5 |
 | 2026-06-29 | Wave 0.5b: 23-candidate safety-optimized shortlist (SEED-020–024, no aromatics) | OpenAMP Wave 0.5b |
 | 2026-06-29 | External predictor results filled from wave05_combined_consensus.csv; all 7 gates PASS | OpenAMP Wave 0.5 |
