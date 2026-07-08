@@ -189,10 +189,12 @@ def print_report(metrics: dict) -> None:
 
 def main() -> int:
     import argparse
+    import json as _json
     parser = argparse.ArgumentParser(description="Pipeline calibration benchmark")
     parser.add_argument("--amp-csv", default="examples/validation/known_amps.csv")
     parser.add_argument("--decoy-csv", default="examples/validation/random_background.csv")
     parser.add_argument("--config", default="configs/pipeline.yaml")
+    parser.add_argument("--out", default=None, help="Optional JSON output path")
     args = parser.parse_args()
 
     metrics = compute_calibration_metrics(
@@ -200,6 +202,9 @@ def main() -> int:
         decoy_csv=args.decoy_csv,
         config_path=args.config,
     )
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(_json.dumps(metrics, indent=2) + "\n")
     print_report(metrics)
     return 0
 

@@ -221,6 +221,12 @@ bench-500:
 		--config configs/phase3.yaml \
 		--benchmark-type standard \
 		--out outputs/validate_scoring_phase3_500.json
+	@echo ""
+	@echo "--- Calibration on expanded 500-AMP set ---"
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_calibration.py \
+		--amp-csv examples/validation/known_amps_500.csv \
+		--decoy-csv examples/validation/random_background_500.csv \
+		--out outputs/bench_calibration_500.json
 	@echo "Expanded benchmark (500 AMP + 500 decoy) complete."
 
 bench-cluster-split-500:
@@ -492,7 +498,14 @@ bench-simulation-ablation-within-amp:
 
 bench-calibration:
 	@echo "--- Pipeline calibration benchmark ---"
-	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_calibration.py
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_calibration.py \
+		--out outputs/bench_calibration.json
+	@echo ""
+	@echo "--- Expanded calibration (500-AMP) ---"
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_calibration.py \
+		--amp-csv examples/validation/known_amps_500.csv \
+		--decoy-csv examples/validation/random_background_500.csv \
+		--out outputs/bench_calibration_500.json
 	@echo "OK"
 
 bench-charge-distribution:
