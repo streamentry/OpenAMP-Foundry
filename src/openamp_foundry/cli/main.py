@@ -12,6 +12,7 @@ import argparse
 import json
 from pathlib import Path
 
+from openamp_foundry.evidence.quality import assess_certificate_quality
 from openamp_foundry.evidence.schemas import validate_json_schema
 from openamp_foundry.pipeline import run_ranking_pipeline
 from openamp_foundry.selection.ranking_policy import ranking_policy_payload
@@ -56,6 +57,17 @@ def build_parser() -> argparse.ArgumentParser:
     validate = sub.add_parser("validate", help="Validate a candidate certificate against JSON schema.")
     validate.add_argument("--certificate", required=True)
     validate.add_argument("--schema", required=True)
+
+    validate_quality = sub.add_parser(
+        "validate-cert-quality",
+        help="Assess certificate quality tier: pass / warn / fail.",
+    )
+    validate_quality.add_argument("--certificate", required=True)
+    validate_quality.add_argument(
+        "--schema",
+        default="schemas/candidate.schema.json",
+        help="JSON Schema path (default: schemas/candidate.schema.json).",
+    )
 
     bench = sub.add_parser("bench", help="Run benchmark and leakage checks.")
     bench_sub = bench.add_subparsers(dest="bench_command", required=True)
@@ -1074,6 +1086,12 @@ def main(argv: list[str] | None = None) -> int:
         validate_json_schema(payload, Path(args.schema))
         print(json.dumps({"status": "valid", "certificate": args.certificate}, indent=2))
         return 0
+
+    if args.command == "validate-cert-quality":
+        payload = read_json(args.certificate)
+        result = assess_certificate_quality(payload, schema_path=args.schema)
+        print(json.dumps(result, indent=2))
+        return 0 if result["tier"] in ("pass", "warn") else 3
 
     if args.command == "bench":
         if args.bench_command == "cluster-split":
