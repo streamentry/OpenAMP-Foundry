@@ -1,11 +1,13 @@
 """Tests for evidence/certificate.py — build_certificate content and structure."""
 from __future__ import annotations
 
+import json
 import re
 
 from openamp_foundry.evidence.certificate import build_certificate
 from openamp_foundry.features.physchem import compute_features
 from openamp_foundry.types import PeptideCandidate, ScoredCandidate
+from scripts.safety.check_claims import RISKY_PATTERNS
 
 _CANDIDATE = PeptideCandidate("AMPF-001", "KWKLFKKIGAVLKVL", "test_source")
 _FEATURES = compute_features(_CANDIDATE.sequence)
@@ -166,3 +168,57 @@ class TestBuildCertificateContent:
         )
         cert = build_certificate(scored, {}, [])
         assert cert["selection_reason"] == []
+
+
+class TestCertificateForbiddenClaims:
+    """Verify generated certificates never contain overclaim language."""
+
+    def _cert_text(self) -> str:
+        scored = ScoredCandidate(
+            candidate=_CANDIDATE,
+            features=_FEATURES,
+            scores=_SCORES,
+            selection_reason=["Top-ranked ensemble score"],
+            known_failure_modes=["No wet-lab assay has been run."],
+        )
+        return json.dumps(build_certificate(scored, {}, []))
+
+    def test_no_proven_claim(self):
+        text = self._cert_text().lower()
+        assert "proven" not in text
+
+    def test_no_drug_candidate_claim(self):
+        text = self._cert_text().lower()
+        assert "drug candidate" not in text
+
+    def test_no_cure_claim(self):
+        text = self._cert_text().lower()
+        assert "cure" not in text
+
+    def test_no_breakthrough_claim(self):
+        text = self._cert_text().lower()
+        assert "breakthrough" not in text
+
+    def test_no_clinically_claim(self):
+        text = self._cert_text().lower()
+        assert "clinically useful" not in text
+
+    def test_no_effective_in_humans_claim(self):
+        text = self._cert_text().lower()
+        assert "effective in humans" not in text
+
+    def test_no_world_first_claim(self):
+        text = self._cert_text().lower()
+        assert "world-first" not in text or "world first" not in text
+
+    def test_no_ai_discovered_claim(self):
+        text = self._cert_text().lower()
+        assert "ai discovered" not in text
+
+    def test_risky_patterns_do_not_match(self):
+        text = self._cert_text().lower()
+        violations = []
+        for pattern, msg in RISKY_PATTERNS:
+            if re.search(pattern, text):
+                violations.append(f"Pattern '{pattern}' matched: {msg}")
+        assert not violations, "\n".join(violations)
