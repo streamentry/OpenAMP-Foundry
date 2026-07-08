@@ -20,12 +20,12 @@ OpenAMP Foundry is a verification-first, safety-constrained antimicrobial peptid
 ## Fast orientation
 
 - [docs/PROJECT_INDEX.md](docs/PROJECT_INDEX.md) — navigation hub for humans and agents.
-- [docs/TRUST_CENTER.md](docs/TRUST_CENTER.md) — trust architecture.
-- [docs/COMMAND_SURFACE.md](docs/COMMAND_SURFACE.md) — command workflows and claim boundaries.
-- [docs/HUMAN_AGENT_COLLABORATION.md](docs/HUMAN_AGENT_COLLABORATION.md) — human-agent division of labor.
-- [docs/REVIEWER_ONBOARDING.md](docs/REVIEWER_ONBOARDING.md) — review expectations.
-- [docs/NEXT_100_PR_MAP.md](docs/NEXT_100_PR_MAP.md) — PR-sized backlog.
-- [docs/PROOF_LADDER.md](docs/PROOF_LADDER.md) — claim ladder and evidence levels.
+- [docs/trust/TRUST_CENTER.md](docs/trust/TRUST_CENTER.md) — trust architecture.
+- [docs/getting-started/COMMAND_SURFACE.md](docs/getting-started/COMMAND_SURFACE.md) — command workflows and claim boundaries.
+- [docs/operations/HUMAN_AGENT_COLLABORATION.md](docs/operations/HUMAN_AGENT_COLLABORATION.md) — human-agent division of labor.
+- [docs/getting-started/REVIEWER_ONBOARDING.md](docs/getting-started/REVIEWER_ONBOARDING.md) — review expectations.
+- [docs/research/NEXT_100_PR_MAP.md](docs/research/NEXT_100_PR_MAP.md) — PR-sized backlog.
+- [docs/evidence/PROOF_LADDER.md](docs/evidence/PROOF_LADDER.md) — claim ladder and evidence levels.
 
 ## Key docs
 
@@ -39,13 +39,13 @@ OpenAMP Foundry is a verification-first, safety-constrained antimicrobial peptid
 - [RESPONSIBLE_USE.md](RESPONSIBLE_USE.md)
 - [MODEL_RELEASE_POLICY.md](MODEL_RELEASE_POLICY.md)
 - [DATA_LICENSE_NOTICE.md](DATA_LICENSE_NOTICE.md)
-- [docs/ARTIFACT_VERSIONING.md](docs/ARTIFACT_VERSIONING.md)
-- [docs/BENCHMARK_GOVERNANCE.md](docs/BENCHMARK_GOVERNANCE.md)
-- [docs/CI_AND_QUALITY_GATES.md](docs/CI_AND_QUALITY_GATES.md)
-- [docs/CLAIM_REVIEW_CHECKLIST.md](docs/CLAIM_REVIEW_CHECKLIST.md)
-- [docs/DATA_GOVERNANCE.md](docs/DATA_GOVERNANCE.md)
-- [docs/MODEL_CARD_TEMPLATE.md](docs/MODEL_CARD_TEMPLATE.md)
-- [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)
+- [docs/engineering/ARTIFACT_VERSIONING.md](docs/engineering/ARTIFACT_VERSIONING.md)
+- [docs/evidence/BENCHMARK_GOVERNANCE.md](docs/evidence/BENCHMARK_GOVERNANCE.md)
+- [docs/engineering/CI_AND_QUALITY_GATES.md](docs/engineering/CI_AND_QUALITY_GATES.md)
+- [docs/evidence/CLAIM_REVIEW_CHECKLIST.md](docs/evidence/CLAIM_REVIEW_CHECKLIST.md)
+- [docs/trust/DATA_GOVERNANCE.md](docs/trust/DATA_GOVERNANCE.md)
+- [docs/trust/MODEL_CARD_TEMPLATE.md](docs/trust/MODEL_CARD_TEMPLATE.md)
+- [docs/trust/RELEASE_CHECKLIST.md](docs/trust/RELEASE_CHECKLIST.md)
 
 ## Default work loop
 

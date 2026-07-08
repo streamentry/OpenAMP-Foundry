@@ -8,14 +8,14 @@ A staged path from first reading to a useful first pull request.
 
 - Python 3.11+
 - Basic familiarity with command line and git
-- Read [CONTRIBUTING.md](../CONTRIBUTING.md)
+- Read [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
 ## Stage 1: Orientation (30 min)
 
 Read these in order:
 
 1. `README.md` — project overview and quickstart
-2. `docs/evidence/LIMITATIONS_OVERVIEW.md` — honest limitations
+2. [`docs/evidence/LIMITATIONS_OVERVIEW.md`](../evidence/LIMITATIONS_OVERVIEW.md) — honest limitations
 3. `docs/getting-started/QUICKSTART.md` — run the demo
 4. `AGENTS.md` — operating principles (useful even for humans)
 5. `AGENT_TASKS.json` — safe task categories

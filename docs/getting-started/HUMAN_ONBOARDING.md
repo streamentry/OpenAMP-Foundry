@@ -48,7 +48,7 @@ Read the docs that match your role.
 ### Engineer path
 
 - [`docs/engineering/ARCHITECTURE.md`](../engineering/ARCHITECTURE.md)
-- [`CONTRIBUTING.md`](../)
+- [`CONTRIBUTING.md`](../../CONTRIBUTING.md)
 - [`docs/evidence/BENCHMARKING.md`](../evidence/BENCHMARKING.md)
 - [`docs/evidence/DECISION_RULES.md`](../evidence/DECISION_RULES.md)
 

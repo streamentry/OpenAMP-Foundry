@@ -63,6 +63,6 @@ python3 -m pytest -q --tb=short
 
 ## Next Steps
 
-- Read [`docs/evidence/LIMITATIONS_OVERVIEW.md`](docs/evidence/LIMITATIONS_OVERVIEW.md) for honest limitations
-- Read [`CONTRIBUTING.md`](../CONTRIBUTING.md) for contribution guidelines
+- Read [`docs/evidence/LIMITATIONS_OVERVIEW.md`](../evidence/LIMITATIONS_OVERVIEW.md) for honest limitations
+- Read [`CONTRIBUTING.md`](../../CONTRIBUTING.md) for contribution guidelines
 - Read [`AGENTS.md`](../AGENTS.md) for the agent operating contract
