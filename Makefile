@@ -79,6 +79,12 @@ claim-check:
 	PYTHONPATH=src $(PYTHON) scripts/safety/check_claims.py
 	@echo "OK"
 
+cert-quality-check:
+	@echo "--- Certificate quality check ---"
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli validate-cert-quality \
+		--certificate outputs/evidence/AMPF-000001.json || true
+	@echo "OK (advisory — individual certs should be checked explicitly)"
+
 claim-check-strict:
 	@echo "--- Claim language scan (strict, will fail on findings) ---"
 	PYTHONPATH=src $(PYTHON) scripts/safety/check_claims.py --fail-on-findings

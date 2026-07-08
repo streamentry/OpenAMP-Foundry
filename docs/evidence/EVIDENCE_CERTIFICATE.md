@@ -213,7 +213,7 @@ This is the most important section for trust.
     "human safety",
     "clinical usefulness"
   ],
-  "proof_ladder_level": 4,
+  "proof_ladder_level": "multi_signal_candidate_evidence",
   "recommended_next_steps": [
     "Expert review before any experimental decision."
   ]
@@ -247,6 +247,18 @@ Adds provenance hashes, full panel context, diversity rationale, release status,
 Links candidate prediction to later structured outcome data without rewriting the original selection rationale.
 
 OpenAMP should aim for Tier 4 before serious external review and Tier 5 after qualified result intake.
+
+### Machine-readable tier assessment
+
+The `openamp-foundry validate-cert-quality --certificate <path>` command runs 8 automated checks and reports a quality tier: `pass`, `warn`, or `fail`.
+
+- **pass:** all checks pass — schema valid, proof_ladder_level present and valid, failure modes and disclaimer documented, scores complete.
+- **warn:** schema valid but content gaps exist (e.g., empty failure_modes, missing disclaimer).
+- **fail:** critical fields missing or invalid (e.g., missing proof_ladder_level, missing required scores, schema violation).
+
+Exit code 0 = pass or warn. Exit code 3 = fail.
+
+The validator is a sanity gate, not a replacement for human review. A `pass` does not imply scientific validity.
 
 ## Anti-patterns
 
