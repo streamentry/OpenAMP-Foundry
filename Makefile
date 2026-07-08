@@ -490,6 +490,11 @@ bench-simulation-ablation-within-amp:
 	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_simulation_ablation.py \
 		--mode within-amp --out outputs/simulation_ablation_within_amp.json
 
+bench-calibration:
+	@echo "--- Pipeline calibration benchmark ---"
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_calibration.py
+	@echo "OK"
+
 bench-charge-distribution:
 	@echo "--- Charge distribution report ---"
 	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_charge_distribution.py \
