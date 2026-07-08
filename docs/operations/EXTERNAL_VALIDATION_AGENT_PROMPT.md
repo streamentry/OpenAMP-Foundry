@@ -187,4 +187,3 @@ outputs/external_validation/
 consensus matrix joins them all on `candidate_id`, and the report names a ranked
 strict-consensus shortlist with explicit tool-support counts. Report any tool that was
 blocked and why, rather than guessing or fabricating its output.
-```
