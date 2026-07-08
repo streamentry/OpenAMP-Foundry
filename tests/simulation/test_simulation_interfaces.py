@@ -85,3 +85,24 @@ class TestCheapestBaselineDeclaration:
         desc = adapter.cheapest_baseline_description
         assert isinstance(desc, str)
         assert len(desc) > 10
+
+
+class TestSimulationResultSchema:
+    def test_schema_file_exists(self):
+        from pathlib import Path
+        schema = Path("schemas/simulation_result.schema.json")
+        assert schema.exists()
+
+    def test_membrane_result_validates_against_schema(self):
+        from pathlib import Path
+        from openamp_foundry.evidence.schemas import validate_json_schema
+        from openamp_foundry.simulation.membrane import MembraneProxy
+        result = MembraneProxy().simulate("KWKLFKKIGAVLKVL")
+        validate_json_schema(result.__dict__, Path("schemas/simulation_result.schema.json"))
+
+    def test_structure_result_validates_against_schema(self):
+        from pathlib import Path
+        from openamp_foundry.evidence.schemas import validate_json_schema
+        from openamp_foundry.simulation.structure import StructureProxy
+        result = StructureProxy().simulate("KWKLFKKIGAVLKVL")
+        validate_json_schema(result.__dict__, Path("schemas/simulation_result.schema.json"))

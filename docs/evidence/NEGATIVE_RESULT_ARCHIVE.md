@@ -103,6 +103,47 @@ The archive CSV lives at `outputs/negative_result_archive.csv` and is:
 - **Validated by**: `scripts/validate_negative_archive.py` (if it exists) —
   checks schema conformance, missing required fields, valid reason_category values.
 
+## Informative vs Non-informative Examples
+
+### Non-informative
+
+```
+entry_id: 42
+reason_detail: "Failed safety check."
+```
+Why it's non-informative: No threshold given, no score context, no way to learn from this. Was the safety gate too strict? Too lenient?
+
+### Informative
+
+```
+entry_id: 43
+candidate_id: WAVE0.5-015
+sequence: ACDEFGHIKLMNPQRSTVWY
+reason_category: pre_selection_reject
+reason_detail: "Safety score 0.31 below minimum threshold 0.50. Driving factor: high hemolysis proxy (0.89) from elevated hydrophobicity (GRAVY=1.2)."
+pipeline_version: v0.5.49
+score_activity: 0.82
+score_safety: 0.31
+reviewer_notes: "Rejected at Gate W0.5-3. High GRAVY is structural — candidate is a membrane-interacting peptide — but current policy does not distinguish between assay risk and real toxicity. Consider whether GRAVY threshold should use a two-tier flag approach."
+```
+Why it's informative: Documents the specific threshold, the driving feature, and captures a hypothesis about whether the rule needs adjustment.
+
+### Informative (lab-tested)
+
+```
+entry_id: 44
+candidate_id: WAVE0.5-020
+reason_category: lab_inactive
+reason_detail: "MIC > 128 ug/mL against E. coli ATCC 25922, S. aureus ATCC 29213, and P. aeruginosa ATCC 27853. No activity detected up to 256 ug/mL in any strain."
+assay_type: MIC
+assay_result: ">128"
+assay_unit: ug/mL
+score_activity: 0.78
+score_safety: 0.85
+reviewer_notes: "Activity score 0.78 was a false positive. Candidate is net-charge +8 with moderate GRAVY — activity score may have been charge-dominated. This failure supports tightening charge-bias detection in the activity scorer."
+```
+Why it's informative: Reports multi-strain testing, captures the specific failure mode, and documents a learning hypothesis that could improve the pipeline.
+
 ## Limitations
 
 - This archive is only as complete as the entries added. Gaps mean the pipeline

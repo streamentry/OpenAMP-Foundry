@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Simulation Result",
+  "description": "Schema for virtual assay / simulation proxy outputs. See docs/evidence/VIRTUAL_ASSAY_SCOPE.md.",
+  "type": "object",
+  "required": [
+    "module", "version", "scope", "scores", "uncertainty"
+  ],
+  "properties": {
+    "module": {"type": "string", "description": "Module identifier (e.g., 'membrane_proxy', 'structure_proxy')"},
+    "version": {"type": "string", "description": "Module version string"},
+    "scope": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of biological scopes this module models"
+    },
+    "scores": {
+      "type": "object",
+      "description": "Machine-readable score dictionary. Keys and ranges depend on the module."
+    },
+    "uncertainty": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Module-level uncertainty estimate. 1.0 = completely uncertain (error state). Values > 0.5 are experimental and must not affect selection."
+    },
+    "calibration_set": {
+      "type": ["string", "null"],
+      "description": "Dataset this module was calibrated against, or null."
+    },
+    "validated_against": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Datasets or experiments this module has been validated against."
+    },
+    "notes": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Human-readable notes and caveats."
+    }
+  }
+}
