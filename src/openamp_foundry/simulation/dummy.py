@@ -31,3 +31,7 @@ class DummyMembraneProxy(VirtualAssayProxy):
     
     def get_baseline(self) -> EmulatorBaseline:
         return DummyBomanBaseline()
+
+    @property
+    def cheapest_baseline_description(self) -> str:
+        return "sequence length alone (dummy proxy uses length as sole signal)"

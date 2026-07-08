@@ -56,6 +56,19 @@ class VirtualAssayProxy(abc.ABC):
         """Return the baseline heuristic this simulation must beat."""
         pass
 
+    @property
+    @abc.abstractmethod
+    def cheapest_baseline_description(self) -> str:
+        """Human-readable description of the simplest explanation this module must outperform.
+
+        Examples:
+          'charge density alone (net charge at pH 7.4)'
+          'sequence length alone'
+          'hydrophobicity (GRAVY index)'
+          'Boman index (heuristic AMP activity proxy)'
+        """
+        pass
+
 
 def _error_result(
     module: str,
@@ -152,6 +165,10 @@ class ExternalSimulationAdapter(VirtualAssayProxy):
     @property
     def module_name(self) -> str:
         return self._name
+
+    @property
+    def cheapest_baseline_description(self) -> str:
+        return f"fallback baseline (0.5 — no signal) for external module '{self._name}'"
 
 
 class _ExternalFallbackBaseline(EmulatorBaseline):

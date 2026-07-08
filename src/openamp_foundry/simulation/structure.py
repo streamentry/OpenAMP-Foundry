@@ -154,3 +154,7 @@ class StructureProxy(VirtualAssayProxy):
 
     def get_baseline(self) -> EmulatorBaseline:
         return HelicityBaseline()
+
+    @property
+    def cheapest_baseline_description(self) -> str:
+        return "sequence length alone (longer sequences have higher helix probability by chance)"

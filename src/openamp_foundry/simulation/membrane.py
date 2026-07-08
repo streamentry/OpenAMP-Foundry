@@ -164,3 +164,7 @@ class MembraneProxy(VirtualAssayProxy):
 
     def get_baseline(self) -> EmulatorBaseline:
         return BomanBaseline()
+
+    @property
+    def cheapest_baseline_description(self) -> str:
+        return "Boman index (heuristic AMP activity proxy based on amino acid composition)"
