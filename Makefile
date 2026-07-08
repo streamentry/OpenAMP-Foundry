@@ -73,6 +73,11 @@ help:
 
 agent-check: claim-check doc-links-check bench-deprecation-check
 
+docs-only-check:
+	@echo "--- Docs-only PR check ---"
+	PYTHONPATH=src $(PYTHON) scripts/check_docs_only_pr.py
+	@echo "OK"
+
 bench-deprecation-check:
 	@echo "--- Benchmark deprecation check ---"
 	PYTHONPATH=src $(PYTHON) scripts/check_benchmark_deprecation.py
