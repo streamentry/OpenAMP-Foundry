@@ -73,6 +73,12 @@ help:
 
 agent-check: claim-check doc-links-check bench-deprecation-check
 
+docs-index-check:
+	@echo "--- Docs index coverage check ---"
+	PYTHONPATH=src $(PYTHON) scripts/check_docs_index_coverage.py --warn-only 2>/dev/null || \
+	PYTHONPATH=src $(PYTHON) scripts/check_docs_index_coverage.py
+	@echo "OK (advisory — index coverage expected to improve over time)"
+
 docs-only-check:
 	@echo "--- Docs-only PR check ---"
 	PYTHONPATH=src $(PYTHON) scripts/check_docs_only_pr.py

@@ -301,15 +301,24 @@ Yes/No. If yes, for what?
 
 Stop and ask for human review when:
 
-- the task becomes broader than requested;
-- the change touches safety or release policy;
-- a claim becomes stronger;
-- a benchmark threshold changes;
-- non-toy data or candidate artifacts appear;
-- external-facing biology docs change scope;
-- tests fail in a way you cannot explain;
-- a shortcut baseline beats the proposed improvement;
-- uncertainty is being hidden.
+- **the task becomes broader than requested.**  
+  *Example:* You started adding a benchmark card but end up redesigning the scoring pipeline. Stop, document what you found, and create a new issue for the scoring work before continuing.
+- **the change touches safety or release policy.**  
+  *Example:* You find a safety doc that seems outdated and start rewriting the safety policy. Stop — safety policy changes require human review regardless of how stale the doc appears.
+- **a claim becomes stronger.**  
+  *Example:* A benchmark score improves from 0.72 to 0.74 and you want to change "benchmark-supported under stated assumptions" to "validated predictive model." Stop — the new wording exceeds the evidence level.
+- **a benchmark threshold changes.**  
+  *Example:* The AUROC regression gate triggers at 0.02 drift and you consider loosening it to 0.03 to avoid a failing CI check. Stop — threshold changes need human review and a decision record.
+- **non-toy data or candidate artifacts appear.**  
+  *Example:* You generate 500 real-looking candidate sequences and want to commit them to the repo. Stop — non-toy candidate lists require release review before committing.
+- **external-facing biology docs change scope.**  
+  *Example:* A lab partner asks you to add detailed assay protocols to the review packet. Stop — operational biology instructions belong outside this repo.
+- **tests fail in a way you cannot explain.**  
+  *Example:* A previously passing benchmark now fails by 0.03 AUROC and you cannot identify which change caused it. Stop — do not adjust thresholds or re-run with different seeds until the root cause is found.
+- **a shortcut baseline beats the proposed improvement.**  
+  *Example:* Your new 12-feature selectivity model achieves AUROC 0.62, but charge density alone achieves 0.61. Stop — the model adds no meaningful signal beyond the cheapest heuristic.
+- **uncertainty is being hidden.**  
+  *Example:* Your simulation module returns uncertainty 0.05 for every sequence, even when the input is poly-glycine. Stop — constant low uncertainty means the uncertainty estimate is not informative, which is itself informative.
 
 ## Highest-status agent behavior
 
