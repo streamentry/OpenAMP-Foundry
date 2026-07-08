@@ -1,0 +1,10 @@
+name: "Calibration Benchmark (Brier Score)"
+target: bench-calibration
+type: calibration
+dataset: "95 AMP + 96 decoy (standard), 500+500 (expanded)"
+brier_score: 0.3178
+calibration_slope: 0.43
+last_updated: "2026-07-08"
+baseline_comparison: "Always-predict-mean (Brier skill score = -0.27)"
+leakage_status: "N/A (calibration)"
+deprecated: false

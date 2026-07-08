@@ -1,0 +1,8 @@
+name: "Cheap Enemy Comparison"
+target: bench-cheap-enemies
+type: comparison
+dataset: "8 test sequences (AMPs, controls)"
+last_updated: "2026-07-08"
+baseline_comparison: "Per-proxy declared cheapest baselines"
+leakage_status: "N/A"
+deprecated: false

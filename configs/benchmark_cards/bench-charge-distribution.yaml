@@ -1,0 +1,8 @@
+name: "Charge Distribution Report"
+target: bench-charge-distribution
+type: analysis
+dataset: "500 AMP + 500 decoy"
+last_updated: "2026-07-08"
+baseline_comparison: "N/A (descriptive)"
+leakage_status: "N/A"
+deprecated: false

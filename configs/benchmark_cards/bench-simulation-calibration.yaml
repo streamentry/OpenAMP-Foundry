@@ -1,0 +1,8 @@
+name: "Simulation Uncertainty Calibration"
+target: bench-simulation-calibration
+type: calibration
+dataset: "12 test sequences (AMPs, short, edge cases)"
+last_updated: "2026-07-08"
+baseline_comparison: "Length correlation (membrane -0.90, structure -0.61)"
+leakage_status: "N/A"
+deprecated: false
