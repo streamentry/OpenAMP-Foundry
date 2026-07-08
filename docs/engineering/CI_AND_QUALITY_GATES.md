@@ -132,19 +132,19 @@ Agent-generated changes should verify:
 
 ## Local command targets to add over time
 
-Future useful commands:
+Available commands:
 
 ```text
-make docs-check       # internal links, source-of-truth references, index coverage
+make docs-check       # internal links, source-of-truth references, index coverage (alias: doc-links-check)
 make claim-check      # forbidden or risky claim language
+make agent-check      # safe-scope and agent PR checks (runs claim-check + doc-links-check)
 make artifact-check   # schema/version/release-status validation
 make release-check    # release checklist automation
-make agent-check      # safe-scope and agent PR checks
 make data-check       # dataset-card and license metadata validation
 make model-check      # model-card and release-status validation
 ```
 
-These should start as advisory checks before becoming hard gates.
+`agent-check`, `claim-check`, and `doc-links-check` are implemented. Others should start as advisory checks before becoming hard gates.
 
 ## Failure reports
 

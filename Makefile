@@ -71,8 +71,22 @@ help:
 	@echo "  make ci                 lint + test (CI gate)"
 	@echo "  make clean              Remove outputs/ (except CSV pilot panel)"
 
+agent-check: claim-check doc-links-check
+	@echo "All agent checks passed."
+
 claim-check:
+	@echo "--- Claim language scan (advisory) ---"
 	PYTHONPATH=src $(PYTHON) scripts/safety/check_claims.py
+	@echo "OK"
+
+claim-check-strict:
+	@echo "--- Claim language scan (strict, will fail on findings) ---"
+	PYTHONPATH=src $(PYTHON) scripts/safety/check_claims.py --fail-on-findings
+
+doc-links-check:
+	@echo "--- Doc link check ---"
+	PYTHONPATH=src $(PYTHON) scripts/check_doc_links.py
+	@echo "OK"
 
 demo:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli rank \
