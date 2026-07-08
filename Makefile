@@ -497,6 +497,11 @@ bench-charge-distribution:
 		--decoy-csv examples/validation/random_background_500.csv
 	@echo "OK"
 
+bench-simulation-calibration:
+	@echo "--- Simulation uncertainty calibration ---"
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_simulation_calibration.py
+	@echo "OK"
+
 bench-cheap-enemies:
 	@echo "--- Cheap enemy comparison ---"
 	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_cheap_enemy_comparison.py
