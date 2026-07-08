@@ -91,6 +91,8 @@ The purpose is to improve which questions qualified humans choose to test next.
 | `openamp_foundry.calibration` | Structured result intake, recalibration gates, and proposal generation. |
 | `openamp_foundry.active_learning` | Informative next-batch selection under uncertainty. |
 | `openamp_foundry.analysis` | Diversity, similarity, structural-class, and audit helpers. |
+| `openamp_foundry.qc` | Quality-control checks for pre-synthesis, hemolysis risk, and feasibility. |
+| `openamp_foundry.utils` | I/O helpers, hashing, and shared utilities. |
 
 Package behavior must remain aligned with docs under [`docs/PROJECT_INDEX.md`](../PROJECT_INDEX.md).
 
