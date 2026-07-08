@@ -90,6 +90,10 @@ bench-deprecation-check:
 	@echo "OK"
 	@echo "All agent checks passed."
 
+doctor:
+	@echo "--- Environment diagnostic ---"
+	PYTHONPATH=src $(PYTHON) scripts/doctor.py
+
 claim-check:
 	@echo "--- Claim language scan (advisory) ---"
 	PYTHONPATH=src $(PYTHON) scripts/safety/check_claims.py
