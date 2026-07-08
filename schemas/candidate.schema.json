@@ -59,6 +59,23 @@
     "recommended_next_steps": {"type": "array", "items": {"type": "string"}},
     "generated_at": {"type": "string"},
     "pipeline_version": {"type": "string"},
-    "config_hash": {"type": "string"}
+    "config_hash": {"type": "string"},
+    "proof_ladder_level": {
+      "type": "string",
+      "enum": [
+        "valid_input",
+        "reproducible_dry_lab_features",
+        "baseline_triaged",
+        "leakage_aware_benchmark",
+        "multi_signal_candidate_evidence",
+        "expert_reviewed_assay_proposal",
+        "initial_qualified_assay_result",
+        "safety_adjusted_follow_up_signal",
+        "independent_replication",
+        "reusable_discovery_loop",
+        "translational_or_clinical_relevance"
+      ],
+      "description": "Highest proof-ladder level this candidate's evidence supports. See docs/evidence/PROOF_LADDER.md."
+    }
   }
 }
