@@ -8,6 +8,10 @@ The machine-readable contract lives in `configs/recalibration_policy.yaml`.
 
 The policy exists because the most dangerous failure mode in a feedback-loop discovery system is silent self-rewriting after seeing outcomes.
 
+## Synthetic data restriction
+
+Synthetic lab results must not influence recalibration decisions or raise any candidate's proof_ladder_level. Only qualified wet-lab outcomes may trigger recalibration or elevate evidence levels. See VIRTUAL_ASSAY_SCOPE.md for the full synthetic-data policy.
+
 ## Prime rule
 
 **Lab-result intake may describe what happened. It may not change ranking behavior unless the recalibration gate permits it and a qualified human review records the decision.**

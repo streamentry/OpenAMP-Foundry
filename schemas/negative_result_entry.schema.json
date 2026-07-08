@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Negative Result Entry",
+  "description": "Schema for negative result entries in the archive CSV. Matches docs/evidence/NEGATIVE_RESULT_ARCHIVE.md.",
+  "type": "object",
+  "required": [
+    "entry_id", "date", "candidate_id", "sequence",
+    "reason_category", "reason_detail", "pipeline_version", "source_batch"
+  ],
+  "properties": {
+    "entry_id": {"type": "integer", "description": "Monotonic integer (auto-increment)"},
+    "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "ISO 8601 date"},
+    "candidate_id": {"type": "string"},
+    "sequence": {"type": "string", "pattern": "^[ACDEFGHIKLMNPQRSTVWY]+$", "description": "Amino-acid sequence"},
+    "reason_category": {
+      "type": "string",
+      "enum": ["pre_selection_reject", "selected_untested", "lab_inactive", "lab_toxic", "control_failure", "synthesis_failure"]
+    },
+    "reason_detail": {"type": "string", "description": "Human-readable explanation"},
+    "pipeline_version": {"type": "string"},
+    "source_batch": {"type": "string"},
+    "assay_type": {"type": "string"},
+    "assay_result": {"type": "string"},
+    "assay_unit": {"type": "string"},
+    "score_activity": {"type": "number", "minimum": 0, "maximum": 1},
+    "score_safety": {"type": "number", "minimum": 0, "maximum": 1},
+    "score_novelty": {"type": "number", "minimum": 0, "maximum": 1},
+    "score_ensemble": {"type": "number", "minimum": 0, "maximum": 1},
+    "recalibration_used": {"type": "string", "enum": ["yes", "no"]},
+    "superseded_by": {"type": "integer"},
+    "reviewer_notes": {"type": "string"}
+  }
+}

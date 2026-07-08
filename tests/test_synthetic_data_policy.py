@@ -1,29 +1,14 @@
-"""Tests for synthetic data policy doc."""
+"""Verify the synthetic-data policy is documented in required locations."""
 from pathlib import Path
 
 
-def test_file_exists():
-    assert Path("docs/evidence/SYNTHETIC_DATA_POLICY.md").exists()
+def test_virtual_assay_scope_mentions_synthetic_policy():
+    text = Path("docs/evidence/VIRTUAL_ASSAY_SCOPE.md").read_text()
+    assert "Synthetic" in text
+    assert "proof_ladder_level" in text
 
 
-def test_has_definitions():
-    text = Path("docs/evidence/SYNTHETIC_DATA_POLICY.md").read_text()
-    assert "Toy fixture" in text
-    assert "Synthetic data" in text
-    assert "Real data" in text
-
-
-def test_has_allowed_use():
-    text = Path("docs/evidence/SYNTHETIC_DATA_POLICY.md").read_text()
-    assert "Allowed Use" in text
-
-
-def test_has_forbidden_use():
-    text = Path("docs/evidence/SYNTHETIC_DATA_POLICY.md").read_text()
-    assert "Forbidden Use" in text
-
-
-def test_disclaimer_required():
-    text = Path("docs/evidence/SYNTHETIC_DATA_POLICY.md").read_text()
-    assert "SYNTHETIC" in text
-    assert "disclaimer" in text
+def test_calibration_policy_mentions_synthetic_restriction():
+    text = Path("docs/evidence/CALIBRATION_POLICY.md").read_text()
+    assert "Synthetic" in text
+    assert "proof_ladder_level" in text

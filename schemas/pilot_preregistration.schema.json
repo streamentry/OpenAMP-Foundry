@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pilot Pre-Registration",
+  "description": "Schema for pre-registered pilot selection logic. Freezes rules before assay results are known.",
+  "type": "object",
+  "required": [
+    "pilot_name", "preregistered_at", "preregistered_by",
+    "candidate_pool_source", "selection_rules", "exclusion_criteria",
+    "pass_fail_criteria"
+  ],
+  "properties": {
+    "pilot_name": {"type": "string", "description": "Human-readable pilot name (e.g., 'Wave 1 Pilot')"},
+    "preregistered_at": {"type": "string", "format": "date-time", "description": "ISO 8601 timestamp"},
+    "preregistered_by": {"type": "string", "description": "Person or agent who created the registration"},
+    "candidate_pool_source": {"type": "string", "description": "Path or description of the candidate pool"},
+    "candidate_pool_hash": {"type": "string", "description": "SHA-256 hash of the pool CSV"},
+    "selection_rules": {
+      "type": "object",
+      "description": "Machine-readable rules used to select candidates"
+    },
+    "exclusion_criteria": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Criteria that would cause a candidate to be excluded"
+    },
+    "pass_fail_criteria": {
+      "type": "object",
+      "description": "Criteria for determining pilot success or failure"
+    },
+    "revision_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {"type": "string", "format": "date"},
+          "reason": {"type": "string"}
+        }
+      }
+    }
+  }
+}
