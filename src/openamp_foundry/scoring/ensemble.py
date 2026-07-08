@@ -11,6 +11,14 @@ def ensemble_score(scores: dict[str, float], weights: dict[str, float]) -> float
         activity=0.40, safety=0.25, synthesis=0.15, novelty=0.20
     Phase-3 weights (configs/phase3.yaml):
         activity=0.35, safety=0.30, synthesis=0.20, novelty=0.15
+
+    Calibration warning: ensemble scores are ranking heuristics computed
+    from physicochemical features. They are NOT calibrated probability
+    estimates. The calibration benchmark (make bench-calibration) reports
+    Brier score ~0.32 and calibration slope ~0.43 on the standard set,
+    meaning scores consistently overstate confidence. A score of 0.8 does
+    NOT mean "80% likely to be active." Scores are valid only for relative
+    ranking within a single batch.
     """
     missing = [name for name in weights if name not in scores]
     if missing:

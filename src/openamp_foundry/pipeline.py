@@ -316,6 +316,8 @@ def build_batch_report(
         "disclaimer": (
             "All scores are transparent baseline heuristics. "
             "They are not validated biological predictors. "
+            "Scores are ranking heuristics, not calibrated probability "
+            "estimates. See 'make bench-calibration' for Brier score. "
             "No antimicrobial activity has been demonstrated."
         ),
         "score_averages": {
@@ -366,6 +368,7 @@ def write_report(
         "",
         "> **Disclaimer:** All scores are transparent baseline heuristics computed from "
         "physicochemical properties. They are NOT validated biological predictors. "
+        "Scores are ranking heuristics, not calibrated probability estimates. "
         "No antimicrobial activity has been demonstrated in vitro or in vivo. "
         "These candidates are nominated for possible future expert review and assay only.",
         "",
