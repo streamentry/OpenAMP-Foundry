@@ -36,6 +36,30 @@ humans make accountable decisions
 | External packets | Assemble drafts. | Approve readiness and release. |
 | Calibration | Generate reports. | Decide whether to update behavior. |
 
+## Maintainer prompts for assigning agent-safe tasks
+
+When assigning a task to an agent, include these elements:
+
+- **Task:** one-line description
+- **Issue:** link to GitHub issue
+- **Scope:** what files/directories to touch
+- **Safety check:** what NOT to change — policy, release, benchmarks, thresholds
+- **Evidence:** what test or command proves it works
+- **Stop conditions:** what triggers asking for human review
+- **Expected complexity:** prefer small
+
+Example:
+
+```
+Task: Add doc-link check for new docs
+Issue: https://github.com/Open-Problem-Lab/OpenAMP-Foundry/issues/732
+Scope: docs/evidence/ directory only
+Safety check: Do not change AGENTS.md, SAFETY.md, or any policy doc
+Evidence: python scripts/check_doc_links.py shows 0 broken
+Stop conditions: If task requires changing pipeline code, stop and ask
+Expected complexity: small
+```
+
 ## Agent-safe work
 
 Agent-safe work is narrow, low-risk, and verifiable.
