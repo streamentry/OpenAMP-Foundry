@@ -43,6 +43,15 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     rank.add_argument(
+        "--track-failures",
+        action="store_true",
+        default=False,
+        help=(
+            "Write failed_candidates.jsonl alongside the main output, "
+            "documenting which candidates were rejected by each gate."
+        ),
+    )
+    rank.add_argument(
         "--simulation-mode",
         choices=["off", "info"],
         default="off",
@@ -1063,6 +1072,7 @@ def main(argv: list[str] | None = None) -> int:
             manifest_path=args.manifest,
             ranking_mode=getattr(args, "ranking_mode", "ensemble"),
             simulation_mode=sim_mode,
+            track_failures=getattr(args, "track_failures", False),
         )
         print(
             json.dumps(

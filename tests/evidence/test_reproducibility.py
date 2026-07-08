@@ -308,3 +308,52 @@ class TestInputHashIntegrity:
         expected = h.hexdigest()
         actual = file_sha256(CANDIDATE_CSV)
         assert actual == expected, "file_sha256() should match stdlib sha256"
+
+
+class TestFailedCandidatesTracking:
+    def test_track_failures_creates_sidecar_file(self):
+        import json
+        import tempfile
+        import subprocess
+        import sys
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ranked.jsonl"
+            result = subprocess.run(
+                [sys.executable, "-m", "openamp_foundry.cli", "rank",
+                 "--candidates", str(CANDIDATE_CSV),
+                 "--references", str(REFERENCE_CSV),
+                 "--out", str(out),
+                 "--track-failures"],
+                capture_output=True, text=True,
+                env={"PYTHONPATH": "src"},
+            )
+            assert result.returncode == 0
+            failed = out.with_suffix(".failed.jsonl")
+            assert failed.exists(), f"Expected {failed} to exist"
+            lines = failed.read_text().splitlines()
+            assert len(lines) > 0
+            entry = json.loads(lines[0])
+            assert "candidate_id" in entry
+            assert "rejected_by" in entry
+            assert len(entry["rejected_by"]) > 0
+            assert "scores" in entry
+
+    def test_track_failures_off_by_default(self):
+        import tempfile
+        import subprocess
+        import sys
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ranked.jsonl"
+            result = subprocess.run(
+                [sys.executable, "-m", "openamp_foundry.cli", "rank",
+                 "--candidates", str(CANDIDATE_CSV),
+                 "--references", str(REFERENCE_CSV),
+                 "--out", str(out)],
+                capture_output=True, text=True,
+                env={"PYTHONPATH": "src"},
+            )
+            assert result.returncode == 0
+            failed = out.with_suffix(".failed.jsonl")
+            assert not failed.exists(), f"Expected no {failed} without --track-failures"

@@ -154,6 +154,7 @@ def run_ranking_pipeline(
     manifest_path: str | Path | None = None,
     ranking_mode: str = "ensemble",
     simulation_mode: str = "off",
+    track_failures: bool = False,
 ) -> list[ScoredCandidate]:
     run_id = str(uuid.uuid4())
     generated_at = datetime.now(timezone.utc).isoformat()
@@ -207,14 +208,30 @@ def run_ranking_pipeline(
 
     ranked = rank_candidates(scored, ranking_mode=ranking_mode)
     top_n = int(selection_cfg.get("top_n", len(ranked)))
+    safety_min = 1.0 - max_safety_risk
 
-    eligible = [
-        item for item in ranked
-        if getattr(item, "valid", True)
-        and item.scores["novelty"] >= min_novelty
-        and item.scores["safety"] >= (1.0 - max_safety_risk)
-        and item.scores["disagreement"] <= max_disagreement
-    ]
+    eligible = []
+    ineligible: list[dict] = []
+    for item in ranked:
+        failures = []
+        if not getattr(item, "valid", True):
+            failures.append("invalid_sequence")
+        if item.scores["novelty"] < min_novelty:
+            failures.append(f"novelty_{item.scores['novelty']:.2f}_below_{min_novelty:.2f}")
+        if item.scores["safety"] < safety_min:
+            failures.append(f"safety_{item.scores['safety']:.2f}_below_{safety_min:.2f}")
+        if item.scores["disagreement"] > max_disagreement:
+            failures.append(f"disagreement_{item.scores['disagreement']:.2f}_above_{max_disagreement:.2f}")
+        if failures:
+            ineligible.append({
+                "candidate_id": item.candidate.candidate_id,
+                "sequence": item.candidate.sequence,
+                "rejected_by": failures,
+                "scores": {k: item.scores.get(k) for k in ("activity", "safety", "synthesis", "novelty", "ensemble")},
+                "known_failure_modes": item.known_failure_modes,
+            })
+        else:
+            eligible.append(item)
     selected = greedy_diverse_select(eligible, top_n=top_n)
 
     rows = []
@@ -235,6 +252,10 @@ def run_ranking_pipeline(
             }
         )
     write_jsonl(out_path, rows)
+
+    if track_failures and ineligible:
+        failed_path = Path(str(out_path)).with_suffix(".failed.jsonl")
+        write_jsonl(failed_path, ineligible)
 
     if cert_dir:
         cert_root = Path(cert_dir)
