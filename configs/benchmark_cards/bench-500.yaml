@@ -1,0 +1,10 @@
+name: "Expanded AUROC Benchmark"
+target: bench-500
+type: retrospective
+dataset: "500 AMP + 500 decoy (length-matched)"
+auroc: 0.7792
+ci_95: "0.7505–0.8065"
+last_updated: "2026-07-05"
+baseline_comparison: "charge-only AUROC 0.7317"
+leakage_status: "cluster-split CI wider than standard CI confirms near-duplicate inflation"
+deprecated: false

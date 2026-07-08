@@ -71,7 +71,12 @@ help:
 	@echo "  make ci                 lint + test (CI gate)"
 	@echo "  make clean              Remove outputs/ (except CSV pilot panel)"
 
-agent-check: claim-check doc-links-check
+agent-check: claim-check doc-links-check bench-deprecation-check
+
+bench-deprecation-check:
+	@echo "--- Benchmark deprecation check ---"
+	PYTHONPATH=src $(PYTHON) scripts/check_benchmark_deprecation.py
+	@echo "OK"
 	@echo "All agent checks passed."
 
 claim-check:

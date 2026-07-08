@@ -1,0 +1,12 @@
+name: "Simulation Ablation (AMP-vs-Decoy)"
+target: bench-simulation-ablation
+type: ablation
+dataset: "500 AMP + 500 decoy"
+auroc: 0.7512
+ci_95: "0.72–0.78"
+last_updated: "2026-07-04"
+baseline_comparison: "charge-only AUROC 0.7317 — bacterial_binding beats charge"
+leakage_status: "N/A (ablation)"
+deprecated: true
+superseded_by: "bench-simulation-baselines"
+deprecation_note: "Superseded by per-signal baseline comparison (bench-simulation-baselines) which provides finer-grained analysis."
