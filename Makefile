@@ -490,6 +490,13 @@ bench-simulation-ablation-within-amp:
 	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_simulation_ablation.py \
 		--mode within-amp --out outputs/simulation_ablation_within_amp.json
 
+bench-charge-distribution:
+	@echo "--- Charge distribution report ---"
+	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_charge_distribution.py \
+		--amp-csv examples/validation/known_amps_500.csv \
+		--decoy-csv examples/validation/random_background_500.csv
+	@echo "OK"
+
 bench-cheap-enemies:
 	@echo "--- Cheap enemy comparison ---"
 	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_cheap_enemy_comparison.py
