@@ -2337,3 +2337,53 @@ def _run_artifact_compat_check(args: argparse.Namespace) -> int:
         print("between artifact versions.")
 
     return 0 if report["all_passed"] else 3
+
+
+def _run_contribution_check(args: argparse.Namespace) -> int:
+    """Validate a contribution intake dict."""
+    from openamp_foundry.community.contribution_intake import validate_intake_dict
+
+    try:
+        intake_dict = json.loads(args.intake_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --intake-json: {e}"}))
+        return 2
+
+    if not isinstance(intake_dict, dict):
+        print(json.dumps({"status": "error", "error": "--intake-json must be a JSON object"}))
+        return 2
+
+    result = validate_intake_dict(intake_dict)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps({
+            "institution_name": result.institution_name,
+            "contribution_type": result.contribution_type,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "required_review_class": result.required_review_class,
+            "dry_lab_only": result.dry_lab_only,
+        }, indent=2))
+    else:
+        print("Contribution Intake Check")
+        print("=" * 60)
+        print(f"Institution:       {result.institution_name}")
+        print(f"Contribution type: {result.contribution_type}")
+        print(f"Review class:      {result.required_review_class}")
+        print(f"Status:            {'PASS' if result.passed else 'FAIL'}")
+        print()
+        if result.errors:
+            print("Errors:")
+            for err in result.errors:
+                print(f"  - {err}")
+        if result.warnings:
+            print("Warnings:")
+            for w in result.warnings:
+                print(f"  - {w}")
+        print()
+        print("Dry-lab only. Contribution intake checks are computational")
+        print("safeguards, not biological proof.")
+
+    return 0 if result.passed else 3

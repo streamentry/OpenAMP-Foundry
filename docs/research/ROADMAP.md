@@ -1,5 +1,79 @@
 # Roadmap
 
+## v0.6.7 — Loop 107: Phase I I9 — Public-Good Contribution Guide ✓ (2026-07-09)
+
+`docs/community/PUBLIC_GOOD_CONTRIBUTION_GUIDE.md` with 6 contribution types
+(wet_lab_validation, dataset_donation, compute_sponsorship, expert_review,
+governance_participation, algorithm_contribution), review classes A-D, minimum
+requirements table, initiation process, data governance, and safety constraints.
+
+`src/openamp_foundry/community/contribution_intake.py` with `ContributionIntake`
+dataclass (7 fields: institution_name, contact_email, contribution_type,
+proposed_scope, human_review_required, dry_lab_only, extra_fields),
+`IntakeValidationResult` dataclass (7 fields: institution_name, contribution_type,
+passed, errors, warnings, required_review_class, dry_lab_only),
+`VALID_CONTRIBUTION_TYPES` set (6 entries), `VALID_REVIEW_CLASSES` set (4 entries),
+`REQUIRED_FIELDS_BY_TYPE` dict (6 entries). `validate_contribution_intake()` checks
+all top-level fields (institution_name, contact_email, contribution_type,
+proposed_scope, dry_lab_only), type-specific required fields from
+REQUIRED_FIELDS_BY_TYPE, and enforces human_review_required=True for
+wet_lab_validation. `validate_intake_dict()` handles raw dict input with
+missing-fields guard.
+
+CLI (`openamp-foundry contribution-check`) with `--intake-json` and
+`--format text|json`. Handler `_run_contribution_check` in reports.py.
+
+`make contribution-check` target. 16 tests. **3429 total.**
+
+Changes:
+- `docs/community/PUBLIC_GOOD_CONTRIBUTION_GUIDE.md` (I9) — Full public-good
+  contribution guide with purpose, who can contribute, 6 contribution types
+  table, minimum requirements, initiation process, data governance, safety
+  constraints, and contact information.
+- `src/openamp_foundry/community/__init__.py` (I9) — Empty package init.
+- `src/openamp_foundry/community/contribution_intake.py` (I9) — Core module
+  with `ContributionIntake` (7 fields), `IntakeValidationResult` (7 fields),
+  `VALID_CONTRIBUTION_TYPES` (6 entries), `VALID_REVIEW_CLASSES` (4 entries),
+  `REQUIRED_FIELDS_BY_TYPE` (6 entries), `validate_contribution_intake()`,
+  `validate_intake_dict()`. All dataclasses carry dry_lab_only=True.
+- `tests/community/__init__.py` (I9) — Empty package init.
+- `tests/community/test_contribution_intake.py` (I9) — 16 tests covering:
+  valid dataset_donation passes, valid wet_lab_validation with human_review
+  passes, empty institution_name fails, invalid email fails, invalid
+  contribution_type fails, empty proposed_scope fails, dry_lab_only=False
+  fails, wet_lab_validation without human_review fails, dataset_donation
+  missing data_license fails, algorithm_contribution missing has_tests fails,
+  all results have dry_lab_only=True, validate_intake_dict passes, dict
+  missing field fails, VALID_CONTRIBUTION_TYPES has 6 entries,
+  REQUIRED_FIELDS_BY_TYPE has 6 keys, wet_lab_validation gets review_class D.
+- `src/openamp_foundry/cli/main.py` (I9) — Registered `contribution-check`
+  subcommand with `--intake-json` (required), `--format` flags. Added import
+  and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I9) — Added
+  `_run_contribution_check()` CLI handler with JSON parsing, ContributionIntake
+  creation, text and JSON output, and exit code 3 on failure.
+- `Makefile` (I9) — Added `contribution-check` target with demo invocation
+  using Example University dataset_donation. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (I9) — v0.6.7 I9 changelog. Pipeline
+  version: v0.6.7. Test count: 3429.
+- `tests/test_test_count_regression.py` — baseline updated to 3429.
+
+Honest boundaries:
+- Contribution validation checks structural and policy requirements only.
+  It does not verify that the institution actually has the right to share
+  the data or that the data is biologically meaningful.
+- `dry_lab_only: true` is a const field on all dataclasses — contribution
+  intake is inherently computational and must never be presented as
+  biological proof.
+- wet_lab_validation always requires human_review_required=True — this is
+  a structural check that the flag is set, not verification that human
+  review actually occurred.
+- Data governance (DATA_GOVERNANCE.md, DATA_LICENSE_NOTICE.md) applies to
+  all contributed datasets regardless of whether the intake check passes.
+- The contribution guide is informational and aspirational. Actual
+  acceptance and review outcomes depend on maintainer capacity and
+  project priorities.
+
 ## v0.6.6 — Loop 106: Phase I I8 — Artifact Compatibility Tests ✓ (2026-07-09)
 
 `src/openamp_foundry/compatibility/artifact_compatibility.py` with
