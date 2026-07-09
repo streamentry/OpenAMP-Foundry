@@ -5,7 +5,18 @@ PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pyte
 RUFF    := $(shell [ -f .venv/bin/ruff ] && echo .venv/bin/ruff || echo ruff)
 
 help:
-	@echo "OpenAMP Foundry — wet-lab pipeline targets"
+	@echo "OpenAMP Foundry — dry-lab pipeline targets"
+	@echo ""
+	@echo "Quick verification:"
+	@echo "  make pr-ready           Pre-PR check (agent-check + doctor)"
+	@echo "  make agent-check        Claim scan + doc links + benchmark deprecation"
+	@echo "  make doctor             Environment diagnostic"
+	@echo ""
+	@echo "Pipeline:"
+	@echo "  make demo               Rank demo candidates, produce report + evidence certs"
+	@echo ""
+	@echo "Benchmarks (key):"
+	@echo "  make bench-500          Full expanded benchmark (AUROC, AUPRC, recall)"
 	@echo ""
 	@echo "  make demo               Rank demo candidates, produce report + evidence certs"
 	@echo "  make phase3             Generate + rank Phase 3 pool (89 nominees)"
@@ -70,6 +81,9 @@ help:
 	@echo "  make typecheck          mypy type check on src/"
 	@echo "  make ci                 lint + test (CI gate)"
 	@echo "  make clean              Remove outputs/ (except CSV pilot panel)"
+
+pr-ready: agent-check doctor
+	@echo "Ready for PR."
 
 agent-check: claim-check doc-links-check bench-deprecation-check
 
@@ -140,6 +154,9 @@ coverage:
 
 typecheck:
 	uv run mypy src/ --ignore-missing-imports --no-error-summary 2>&1 | head -30 || true
+
+bench-all: bench-500 bench-calibration bench-cheap-enemies bench-charge-distribution bench-simulation-calibration
+	@echo "All key benchmarks complete."
 
 bench-leakage:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli bench leakage \

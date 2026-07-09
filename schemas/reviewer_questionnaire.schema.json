@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp-foundry.org/schemas/reviewer_questionnaire.schema.json",
+  "title": "OpenAMP Reviewer Questionnaire",
+  "description": "Structured feedback schema for expert reviewers evaluating an external review packet. Enables machine-parseable review outcomes and supports honest, reproducible review workflows.",
+  "type": "object",
+  "required": [
+    "reviewer_id",
+    "packet_id",
+    "reviewed_at",
+    "scientific_validity",
+    "benchmark_adequacy",
+    "safety_concerns",
+    "recommendation",
+    "comments",
+    "conflict_of_interest_declared"
+  ],
+  "properties": {
+    "reviewer_id": {
+      "type": "string",
+      "description": "Unique identifier for the reviewer (anonymised or named)"
+    },
+    "packet_id": {
+      "type": "string",
+      "description": "The packet_id of the external review packet being reviewed"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the review was completed"
+    },
+    "scientific_validity": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Rating of scientific validity of the pipeline and approach (1=poor, 5=excellent)"
+    },
+    "benchmark_adequacy": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Rating of whether benchmarks adequately support the claims (1=inadequate, 5=fully adequate)"
+    },
+    "safety_concerns": {
+      "type": "boolean",
+      "description": "Whether the reviewer identifies safety concerns with the packet or candidates"
+    },
+    "safety_concern_description": {
+      "type": "string",
+      "description": "Detailed description of safety concerns (required if safety_concerns is true)"
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": ["approve", "revise", "reject"],
+      "description": "Overall recommendation for the review packet"
+    },
+    "comments": {
+      "type": "string",
+      "description": "Free-text comments and feedback from the reviewer"
+    },
+    "conflict_of_interest_declared": {
+      "type": "boolean",
+      "description": "Whether the reviewer has declared any conflict of interest"
+    },
+    "conflict_of_interest_detail": {
+      "type": "string",
+      "description": "Description of any conflict of interest (required if conflict_of_interest_declared is true)"
+    },
+    "domain_expertise": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["antimicrobial_peptides", "computational_biology", "assay_design", "safety_toxicology", "bioinformatics", "medicinal_chemistry", "other"]
+      },
+      "description": "Reviewer's self-declared domain expertise areas"
+    },
+    "other_expertise": {
+      "type": "string",
+      "description": "Description of expertise if domain_expertise includes 'other'"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "safety_concerns": { "const": true } } },
+      "then": { "required": ["safety_concern_description"] }
+    },
+    {
+      "if": { "properties": { "conflict_of_interest_declared": { "const": true } } },
+      "then": { "required": ["conflict_of_interest_detail"] }
+    }
+  ]
+}

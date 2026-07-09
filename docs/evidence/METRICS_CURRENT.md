@@ -5,7 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-08 (calibration benchmark — v0.5.71)
+> **Last updated:** 2026-07-09 (Phase E external review schemas — v0.5.72)
+> **New in v0.5.72:** External review packet schema (E1), example packet (E2), reviewer questionnaire schema (E3). 27 tests. 2666 total.
+>
 > **New in v0.5.71:** Calibration benchmark added — Brier score, reliability diagram, and calibration slope for pipeline ensemble scores. Honest finding: Brier=0.318 (>0.25=uninformative), slope=0.43 (ideal=1.0). Pipeline ranks well but scores are not meaningful probabilities. `make bench-calibration`. 6 tests. ~2100 total.
 >
 > **New in v0.5.65:** `scripts/lab/build_lab_batch_pack.py` now writes `chain_of_custody.json` and `MANIFEST.json` into lab batch packs. The custody file includes SHA-256 hashes for `panel.csv`, the ordered candidate list, each candidate sequence, and each evidence certificate. `--verify-pack` verifies archive integrity and detects tampering. These hashes prove identity/integrity only, not biological activity, safety, or synthesis success. 5 tests.
@@ -52,7 +54,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.67
+> **Pipeline version:** v0.5.72
 > **Branch:** main
 
 ---

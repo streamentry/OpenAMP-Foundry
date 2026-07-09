@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp-foundry.org/schemas/external_review_packet.schema.json",
+  "title": "OpenAMP External Review Packet",
+  "description": "Machine-checkable schema for a complete external review packet. Enables lab partners and reviewers to verify what a review packet contains before running experiments. The dry_lab_only_attestation field prevents review packets from being mistaken for biological proof.",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "version",
+    "generated_at",
+    "pipeline_version",
+    "git_sha",
+    "candidate_count",
+    "candidates",
+    "benchmark_summary",
+    "calibration_summary",
+    "limitations",
+    "safety_attestations",
+    "dry_lab_only_attestation",
+    "proof_ladder_level",
+    "contact"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string",
+      "description": "Unique identifier for this review packet (e.g. 'ERP-2026-07-09-001')"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version (semver, e.g. '1.0.0')"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the packet was generated"
+    },
+    "pipeline_version": {
+      "type": "string",
+      "description": "OpenAMP pipeline version used to generate this packet"
+    },
+    "git_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{7,40}$",
+      "description": "Git commit SHA of the pipeline code used"
+    },
+    "candidate_count": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of candidates in this packet"
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["candidate_id", "sequence", "ensemble_score", "proof_ladder_level"],
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "description": "Unique candidate identifier"
+          },
+          "sequence": {
+            "type": "string",
+            "pattern": "^[ACDEFGHIKLMNPQRSTVWY]+$",
+            "description": "Amino acid sequence (standard single-letter codes)"
+          },
+          "ensemble_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Pipeline ensemble score"
+          },
+          "proof_ladder_level": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8,
+            "description": "Highest achieved proof-ladder level for this candidate (see PROOF_LADDER.md)"
+          },
+          "family": {
+            "type": "string",
+            "description": "Scaffold family identifier"
+          },
+          "selection_rationale": {
+            "type": "string",
+            "description": "Human-readable explanation of why this candidate was selected"
+          },
+          "safety_notes": {
+            "type": "string",
+            "description": "Known or predicted safety concerns"
+          }
+        }
+      },
+      "description": "Array of candidate entries included in this review packet"
+    },
+    "benchmark_summary": {
+      "type": "object",
+      "required": ["auroc", "benchmark_name", "n_positives", "n_negatives"],
+      "properties": {
+        "auroc": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Primary benchmark AUROC value"
+        },
+        "benchmark_name": {
+          "type": "string",
+          "description": "Name of the benchmark (e.g. '500-AMP benchmark')"
+        },
+        "n_positives": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of positive sequences in the benchmark"
+        },
+        "n_negatives": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of negative sequences in the benchmark"
+        },
+        "ci_95_lower": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Lower bound of 95% confidence interval"
+        },
+        "ci_95_upper": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Upper bound of 95% confidence interval"
+        },
+        "caveats": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Honest limitations and caveats for this benchmark"
+        }
+      },
+      "description": "Summary of pipeline benchmark performance"
+    },
+    "calibration_summary": {
+      "type": "object",
+      "required": ["brier_score", "calibration_slope", "calibration_assessment"],
+      "properties": {
+        "brier_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Brier score for pipeline ensemble probability calibration"
+        },
+        "calibration_slope": {
+          "type": "number",
+          "description": "Reliability diagram slope (1.0 = perfectly calibrated)"
+        },
+        "calibration_assessment": {
+          "type": "string",
+          "enum": ["well_calibrated", "moderately_calibrated", "poorly_calibrated", "uninformative"],
+          "description": "Overall calibration assessment"
+        },
+        "n_calibration_samples": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of samples used for calibration assessment"
+        }
+      },
+      "description": "Pipeline ensemble score calibration summary"
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Honest limitations and caveats for this review packet. At minimum: 'Computational outputs are hypotheses and review aids. They are not biological proof.'"
+    },
+    "safety_attestations": {
+      "type": "object",
+      "required": ["reviewed_by_human", "safety_gate_passed", "no_known_toxicity_claim"],
+      "properties": {
+        "reviewed_by_human": {
+          "type": "boolean",
+          "description": "Whether a human reviewed the safety assessment"
+        },
+        "safety_gate_passed": {
+          "type": "boolean",
+          "description": "Whether all candidates pass the automated safety gate"
+        },
+        "no_known_toxicity_claim": {
+          "type": "boolean",
+          "enum": [true],
+          "description": "Attestation that no claim of biological safety is made (dry-lab scores do not prove safety)"
+        },
+        "hemolysis_assay_mandatory": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether hemolysis assay is mandatory for all candidates (true unless explicitly waived by human review)"
+        }
+      },
+      "description": "Safety-related attestations for this review packet"
+    },
+    "dry_lab_only_attestation": {
+      "type": "boolean",
+      "enum": [true],
+      "description": "REQUIRED: Must be true. This packet contains dry-lab computational outputs only. These are hypotheses and review aids, not biological proof."
+    },
+    "proof_ladder_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8,
+      "description": "Highest achieved proof-ladder level across all artifacts in this packet. Dry-lab outputs cannot exceed Level 2 (computationally nominated)."
+    },
+    "contact": {
+      "type": "string",
+      "description": "Contact information for questions about this review packet"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or context for reviewers"
+    }
+  }
+}

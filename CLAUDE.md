@@ -47,6 +47,16 @@ OpenAMP Foundry is a verification-first, safety-constrained antimicrobial peptid
 - [docs/trust/MODEL_CARD_TEMPLATE.md](docs/trust/MODEL_CARD_TEMPLATE.md)
 - [docs/trust/RELEASE_CHECKLIST.md](docs/trust/RELEASE_CHECKLIST.md)
 
+## Verification commands
+
+Before creating a PR, run:
+
+```bash
+make agent-check     # claim scan + doc link check + benchmark deprecation
+make doctor          # environment diagnostic
+make bench-calibration  # verify calibration hasn't degraded (optional)
+```
+
 ## Default work loop
 
 ```text
@@ -57,6 +67,7 @@ read relevant docs
   -> add tests or explain docs-only status
   -> update source-of-truth docs
   -> preserve limitations
+  -> run make agent-check
   -> stop before scope creep
 ```
 

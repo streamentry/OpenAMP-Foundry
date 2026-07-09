@@ -310,6 +310,28 @@ class TestInputHashIntegrity:
         assert actual == expected, "file_sha256() should match stdlib sha256"
 
 
+class TestCrossConfigConsistency:
+    def test_different_configs_produce_different_results(self, tmp_path):
+        """Pipeline output must differ when config changes."""
+        out1 = tmp_path / "default.jsonl"
+        run_ranking_pipeline(CANDIDATE_CSV, REFERENCE_CSV, out1, config_path="configs/pipeline.yaml")
+        out2 = tmp_path / "phase3.jsonl"
+        run_ranking_pipeline(CANDIDATE_CSV, REFERENCE_CSV, out2, config_path="configs/phase3.yaml")
+        lines1 = out1.read_text().splitlines()
+        lines2 = out2.read_text().splitlines()
+        scores1 = [json.loads(l)["scores"]["ensemble"] for l in lines1]
+        scores2 = [json.loads(l)["scores"]["ensemble"] for l in lines2]
+        assert scores1 != scores2, "Different configs should produce different ensemble scores"
+
+    def test_same_config_is_deterministic_across_runs(self, tmp_path):
+        """Same config + same inputs = same output."""
+        out1 = tmp_path / "run_a.jsonl"
+        out2 = tmp_path / "run_b.jsonl"
+        run_ranking_pipeline(CANDIDATE_CSV, REFERENCE_CSV, out1)
+        run_ranking_pipeline(CANDIDATE_CSV, REFERENCE_CSV, out2)
+        assert out1.read_text() == out2.read_text(), "Deterministic output expected"
+
+
 class TestFailedCandidatesTracking:
     def test_track_failures_creates_sidecar_file(self):
         import json

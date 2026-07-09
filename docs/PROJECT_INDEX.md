@@ -291,13 +291,16 @@ Do not change a success definition after seeing results.
 
 Do not hide negative results merely because they weaken the story.
 
+## Current status — 60-loop milestone
+
+**Dry-lab infrastructure complete** as of Loop 60 (2026-07-08). All internal
+quality gates, benchmarks, evidence chain, agent workflow, and documentation
+are in place and tested. Key metrics: 2427+ test baseline, `make pr-ready`
+passes on clean checkout, all 10 JSON schemas validated, 16 packages documented.
+
 ## Current strategic bottleneck
 
-The project already has unusually strong dry-lab discipline.
-
-The next bottleneck is not more impressive language.
-
-The next bottleneck is external truth:
+The next bottleneck is **external truth**:
 
 - independent review of candidate evidence packages;
 - fair comparison against charge/similarity baselines;

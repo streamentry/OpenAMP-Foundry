@@ -1,0 +1,65 @@
+{
+  "packet_id": "ERP-EXAMPLE-2026-07-09-001",
+  "version": "1.0.0",
+  "generated_at": "2026-07-09T12:00:00Z",
+  "pipeline_version": "v0.5.72",
+  "git_sha": "abcdef1234567890abcdef1234567890abcdef12",
+  "candidate_count": 2,
+  "candidates": [
+    {
+      "candidate_id": "EXAMPLE-001",
+      "sequence": "KLAKLAKKLAKLAK",
+      "ensemble_score": 0.84,
+      "proof_ladder_level": 2,
+      "family": "EXAMPLE-HELIX",
+      "selection_rationale": "EXAMPLE: Strong amphipathic helix, high charge density. This is a TOY EXAMPLE, not a real candidate.",
+      "safety_notes": "EXAMPLE ONLY: No safety assessment performed on this toy candidate."
+    },
+    {
+      "candidate_id": "EXAMPLE-002",
+      "sequence": "RVRIRLVRRLLR",
+      "ensemble_score": 0.79,
+      "proof_ladder_level": 2,
+      "family": "EXAMPLE-ARG-VAL",
+      "selection_rationale": "EXAMPLE: Alternating arginine-valine pattern. This is a TOY EXAMPLE, not a real candidate.",
+      "safety_notes": "EXAMPLE ONLY: No safety assessment performed on this toy candidate."
+    }
+  ],
+  "benchmark_summary": {
+    "auroc": 0.78,
+    "benchmark_name": "EXAMPLE 500-AMP benchmark (toy data)",
+    "n_positives": 500,
+    "n_negatives": 500,
+    "ci_95_lower": 0.75,
+    "ci_95_upper": 0.81,
+    "caveats": [
+      "EXAMPLE: This is a toy/example benchmark summary, not actual benchmark results.",
+      "Benchmark AUROC does not measure real-world usefulness.",
+      "The pipeline underperforms charge density alone on AMP-vs-decoy discrimination."
+    ]
+  },
+  "calibration_summary": {
+    "brier_score": 0.32,
+    "calibration_slope": 0.43,
+    "calibration_assessment": "uninformative",
+    "n_calibration_samples": 1000
+  },
+  "limitations": [
+    "Computational outputs are hypotheses and review aids. They are not biological proof.",
+    "Dry-lab scores do not prove antimicrobial activity.",
+    "Dry-lab safety-risk scores do not prove biological safety.",
+    "Benchmark success does not prove real-world usefulness.",
+    "External review does not equal validation.",
+    "EXAMPLE: This is a toy/example packet created for schema validation purposes only. It does not contain real candidate data or real review recommendations."
+  ],
+  "safety_attestations": {
+    "reviewed_by_human": false,
+    "safety_gate_passed": true,
+    "no_known_toxicity_claim": true,
+    "hemolysis_assay_mandatory": true
+  },
+  "dry_lab_only_attestation": true,
+  "proof_ladder_level": 2,
+  "contact": "EXAMPLE-ONLY: openamp-foundry@example.com (toy data, do not use for actual review)",
+  "notes": "THIS IS A TOY EXAMPLE — NOT REAL DATA. This file demonstrates the external review packet schema format. No candidate sequences, scores, or evaluations in this file should be treated as real experimental recommendations."
+}

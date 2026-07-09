@@ -16,6 +16,7 @@
     "validate_lab_data_return.py": {"expected": [0, 2, 3], "notes": "0=all valid, 2=input error, 3=validation fail"},
     "validate_negative_archive.py": {"expected": [0, 2, 3], "notes": "0=all valid, 2=input error, 3=validation fail"},
     "validate_panel_csv.py": {"expected": [0, 2, 3], "notes": "0=valid, 2=input error, 3=invalid"},
+    "validate-cert-quality": {"expected": [0, 3], "notes": "0=pass/warn, 3=fail"},
     "check_claims.py": {"expected": [0, 3], "notes": "0=ok, 3=findings (advisory)"},
     "check_doc_links.py": {"expected": [0, 3], "notes": "0=ok, 3=broken links found"},
     "check_pyproject.py": {"expected": [0, 2, 3], "notes": "0=ok, 2=input error, 3=inconsistency found"}
