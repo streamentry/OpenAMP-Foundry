@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from openamp_foundry.cli.commands.core import _run_generate_batch
 from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot, _run_feature_decomp, _run_active_learning_bench, _run_active_learning_strategy_compare, _run_simulation_gate
-from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch
+from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
 from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit
@@ -1082,6 +1082,67 @@ def build_parser() -> argparse.ArgumentParser:
         help="ISO date (YYYY-MM-DD) for 'today'. Defaults to actual today.",
     )
 
+    # ── Batch-2 rationale report ─────────────────────────────────────
+    batch_rationale = sub.add_parser(
+        "batch-rationale",
+        help=(
+            "Generate a batch-2 selection rationale report. Creates a "
+            "synthetic candidate pool, runs the batch-2 selector, and "
+            "explains each selected candidate in terms of exploit / "
+            "explore / diversity roles."
+        ),
+    )
+    batch_rationale.add_argument(
+        "--n-total", type=int, default=50,
+        help="Total synthetic pool size (default: 50).",
+    )
+    batch_rationale.add_argument(
+        "--n-active", type=int, default=10,
+        help="Number of active (label=1) candidates (default: 10).",
+    )
+    batch_rationale.add_argument(
+        "--batch-size", type=int, default=10,
+        help="Desired batch-2 size (default: 10).",
+    )
+    batch_rationale.add_argument(
+        "--safety-threshold", type=float, default=0.5,
+        help="Minimum safety score (default: 0.5).",
+    )
+    batch_rationale.add_argument(
+        "--selectivity-threshold", type=float, default=0.5,
+        help="Minimum selectivity score (default: 0.5).",
+    )
+    batch_rationale.add_argument(
+        "--ensemble-weight", type=float, default=0.40,
+        help="Ensemble weight (default: 0.40).",
+    )
+    batch_rationale.add_argument(
+        "--uncertainty-weight", type=float, default=0.30,
+        help="Uncertainty weight (default: 0.30).",
+    )
+    batch_rationale.add_argument(
+        "--diversity-weight", type=float, default=0.30,
+        help="Diversity weight (default: 0.30).",
+    )
+    batch_rationale.add_argument(
+        "--min-uncertainty-probes", type=int, default=1,
+        help="Minimum uncertainty probes in selection (default: 1).",
+    )
+    batch_rationale.add_argument(
+        "--rng-seed", type=int, default=42,
+        help="RNG seed for reproducibility (default: 42).",
+    )
+    batch_rationale.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional JSON output path.",
+    )
+    batch_rationale.add_argument(
+        "--out-md",
+        default=None,
+        help="Optional Markdown output path.",
+    )
+
     # ── Batch-2 selector ──────────────────────────────────────────────
     select_batch = sub.add_parser(
         "select-batch",
@@ -1283,6 +1344,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "calibration-audit":
         return _run_calibration_audit(args)
+
+    if args.command == "batch-rationale":
+        return _run_batch_rationale(args)
 
     if args.command == "select-batch":
         return _run_select_batch(args)

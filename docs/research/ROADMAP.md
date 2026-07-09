@@ -1,5 +1,68 @@
 # Roadmap
 
+## v0.5.83 — Loop 83: Phase G G5 — Batch-2 Selection Rationale Report ✓ (2026-07-09)
+
+CLI (`openamp-foundry batch-rationale`) that generates a synthetic candidate pool,
+runs the batch-2 selector with configurable weights, and produces a per-candidate
+rationale report classifying each selected candidate into exploit / explore /
+diversity / combined roles. Report includes weight configuration, role breakdown
+summary, per-candidate contribution detail (ensemble×weight, uncertainty×weight,
+diversity×weight), safety gate impact, and caveats. Enables reviewers to
+understand why each candidate was selected in terms of the three active-learning
+roles.
+
+Changes:
+- `src/openamp_foundry/active_learning/batch_rationale.py` (G5) —
+  `build_batch_rationale_report()` generates a synthetic pool, runs
+  `select_batch_2` with configurable weights, classifies each selected candidate
+  into exploit/explore/diversity/combined roles based on which weight
+  contribution dominates (threshold: > 0.05 above second-place), and produces a
+  `BatchRationaleReport` with per-candidate rationales, role summary, and
+  selector metadata. `PerCandidateRationale` dataclass tracks scores,
+  contributions, safety gate status, and human-readable explanation.
+  `write_rationale_json()` and `write_rationale_markdown()` produce structured
+  output.
+- `schemas/batch_rationale_report.schema.json` (G5) — JSON Schema Draft 2020-12
+  for the batch-2 rationale report. Validates all required fields including
+  per-candidate rationales, role summary, role descriptions, selected IDs,
+  and notes.
+- `src/openamp_foundry/active_learning/__init__.py` — Exports
+  `BatchRationaleReport`, `PerCandidateRationale`, `build_batch_rationale_report`,
+  `write_rationale_json`, `write_rationale_markdown`.
+- `src/openamp_foundry/cli/main.py` — Registered `batch-rationale` subcommand
+  with all argument flags and dispatch to `_run_batch_rationale`.
+- `src/openamp_foundry/cli/commands/selection.py` — Added
+  `_run_batch_rationale()` CLI handler with `--n-total`, `--n-active`,
+  `--batch-size`, `--safety-threshold`, `--selectivity-threshold`,
+  `--ensemble-weight`, `--uncertainty-weight`, `--diversity-weight`,
+  `--min-uncertainty-probes`, `--rng-seed`, `--out-json`, `--out-md` flags.
+- `Makefile` — Added `batch-rationale` target with default params writing to
+  `outputs/batch_rationale_report.json` and `outputs/batch_rationale_report.md`.
+- `tests/active_learning/test_batch_rationale.py` — 19 tests covering: all
+  required top-level fields, candidates selected, per-candidate required fields,
+  valid role (exploit/explore/diversity/combined), scores in [0,1], role summary
+  counts match candidates, selected IDs match candidate IDs, probes non-negative,
+  notes present, weight config matches input, JSON and Markdown output writing,
+  CLI exit 0, CLI writes files, JSON Schema conformance, high exploitation weight
+  produces more exploit roles, all candidates have explanations with role mention,
+  role descriptions present for all roles, empty roles not in summary.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.83 G5 changelog. Test count: 2974.
+- `tests/test_test_count_regression.py` — baseline updated to 2974.
+
+Honest boundaries:
+- This report uses **synthetic data** with known labels. Results reflect
+  code-path integrity, not biological performance.
+- Role classification is based solely on weight contributions. A candidate
+  classified as "exploit" may also have meaningful uncertainty or diversity
+  signal — the role label is the dominant contribution, not an exclusive
+  category.
+- The threshold (> 0.05 above second-place) is an arbitrary cutoff; candidates
+  near the boundary are classified as "combined" to avoid false precision.
+- The production selector optimises for multiple objectives (activity, safety,
+  diversity) that a single-role label does not fully capture.
+- This report is informational and requires qualified human review before
+  influencing selection decisions.
+
 ## v0.5.82 — Loop 82: Phase G G4 — Active-Learning Strategy Comparison Report ✓ (2026-07-09)
 
 CLI (`openamp-foundry bench strategy-compare`) that compares 5 selection strategies

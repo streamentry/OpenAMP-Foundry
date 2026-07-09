@@ -590,6 +590,12 @@ bench-strategy-compare:
 		--out-json outputs/strategy_comparison.json \
 		--out-md outputs/strategy_comparison.md
 
+batch-rationale:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli batch-rationale \
+		--n-total 50 --n-active 10 --batch-size 10 \
+		--out-json outputs/batch_rationale_report.json \
+		--out-md outputs/batch_rationale_report.md
+
 bench-cross-dataset:
 	PYTHONPATH=src $(PYTHON) scripts/benchmarks/benchmark_cross_dataset.py \
 		--out outputs/cross_dataset_benchmark.json

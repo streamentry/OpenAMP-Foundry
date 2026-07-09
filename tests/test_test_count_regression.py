@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2955 tests as of Loop 82 (2026-07-09) -- Phase G G4 (active-learning strategy comparison report)
+# Baseline: 2974 tests as of Loop 83 (2026-07-09) -- Phase G G5 (batch-2 selection rationale report)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2955
+BASELINE = 2974
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

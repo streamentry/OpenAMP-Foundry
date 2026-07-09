@@ -345,6 +345,45 @@ def _run_diversity_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_batch_rationale(args: argparse.Namespace) -> int:
+    """Generate a batch-2 selection rationale report.
+
+    Creates a synthetic candidate pool, runs the batch-2 selector with
+    configurable weights, and produces a per-candidate rationale report
+    classifying each selection into exploit / explore / diversity /
+    combined roles.
+    """
+    from openamp_foundry.active_learning.batch_rationale import (
+        build_batch_rationale_report,
+        write_rationale_json,
+        write_rationale_markdown,
+    )
+
+    report = build_batch_rationale_report(
+        n_total=args.n_total,
+        n_active=args.n_active,
+        batch_size=args.batch_size,
+        safety_threshold=args.safety_threshold,
+        selectivity_threshold=args.selectivity_threshold,
+        ensemble_weight=args.ensemble_weight,
+        uncertainty_weight=args.uncertainty_weight,
+        diversity_weight=args.diversity_weight,
+        min_uncertainty_probes=args.min_uncertainty_probes,
+        rng_seed=args.rng_seed,
+    )
+
+    out_dict = report.to_dict()
+    if args.out_json:
+        write_rationale_json(report, Path(args.out_json))
+        print(f"JSON rationale report written to {args.out_json}")
+    if args.out_md:
+        write_rationale_markdown(report, Path(args.out_md))
+        print(f"Markdown rationale report written to {args.out_md}")
+    if not args.out_json and not args.out_md:
+        print(json.dumps(out_dict, indent=2))
+    return 0
+
+
 def _run_select_batch(args: argparse.Namespace) -> int:
     """Select a second batch of candidates for lab testing.
 

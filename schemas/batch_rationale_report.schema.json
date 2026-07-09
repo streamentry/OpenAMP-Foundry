@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp.ai/schemas/batch_rationale_report.schema.json",
+  "title": "Batch-2 Selection Rationale Report",
+  "description": "Report explaining why each candidate was selected in batch-2, decomposing selection into exploit, explore, and diversity roles. All fields are computational results — not biological evidence.",
+  "type": "object",
+  "required": [
+    "version",
+    "pool_size",
+    "n_requested",
+    "n_selected",
+    "n_after_safety_gate",
+    "n_gated_out",
+    "ensemble_weight",
+    "uncertainty_weight",
+    "diversity_weight",
+    "candidates",
+    "role_summary",
+    "role_descriptions",
+    "selected_ids",
+    "probes_in_top_n",
+    "notes"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema/report version."
+    },
+    "pool_size": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of candidates in the pool."
+    },
+    "n_requested": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of candidates requested for batch-2."
+    },
+    "n_selected": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of candidates actually selected."
+    },
+    "n_after_safety_gate": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of candidates remaining after safety gating."
+    },
+    "n_gated_out": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of candidates blocked by safety/selectivity gate."
+    },
+    "ensemble_weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Weight for ensemble score in selection."
+    },
+    "uncertainty_weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Weight for uncertainty score in selection."
+    },
+    "diversity_weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Weight for diversity score in selection."
+    },
+    "candidates": {
+      "type": "array",
+      "description": "Per-candidate selection rationales.",
+      "items": {
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "role",
+          "ensemble_score",
+          "uncertainty_score",
+          "diversity_score",
+          "ensemble_contribution",
+          "uncertainty_contribution",
+          "diversity_contribution",
+          "combined_score",
+          "passed_safety_gate",
+          "safety_gate_reason",
+          "explanation"
+        ],
+        "properties": {
+          "candidate_id": { "type": "string" },
+          "role": {
+            "type": "string",
+            "enum": ["exploit", "explore", "diversity", "combined"]
+          },
+          "ensemble_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "uncertainty_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "diversity_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "ensemble_contribution": { "type": "number", "minimum": 0, "maximum": 1 },
+          "uncertainty_contribution": { "type": "number", "minimum": 0, "maximum": 1 },
+          "diversity_contribution": { "type": "number", "minimum": 0, "maximum": 1 },
+          "combined_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "passed_safety_gate": { "type": "boolean" },
+          "safety_gate_reason": { "type": "string" },
+          "explanation": { "type": "string" }
+        }
+      }
+    },
+    "role_summary": {
+      "type": "object",
+      "description": "Count of candidates per role.",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "role_descriptions": {
+      "type": "object",
+      "description": "Descriptions for each role.",
+      "additionalProperties": { "type": "string" }
+    },
+    "selected_ids": {
+      "type": "array",
+      "description": "IDs of selected candidates.",
+      "items": { "type": "string" }
+    },
+    "probes_in_top_n": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of uncertainty probes placed in the top-n."
+    },
+    "notes": {
+      "type": "array",
+      "description": "Human-readable notes and caveats.",
+      "items": { "type": "string" }
+    }
+  },
+  "_caveat": "This report is a computational decomposition of selection rationale on synthetic data. It is not biological evidence of sampling efficiency, candidate quality, or real-world selection performance."
+}

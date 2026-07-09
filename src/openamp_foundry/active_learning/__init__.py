@@ -29,6 +29,13 @@ from openamp_foundry.active_learning.selector import (
     BatchSelection,
     select_batch_2,
 )
+from openamp_foundry.active_learning.batch_rationale import (
+    BatchRationaleReport,
+    PerCandidateRationale,
+    build_batch_rationale_report,
+    write_rationale_json,
+    write_rationale_markdown,
+)
 from openamp_foundry.active_learning.strategy_comparison import (
     STRATEGY_WEIGHTS,
     StrategyComparisonReport,
@@ -40,11 +47,14 @@ from openamp_foundry.active_learning.strategy_comparison import (
 
 __all__ = [
     "ActiveLearningBenchmarkResult",
+    "BatchRationaleReport",
     "BatchSelection",
+    "PerCandidateRationale",
     "RecoveryRound",
     "STRATEGY_WEIGHTS",
     "StrategyComparisonReport",
     "StrategyResult",
+    "build_batch_rationale_report",
     "generate_benchmark_pool",
     "run_active_learning_benchmark",
     "run_strategy_comparison",
@@ -52,4 +62,6 @@ __all__ = [
     "write_benchmark_pool",
     "write_comparison_json",
     "write_comparison_markdown",
+    "write_rationale_json",
+    "write_rationale_markdown",
 ]
