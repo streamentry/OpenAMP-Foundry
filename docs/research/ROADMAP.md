@@ -1,5 +1,8 @@
 # Roadmap
 
+### v0.8.8
+- Phase L L5: dataset release package checker — validates that open dataset releases meet data governance requirements (license, provenance, dual-use assessment, release approval). DatasetReleaseEntry dataclass, validate_dataset_release(), CLI dataset-release-check. Completes Phase L.
+
 ### v0.8.7
 - Phase L L4: multi-candidate comparison schema — validates structured side-by-side comparisons of two or more candidates for publication-ready supplementary tables. MultiCandidateComparisonEntry dataclass, validate_multi_candidate_comparison(), CLI multi-candidate-comparison-check.
 
