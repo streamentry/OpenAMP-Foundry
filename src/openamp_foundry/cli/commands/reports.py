@@ -3666,3 +3666,33 @@ def _run_batch_outcome_summary_check(args) -> int:
         for warn in result.warnings:
             print(f"  WARN:  {warn}")
     return 0 if result.passed else 1
+
+
+def _run_pilot_batch_safety_clearance_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.pilot_batch_safety_clearance import (
+        validate_pilot_batch_safety_clearance_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_pilot_batch_safety_clearance_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        cleared = "CLEARED" if result.cleared_for_synthesis else "NOT-CLEARED"
+        print(f"[{status}] Pilot Batch Safety Clearance: {result.psc_id} [{cleared}]")
+        print(f"  BSP: {result.bsp_id}, risk tier: {result.max_safety_risk_tier}")
+        print(f"  Rejections: {result.rejection_count}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1

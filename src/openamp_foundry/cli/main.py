@@ -26,6 +26,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_batch_selection_proposal_check,
     _run_recalibration_refusal_check,
     _run_batch_outcome_summary_check,
+    _run_pilot_batch_safety_clearance_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2383,6 +2384,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_bos.add_argument("--format", choices=["text", "json"], default="text")
     p_bos.set_defaults(func=_run_batch_outcome_summary_check)
 
+    p_psc = sub.add_parser(
+        "pilot-batch-safety-clearance-check",
+        help="Validate pilot batch safety clearance entry",
+    )
+    p_psc.add_argument("--entry-json", default=None)
+    p_psc.add_argument("--format", choices=["text", "json"], default="text")
+    p_psc.set_defaults(func=_run_pilot_batch_safety_clearance_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2766,6 +2775,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "batch-outcome-summary-check":
         return _run_batch_outcome_summary_check(args)
+
+    if args.command == "pilot-batch-safety-clearance-check":
+        return _run_pilot_batch_safety_clearance_check(args)
 
     parser.error("unknown command")
     return 2
