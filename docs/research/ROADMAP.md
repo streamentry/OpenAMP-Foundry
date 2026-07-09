@@ -1,5 +1,60 @@
 # Roadmap
 
+## v0.5.88 — Loop 88: Phase G G10 — Recalibration Rollback Plan ✓ (2026-07-09)
+
+`build_rollback_plan()` produces a structured `RollbackPlan` with 5 rollback
+triggers (RT-01 through RT-05) and 6 default rollback steps covering halt,
+document, restore, verify, root-cause, and log. `RollbackPlan` dataclass with
+plan_id, version, triggered_by, steps, notes, dry_lab_only, and to_dict().
+`RollbackStep` dataclass with step_number, action, responsible, detail, and
+dry_lab_only. CLI (`openamp-foundry calibration-rollback-plan`).
+JSON + Markdown output. Schema (`schemas/calibration_rollback_plan.schema.json`).
+`make calibration-rollback-plan` target. 15 tests. 3078 total.
+This completes Phase G (G1-G10 — calibration and active-learning rigor).
+
+Changes:
+- `src/openamp_foundry/calibration/rollback_plan.py` (G10) — Core module with
+  `ROLLBACK_TRIGGERS` list (5 triggers: RT-01 through RT-05), `RollbackStep`
+  dataclass (5 fields: step_number, action, responsible, detail, dry_lab_only),
+  `RollbackPlan` dataclass (6 fields: plan_id, version, triggered_by, steps,
+  notes, dry_lab_only), `DEFAULT_ROLLBACK_STEPS` list (6 steps),
+  `build_rollback_plan()` with trigger ID validation, `write_rollback_plan_json()`
+  and `write_rollback_plan_markdown()` for structured output.
+- `schemas/calibration_rollback_plan.schema.json` (G10) — JSON Schema Draft
+  2020-12 for the rollback plan. Validates all 6 required fields including
+  plan_id, version, triggered_by with RT-NN pattern, steps with ordered
+  actions, and dry_lab_only const=true.
+- `src/openamp_foundry/calibration/__init__.py` — Exports all rollback plan
+  symbols.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_calibration_rollback_plan()` CLI handler with `--plan-id`, `--version`,
+  `--triggered-by`, `--notes`, `--out-json`, `--out-md` flags.
+- `src/openamp_foundry/cli/main.py` — Registered `calibration-rollback-plan`
+  subcommand with all argument flags and dispatch to handler.
+- `Makefile` — Added `calibration-rollback-plan` target with default example
+  writing to `/tmp/rollback_plan.json` and `/tmp/rollback_plan.md`.
+  Added to `.PHONY`.
+- `tests/calibration/test_rollback_plan.py` — 18 tests covering: valid triggers
+  pass, unknown trigger raises ValueError, triggered_by stored correctly, steps
+  include all default steps, extra_steps appended correctly, dry_lab_only always
+  True, ROLLBACK_TRIGGERS count and required fields, plan_id stored correctly,
+  version stored correctly, to_dict has required keys, notes stored correctly,
+  default steps have correct responsible parties, JSON writer, Markdown writer.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.88 G10 changelog. Test count: 3081.
+- `tests/test_test_count_regression.py` — baseline updated to 3081.
+
+Honest boundaries:
+- The rollback plan restores weight configurations only. It does not undo
+  candidate selections, synthesis decisions, or code-level regressions.
+- Rollback triggers are detection rules, not guarantees. A regression that
+  does not match any trigger may still be harmful.
+- All rollback steps require human review (steps 2, 5, 6 explicitly).
+  Automated rollback without documented human oversight is not permitted.
+- The plan is a procedural framework. Actual rollback execution may require
+  additional context-specific steps.
+- Dry-lab only. Rollback affects computational scoring, not biological
+  activity, safety, or real-world outcomes.
+
 ## v0.5.87 — Loop 87: Phase G G9 — Calibration Decision Review Checklist ✓ (2026-07-09)
 
 `build_checklist()` produces a structured `CalibrationDecisionChecklist` with 12

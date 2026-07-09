@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1308,6 +1308,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional output path for policy check markdown report.",
     )
 
+    # ── Calibration rollback plan ────────────────────────────────────
+    rbp = sub.add_parser(
+        "calibration-rollback-plan",
+        help=(
+            "Generate a recalibration rollback plan. Documents the triggers, "
+            "steps, and responsible parties for reverting a recalibration "
+            "that degrades performance. Dry-lab only."
+        ),
+    )
+    rbp.add_argument("--plan-id", required=True, help="Unique plan identifier (e.g. RBK-2026-001).")
+    rbp.add_argument("--version", required=True, help="Calibration version to roll back (e.g. v0.5.87).")
+    rbp.add_argument(
+        "--triggered-by",
+        required=True,
+        help="Comma-separated trigger IDs (e.g. 'RT-01,RT-02').",
+    )
+    rbp.add_argument("--notes", default="", help="Optional notes about the rollback event.")
+    rbp.add_argument("--out-json", default=None, help="Optional JSON output path.")
+    rbp.add_argument("--out-md", default=None, help="Optional Markdown output path.")
+
     # ── Calibration decision review checklist ────────────────────────
     cdc = sub.add_parser(
         "calibration-decision-checklist",
@@ -1480,6 +1500,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "calibration-decision-checklist":
         return _run_calibration_decision_checklist(args)
+
+    if args.command == "calibration-rollback-plan":
+        return _run_calibration_rollback_plan(args)
 
     parser.error("unknown command")
     return 2

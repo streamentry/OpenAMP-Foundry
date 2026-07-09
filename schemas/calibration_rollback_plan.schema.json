@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp.ai/schemas/calibration_rollback_plan.schema.json",
+  "title": "Calibration Rollback Plan",
+  "description": "Schema for a structured recalibration rollback plan. Documents the triggers, steps, and responsible parties for reverting a recalibration that degrades performance.",
+  "type": "object",
+  "required": [
+    "plan_id",
+    "version",
+    "triggered_by",
+    "steps",
+    "notes",
+    "dry_lab_only"
+  ],
+  "properties": {
+    "plan_id": {
+      "type": "string",
+      "description": "Unique identifier for the rollback plan (e.g. RBK-2026-001)."
+    },
+    "version": {
+      "type": "string",
+      "description": "The calibration version to roll back (e.g. v0.5.87)."
+    },
+    "triggered_by": {
+      "type": "array",
+      "description": "List of rollback trigger IDs that activated this plan.",
+      "items": {
+        "type": "string",
+        "pattern": "^RT-\\d{2}$"
+      },
+      "minItems": 1
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered list of rollback steps to execute.",
+      "items": {
+        "type": "object",
+        "required": ["step_number", "action", "responsible", "detail", "dry_lab_only"],
+        "properties": {
+          "step_number": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Step order in the rollback procedure."
+          },
+          "action": {
+            "type": "string",
+            "description": "Brief action description."
+          },
+          "responsible": {
+            "type": "string",
+            "description": "Who is responsible: human-reviewer, pipeline, or both.",
+            "enum": ["human-reviewer", "pipeline", "both"]
+          },
+          "detail": {
+            "type": "string",
+            "description": "Detailed instructions for executing this step."
+          },
+          "dry_lab_only": {
+            "type": "boolean",
+            "const": true,
+            "description": "All rollback steps are dry-lab operations."
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-text notes about the rollback event."
+    },
+    "dry_lab_only": {
+      "type": "boolean",
+      "const": true,
+      "description": "This artifact is computational only and does not constitute biological proof."
+    }
+  }
+}

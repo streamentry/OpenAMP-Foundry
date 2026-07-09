@@ -1188,3 +1188,45 @@ def _run_calibration_decision_checklist(args: argparse.Namespace) -> int:
         "out_md": args.out_md,
     }, indent=2))
     return 0 if checklist.overall_pass else 3
+
+
+def _run_calibration_rollback_plan(args: argparse.Namespace) -> int:
+    """Build and optionally write a recalibration rollback plan."""
+    import json
+    from pathlib import Path
+
+    from openamp_foundry.calibration.rollback_plan import (
+        build_rollback_plan,
+        write_rollback_plan_json,
+        write_rollback_plan_markdown,
+    )
+
+    triggered_by = [t.strip() for t in args.triggered_by.split(",") if t.strip()]
+
+    try:
+        plan = build_rollback_plan(
+            plan_id=args.plan_id,
+            version=args.version,
+            triggered_by=triggered_by,
+            notes=args.notes,
+        )
+    except ValueError as e:
+        print(json.dumps({"status": "error", "error": str(e)}))
+        return 3
+
+    if args.out_json:
+        write_rollback_plan_json(plan, args.out_json)
+    if args.out_md:
+        write_rollback_plan_markdown(plan, args.out_md)
+
+    print(json.dumps({
+        "status": "ok",
+        "plan_id": plan.plan_id,
+        "version": plan.version,
+        "triggered_by": plan.triggered_by,
+        "n_steps": len(plan.steps),
+        "dry_lab_only": plan.dry_lab_only,
+        "out_json": args.out_json,
+        "out_md": args.out_md,
+    }, indent=2))
+    return 0

@@ -91,6 +91,16 @@ from openamp_foundry.calibration.decision_checklist import (
     write_checklist_markdown,
 )
 
+from openamp_foundry.calibration.rollback_plan import (
+    ROLLBACK_TRIGGERS,
+    DEFAULT_ROLLBACK_STEPS,
+    RollbackStep,
+    RollbackPlan,
+    build_rollback_plan,
+    write_rollback_plan_json,
+    write_rollback_plan_markdown,
+)
+
 __all__ = [
     # Constants
     "MIN_COHORT_SIZE",
@@ -150,4 +160,12 @@ __all__ = [
     "build_checklist",
     "write_checklist_json",
     "write_checklist_markdown",
+    # Rollback plan
+    "ROLLBACK_TRIGGERS",
+    "DEFAULT_ROLLBACK_STEPS",
+    "RollbackStep",
+    "RollbackPlan",
+    "build_rollback_plan",
+    "write_rollback_plan_json",
+    "write_rollback_plan_markdown",
 ]
