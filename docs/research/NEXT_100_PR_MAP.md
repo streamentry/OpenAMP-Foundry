@@ -198,7 +198,7 @@ Build the evidence and accountability artifacts needed for credible external val
 | K2 | Add batch experiment priority ranker. | Rank candidates for next synthesis wave. | B |
 | K3 | Add pilot package completeness checker. | All components present before submission. | B |
 | K4 | Add post-experiment calibration intake schema. | Structured result-to-prediction comparison. | B/D |
-| K5 | Add uncertainty quantification report schema. | Honest prediction intervals for reviewers. | B |
+| K5 | Add uncertainty quantification report schema (complete — Loop 123). | Honest prediction intervals for reviewers. | B |
 
 
 ## Prioritization rule
