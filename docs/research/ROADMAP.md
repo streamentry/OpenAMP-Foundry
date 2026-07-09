@@ -1,5 +1,12 @@
 # Roadmap
 
+### v0.9.2 — Phase M M4: Reviewer Briefing Package
+- Added `ReviewerBriefingEntry` schema for one-stop external auditor handoff packages
+- Validates CoI declaration, minimum artifact count, scope, candidate count
+- 4 warning conditions: large batch, underfocused questions, long scope, minimal artifacts
+- CLI: `openamp-foundry reviewer-briefing-check`
+- 52 tests; all passing
+
 ### v0.9.1 — Phase M M3: Score Decomposition Report
 - Added `ScoreDecompositionEntry` schema documenting how composite scores decompose into components
 - 6 valid scoring methods; weight-sum tolerance; dominant/unbalanced/low-score warnings

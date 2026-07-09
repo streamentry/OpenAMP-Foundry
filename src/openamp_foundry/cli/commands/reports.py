@@ -3258,3 +3258,35 @@ def _run_score_decomposition_check(args: argparse.Namespace) -> int:
             print("  Score decomposition validated. Composite score is auditable.")
 
     return 0 if result.passed else 3
+
+
+def _run_reviewer_briefing_check(args: argparse.Namespace) -> int:
+    import json
+    from openamp_foundry.evidence.reviewer_briefing_package import validate_reviewer_briefing_dict
+
+    try:
+        entry_dict = json.loads(args.entry_json)
+    except json.JSONDecodeError as exc:
+        print(json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(entry_dict, dict):
+        print(json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_reviewer_briefing_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Reviewer Briefing Check: {result.briefing_id} (reviewer: {result.reviewer_name})")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Reviewer briefing package validated. External auditor handoff is documented.")
+
+    return 0 if result.passed else 3
