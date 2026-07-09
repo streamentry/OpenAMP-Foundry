@@ -61,7 +61,7 @@ Not allowed before sufficient evidence:
 - proven;
 - AI-discovered antibiotic.
 
-Use `docs/PROOF_LADDER.md` and `docs/CLAIM_REVIEW_CHECKLIST.md`.
+Use `docs/evidence/PROOF_LADDER.md` and `docs/evidence/CLAIM_REVIEW_CHECKLIST.md`.
 
 ## Data and artifact rules
 

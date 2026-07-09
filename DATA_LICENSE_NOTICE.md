@@ -46,7 +46,7 @@ Dataset cards should include:
 - safety-release status;
 - reviewer and review date.
 
-Use `docs/DATA_GOVERNANCE.md` for the full standard.
+Use `docs/trust/DATA_GOVERNANCE.md` for the full standard.
 
 ## Data classes
 
@@ -87,7 +87,7 @@ Before using data for a benchmark, review:
 - confidence intervals;
 - claim being gated.
 
-See `docs/BENCHMARK_GOVERNANCE.md`.
+See `docs/evidence/BENCHMARK_GOVERNANCE.md`.
 
 ## Final standard
 

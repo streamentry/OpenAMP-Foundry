@@ -1,72 +1,58 @@
 # Claude Guidance
 
-Read [AGENTS.md](AGENTS.md) first. It is the primary operating contract for this repository.
+Read [AGENTS.md](AGENTS.md) first. It is the primary operating contract for this repository. This file is the fast path into it.
+
+The best agent here is not the one that makes OpenAMP sound most impressive. It is the one that makes OpenAMP **hardest to fool** — including hardest for itself to fool. Optimize for that and the rest follows.
 
 ## Repo intent in one paragraph
 
 OpenAMP Foundry is a verification-first, safety-constrained antimicrobial peptide discovery infrastructure project. Its current job is to build a rigorous dry-lab foundry that ranks, filters, documents, audits, and packages candidates honestly. Its long-range ambition is bigger: become an open wet-lab compression engine that helps qualified humans decide which few experiments are worth running next.
 
-## Non-negotiables
+## First 60 seconds of any session
 
-- Do not overclaim computational results as biological proof.
-- Preserve negative results, benchmark caveats, and failure modes.
-- Protect the repo’s dry-lab and safety boundaries.
-- Prefer reproducibility, calibration, and honest uncertainty over impressive language.
-- Treat any virtual-assay or simulation layer as experimental until it clearly improves decision quality.
-- Compare advanced methods against cheap baselines before trusting them.
-- Make every meaningful change easier for the next human or agent to audit.
-- Do not change release status, claim strength, benchmark thresholds, or safety policy without human review.
+1. `git pull`, then read [AGENTS.md](AGENTS.md) and the required first reads it lists. [docs/PROJECT_INDEX.md](docs/PROJECT_INDEX.md) is the navigation hub when you need a doc this file doesn't name.
+2. Route the task with [`AGENT_TASKS.json`](AGENT_TASKS.json) — the machine-readable map of safe paths, forbidden zones, and the exact checks each task class must pass. If your change touches a `forbidden_zone`, stop and request human review.
+3. Pick **one** bottleneck. Prefer an unfinished, highest-leverage one from [docs/operations/HIGH_LEVERAGE_TASKS.md](docs/operations/HIGH_LEVERAGE_TASKS.md) or [docs/research/NEXT_100_PR_MAP.md](docs/research/NEXT_100_PR_MAP.md). One loop, one change.
+4. Before writing anything, state — in one sentence each — the bottleneck, the evidence it exists, the smallest change that removes it, and how you will *try to prove that change wrong*. No plan, no edit.
 
-## Fast orientation
+## Non-negotiables — and the enemy that catches each one
 
-- [docs/PROJECT_INDEX.md](docs/PROJECT_INDEX.md) — navigation hub for humans and agents.
-- [docs/trust/TRUST_CENTER.md](docs/trust/TRUST_CENTER.md) — trust architecture.
-- [docs/getting-started/COMMAND_SURFACE.md](docs/getting-started/COMMAND_SURFACE.md) — command workflows and claim boundaries.
-- [docs/operations/HUMAN_AGENT_COLLABORATION.md](docs/operations/HUMAN_AGENT_COLLABORATION.md) — human-agent division of labor.
-- [docs/getting-started/REVIEWER_ONBOARDING.md](docs/getting-started/REVIEWER_ONBOARDING.md) — review expectations.
-- [docs/research/NEXT_100_PR_MAP.md](docs/research/NEXT_100_PR_MAP.md) — PR-sized backlog.
-- [docs/evidence/PROOF_LADDER.md](docs/evidence/PROOF_LADDER.md) — claim ladder and evidence levels.
+A rule with no way to catch its violation is a wish. Every rule below names the command that would catch you breaking it — or is marked **you are the guard**, meaning no automated check exists yet and your judgment is the only gate. Passing a check is a floor, never proof (see the anti-Goodhart clause in AGENTS.md).
 
-## Key docs
+| Rule | Enemy that catches a violation |
+|------|-------------------------------|
+| Do not overclaim computational results as biological proof. | `make claim-check-strict` (scans language); **you are the guard** for meaning the scanner can't parse |
+| Preserve negative results, benchmark caveats, and failure modes. | **you are the guard** — deletions of caveats/negatives get a line-by-line reviewer note in the PR |
+| Every advanced method must beat a cheap baseline before it gets ranking authority. | `make bench-cheap-enemies`, `make bench-charge-matched`, `make bench-leakage` |
+| Reproducibility metadata travels with every major output. | `make cert-quality-check`, `make full-reproducibility-report` |
+| Docs point where they claim to. | `make doc-links-check` |
+| Deprecated benchmarks are not silently revived. | `make bench-deprecation-check` |
+| Do not change release status, claim strength, thresholds, calibration, or safety policy without human review. | **you are the guard** — these are stop conditions, not tasks (see below) |
 
-- [README.md](README.md)
-- [VISION.md](VISION.md)
-- [GOAL.md](GOAL.md)
-- [MISSION.md](MISSION.md)
-- [GOVERNANCE.md](GOVERNANCE.md)
-- [AGENTS.md](AGENTS.md)
-- [SAFETY.md](SAFETY.md)
-- [RESPONSIBLE_USE.md](RESPONSIBLE_USE.md)
-- [MODEL_RELEASE_POLICY.md](MODEL_RELEASE_POLICY.md)
-- [DATA_LICENSE_NOTICE.md](DATA_LICENSE_NOTICE.md)
-- [docs/engineering/ARTIFACT_VERSIONING.md](docs/engineering/ARTIFACT_VERSIONING.md)
-- [docs/evidence/BENCHMARK_GOVERNANCE.md](docs/evidence/BENCHMARK_GOVERNANCE.md)
-- [docs/engineering/CI_AND_QUALITY_GATES.md](docs/engineering/CI_AND_QUALITY_GATES.md)
-- [docs/evidence/CLAIM_REVIEW_CHECKLIST.md](docs/evidence/CLAIM_REVIEW_CHECKLIST.md)
-- [docs/trust/DATA_GOVERNANCE.md](docs/trust/DATA_GOVERNANCE.md)
-- [docs/trust/MODEL_CARD_TEMPLATE.md](docs/trust/MODEL_CARD_TEMPLATE.md)
-- [docs/trust/RELEASE_CHECKLIST.md](docs/trust/RELEASE_CHECKLIST.md)
+Fast bundle before any PR: `make agent-check` (claim + doc-links + deprecation) and `make doctor`. Green here means *nothing obvious is broken* — it does not mean *the change is right*.
 
-## Verification commands
+## Prove your change wrong before you ship it — the disconfirming pass
 
-Before creating a PR, run:
+This is the highest-leverage habit in the repo and the one most agents skip. Before opening a PR, spend real effort trying to break your own change. Adapted from GOAL.md's cheapest disconfirming tests:
 
-```bash
-make agent-check     # claim scan + doc link check + benchmark deprecation
-make doctor          # environment diagnostic
-make bench-calibration  # verify calibration hasn't degraded (optional)
-```
+- **Cheapest explanation.** Could a one-line heuristic (charge, length, hydrophobicity, similarity-to-known) produce the same result you're crediting to your change? If yes, the residual is what matters — measure it or downgrade the claim.
+- **Leakage.** Did the improvement come from the method or from the split? Run the leakage/charge-matched enemy before believing a number.
+- **Silent scope creep.** Did the diff grow past the one bottleneck you named? Split it. One loop, one change.
+- **Hidden certainty.** Did any wording get stronger, any caveat get shorter, any negative result get quieter? If so, that is the finding — surface it, don't smooth it.
+- **The uninformative-uncertainty trap.** If a module reports the same confidence for good and absurd inputs, the estimate is broken, and that fact is itself worth reporting.
+
+If the disconfirming pass changes nothing, say so explicitly in the PR. If it changes something, that change is usually the real contribution.
 
 ## Default work loop
 
 ```text
-read relevant docs
+read relevant docs (AGENTS.md required reads + AGENT_TASKS.json routing)
   -> pick one bottleneck
-  -> define evidence of improvement
-  -> implement smallest useful change
-  -> add tests or explain docs-only status
-  -> update source-of-truth docs
-  -> preserve limitations
+  -> define the evidence of improvement AND how you'll try to disprove it
+  -> implement the smallest useful change
+  -> add tests, or explain the docs-only status
+  -> run the disconfirming pass; run the enemy checks above
+  -> update source-of-truth docs; preserve every limitation
   -> run make agent-check
   -> stop before scope creep
 ```
@@ -75,10 +61,14 @@ read relevant docs
 
 When uncertain, downgrade the claim.
 
-Use “computationally nominated,” “dry-lab candidate,” “selected for review,” or “evidence package” unless qualified evidence supports stronger language.
-
-Never convert model confidence into biological proof.
+Use "computationally nominated," "dry-lab candidate," "selected for review," or "evidence package" unless qualified evidence supports stronger language. Never convert model confidence into biological proof.
 
 ## Stop rule
 
 Stop and request human review if a change touches safety policy, release policy, candidate release, model release, non-toy data, external-facing artifacts, benchmark thresholds, calibration policy, or public scientific claims.
+
+A stop is not a dead end — it has an artifact. When a stop condition fires, leave a **decision-log draft** for the human (format and index: [`decision_logs/INDEX.md`](decision_logs/INDEX.md)): what you found, what you did *not* change, and the specific decision a human must make. That turns a blocked loop into a reviewable handoff.
+
+## Write for the agent that replaces you
+
+Every rule here should get *more* true as models get smarter, not less. You are almost certainly not the last agent to touch this repo — a more capable one will read your diff, your docs, and your caveats as ground truth. So the durable standard is not "would this pass review today?" but "will the next, smarter agent find this honest, auditable, and easy to build on — or will it inherit a hidden assumption it has to discover the hard way?" Leave the repo harder to fool than you found it. Build trust, not theater.

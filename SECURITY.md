@@ -68,8 +68,8 @@ If an issue affects users, artifacts, or downstream consumers, maintainers shoul
 - [`SAFETY.md`](SAFETY.md)
 - [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md)
 - [`MODEL_RELEASE_POLICY.md`](MODEL_RELEASE_POLICY.md)
-- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md)
-- [`docs/SAFETY_DOC_AUDIT.md`](docs/SAFETY_DOC_AUDIT.md)
+- [`docs/trust/RELEASE_CHECKLIST.md`](docs/trust/RELEASE_CHECKLIST.md)
+- [`docs/trust/SAFETY_DOC_AUDIT.md`](docs/trust/SAFETY_DOC_AUDIT.md)
 
 ## Final rule
 
