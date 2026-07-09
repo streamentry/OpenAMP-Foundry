@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2995 tests as of Loop 84 (2026-07-09) -- Phase G G6 (calibration-overfit warning)
+# Baseline: 3022 tests as of Loop 85 (2026-07-09) -- Phase G G7 (result-quality flag propagation)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2995
+BASELINE = 3022
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

@@ -1,5 +1,55 @@
 # Roadmap
 
+## v0.5.85 — Loop 85: Phase G G7 — Result-Quality Flag Propagation into Calibration Engine ✓ (2026-07-09)
+
+`assess_result_quality()` and `filter_results_for_calibration()` propagate
+result-quality flags into the calibration engine. Low-quality outcomes cannot
+drive updates — garbage results must not update the scoring model.
+
+Changes:
+- `src/openamp_foundry/calibration/result_quality.py` (G7) — Core module with
+  `QUALITY_FLAGS` dictionary (8 standard flags), `EXCLUDED_FLAGS` set
+  (contamination, assay_interference), `ResultQualityReport` dataclass (7 fields:
+  candidate_id, flags, quality_level, can_drive_update, propagation_action,
+  explanation, dry_lab_only), `assess_result_quality()` applying multi-tier rules
+  (excluded flags → excluded, 2+ minor flags → low/excluded, 1 flag → acceptable,
+  0 flags → high), `filter_results_for_calibration()` grouping results into
+  included/included_with_caution/excluded with summary counts,
+  `write_result_quality_json()` and `write_result_quality_markdown()` for output.
+- `schemas/result_quality_report.schema.json` (G7) — JSON Schema Draft 07 for
+  per-candidate or aggregate result quality reports. Validates all 7 required
+  fields including flag enum constraint and dry_lab_only const=true.
+- `src/openamp_foundry/calibration/__init__.py` — Exports all result-quality
+  symbols.
+- `src/openamp_foundry/cli/commands/reports.py` — Added `_run_result_quality_filter()`
+  CLI handler with `--results-json`, `--out-json`, `--out-md` flags.
+- `src/openamp_foundry/cli/main.py` — Registered `result-quality-filter` subcommand
+  with all argument flags and dispatch to handler.
+- `Makefile` — Added `result-quality-filter` target with default example data writing
+  to `/tmp/rq_output.json` and `/tmp/rq_output.md`. Added to `.PHONY`.
+- `tests/calibration/test_result_quality.py` — 27 tests covering: high quality (no
+  flags), contamination excluded, assay_interference excluded, 2 minor flags excluded
+  (low quality), 1 minor flag include_with_caution, can_drive_update True/False for
+  all quality levels, dry_lab_only always True, unknown flag raises ValueError,
+  explanation non-empty, to_dict output, contamination+other flags still excluded,
+  assay_interference+other flags still excluded, filter_results_for_calibration
+  empty/summary counts/per-action grouping/can_drive_update_count, missing flags
+  handling, EXCLUDED_FLAGS set, QUALITY_FLAGS descriptions and count.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.85 G7 changelog. Test count: 3022.
+- `tests/test_test_count_regression.py` — baseline updated to 3022.
+
+Honest boundaries:
+- Quality assessment is a computational filter on structural and metadata criteria.
+  A "high quality" result does not confirm biological activity.
+- Flag-based classification uses a pre-defined rule set. Edge cases (e.g.,
+  borderline_threshold with ambiguous_activity) are treated the same as any
+  other 2-flag combination — excluded for caution.
+- Excluded results may still contain useful scientific information and should
+  remain available for expert review.
+- The `dry_lab_only=True` constraint is an attestation, not a technical proof.
+- All calibration decisions require qualified human review regardless of
+  result quality assessment.
+
 ## v0.5.84 — Loop 84: Phase G G6 — Calibration-Overfit Warning for Small Cohorts ✓ (2026-07-09)
 
 `check_cohort_overfit_risk()` and `run_overfit_check()` flag when a calibration

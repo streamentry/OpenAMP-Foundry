@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openamp.ai/schemas/result_quality_report.schema.json",
+  "title": "Result Quality Report",
+  "description": "Schema for a result quality assessment report. Dry-lab only — does not measure biological activity.",
+  "type": "object",
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "description": "Identifier for the candidate peptide."
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "low_sample_quality",
+          "assay_interference",
+          "ambiguous_activity",
+          "contamination",
+          "protocol_deviation",
+          "borderline_threshold",
+          "replicate_disagreement",
+          "missing_negative_control"
+        ]
+      },
+      "description": "Quality flags assigned to this result."
+    },
+    "quality_level": {
+      "type": "string",
+      "enum": ["high", "acceptable", "low", "excluded"],
+      "description": "Overall quality assessment level."
+    },
+    "can_drive_update": {
+      "type": "boolean",
+      "description": "Whether this result may drive a calibration update."
+    },
+    "propagation_action": {
+      "type": "string",
+      "enum": ["include", "include_with_caution", "exclude"],
+      "description": "Propagation action for the calibration engine."
+    },
+    "explanation": {
+      "type": "string",
+      "description": "Human-readable explanation of the quality assessment."
+    },
+    "dry_lab_only": {
+      "type": "boolean",
+      "description": "Always true. This is a computational assessment, not biological proof.",
+      "const": true
+    }
+  },
+  "required": [
+    "candidate_id",
+    "flags",
+    "quality_level",
+    "can_drive_update",
+    "propagation_action",
+    "explanation",
+    "dry_lab_only"
+  ],
+  "additionalProperties": false
+}

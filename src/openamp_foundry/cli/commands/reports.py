@@ -1030,3 +1030,53 @@ def _run_calibration_overfit_check(args: argparse.Namespace) -> int:
         "out_md": args.out_md,
     }, indent=2))
     return 0
+
+
+def _run_result_quality_filter(args: argparse.Namespace) -> int:
+    """Filter lab results by quality flags for calibration eligibility."""
+    import json
+    from pathlib import Path
+
+    from openamp_foundry.calibration.result_quality import (
+        filter_results_for_calibration,
+        write_result_quality_json,
+        write_result_quality_markdown,
+    )
+
+    results_path = Path(args.results_json)
+    if not results_path.exists():
+        print(json.dumps({
+            "status": "error",
+            "error": f"results JSON not found: {results_path}",
+        }))
+        return 2
+
+    with results_path.open() as f:
+        results = json.load(f)
+
+    if not isinstance(results, list):
+        print(json.dumps({
+            "status": "error",
+            "error": "results JSON must be a list of {candidate_id, flags} objects",
+        }))
+        return 2
+
+    filtered = filter_results_for_calibration(results)
+
+    if args.out_json:
+        write_result_quality_json(filtered, args.out_json)
+    if args.out_md:
+        write_result_quality_markdown(filtered, args.out_md)
+
+    print(json.dumps({
+        "status": "ok",
+        "total": filtered["summary"]["total"],
+        "included": filtered["summary"]["included"],
+        "included_with_caution": filtered["summary"]["included_with_caution"],
+        "excluded": filtered["summary"]["excluded"],
+        "can_drive_update_count": filtered["can_drive_update_count"],
+        "dry_lab_only": filtered["dry_lab_only"],
+        "out_json": args.out_json,
+        "out_md": args.out_md,
+    }, indent=2))
+    return 0

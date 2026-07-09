@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1255,6 +1255,31 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output path for the batch-2 manifest JSON.",
     )
 
+    # ── Result quality filter ─────────────────────────────────────
+    result_quality = sub.add_parser(
+        "result-quality-filter",
+        help=(
+            "Filter lab results by quality flags. Low-quality outcomes "
+            "cannot drive calibration updates — garbage results must not "
+            "update the scoring model. Dry-lab only."
+        ),
+    )
+    result_quality.add_argument(
+        "--results-json",
+        required=True,
+        help="Path to JSON file with list of {candidate_id, flags} objects.",
+    )
+    result_quality.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional output path for filtered results JSON.",
+    )
+    result_quality.add_argument(
+        "--out-md",
+        default=None,
+        help="Optional output path for markdown report.",
+    )
+
     return parser
 
 
@@ -1397,6 +1422,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "calibration-overfit-check":
         return _run_calibration_overfit_check(args)
+
+    if args.command == "result-quality-filter":
+        return _run_result_quality_filter(args)
 
     parser.error("unknown command")
     return 2
