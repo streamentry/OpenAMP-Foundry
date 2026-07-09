@@ -1568,6 +1568,70 @@ def _run_adapter_gate_check(args: argparse.Namespace) -> int:
     return 0 if gate_result.passed else 3
 
 
+def _run_simulation_ci_report(args: argparse.Namespace) -> int:
+    """Compute confidence intervals and overlap report for simulation results."""
+    import json
+
+    from openamp_foundry.simulation.ci_reporter import ci_report
+    from openamp_foundry.simulation.interfaces import SimulationResult
+
+    output_format = getattr(args, "format", "text")
+    score_key = args.score_key
+
+    try:
+        raw_results = json.loads(args.results_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({
+            "status": "error",
+            "error": f"Invalid JSON for --results-json: {e}",
+        }))
+        return 2
+
+    if not isinstance(raw_results, list):
+        print(json.dumps({
+            "status": "error",
+            "error": "--results-json must be a JSON array of SimulationResult dicts",
+        }))
+        return 2
+
+    results = []
+    for item in raw_results:
+        results.append(SimulationResult(
+            module=item.get("module", ""),
+            version=item.get("version", ""),
+            scope=item.get("scope", []),
+            scores=item.get("scores", {}),
+            uncertainty=item.get("uncertainty", 0.0),
+            calibration_set=item.get("calibration_set"),
+            validated_against=item.get("validated_against", []),
+            notes=item.get("notes", []),
+        ))
+
+    report = ci_report(results, score_key=score_key)
+
+    if output_format == "json":
+        print(json.dumps(report, indent=2))
+    else:
+        print(f"Simulation Confidence Interval Report")
+        print(f"  Score key:      {report['score_key']}")
+        print(f"  N results:      {report['n_results']}")
+        print(f"  Any overlap:    {report['any_overlap']}")
+        print()
+        for ci_dict in report["cis"]:
+            ov = ", ".join(ci_dict["overlaps_with"]) if ci_dict["overlaps_with"] else "(none)"
+            print(f"  [{ci_dict['module_id']}]")
+            print(f"    Point estimate: {ci_dict['point_estimate']:.4f}")
+            print(f"    Uncertainty:    {ci_dict['uncertainty']:.4f}")
+            print(f"    CI:             [{ci_dict['ci_lower']:.4f}, {ci_dict['ci_upper']:.4f}]")
+            print(f"    Width:          {ci_dict['ci_width']:.4f}")
+            print(f"    Overlaps with:  {ov}")
+            print()
+        print("Dry-lab only. Confidence intervals are computational estimates,")
+        print("not biological proof.")
+
+    return 0
+
+
 def _run_simulation_provenance(args: argparse.Namespace) -> int:
     """Generate and display a simulation-result provenance record."""
     import json

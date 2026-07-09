@@ -1,5 +1,56 @@
 # Roadmap
 
+## v0.5.95 — Loop 95: Phase H H7 — Simulation-Result Confidence Interval Reporter ✓ (2026-07-09)
+
+`ScoreCI` dataclass (9 fields: module_id, score_key, point_estimate, uncertainty,
+ci_lower, ci_upper, ci_width, overlaps_with, dry_lab_only).
+`compute_score_ci()` builds CIs from SimulationResult.scores[score_key] ± uncertainty,
+returns None if score_key missing. `compare_cis()` pairwise checks overlap condition
+(a_lo <= b_hi and b_lo <= a_hi), returns new list with overlaps_with populated
+(no in-place mutation). `ci_report()` produces full report with n_results, cis list,
+any_overlap flag, and dry_lab_only=True.
+CLI (`openamp-foundry simulation-ci-report`) with `--results-json`, `--score-key`,
+`--format text|json`. `make simulation-ci-report` target with demo invocation.
+Raw scores without uncertainty ranges make it impossible to judge whether two
+candidates are distinguishable. The CI reporter makes uncertainty explicit and
+auditable.
+
+Changes:
+- `src/openamp_foundry/simulation/ci_reporter.py` (H7) — Core module with
+  `ScoreCI` dataclass (9 fields), `compute_score_ci()` with CI bounds from
+  score ± uncertainty, `compare_cis()` with pairwise overlap detection,
+  `ci_report()` with n_results, any_overlap, and dry_lab_only=True.
+- `src/openamp_foundry/simulation/__init__.py` — Exports `ScoreCI`,
+  `compute_score_ci`, `compare_cis`, `ci_report`.
+- `src/openamp_foundry/cli/main.py` — Registered `simulation-ci-report`
+  subcommand with `--results-json`, `--score-key`, `--format` flags.
+  Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_simulation_ci_report()` CLI handler with JSON parsing,
+  SimulationResult deserialization, text and JSON output.
+- `Makefile` — Added `simulation-ci-report` target with demo invocation
+  using membrane_proxy + structure_proxy. Added to `.PHONY`.
+- `tests/simulation/test_ci_reporter.py` — 16 tests covering: compute_score_ci
+  returns correct bounds, ci_width = 2*uncertainty, missing key returns None,
+  dry_lab_only always True, non-overlapping CIs empty overlaps_with,
+  overlapping CIs populated overlaps_with, no in-place mutation, 0 results,
+  n_results correct, dry_lab_only=True, any_overlap false/true, overlapping
+  example, non-overlapping example.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.95 H7 changelog. Test count: 3217.
+- `tests/test_test_count_regression.py` — baseline updated to 3217.
+
+Honest boundaries:
+- Confidence intervals are computed from SimulationResult.uncertainty, which
+  is self-reported by each simulation module and not independently verified.
+- Overlap detection is a mathematical condition: two CIs overlapping means
+  the scores are not statistically distinguishable at the stated uncertainty
+  level. It does not mean the modules are biologically correct or incorrect.
+- A CI with no overlaps may still be biologically meaningless — precision
+  without accuracy is not useful.
+- The any_overlap flag is a descriptive summary, not a gate. Overlap does
+  not invalidate results; it highlights them for human review.
+- All CI reports are dry-lab only and must not be presented as biological proof.
+
 ## v0.5.94 — Loop 94: Phase H H6 — Simulation-Ensemble Agreement Checker ✓ (2026-07-09)
 
 `EnsembleAgreementResult` dataclass (9 fields: sequence, modules_checked,

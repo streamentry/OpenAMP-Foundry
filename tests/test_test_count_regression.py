@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3201 tests as of Loop 94 (2026-07-09) -- Phase H H6 (simulation-ensemble agreement checker)
+# Baseline: 3217 tests as of Loop 95 (2026-07-09) -- Phase H H7 (simulation-result confidence interval reporter)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3201
+BASELINE = 3217
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

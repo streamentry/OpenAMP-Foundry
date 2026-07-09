@@ -26,6 +26,12 @@ from .baseline_registry import (
     list_baseline_declarations,
     validate_baseline_declarations,
 )
+from .ci_reporter import (
+    ScoreCI,
+    ci_report,
+    compare_cis,
+    compute_score_ci,
+)
 from .gate import SimulationGateVerdict, evaluate_simulation_gate
 from .interfaces import (
     EmulatorBaseline,
@@ -58,6 +64,10 @@ __all__ = [
     "EnsembleAgreementResult",
     "check_ensemble_agreement",
     "run_ensemble_check_batch",
+    "ScoreCI",
+    "compute_score_ci",
+    "compare_cis",
+    "ci_report",
     "SimulationResult",
     "VirtualAssayProxy",
     "ExternalSimulationAdapter",
