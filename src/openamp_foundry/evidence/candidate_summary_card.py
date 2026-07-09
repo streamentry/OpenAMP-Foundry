@@ -75,6 +75,12 @@ def validate_candidate_summary_card(
 
     if not entry.sequence:
         errors.append("sequence must not be empty")
+
+    elif entry.sequence != entry.sequence.upper():
+        errors.append(
+            "sequence must be uppercase, got lowercase characters"
+        )
+
     else:
         invalid_chars = set(entry.sequence.upper()) - VALID_AMINO_ACIDS
         if invalid_chars:
