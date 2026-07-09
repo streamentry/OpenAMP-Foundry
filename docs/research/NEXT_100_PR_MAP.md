@@ -225,6 +225,18 @@ Make every pipeline decision traceable, independently verifiable, and resistant 
 | M4 | Add reviewer briefing package checker (complete — Loop 131). | One-stop summary that external reviewers need before auditing. | B |
 | M5 | Add audit chain completeness checker (complete — Loop 132). | Validates the evidence chain has no gaps from sequences to submission. Completes Phase M. | B/D |
 
+## Phase N — Pre-registration & Baseline Honesty
+
+Make experiment predictions falsifiable before results are observed. Guard against HARKing and post-hoc rationalization.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| N1 | Add pre-registration form schema (complete — Loop 133). | Records what will be tested and how before experiments run. | B |
+| N2 | Add hypothesis outcome record schema. | Documents whether pre-registered hypotheses were confirmed or refuted. | B/D |
+| N3 | Add baseline comparison manifest schema. | Machine-verifiable proof the model beats cheap baselines. | B |
+| N4 | Add negative result record schema. | Ensures failed experiments are documented, not discarded. | B |
+| N5 | Add experiment priority justification schema. | Documents why this batch was selected over alternatives. | B |
+
 ## Prioritization rule
 
 When choosing between tasks, prefer the one that:

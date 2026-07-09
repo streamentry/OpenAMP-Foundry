@@ -1,5 +1,13 @@
 # Roadmap
 
+### v0.9.4 — Phase N N1: Pre-Registration Form (starts Phase N)
+- Added `PreRegistrationEntry` schema for machine-verifiable experiment pre-commitment
+- Records hypothesis, outcome metric, success threshold, and baseline comparators before results are observed
+- Prevents HARKing (Hypothesising After Results are Known)
+- Warns when random baseline is absent, hypothesis is underspecified, or statistical test is a placeholder
+- CLI: `openamp-foundry pre-registration-check`
+- 62 tests; all passing
+
 ### v0.9.3 — Phase M M5: Audit Chain Completeness Checker (Completes Phase M)
 - Added `AuditChainEntry` schema validating all 9 evidence chain links exist for a batch
 - Detects gaps from sequence input through benchmark, filter, scoring, selection, certificate, claims, decision audit, and reviewer briefing

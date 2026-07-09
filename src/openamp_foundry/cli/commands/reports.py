@@ -3309,3 +3309,22 @@ def _run_audit_chain_check(args: argparse.Namespace) -> None:
             print(f"  ERROR: {e}")
         for w in result.warnings:
             print(f"  WARN:  {w}")
+
+
+def _run_pre_registration_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.pre_registration_form import validate_pre_registration_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_pre_registration_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Pre-Registration Check: {result.registration_id} ({result.candidate_count} candidates, metric: {result.primary_outcome_metric})")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
