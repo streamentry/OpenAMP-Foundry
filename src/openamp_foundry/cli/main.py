@@ -15,7 +15,7 @@ from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 from openamp_foundry.cli.commands.reports import _run_security_report_check
 from openamp_foundry.cli.commands.reports import _run_citation_check
 from openamp_foundry.cli.commands.reports import _run_roadmap_sync_check
-from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check
+from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check
 
 import argparse
 import json
@@ -1999,6 +1999,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Selection rationale check (Phase K K1) ───────────────────────
+    src2 = sub.add_parser(
+        "selection-rationale-check",
+        help=(
+            "Validate a candidate selection rationale. Ensures every selected "
+            "candidate has a documented evidence level and baseline comparison. "
+            "Dry-lab only."
+        ),
+    )
+    src2.add_argument(
+        "--entry-json", type=str, required=True,
+        help="JSON string of a SelectionRationaleEntry dict (required).",
+    )
+    src2.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Annual review check (Phase J J10) ───────────────────────────
     anrc = sub.add_parser(
         "annual-review-check",
@@ -2284,6 +2303,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "annual-review-check":
         return _run_annual_review_check(args)
+
+    if args.command == "selection-rationale-check":
+        return _run_selection_rationale_check(args)
 
     parser.error("unknown command")
     return 2

@@ -1,5 +1,20 @@
 # Roadmap
 
+## v0.7.9 — Loop 119: Phase K K1 — Selection Rationale Schema ✓ (2026-07-09)
+
+`docs/evidence/SELECTION_RATIONALE_GUIDE.md` documenting what selection rationale
+entries must contain, why they are needed for external review, and how evidence
+levels map to `PROOF_LADDER.md`.
+
+`src/openamp_foundry/evidence/selection_rationale.py` with `SelectionRationaleEntry`
+dataclass (11 fields, dry_lab_only=True enforced), `SelectionRationaleResult`
+dataclass (5 fields), `VALID_EVIDENCE_LEVELS` (1–6), `MINIMUM_SAFETY_FLAGS` (1),
+`validate_selection_rationale()` (11 checks, 1 warning condition for low evidence
+levels), `validate_selection_rationale_dict()` (10 required fields guard).
+CLI: `openamp-foundry selection-rationale-check`. `make selection-rationale-check` target.
+**Phase K milestone: v0.7.9** — every candidate selection now requires a
+machine-validated rationale with evidence level and baseline comparison.
+
 ## v0.7.8 — Loop 118: Phase J J10 — Annual Safety and Benchmark Review Checklist ✓ (2026-07-09)
 
 `docs/governance/ANNUAL_REVIEW_CHECKLIST.md` with 5-section structured annual

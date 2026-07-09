@@ -188,6 +188,19 @@ Make success survivable.
 | J9 | Add external advisory review process. | Credibility. | D |
 | J10 | Add annual safety and benchmark review checklist. | Long-term trust. | D |
 
+## Phase K — External Pilot Readiness
+
+Build the evidence and accountability artifacts needed for credible external validation.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| K1 | Add candidate selection rationale schema. | Auditable selection decisions. | B |
+| K2 | Add batch experiment priority ranker. | Rank candidates for next synthesis wave. | B |
+| K3 | Add pilot package completeness checker. | All components present before submission. | B |
+| K4 | Add post-experiment calibration intake schema. | Structured result-to-prediction comparison. | B/D |
+| K5 | Add uncertainty quantification report schema. | Honest prediction intervals for reviewers. | B |
+
+
 ## Prioritization rule
 
 When choosing between tasks, prefer the one that:
