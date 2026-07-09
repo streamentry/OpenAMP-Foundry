@@ -235,7 +235,7 @@ Make experiment predictions falsifiable before results are observed. Guard again
 | N2 | Add hypothesis outcome record schema (complete — Loop 134). | Documents whether pre-registered hypotheses were confirmed or refuted. | B/D |
 | N3 | Add baseline comparison manifest schema (complete — Loop 135). | Machine-verifiable proof the model beats cheap baselines. | B |
 | N4 | Add negative result record schema (complete — Loop 136). | Ensures failed experiments are documented, not discarded. | B | | Ensures failed experiments are documented, not discarded. | B |
-| N5 | Add experiment priority justification schema. | Documents why this batch was selected over alternatives. | B |
+| N5 | Add experiment priority justification schema (complete — Loop 137). | Documents why this batch was selected over alternatives. Completes Phase N. | B |
 
 ## Prioritization rule
 

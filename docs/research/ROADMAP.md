@@ -1,5 +1,13 @@
 # Roadmap
 
+### v0.9.8 — Phase N N5: Experiment Priority Justification (Completes Phase N)
+- Added `ExperimentPriorityEntry` schema documenting why a batch was selected over alternatives
+- Safety review enforcement; post-hoc selection warning; resource constraint transparency
+- Requires at least 2 criteria and 1 rejected alternative — selection without alternatives is not a decision
+- CLI: `openamp-foundry experiment-priority-check`
+- 62 tests; all passing
+- Phase N (Pre-registration & Baseline Honesty) complete
+
 ### v0.9.7 — Phase N N4: Negative Result Record
 - Added `NegativeResultEntry` schema ensuring failed experiments are documented, not discarded
 - 6 failure categories, 5 assay types; warns on suppressed reporting, systematic failures, uncalibrated overprediction

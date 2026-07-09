@@ -3388,3 +3388,22 @@ def _run_negative_result_check(args: argparse.Namespace) -> None:
             print(f"  ERROR: {e}")
         for w in result.warnings:
             print(f"  WARN:  {w}")
+
+
+def _run_experiment_priority_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.experiment_priority_justification import validate_experiment_priority_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_experiment_priority_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Experiment Priority: {result.justification_id} ({result.criteria_count} criteria, {result.rejected_alternative_count} alternatives rejected)")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
