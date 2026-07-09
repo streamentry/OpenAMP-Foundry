@@ -3543,3 +3543,67 @@ def _run_cross_batch_aggregator_check(args) -> int:
         for warn in result.warnings:
             print(f"  WARN:  {warn}")
     return 0 if result.passed else 1
+
+
+def _run_batch_selection_proposal_check(args: argparse.Namespace) -> int:
+    from openamp_foundry.evidence.batch_selection_proposal import (
+        validate_batch_selection_proposal_dict,
+    )
+
+    if args.entry_json:
+        import json
+
+        try:
+            d = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 2
+        result = validate_batch_selection_proposal_dict(d)
+    else:
+        result = validate_batch_selection_proposal_dict(
+            {
+                "bsp_id": "BSP-DEMO",
+                "pipeline_version": "v1.0.0",
+                "gate_id": "CRG-DEMO",
+                "gate_passed": True,
+                "candidate_ids": ["CAND-001", "CAND-002"],
+                "selection_strategy": "hybrid",
+                "exploitation_fraction": 0.6,
+                "exploration_fraction": 0.4,
+                "max_brier_score_allowed": 0.20,
+                "proposal_notes": "Demo proposal.",
+                "reviewer": "demo@example.com",
+                "dry_lab_only": True,
+            }
+        )
+
+    if args.format == "json":
+        import json
+
+        print(
+            json.dumps(
+                {
+                    "bsp_id": result.bsp_id,
+                    "gate_id": result.gate_id,
+                    "gate_passed": result.gate_passed,
+                    "candidate_count": result.candidate_count,
+                    "selection_strategy": result.selection_strategy,
+                    "passed": result.passed,
+                    "errors": result.errors,
+                    "warnings": result.warnings,
+                },
+                indent=2,
+            )
+        )
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Batch Selection Proposal: {result.bsp_id}")
+        print(f"  Gate: {result.gate_id} (passed={result.gate_passed})")
+        print(f"  Strategy: {result.selection_strategy}")
+        print(f"  Candidates: {result.candidate_count}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN: {w}")
+
+    return 0 if result.passed else 1

@@ -249,6 +249,16 @@ Track how well predictions match experimental outcomes over time. Detect drift, 
 | O4 | Add cross-batch performance aggregator schema (complete — Loop 140). | Aggregates results across batches for trend analysis. | B/D |
 | [x] O5 | Add calibration readiness gate schema. | Validates calibration quality is sufficient before releasing the next batch. | B/D |
 
+## Phase P — Calibration-to-Selection Bridge
+
+Close the loop from Phase O calibration quality assurance back to candidate
+selection.  A batch can only be proposed when the calibration gate passes,
+preventing the pipeline from selecting candidates under poor calibration.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| P1 | Add batch selection proposal schema (complete). | Enforces calibration gate must pass before proposing a next batch; documents exploitation/exploration strategy. | B/D |
+
 ## Prioritization rule
 
 When choosing between tasks, prefer the one that:

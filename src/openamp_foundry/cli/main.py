@@ -23,6 +23,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_calibration_improvement_check,
     _run_cross_batch_aggregator_check,
     _run_calibration_readiness_check,
+    _run_batch_selection_proposal_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2356,6 +2357,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_crg.add_argument("--format", choices=["text", "json"], default="text")
     p_crg.set_defaults(func=_run_calibration_readiness_check)
 
+    p_bsp = sub.add_parser(
+        "batch-selection-proposal-check",
+        help="Validate batch selection proposal entry",
+    )
+    p_bsp.add_argument("--entry-json", default=None)
+    p_bsp.add_argument("--format", choices=["text", "json"], default="text")
+    p_bsp.set_defaults(func=_run_batch_selection_proposal_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2730,6 +2739,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "calibration-readiness-check":
         return _run_calibration_readiness_check(args)
+
+    if args.command == "batch-selection-proposal-check":
+        return _run_batch_selection_proposal_check(args)
 
     parser.error("unknown command")
     return 2
