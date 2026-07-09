@@ -2489,6 +2489,54 @@ def _run_release_request_check(args: argparse.Namespace) -> int:
     return 0 if result.passed else 3
 
 
+def _run_coi_check(args: argparse.Namespace) -> int:
+    """Validate a COI disclosure before the formal review queue."""
+    from openamp_foundry.governance.coi_disclosure import validate_coi_dict
+
+    try:
+        disclosure_dict = json.loads(args.disclosure_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --disclosure-json: {e}"}))
+        return 2
+
+    if not isinstance(disclosure_dict, dict):
+        print(json.dumps({"status": "error", "error": "--disclosure-json must be a JSON object"}))
+        return 2
+
+    result = validate_coi_dict(disclosure_dict)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps({
+            "disclosure_id": result.disclosure_id,
+            "disclosure_type": result.disclosure_type,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "dry_lab_only": result.dry_lab_only,
+        }, indent=2))
+    else:
+        print("COI Disclosure Check")
+        print("=" * 60)
+        print(f"Disclosure ID:   {result.disclosure_id}")
+        print(f"Disclosure type: {result.disclosure_type}")
+        print(f"Status:          {'PASS' if result.passed else 'FAIL'}")
+        print()
+        if result.errors:
+            print("Errors:")
+            for err in result.errors:
+                print(f"  - {err}")
+        if result.warnings:
+            print("Warnings:")
+            for w in result.warnings:
+                print(f"  - {w}")
+        print()
+        print("Dry-lab only. COI disclosure validation is a computational")
+        print("safeguard, not a legal determination.")
+
+    return 0 if result.passed else 3
+
+
 def _run_adoption_scorecard(args: argparse.Namespace) -> int:
     """Build an adoption scorecard from dimension inputs."""
     from openamp_foundry.adoption.scorecard import build_scorecard

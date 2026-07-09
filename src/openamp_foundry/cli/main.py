@@ -10,6 +10,7 @@ from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gat
 from openamp_foundry.cli.commands.reports import _run_contribution_check
 from openamp_foundry.cli.commands.reports import _run_decision_log
 from openamp_foundry.cli.commands.reports import _run_release_request_check
+from openamp_foundry.cli.commands.reports import _run_coi_check
 
 import argparse
 import json
@@ -1858,6 +1859,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── COI disclosure check (Phase J J4) ───────────────────────────
+    coi = sub.add_parser(
+        "coi-check",
+        help=(
+            "Validate a conflict-of-interest disclosure before the "
+            "formal review queue. Dry-lab only."
+        ),
+    )
+    coi.add_argument(
+        "--disclosure-json", type=str, required=True,
+        help="JSON string of a COIDisclosure dict (required).",
+    )
+    coi.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Release gate check (Phase J J1) ─────────────────────────────
     rgc = sub.add_parser(
         "release-gate-check",
@@ -2132,6 +2151,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "release-request-check":
         return _run_release_request_check(args)
+
+    if args.command == "coi-check":
+        return _run_coi_check(args)
 
     parser.error("unknown command")
     return 2

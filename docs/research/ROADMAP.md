@@ -1,5 +1,76 @@
 # Roadmap
 
+## v0.7.2 — Loop 112: Phase J J4 — COI Disclosure Template ✓ (2026-07-09)
+
+`docs/governance/COI_DISCLOSURE_TEMPLATE.md` with structured COI disclosure
+template (purpose, fill-in-the-blank format with 10 fields: Disclosure ID
+COI-YYYY-NNN, disclosure type reviewer|contributor|maintainer|external_advisor,
+subject GitHub handle, related artifact or PR, relationship type
+financial|institutional|competitive|personal|none, description (required unless
+none), date YYYY-MM-DD, recusal_required true|false, reviewer GitHub handle,
+review_status pending|acknowledged|resolved).
+
+`src/openamp_foundry/governance/coi_disclosure.py` with `COIDisclosure`
+dataclass (10 fields), `COIValidationResult` dataclass (6 fields,
+dry_lab_only=True), `VALID_DISCLOSURE_TYPES` (4: contributor, external_advisor,
+maintainer, reviewer), `VALID_RELATIONSHIP_TYPES` (5: competitive, financial,
+institutional, none, personal), `VALID_REVIEW_STATUSES` (3: acknowledged,
+pending, resolved), `validate_coi_disclosure()` (10 checks: disclosure_id
+starts with COI-, valid disclosure_type, non-empty subject/related_artifact,
+valid relationship_type, description required unless none, YYYY-MM-DD date,
+non-empty reviewer, valid review_status, dry_lab_only must be True; financial
+without recusal yields warning not error), `validate_coi_dict()` (dict input
+with 10 required fields guard).
+
+CLI (`openamp-foundry coi-check`) with `--disclosure-json` (required),
+`--format text|json`. Handler `_run_coi_check` in reports.py.
+
+`make coi-check` target. 20 tests. **3536 total.**
+
+COI disclosures now have a validated structure that builds institutional trust.
+
+Changes:
+- `docs/governance/COI_DISCLOSURE_TEMPLATE.md` (J4) — Structured COI disclosure
+  template with purpose, template (10 fields), when to disclose (financial,
+  institutional, competitive, personal), process (5 steps with escalation).
+- `src/openamp_foundry/governance/coi_disclosure.py` (J4) — Core module with
+  `COIDisclosure` (10 fields), `COIValidationResult` (6 fields,
+  dry_lab_only=True), `VALID_DISCLOSURE_TYPES` (4), `VALID_RELATIONSHIP_TYPES`
+  (5), `VALID_REVIEW_STATUSES` (3), `validate_coi_disclosure()` (10 checks),
+  `validate_coi_dict()` (dict input with 10 required fields guard).
+- `tests/governance/test_coi_disclosure.py` (J4) — 20 tests covering: valid
+  reviewer none relationship passes, valid contributor financial passes,
+  disclosure_id not starting with COI- fails, empty disclosure_id fails, invalid
+  disclosure_type fails, empty subject fails, empty related_artifact fails,
+  invalid relationship_type fails, relationship not none with empty description
+  fails, relationship none with empty description passes, invalid date format
+  fails, empty reviewer fails, invalid review_status fails, dry_lab_only=False
+  fails, financial without recusal warns, validate_coi_dict passes, validate_
+  coi_dict with missing fields fails, all results dry_lab_only=True,
+  VALID_DISCLOSURE_TYPES has 4, VALID_RELATIONSHIP_TYPES has 5.
+- `src/openamp_foundry/cli/main.py` (J4) — Registered `coi-check` subcommand
+  with `--disclosure-json`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (J4) — Added `_run_coi_check()`
+  CLI handler with JSON parsing, validate_coi_dict call, text and JSON output,
+  exit code 3 on validation failure.
+- `Makefile` (J4) — Added `coi-check` target. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (J4) — v0.7.2 J4 changelog. Pipeline
+  version: v0.7.2. Test count: 3536.
+- `tests/test_test_count_regression.py` — baseline updated to 3536.
+
+Honest boundaries:
+- COI disclosure validation checks structural and policy requirements only.
+  It does not verify that the disclosed information is true, complete, or
+  accurate.
+- Financial relationship without recusal produces a warning, not an error —
+  the reviewer retains discretion to determine whether recusal is necessary.
+- The validator cannot detect undisclosed conflicts — it only checks that
+  disclosed conflicts are well-formed.
+- `dry_lab_only: true` is a const field on all dataclasses — COI disclosures
+  are governance artifacts, not legal determinations.
+- The COI template is a transparency and governance tool — it does not replace
+  the judgment of the human reviewer or governance team.
+
 ## v0.7.1 — Loop 111: Phase J J3 — Release Request Template ✓ (2026-07-09)
 
 `docs/governance/RELEASE_REQUEST_TEMPLATE.md` with structured release request
