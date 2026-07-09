@@ -39,6 +39,8 @@ Before making nontrivial changes, agents should read:
 7. [`docs/research/NEXT_100_PR_MAP.md`](docs/research/NEXT_100_PR_MAP.md) — PR-sized backlog.
 8. [`docs/trust/TRUST_CENTER.md`](docs/trust/TRUST_CENTER.md) — trust architecture.
 
+Then route the task with [`AGENT_TASKS.json`](AGENT_TASKS.json) — the machine-readable map of safe paths, forbidden zones, review class, and the exact checks each task class must pass. It is the fastest honest answer to "what am I allowed to change here, and what must go green before I open a PR?" If your change touches a `forbidden_zone`, that is a stop condition, not a task.
+
 If these docs conflict, safety and claim discipline win.
 
 ## The agent role
@@ -89,6 +91,39 @@ read relevant docs
 ```
 
 A good agent task should leave the repo easier for the next human or agent.
+
+## Executable contract — every rule needs an enemy
+
+A rule that nothing can catch you breaking is a wish, not a contract. Wherever this repo can *check* a rule, it does; where it cannot yet, **you are the guard** and the reviewer reads that line by hand. Know which is which before you rely on it.
+
+| Rule from this contract | The command that catches a violation |
+|-------------------------|--------------------------------------|
+| Claims must not exceed evidence | `make claim-check` (advisory) · `make claim-check-strict` (fails on findings) |
+| Every advanced method beats a cheap enemy | `make bench-cheap-enemies` · `make bench-charge-matched` · `make bench-leakage` |
+| Ranking gates are respected | `make gate-check` · `make bench-gate` |
+| Outputs are reproducible | `make cert-quality-check` · `make full-reproducibility-report` |
+| Docs link where they claim | `make doc-links-check` |
+| Deprecated benchmarks stay dead | `make bench-deprecation-check` |
+| Code is green and typed | `make ci` (lint + test) · `make coverage` · `make typecheck` |
+| Fast pre-PR bundle | `make agent-check` then `make doctor` |
+| Preserve negatives, caveats, failure modes | **you are the guard** — no scanner catches a deleted caveat |
+| Don't touch safety/release/threshold/calibration policy | **you are the guard** — these are stop conditions below |
+
+### Checks are a floor, not a verdict
+
+Green checks mean *nothing obvious is broken*. They never mean *the claim is true*. `make claim-check` scans wording, not meaning; a benchmark that passes its gate can still be measuring leakage; a reproducible number can be reproducibly wrong. Treat the suite as the cheapest possible enemy — the one every change must beat before a human spends attention on it — not as the definition of done. If passing a check is the *only* evidence a change is good, the change is not yet good.
+
+## The disconfirming pass — run before every PR
+
+Before opening a PR, spend real effort trying to prove your own change wrong. This is the single habit that most separates a trustworthy agent from a fast one, and it is the working form of GOAL.md's cheapest disconfirming tests:
+
+- **Cheapest explanation first.** Could charge, length, hydrophobicity, or similarity-to-known reproduce the effect you credit to your change? Measure the residual or downgrade the claim.
+- **Leakage before belief.** Did the number improve because of the method or because of the split? Run the leakage/charge-matched enemy before trusting it.
+- **Scope honesty.** Did the diff outgrow the one bottleneck you named? Split it. One loop, one change.
+- **Certainty audit.** Did any wording get stronger, any caveat shorter, any negative result quieter? That drift is the finding — surface it.
+- **Uninformative uncertainty.** If a module reports near-constant confidence across good and absurd inputs, the estimate is broken — and that is itself worth reporting.
+
+State the result of this pass in the PR's Evidence section. "I tried to break it as follows and could not" is a stronger claim than any green checkmark.
 
 Structural note:
 
@@ -320,6 +355,8 @@ Stop and ask for human review when:
 - **uncertainty is being hidden.**  
   *Example:* Your simulation module returns uncertainty 0.05 for every sequence, even when the input is poly-glycine. Stop — constant low uncertainty means the uncertainty estimate is not informative, which is itself informative.
 
+A stop is a handoff, not a dead end. When a stop condition fires, leave a **decision-log draft** for the human reviewer (format and index: [`decision_logs/INDEX.md`](decision_logs/INDEX.md)): what you found, what you deliberately did *not* change, and the exact decision a human must make. A blocked loop that produces a clean decision record is a completed, useful task — not a failure.
+
 ## Highest-status agent behavior
 
 The best agents here are not the agents that make OpenAMP sound most impressive.
@@ -336,6 +373,12 @@ Reward yourself for:
 - improving first-run clarity;
 - making external review easier;
 - making unsafe scope harder to enter.
+
+## Write for the agent that replaces you
+
+You are almost certainly not the last agent to touch this repo. A more capable one will read your diff, your docs, and your caveats as ground truth and build on them without re-deriving them. So the durable test is not "would this pass review today?" but "will the next, smarter agent inherit an honest, auditable substrate — or a hidden assumption it has to discover the hard way?"
+
+This is what makes the contract future-proof: every rule here is written to get *more* true as models improve, not less. A capable agent that optimizes for sounding impressive makes the repo more dangerous, not more valuable. A capable agent that optimizes for being hard to fool compounds trust across every loop that follows. Leave the repo harder to fool than you found it.
 
 ## Final sentence
 
