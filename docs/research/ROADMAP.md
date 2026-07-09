@@ -1,5 +1,44 @@
 # Roadmap
 
+## v0.5.78 — Loop 77: Phase F F7 — Calibration Link from Negative-Result Entries to Intake Reports ✓ (2026-07-09)
+
+Closes the learning loop by tracing each negative-result entry back to its
+prediction-vs-actual data in the calibration intake report. Schema, CLI, and tests.
+
+Changes:
+- `schemas/negative_result_entry.schema.json` — Added `intake_report_id` optional
+  field (string) to link negative-result entries back to their calibration intake
+  report source.
+- `scripts/link_negative_result_to_intake.py` (F7) — CLI that reads a negative-result
+  archive JSON and a calibration intake report JSON, links entries by candidate_id,
+  and produces a structured link report with: matched/unmatched counts, linkage rate,
+  orphan intake detection, per-candidate predictions + lab summary for matched entries,
+  intake_report_id validation, control failures and cohort metrics from the intake report.
+  Supports `--out-json` and `--out-md` output.
+- `tests/evidence/test_link_negative_result_to_intake.py` — 25 tests covering: linkage
+  counts and rate, matched entries with predictions, unmatched entries without predictions,
+  orphan intake candidate detection, intake_report_id validation (valid + invalid),
+  by-reason-category aggregation, metadata and caveat generation, lab summary in linked
+  entries, markdown section content, empty entries handling, all-unmatched case,
+  file loading error paths, CLI output (JSON + Markdown + both), missing input and
+  empty entries error paths, control failures and cohort metrics forwarding, list-format
+  input support, lab summary absent when no lab result.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.78 changelog. Pipeline version bumped.
+  Test count: 2822.
+- `tests/test_test_count_regression.py` — baseline updated to 2822.
+
+Honest boundaries:
+- Linkage is by candidate_id only. Entries without a matching intake row are reported
+  as unmatched but are not invalidated.
+- Orphan intake candidates (in intake but not in negative-result archive) may be active,
+  pending, or withdrawn — absence of a negative entry does not imply success.
+- The intake_report_id field is advisory and does not affect linkage logic; validation
+  reports mismatches but does not block report generation.
+- The link report is informational only and requires qualified review before any claim
+  about candidate quality or pipeline performance.
+- Cohort metrics and control failures are forwarded from the intake report; this script
+  does not independently validate them.
+
 ## v0.5.77 — Loop 76: Phase F F6 — Negative-Result Informativeness Guide ✓ (2026-07-09)
 
 Comprehensive guide defining informative vs non-informative negative results with

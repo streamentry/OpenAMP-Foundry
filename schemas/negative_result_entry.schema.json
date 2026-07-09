@@ -27,6 +27,7 @@
     "score_novelty": {"type": "number", "minimum": 0, "maximum": 1},
     "score_ensemble": {"type": "number", "minimum": 0, "maximum": 1},
     "recalibration_used": {"type": "string", "enum": ["yes", "no"]},
+    "intake_report_id": {"type": "string", "description": "Optional reference to the calibration intake report that contains this candidate's prediction-vs-actual data"},
     "superseded_by": {"type": "integer"},
     "reviewer_notes": {"type": "string"}
   }
