@@ -2303,3 +2303,37 @@ def _run_license_check(args: argparse.Namespace) -> int:
         print("not legal advice.")
 
     return 0 if result.passed else 3
+
+
+def _run_artifact_compat_check(args: argparse.Namespace) -> int:
+    """Run cross-artifact schema compatibility checks."""
+    from openamp_foundry.compatibility.artifact_compatibility import (
+        run_compatibility_check,
+    )
+
+    schemas_dir = Path(args.schemas_dir) if args.schemas_dir else None
+    report = run_compatibility_check(schemas_dir)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps(report, indent=2))
+    else:
+        print("Artifact Compatibility Check")
+        print("=" * 60)
+        print(f"Total schemas:  {report['total']}")
+        print(f"Passed:         {report['passed']}")
+        print(f"Failed:         {report['failed']}")
+        print(f"All passed:     {report['all_passed']}")
+        print()
+        if not report["all_passed"]:
+            print("Failures:")
+            for r in report["results"]:
+                if not r["passed"]:
+                    print(f"  Schema: {r['schema_name']}")
+                    for err in r["errors"]:
+                        print(f"    - {err}")
+        print()
+        print("Dry-lab only. Schema compatibility checks prevent drift")
+        print("between artifact versions.")
+
+    return 0 if report["all_passed"] else 3

@@ -1,5 +1,45 @@
 # Roadmap
 
+## v0.6.6 — Loop 106: Phase I I8 — Artifact Compatibility Tests ✓ (2026-07-09)
+
+`src/openamp_foundry/compatibility/artifact_compatibility.py` with
+`SchemaCompatibilityResult` dataclass (5 fields: schema_name, schema_path, passed,
+errors, warnings, dry_lab_only=True). `UNIVERSAL_REQUIRED_FIELDS` (set: dry_lab_only,
+version). `CONVENTION_CHECKS` (dict: dry_lab_only → boolean const true, version →
+string matching MAJOR.MINOR.PATCH, evidence_level → integer in 1-6 when present).
+`check_schema_conventions()` validates each schema against universal conventions.
+`run_compatibility_check()` scans all schemas/*.schema.json and returns
+total/passed/failed/all_passed/results/dry_lab_only.
+
+CLI (`openamp-foundry artifact-compat-check`) with `--schemas-dir` (default:
+schemas/) and `--format text|json`. Handler `_run_artifact_compat_check` in
+reports.py.
+
+`make artifact-compat-check` target. 20 tests. **3413 total.** Cross-artifact
+schema compatibility is automatically checked across all schema files, preventing
+drift between artifact versions.
+
+Changes:
+- `src/openamp_foundry/compatibility/__init__.py` (I8) — Empty package init.
+- `src/openamp_foundry/compatibility/artifact_compatibility.py` (I8) — Core module
+  with `SchemaCompatibilityResult` (5 fields, dry_lab_only=True default),
+  `UNIVERSAL_REQUIRED_FIELDS`, `CONVENTION_CHECKS`, `check_schema_conventions()`,
+  `run_compatibility_check()`.
+- `tests/compatibility/__init__.py` (I8) — Empty package init.
+- `tests/compatibility/test_artifact_compatibility.py` (I8) — 20 tests covering
+  candidate_manifest/benchmark_card passes, simulation_result detected (known
+  dry_lab_context convention difference), synthetic schemas with missing/misformed
+  fields, run_compatibility_check dict shape, SchemaCompatibilityResult defaults,
+  additionalProperties/$schema warnings.
+- `src/openamp_foundry/cli/main.py` (I8) — Registered `artifact-compat-check`
+  subcommand with `--schemas-dir`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I8) — Added
+  `_run_artifact_compat_check()` CLI handler with text and JSON output, exit code 3
+  on failure.
+- `Makefile` (I8) — Added `artifact-compat-check` target. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (I8) — Updated last updated, new in v0.6.6,
+  pipeline version, test count (3393→3413).
+
 ## v0.6.5 — Loop 105: Phase I I7 — Data License Checker ✓ (2026-07-09)
 
 `src/openamp_foundry/licensing/license_checker.py` with `DataLicenseDeclaration`
