@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3125 tests as of Loop 90 (2026-07-09) -- Phase H H2 (simulation-result schema)
+# Baseline: 3141 tests as of Loop 91 (2026-07-09) -- Phase H H3 (per-module cheapest-baseline declaration)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3125
+BASELINE = 3141
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

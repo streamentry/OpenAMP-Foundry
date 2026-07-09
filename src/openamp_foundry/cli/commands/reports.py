@@ -1391,3 +1391,45 @@ def _run_simulation_registry(args: argparse.Namespace) -> int:
         print("measure biological activity, safety, or real-world performance.")
 
     return 0
+
+
+def _run_simulation_baseline_check(args: argparse.Namespace) -> int:
+    """Check whether a simulation module beats its cheapest declared baseline."""
+    from openamp_foundry.simulation.baseline_registry import (
+        check_baseline_requirement,
+        get_baseline_declaration,
+    )
+
+    module_id = args.module_id
+    claimed_level = args.claimed_level
+    baseline_beaten = args.baseline_beaten.lower() == "true"
+    output_format = getattr(args, "format", "text")
+
+    entry = get_baseline_declaration(module_id)
+    if entry is None:
+        print(json.dumps({
+            "status": "error",
+            "error": f"Unknown module_id '{module_id}'. Use --list to see available modules.",
+        }))
+        return 3
+
+    result = check_baseline_requirement(module_id, claimed_level, baseline_beaten)
+
+    if output_format == "json":
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"Baseline Check: {module_id}")
+        print(f"  Module:                 {entry.module_name}")
+        print(f"  Baseline:               {entry.baseline_description}")
+        print(f"  Baseline type:          {entry.baseline_type}")
+        print(f"  Evidence level ceiling: {entry.evidence_level_ceiling}")
+        print(f"  Baseline beaten:        {baseline_beaten}")
+        print(f"  Claimed evidence level: {claimed_level}")
+        print(f"  Effective evidence:     {result['effective_evidence_level']}")
+        print(f"  Capped:                 {result['capped']}")
+        print(f"  Message:                {result['message']}")
+        print()
+        print("Dry-lab only. Baseline comparisons are computational benchmarks,")
+        print("not biological proof.")
+
+    return 3 if result["capped"] else 0

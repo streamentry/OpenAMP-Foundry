@@ -1,5 +1,57 @@
 # Roadmap
 
+## v0.5.91 — Loop 91: Phase H H3 — Per-Module Cheapest-Baseline Declaration ✓ (2026-07-09)
+
+`BaselineDeclaration` dataclass with module_id, module_name, baseline_description,
+baseline_type, evidence_level_ceiling, and notes. `BASELINE_DECLARATIONS` list
+(4 entries: membrane_proxy, structure_proxy, dummy_membrane_proxy,
+external_adapter_placeholder). `get_baseline_declaration()` and
+`list_baseline_declarations()` for lookup. `check_baseline_requirement()` caps
+effective_evidence_level to ceiling when baseline not beaten.
+`validate_baseline_declarations()` checks module_id, baseline_description,
+baseline_type, evidence_level_ceiling, and duplicate detection. Forces honest
+enemy comparison — every simulation module must declare the simplest baseline
+it must beat, making it easy to detect "simulation theater."
+
+Changes:
+- `src/openamp_foundry/simulation/baseline_registry.py` (H3) — Core module with
+  `BaselineDeclaration` dataclass (6 fields), `BASELINE_DECLARATIONS` list
+  (4 entries), `get_baseline_declaration()`, `list_baseline_declarations()`,
+  `check_baseline_requirement()` with ceiling logic,
+  `validate_baseline_declarations()` with 5 checks.
+- `src/openamp_foundry/simulation/__init__.py` — Exports all baseline registry
+  symbols.
+- `src/openamp_foundry/cli/main.py` — Registered `simulation-baseline-check`
+  subcommand with `--module-id`, `--claimed-level`, `--baseline-beaten`,
+  `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_simulation_baseline_check()` CLI handler with text and JSON output,
+  error handling for unknown module IDs, exit code 3 if capped.
+- `Makefile` — Added `simulation-baseline-check` target with default
+  `membrane_proxy` check. Added to `.PHONY`.
+- `tests/simulation/test_baseline_registry.py` — 16 tests covering: at least
+  4 entries, validation passes, get/list lookup, required field presence,
+  baseline type validity, check logic (beaten/not beaten/capped/uncapped),
+  dry_lab_only always True, unknown module handling, duplicate detection,
+  invalid baseline type detection.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.91 H3 changelog. Test count: 3141.
+- `tests/test_test_count_regression.py` — baseline updated to 3141.
+
+Honest boundaries:
+- Baseline declarations are self-reported by module maintainers and must be
+  manually kept in sync with the module registry.
+- `check_baseline_requirement()` caps evidence levels based on declared
+  ceilings, not on independent biological validation.
+- A module that beats its cheapest baseline may still produce biologically
+  meaningless results — beating a heuristic baseline is a necessary condition
+  for evidence, not a sufficient one.
+- Baseline types are categorical labels; a "heuristic" baseline and a "length"
+  baseline are not directly comparable in difficulty.
+- The evidence_level_ceiling is a policy rule, not a biological guarantee.
+  Higher ceilings should be justified by actual benchmark performance.
+- All baseline comparisons are dry-lab only and must not be presented as
+  biological proof.
+
 ## v0.5.90 — Loop 90: Phase H H2 — Simulation-Result Schema and Validator ✓ (2026-07-09)
 
 `schemas/simulation_result.schema.json` (Draft 2020-12) validates SimulationResult

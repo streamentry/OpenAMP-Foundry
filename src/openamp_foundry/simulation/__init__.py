@@ -1,5 +1,13 @@
 """Virtual assay simulation layer for OpenAMP Foundry."""
 
+from .baseline_registry import (
+    BASELINE_DECLARATIONS,
+    BaselineDeclaration,
+    check_baseline_requirement,
+    get_baseline_declaration,
+    list_baseline_declarations,
+    validate_baseline_declarations,
+)
 from .gate import SimulationGateVerdict, evaluate_simulation_gate
 from .interfaces import (
     EmulatorBaseline,
@@ -41,4 +49,10 @@ __all__ = [
     "validate_registry",
     "validate_simulation_result",
     "validate_simulation_result_batch",
+    "BaselineDeclaration",
+    "BASELINE_DECLARATIONS",
+    "get_baseline_declaration",
+    "list_baseline_declarations",
+    "check_baseline_requirement",
+    "validate_baseline_declarations",
 ]
