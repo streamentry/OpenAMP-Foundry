@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3141 tests as of Loop 91 (2026-07-09) -- Phase H H3 (per-module cheapest-baseline declaration)
+# Baseline: 3161 tests as of Loop 92 (2026-07-09) -- Phase H H4 (fail-closed adapter integration tests)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3141
+BASELINE = 3161
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

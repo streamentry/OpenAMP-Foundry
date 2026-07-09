@@ -1,5 +1,56 @@
 # Roadmap
 
+## v0.5.92 — Loop 92: Phase H H4 — Fail-Closed Adapter Integration Tests ✓ (2026-07-09)
+
+`FAIL_CLOSED_REASONS` dict (6 keys) enumerates known adapter failure reasons.
+`AdapterGateResult` dataclass with module_id, passed, failure_reason, failure_detail,
+dry_lab_only. `evaluate_adapter_gate()` fail-closed: returns passed=False on ANY
+failure signal with strict priority ordering (timeout > connection_refused >
+invalid_response > schema_violation > module_unavailable > baseline_not_beaten).
+`run_adapter_gate_batch()` aggregates multiple adapter calls with total/passed/failed/
+any_failed/results/dry_lab_only. Avoids hidden external failures — when the adapter
+to an external simulation service is down or misbehaves, the pipeline must fail
+loudly rather than silently passing garbage through.
+
+Changes:
+- `src/openamp_foundry/simulation/adapter_gate.py` (H4) — Core module with
+  `FAIL_CLOSED_REASONS` dict (6 entries), `AdapterGateResult` dataclass (5 fields:
+  module_id, passed, failure_reason, failure_detail, dry_lab_only),
+  `evaluate_adapter_gate()` with 7-path priority logic,
+  `run_adapter_gate_batch()` aggregating results with counts and any_failed flag.
+- `src/openamp_foundry/simulation/__init__.py` — Exports `AdapterGateResult`,
+  `FAIL_CLOSED_REASONS`, `evaluate_adapter_gate`, `run_adapter_gate_batch`.
+- `src/openamp_foundry/cli/main.py` — Registered `adapter-gate-check` subcommand
+  with `--module-id`, `--timeout`, `--connection-refused`, `--schema-errors`,
+  `--module-unavailable`, `--baseline-beaten`, `--format` flags. Added import
+  and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added `_run_adapter_gate_check()`
+  CLI handler with text and JSON output, JSON parsing for schema errors,
+  exit code 3 on failure.
+- `Makefile` — Added `adapter-gate-check` target with default `membrane_proxy`
+  check. Added to `.PHONY`.
+- `tests/simulation/test_adapter_gate.py` — 20 tests covering: all 6 failure
+  reasons, all-clear pass, dry_lab_only always True, priority ordering (timeout
+  beats connection_refused, connection_refused beats result=None, schema_errors
+  beat module_unavailable), baseline_beaten=True passes, baseline_beaten=None
+  does not trigger, batch counts, batch any_failed, batch dry_lab_only.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.92 H4 changelog. Test count: 3161.
+- `tests/test_test_count_regression.py` — baseline updated to 3161.
+
+Honest boundaries:
+- The adapter gate checks for known failure signals only. An adapter that
+  returns plausible-looking but biologically meaningless results will pass.
+- Failure detection depends on the caller correctly setting the failure
+  flags. An adapter that silently hangs (neither timeout nor connection
+  refused) may not be caught.
+- Schema validation errors detect structural contract violations, not
+  biological correctness. A schema-valid response can still be biologically
+  meaningless.
+- The `baseline_not_beaten` check requires the caller to run the baseline
+  comparison externally; the gate does not compute it.
+- All adapter gate checks are dry-lab only and must not be presented as
+  biological proof.
+
 ## v0.5.91 — Loop 91: Phase H H3 — Per-Module Cheapest-Baseline Declaration ✓ (2026-07-09)
 
 `BaselineDeclaration` dataclass with module_id, module_name, baseline_description,

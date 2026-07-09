@@ -1433,3 +1433,65 @@ def _run_simulation_baseline_check(args: argparse.Namespace) -> int:
         print("not biological proof.")
 
     return 3 if result["capped"] else 0
+
+
+def _run_adapter_gate_check(args: argparse.Namespace) -> int:
+    """Fail-closed adapter gate check for simulation adapters."""
+    from openamp_foundry.simulation.adapter_gate import (
+        evaluate_adapter_gate,
+    )
+
+    module_id = args.module_id
+    timeout_occurred = args.timeout.lower() == "true"
+    connection_refused = args.connection_refused.lower() == "true"
+    module_unavailable = args.module_unavailable.lower() == "true"
+    output_format = getattr(args, "format", "text")
+
+    schema_errors_raw = args.schema_errors
+    try:
+        schema_errors = json.loads(schema_errors_raw) if schema_errors_raw else []
+    except (json.JSONDecodeError, TypeError):
+        print(json.dumps({
+            "status": "error",
+            "error": f"Invalid JSON for --schema-errors: {schema_errors_raw!r}",
+        }))
+        return 2
+
+    if not isinstance(schema_errors, list):
+        print(json.dumps({
+            "status": "error",
+            "error": "--schema-errors must be a JSON array of strings",
+        }))
+        return 2
+
+    baseline_beaten_raw = args.baseline_beaten
+    baseline_beaten: bool | None = None
+    if baseline_beaten_raw is not None:
+        baseline_beaten = baseline_beaten_raw.lower() == "true"
+
+    gate_result = evaluate_adapter_gate(
+        module_id=module_id,
+        result=None,
+        timeout_occurred=timeout_occurred,
+        connection_refused=connection_refused,
+        schema_errors=schema_errors,
+        module_unavailable=module_unavailable,
+        baseline_beaten=baseline_beaten,
+    )
+
+    if output_format == "json":
+        print(json.dumps(gate_result.to_dict(), indent=2))
+    else:
+        status = "PASS" if gate_result.passed else "FAIL"
+        reason_info = ""
+        if gate_result.failure_reason:
+            reason_info = f"  Reason: {gate_result.failure_reason} — {gate_result.failure_detail}"
+        print(f"Adapter Gate Check: {module_id}")
+        print(f"  Status:  {status}")
+        if reason_info:
+            print(reason_info)
+        print()
+        print("Dry-lab only. Adapter gate checks are computational safeguards,")
+        print("not biological proof.")
+
+    return 0 if gate_result.passed else 3

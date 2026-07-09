@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1430,6 +1430,45 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Adapter gate check (H4) ──────────────────────────────────────
+    agc = sub.add_parser(
+        "adapter-gate-check",
+        help=(
+            "Check whether a simulation adapter passes the fail-closed gate. "
+            "Dry-lab only."
+        ),
+    )
+    agc.add_argument("--module-id", type=str, required=True, help="Module ID to check.")
+    agc.add_argument(
+        "--timeout", type=str, default="false",
+        choices=["true", "false"],
+        help="Whether a timeout occurred (default: false).",
+    )
+    agc.add_argument(
+        "--connection-refused", type=str, default="false",
+        choices=["true", "false"],
+        help="Whether connection was refused (default: false).",
+    )
+    agc.add_argument(
+        "--schema-errors", type=str, default="[]",
+        help="JSON array of schema error strings (default: []).",
+    )
+    agc.add_argument(
+        "--module-unavailable", type=str, default="false",
+        choices=["true", "false"],
+        help="Whether the module is unavailable (default: false).",
+    )
+    agc.add_argument(
+        "--baseline-beaten", type=str, default=None,
+        choices=["true", "false"],
+        help="Whether the baseline was beaten (optional).",
+    )
+    agc.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     return parser
 
 
@@ -1593,6 +1632,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "simulation-baseline-check":
         return _run_simulation_baseline_check(args)
+
+    if args.command == "adapter-gate-check":
+        return _run_adapter_gate_check(args)
 
     parser.error("unknown command")
     return 2

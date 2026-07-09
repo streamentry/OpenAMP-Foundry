@@ -1,5 +1,11 @@
 """Virtual assay simulation layer for OpenAMP Foundry."""
 
+from .adapter_gate import (
+    AdapterGateResult,
+    FAIL_CLOSED_REASONS,
+    evaluate_adapter_gate,
+    run_adapter_gate_batch,
+)
 from .baseline_registry import (
     BASELINE_DECLARATIONS,
     BaselineDeclaration,
@@ -32,6 +38,10 @@ from .result_validator import (
 from .structure import StructureProxy
 
 __all__ = [
+    "AdapterGateResult",
+    "FAIL_CLOSED_REASONS",
+    "evaluate_adapter_gate",
+    "run_adapter_gate_batch",
     "SimulationResult",
     "VirtualAssayProxy",
     "ExternalSimulationAdapter",
