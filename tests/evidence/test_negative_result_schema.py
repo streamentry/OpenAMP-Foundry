@@ -73,16 +73,28 @@ class TestPilotPreregistrationSchema:
 
     def test_valid_registration_passes(self):
         entry = {
-            "pilot_name": "Wave 1 Pilot",
-            "preregistered_at": "2026-08-01T00:00:00Z",
-            "preregistered_by": "agent",
-            "candidate_pool_source": "outputs/phase3_ranked.jsonl",
-            "selection_rules": {"top_n": 20, "min_novelty": 0.3},
-            "exclusion_criteria": ["safety < 0.5", "novelty < 0.2"],
-            "pass_fail_criteria": {"min_active": 2, "max_toxic": 3},
+            "preregistration_id": "PPR-2026-07-09-001",
+            "packet_id": "ERP-2026-07-09-001",
+            "registered_at": "2026-07-09T12:00:00Z",
+            "registered_by": "Dr. Jane Smith, Safety Lead",
+            "assay_types": ["MIC", "hemolysis_RBC"],
+            "pass_criteria": [
+                {"metric": "MIC_50", "threshold": 16, "direction": "below"},
+            ],
+            "control_conditions": [
+                "Melittin positive control (hemolytic)",
+                "Vehicle-only negative control",
+            ],
+            "sample_size": 3,
+            "blinding": True,
+            "primary_endpoint": "MIC <= 16 ug/mL against MRSA USA300",
+            "secondary_endpoints": ["Selectivity index > 10"],
+            "statistical_analysis_plan": "MIC values will be log2-transformed and compared using one-way ANOVA with Dunnett's post-hoc test.",
+            "amendment_policy": "Any changes to pass_criteria require a documented amendment signed by the study lead.",
+            "pipeline_version_locked": "v0.5.72",
         }
         validate_json_schema(entry, PREREG_SCHEMA)
 
     def test_missing_required_fails(self):
         with pytest.raises(jsonschema.ValidationError):
-            validate_json_schema({"pilot_name": "test"}, PREREG_SCHEMA)
+            validate_json_schema({"preregistration_id": "test"}, PREREG_SCHEMA)

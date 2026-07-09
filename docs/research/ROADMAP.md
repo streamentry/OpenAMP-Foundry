@@ -1,5 +1,52 @@
 # Roadmap
 
+## v0.5.73 — Loop 72: Phase E E4-E6 — Safety Release, Preregistration, Packet CLI ✓ (2026-07-09)
+
+External review infrastructure: human-gated release decisions, pre-registered pilot
+design, and automated skeleton review packet generation.
+
+Changes:
+- `schemas/safety_release_decision.schema.json` (E4) — JSON Schema for human-review
+  release decisions. Required fields: decision_id, packet_id, decided_at (ISO datetime),
+  decided_by (human name/role), decision (release/hold/reject), rationale (min 20 chars),
+  safety_checks_passed (toxicity/hemolysis/dual_use, all bool), novelty_confirmed (bool),
+  dry_lab_only_acknowledged (must be true), next_steps. Constraint: agent_authored must
+  be false or absent — safety release decisions cannot be made by agents.
+- `schemas/pilot_preregistration.schema.json` (E5) — JSON Schema for freezing pilot
+  experimental design before running assays. Required fields: preregistration_id,
+  packet_id, registered_at, registered_by, assay_types (min 1), pass_criteria (array
+  with metric/threshold/direction, min 1), control_conditions (min 1), sample_size
+  (min 1), blinding, primary_endpoint, secondary_endpoints, statistical_analysis_plan
+  (min 20 chars), amendment_policy, pipeline_version_locked. Prevents HARKing by
+  freezing pass/fail criteria pre-assay — amendment_policy must be explicit.
+- `scripts/generate_review_packet.py` (E6) — CLI script that generates a skeleton
+  external review packet JSON that validates against E1 schema. Flags: --pipeline-version,
+  --git-sha, --candidate-count, --proof-ladder-level, --out, --validate.
+- `Makefile` — Added `generate-review-packet` target.
+- `tests/evidence/test_safety_release_decision_schema.py` — 18 tests covering valid
+  decision, agent_authored=true rejection, missing/empty safety_checks, dry_lab_only
+  enforcement, decision enum, rationale length, decided_by pattern, dissent optional.
+- `tests/evidence/test_pilot_preregistration_schema.py` — 14 tests covering valid
+  preregistration, empty assay_types/pass_criteria/control_conditions rejection,
+  negative sample_size, invalid direction enum, statistical plan length, blinding type.
+- `tests/test_generate_review_packet.py` — 7 tests covering CLI output, schema
+  validation, --validate flag, required fields, invalid args.
+- `tests/evidence/test_negative_result_schema.py` — Updated TestPilotPreregistrationSchema
+  to match new schema fields.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.73 changelog. Pipeline version bumped.
+  Test count: 2679.
+- `tests/test_test_count_regression.py` — baseline updated to 2679.
+
+Honest boundaries:
+- The safety release schema enforces human-gating on release decisions but does not
+  validate the quality or completeness of the safety review itself.
+- The pilot pre-registration schema prevents post-hoc pass-criteria changes but relies
+  on human discipline to follow the amendment policy.
+- The review packet generator creates a skeleton only — all fields (benchmark results,
+  candidate data, safety attestations) must be updated before use.
+- A schema-valid safety release decision can still be wrong. The schema verifies
+  structure, not correctness.
+
 ## v0.5.72 — Loop 71: External Review Packet Schemas (Phase E, E1-E3) ✓ (2026-07-09)
 
 External credibility infrastructure: machine-checkable schemas that let external

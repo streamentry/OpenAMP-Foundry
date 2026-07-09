@@ -1,41 +1,123 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Pilot Pre-Registration",
-  "description": "Schema for pre-registered pilot selection logic. Freezes rules before assay results are known.",
+  "$id": "https://openamp-foundry.org/schemas/pilot_preregistration.schema.json",
+  "title": "OpenAMP Pilot Pre-Registration",
+  "description": "JSON Schema for freezing pilot experimental design before running assays. Pre-registration prevents HARKing (Hypothesizing After Results Known): once registered, pass/fail criteria cannot be changed post-hoc. Amendment policy must be documented explicitly.",
   "type": "object",
   "required": [
-    "pilot_name", "preregistered_at", "preregistered_by",
-    "candidate_pool_source", "selection_rules", "exclusion_criteria",
-    "pass_fail_criteria"
+    "preregistration_id",
+    "packet_id",
+    "registered_at",
+    "registered_by",
+    "assay_types",
+    "pass_criteria",
+    "control_conditions",
+    "sample_size",
+    "blinding",
+    "primary_endpoint",
+    "secondary_endpoints",
+    "statistical_analysis_plan",
+    "amendment_policy",
+    "pipeline_version_locked"
   ],
   "properties": {
-    "pilot_name": {"type": "string", "description": "Human-readable pilot name (e.g., 'Wave 1 Pilot')"},
-    "preregistered_at": {"type": "string", "format": "date-time", "description": "ISO 8601 timestamp"},
-    "preregistered_by": {"type": "string", "description": "Person or agent who created the registration"},
-    "candidate_pool_source": {"type": "string", "description": "Path or description of the candidate pool"},
-    "candidate_pool_hash": {"type": "string", "description": "SHA-256 hash of the pool CSV"},
-    "selection_rules": {
-      "type": "object",
-      "description": "Machine-readable rules used to select candidates"
+    "preregistration_id": {
+      "type": "string",
+      "description": "Unique identifier for this pre-registration (e.g. 'PPR-2026-07-09-001')"
     },
-    "exclusion_criteria": {
+    "packet_id": {
+      "type": "string",
+      "description": "Identifier of the external review packet this pre-registration refers to"
+    },
+    "registered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the experimental design was frozen"
+    },
+    "registered_by": {
+      "type": "string",
+      "description": "Name and role of the person who registered this design"
+    },
+    "assay_types": {
       "type": "array",
-      "items": {"type": "string"},
-      "description": "Criteria that would cause a candidate to be excluded"
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "Type of assay to be performed (e.g. 'MIC', 'hemolysis_RBC', 'serum_stability', 'cytotoxicity_mammalian')"
+      },
+      "description": "Types of assays that will be performed. Must have at least one assay type."
     },
-    "pass_fail_criteria": {
-      "type": "object",
-      "description": "Criteria for determining pilot success or failure"
-    },
-    "revision_history": {
+    "pass_criteria": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
+        "required": ["metric", "threshold", "direction"],
         "properties": {
-          "date": {"type": "string", "format": "date"},
-          "reason": {"type": "string"}
-        }
-      }
+          "metric": {
+            "type": "string",
+            "description": "The metric against which pass/fail is judged (e.g. 'MIC_50', 'HC50', 'selectivity_index')"
+          },
+          "threshold": {
+            "type": "number",
+            "description": "The numerical threshold value for this criterion"
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["above", "below", "equals"],
+            "description": "Whether passing requires the metric to be above, below, or equal to the threshold"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional context or justification for this criterion"
+          }
+        },
+        "description": "A single pass/fail criterion with metric, threshold, and direction"
+      },
+      "description": "Pre-registered pass/fail criteria. These MUST NOT be changed after assays are run. If changes are needed, use the amendment_policy mechanism."
+    },
+    "control_conditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "Description of a control condition (e.g. 'Melittin positive control (hemolytic)', 'Vehicle-only negative control')"
+      },
+      "description": "Experimental control conditions that will be used. At least one control is required."
+    },
+    "sample_size": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of biological replicates per condition"
+    },
+    "blinding": {
+      "type": "boolean",
+      "description": "Whether the experimenters will be blinded to candidate identity during assay execution"
+    },
+    "primary_endpoint": {
+      "type": "string",
+      "description": "The primary outcome measure that will determine the study's main conclusion"
+    },
+    "secondary_endpoints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "A secondary outcome measure"
+      },
+      "description": "Secondary outcome measures (can be empty if none)"
+    },
+    "statistical_analysis_plan": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Detailed plan for statistical analysis of the results. Must be at least 20 characters."
+    },
+    "amendment_policy": {
+      "type": "string",
+      "description": "Documented policy for how amendments to this pre-registration are handled. Must be explicit about what changes are allowed, who can authorize them, and how they are recorded."
+    },
+    "pipeline_version_locked": {
+      "type": "string",
+      "description": "The exact pipeline version used to generate candidate scores for this pilot (e.g. 'v0.5.72'). Prevents version drift from invalidating selection criteria."
     }
   }
 }

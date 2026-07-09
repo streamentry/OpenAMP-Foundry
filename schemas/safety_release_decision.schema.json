@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp-foundry.org/schemas/safety_release_decision.schema.json",
+  "title": "OpenAMP Safety Release Decision",
+  "description": "JSON Schema for the human-review decision on whether to release a candidate panel externally. Safety release decisions CANNOT be made by agents — agent_authored must be absent or false. This ensures release review is auditable and human-gated.",
+  "type": "object",
+  "required": [
+    "decision_id",
+    "packet_id",
+    "decided_at",
+    "decided_by",
+    "decision",
+    "rationale",
+    "safety_checks_passed",
+    "novelty_confirmed",
+    "dry_lab_only_acknowledged",
+    "next_steps"
+  ],
+  "properties": {
+    "decision_id": {
+      "type": "string",
+      "description": "Unique identifier for this release decision (e.g. 'SRD-2026-07-09-001')"
+    },
+    "packet_id": {
+      "type": "string",
+      "description": "Identifier of the external review packet this decision refers to"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the decision was made"
+    },
+    "decided_by": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z .,'()-]+$",
+      "minLength": 3,
+      "description": "Name and/or role of the human who made this decision (e.g. 'Dr. Jane Smith, Safety Lead'). Must be a human, NOT an agent."
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["release", "hold", "reject"],
+      "description": "The release decision: release (approved for external sharing), hold (requires more information), reject (denied release)"
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Human-written rationale for the decision. Must be at least 20 characters to ensure meaningful justification."
+    },
+    "safety_checks_passed": {
+      "type": "object",
+      "required": ["toxicity_screened", "hemolysis_screened", "dual_use_reviewed"],
+      "properties": {
+        "toxicity_screened": {
+          "type": "boolean",
+          "description": "Whether candidates were screened for general toxicity signals"
+        },
+        "hemolysis_screened": {
+          "type": "boolean",
+          "description": "Whether hemolysis assay risk was assessed for all candidates"
+        },
+        "dual_use_reviewed": {
+          "type": "boolean",
+          "description": "Whether dual-use implications were reviewed by a qualified human"
+        },
+        "additional_checks": {
+          "type": "object",
+          "description": "Optional additional safety checks beyond the three required ones",
+          "additionalProperties": { "type": "boolean" }
+        }
+      },
+      "description": "Record of which safety checks have been completed and passed"
+    },
+    "novelty_confirmed": {
+      "type": "boolean",
+      "description": "Whether candidate novelty has been confirmed by human review against current literature and databases"
+    },
+    "dry_lab_only_acknowledged": {
+      "type": "boolean",
+      "enum": [true],
+      "description": "REQUIRED: Must be true. Decision acknowledges that all outputs are dry-lab computational hypotheses only and are not biological proof."
+    },
+    "dissent": {
+      "type": "string",
+      "description": "Optional field documenting any reviewer disagreement or dissenting opinion. Required if any reviewer objected to the decision."
+    },
+    "next_steps": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Description of next steps following this decision (e.g., 'Prepare release summary packet', 'Request additional safety data', 'Escalate to external review board')"
+    },
+    "agent_authored": {
+      "type": "boolean",
+      "enum": [false],
+      "description": "SAFETY CONSTRAINT: Must be false or absent. Safety release decisions cannot be made by agents."
+    }
+  }
+}

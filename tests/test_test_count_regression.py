@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2639 tests as of Loop 71 (2026-07-09) — Phase E schemas + removed stale duplicate
+# Baseline: 2679 tests as of Loop 72 (2026-07-09) — Phase E E4-E6 (safety release, preregistration, CLI)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2639
+BASELINE = 2679
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 
