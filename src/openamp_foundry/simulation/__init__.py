@@ -1,5 +1,11 @@
 """Virtual assay simulation layer for OpenAMP Foundry."""
 
+from .scope_checker import (
+    ScopeCoverageResult,
+    check_scope_coverage,
+    check_result_scope,
+    scope_coverage_report,
+)
 from .deprecation_enforcer import (
     BLOCKED_STATUSES,
     DeprecationCheckResult,
@@ -63,6 +69,10 @@ from .result_validator import (
 from .structure import StructureProxy
 
 __all__ = [
+    "ScopeCoverageResult",
+    "check_scope_coverage",
+    "check_result_scope",
+    "scope_coverage_report",
     "BLOCKED_STATUSES",
     "DeprecationCheckResult",
     "check_module_deprecation",

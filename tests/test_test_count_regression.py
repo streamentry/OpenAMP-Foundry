@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3238 tests as of Loop 96 (2026-07-09) -- Phase H H8 (simulation-module deprecation enforcer)
+# Baseline: 3255 tests as of Loop 97 (2026-07-09) -- Phase H H9 (simulation-scope coverage checker)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3238
+BASELINE = 3255
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

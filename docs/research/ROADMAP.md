@@ -51,6 +51,56 @@ Honest boundaries:
   not invalidate results; it highlights them for human review.
 - All CI reports are dry-lab only and must not be presented as biological proof.
 
+## v0.5.97 — Loop 97: Phase H H9 — Simulation-Scope Coverage Checker ✓ (2026-07-09)
+
+`ScopeCoverageResult` dataclass (8 fields: module_id, requested_scopes,
+module_scopes, covered, uncovered, coverage_fraction, is_fully_covered,
+dry_lab_only). `check_scope_coverage()` looks up module in registry, computes
+covered (intersection) and uncovered (requested scopes not in module scopes),
+coverage_fraction = len(covered)/len(requested_scopes) if requested else 1.0.
+`check_result_scope()` uses conservative intersection of registry scopes and
+result.scope as effective module_scopes. `scope_coverage_report()` returns
+full dict.
+CLI (`openamp-foundry simulation-scope-check`) with `--module-id`,
+`--requested-scopes`, `--format text|json`.
+`make simulation-scope-check` target with demo invocation.
+A simulation module may cover only some biological scopes. If a candidate is
+evaluated for a scope the module does not cover, that result must be flagged
+as out-of-scope rather than silently trusted.
+
+Changes:
+- `src/openamp_foundry/simulation/scope_checker.py` (H9) — Core module with
+  `ScopeCoverageResult` dataclass (8 fields), `check_scope_coverage()` with
+  registry lookup and set intersection, `check_result_scope()` with conservative
+  intersection of registry and result scopes, `scope_coverage_report()` dict
+  builder.
+- `src/openamp_foundry/simulation/__init__.py` — Exports `ScopeCoverageResult`,
+  `check_scope_coverage`, `check_result_scope`, `scope_coverage_report`.
+- `src/openamp_foundry/cli/main.py` — Registered `simulation-scope-check`
+  subcommand with `--module-id`, `--requested-scopes`, `--format` flags.
+  Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_simulation_scope_check()` CLI handler with text and JSON output.
+- `Makefile` — Added `simulation-scope-check` target. Added to `.PHONY`.
+- `tests/simulation/test_scope_checker.py` — 17 tests covering: fully covered,
+  partially covered, no scopes requested, unknown module, dry_lab_only always
+  True, covered/uncovered lists correct, coverage_fraction half/full/zero,
+  check_result_scope intersection, scope_coverage_report keys and dry_lab_only,
+  membrane_proxy covers bacterial, membrane_proxy does not cover fungal, empty
+  module scopes all uncovered.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.97 H9 changelog. Test count: 3255.
+- `tests/test_test_count_regression.py` — baseline updated to 3255.
+
+Honest boundaries:
+- Scope coverage is based on the module registry's declared scopes, which may
+  be incomplete or outdated relative to a module's actual capabilities.
+- `check_result_scope` is conservative: it only trusts scopes that both the
+  registry and the result agree on. This may undercount coverage if result
+  metadata is sparse.
+- A fully covered scope does not mean the simulation is accurate or biologically
+  meaningful — only that the module claims to cover the requested scope.
+- All outputs are dry-lab only and must not be presented as biological proof.
+
 ## v0.5.96 — Loop 96: Phase H H8 — Simulation-Module Deprecation Enforcer ✓ (2026-07-09)
 
 `DeprecationCheckResult` dataclass (5 fields: module_id, status, is_blocked,

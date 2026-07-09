@@ -1741,3 +1741,36 @@ def _run_simulation_deprecation_check(args: argparse.Namespace) -> int:
         print("not biological proof.")
 
     return 3 if result["any_blocked"] else 0
+
+
+def _run_simulation_scope_check(args: argparse.Namespace) -> int:
+    """Check whether a simulation module covers all requested scopes."""
+    from openamp_foundry.simulation.scope_checker import (
+        check_scope_coverage,
+    )
+
+    module_id = args.module_id
+    requested_scopes = [s.strip() for s in args.requested_scopes.split(",") if s.strip()]
+    output_format = getattr(args, "format", "text")
+
+    if not requested_scopes:
+        print({"status": "error", "error": "No scopes provided."})
+        return 2
+
+    result = check_scope_coverage(module_id, requested_scopes)
+
+    if output_format == "json":
+        print(json.dumps(result.to_dict(), indent=2))
+    else:
+        print(f"Simulation Scope Coverage Check: {module_id}")
+        print(f"  Requested scopes: {', '.join(result.requested_scopes)}")
+        print(f"  Module scopes:    {', '.join(result.module_scopes) if result.module_scopes else '(none)'}")
+        print(f"  Covered:          {', '.join(result.covered) if result.covered else '(none)'}")
+        print(f"  Uncovered:        {', '.join(result.uncovered) if result.uncovered else '(none)'}")
+        print(f"  Coverage:         {result.coverage_fraction:.1%}")
+        print(f"  Fully covered:    {result.is_fully_covered}")
+        print()
+        print("Dry-lab only. Scope coverage checks are computational safeguards,")
+        print("not biological proof.")
+
+    return 0 if result.is_fully_covered else 3
