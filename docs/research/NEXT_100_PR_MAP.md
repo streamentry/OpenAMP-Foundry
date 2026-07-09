@@ -200,6 +200,18 @@ Build the evidence and accountability artifacts needed for credible external val
 | K4 | Add post-experiment calibration intake schema. | Structured result-to-prediction comparison. | B/D |
 | K5 | Add uncertainty quantification report schema (complete — Loop 123). | Honest prediction intervals for reviewers. | B |
 
+## Phase L — Scientific Communication
+
+Bridge the gap between evidence packages and published science.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| L1 | Add preprint evidence bundle schema (complete — Loop 124). | Ties K-phase artifacts into a submission-ready package. | B |
+| L2 | Add reproducibility manifest schema. | Captures exact versions, checksums, seeds for full reproduction. | B |
+| L3 | Add candidate summary card schema. | Publication-ready per-candidate structured summary. | B |
+| L4 | Add multi-candidate comparison schema. | Structured comparison table for ≥2 candidates. | B |
+| L5 | Add dataset release package checker. | Validates open dataset releases meet data governance. | B/D |
+
 
 ## Prioritization rule
 

@@ -1,5 +1,8 @@
 # Roadmap
 
+### v0.8.4
+- Phase L L1: preprint evidence bundle schema — ties K-phase artifacts into a submission-ready record for scientific preprints. PreprintBundleEntry dataclass, validate_preprint_bundle(), CLI preprint-bundle-check.
+
 ### v0.8.3
 - Phase K K5: uncertainty quantification report schema — validates prediction intervals, confidence levels, and calibration source for dry-lab candidate recommendations. UncertaintyReportEntry dataclass, validate_uncertainty_report(), CLI uncertainty-report-check.
 
