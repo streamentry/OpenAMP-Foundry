@@ -15,7 +15,7 @@ from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 from openamp_foundry.cli.commands.reports import _run_security_report_check
 from openamp_foundry.cli.commands.reports import _run_citation_check
 from openamp_foundry.cli.commands.reports import _run_roadmap_sync_check
-from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check, _run_batch_priority_check, _run_pilot_package_check
+from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check, _run_batch_priority_check, _run_pilot_package_check, _run_calibration_intake_check
 
 import argparse
 import json
@@ -2035,6 +2035,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Calibration intake check (Phase K K4) ────────────────────────
+    cic = sub.add_parser(
+        "calibration-intake-check",
+        help=(
+            "Validate a post-experiment calibration intake entry. Compares pipeline "
+            "prediction against actual lab outcome and records the calibration signal."
+        ),
+    )
+    cic.add_argument(
+        "--entry-json", type=str, required=True,
+        help="JSON string of a CalibrationIntakeEntry dict (required).",
+    )
+    cic.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2348,6 +2366,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "pilot-package-check":
         return _run_pilot_package_check(args)
+
+    if args.command == "calibration-intake-check":
+        return _run_calibration_intake_check(args)
 
     parser.error("unknown command")
     return 2

@@ -1,5 +1,8 @@
 # Roadmap
 
+### v0.8.2
+- Phase K K4: post-experiment calibration intake schema — captures structured comparison of pipeline dry-lab prediction against actual experimental outcome. CalibrationIntakeEntry dataclass (dry_lab_only=False enforced), validate_calibration_intake(), CLI calibration-intake-check.
+
 ## v0.8.1 — Loop 121: Phase K K3 — Pilot Package Completeness Checker
 
 `docs/evidence/PILOT_PACKAGE_GUIDE.md` with purpose, required field table (11

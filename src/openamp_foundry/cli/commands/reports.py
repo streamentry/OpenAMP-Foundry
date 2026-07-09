@@ -2919,3 +2919,38 @@ def _run_pilot_package_check(args: argparse.Namespace) -> int:
             print("  Pilot package validated. All required artifacts present.")
 
     return 0 if result.passed else 3
+
+
+def _run_calibration_intake_check(args: argparse.Namespace) -> int:
+    """Validate a post-experiment calibration intake entry."""
+    import json as _json
+    from openamp_foundry.evidence.calibration_intake import validate_calibration_intake_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_calibration_intake_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        correct = "correct" if result.prediction_correct else "incorrect"
+        print(f"Calibration intake {result.intake_id} (candidate {result.candidate_id}, prediction {correct}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Calibration intake validated. Prediction-vs-outcome comparison is recorded.")
+
+    return 0 if result.passed else 3
