@@ -51,6 +51,68 @@ Honest boundaries:
   not invalidate results; it highlights them for human review.
 - All CI reports are dry-lab only and must not be presented as biological proof.
 
+## v0.5.98 — Loop 98: Phase H H10 — Simulation-Evidence Packet Assembler ✓ (2026-07-09)
+
+`SimulationEvidencePacket` dataclass (12 fields: module_id, result,
+requested_scopes, claimed_evidence_level, baseline_beaten, deprecation_check,
+scope_check, baseline_check, adapter_gate, effective_evidence_level,
+all_checks_passed, failure_reasons, dry_lab_only).
+`assemble_evidence_packet()` runs all Phase H sub-checks (deprecation, scope,
+baseline, adapter gate) and assembles into a single auditable packet with
+all_checks_passed (True only if not deprecation_check["is_blocked"],
+scope_check["is_fully_covered"], not baseline_check["capped"], and
+adapter_gate["passed"]), failure_reasons (human-readable list of what failed),
+and effective_evidence_level (from baseline_check).
+`evidence_packet_summary()` returns compact dict with module_id,
+claimed_evidence_level, effective_evidence_level, all_checks_passed,
+failure_reasons, dry_lab_only.
+CLI (`openamp-foundry simulation-evidence-packet`) with `--module-id`,
+`--result-json`, `--requested-scopes`, `--claimed-level`, `--baseline-beaten`,
+`--format text|json`. `make simulation-evidence-packet` target.
+This is the capstone of Phase H — it assembles all the individual simulation
+discipline checks into a single auditable evidence packet showing exactly why
+a simulation result is trustworthy (or not) enough to support a given evidence
+level claim.
+
+Changes:
+- `src/openamp_foundry/simulation/evidence_packet.py` (H10) — Core module
+  with `SimulationEvidencePacket` dataclass (12+ fields),
+  `assemble_evidence_packet()` orchestrating all 4 sub-checks with failure
+  aggregation, `evidence_packet_summary()` compact dict builder.
+- `src/openamp_foundry/simulation/__init__.py` — Exports
+  `SimulationEvidencePacket`, `assemble_evidence_packet`,
+  `evidence_packet_summary`.
+- `src/openamp_foundry/cli/main.py` — Registered `simulation-evidence-packet`
+  subcommand with `--module-id`, `--result-json`, `--requested-scopes`,
+  `--claimed-level`, `--baseline-beaten`, `--format` flags.
+  Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_simulation_evidence_packet()` CLI handler with JSON parsing,
+  SimulationResult deserialization, text and JSON output, module-id validation.
+- `Makefile` — Added `simulation-evidence-packet` target with demo invocation
+  using membrane_proxy + bacterial_binding + baseline_beaten=false.
+  Added to `.PHONY`.
+- `tests/simulation/test_evidence_packet.py` — 16+ tests covering: returns
+  packet dataclass, all_checks_passed=true/false for every sub-check,
+  failure_reasons empty/non-empty, effective_evidence_level capped,
+  dry_lab_only always True, summary keys and values, deprecated module,
+  adapter timeout, membrane_proxy passes with correct scope, scope fail.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.98 H10 changelog. Test count: 3271.
+- `tests/test_test_count_regression.py` — baseline updated to 3271.
+
+Honest boundaries:
+- The evidence packet aggregates computational sub-checks only. It does not
+  measure biological activity, safety, or real-world performance.
+- `all_checks_passed=True` means all computational discipline checks passed,
+  not that the simulation result is biologically meaningful.
+- The adapter gate uses failure signals provided by the caller; an adapter that
+  returns plausible-looking but biologically meaningless results will pass.
+- Baseline beating is a necessary condition for evidence, not a sufficient one.
+- Scope coverage is based on the module registry's declared scopes, which may
+  be incomplete relative to actual capabilities.
+- All evidence packets are dry-lab only and must not be presented as biological
+  proof.
+
 ## v0.5.97 — Loop 97: Phase H H9 — Simulation-Scope Coverage Checker ✓ (2026-07-09)
 
 `ScopeCoverageResult` dataclass (8 fields: module_id, requested_scopes,

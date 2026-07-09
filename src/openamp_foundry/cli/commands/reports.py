@@ -1774,3 +1774,84 @@ def _run_simulation_scope_check(args: argparse.Namespace) -> int:
         print("not biological proof.")
 
     return 0 if result.is_fully_covered else 3
+
+
+def _run_simulation_evidence_packet(args: argparse.Namespace) -> int:
+    """Assemble all simulation discipline checks into a single evidence packet."""
+    import json
+
+    from openamp_foundry.simulation.evidence_packet import (
+        assemble_evidence_packet,
+        evidence_packet_summary,
+    )
+    from openamp_foundry.simulation.interfaces import SimulationResult
+
+    module_id = args.module_id
+    output_format = getattr(args, "format", "text")
+
+    try:
+        raw = json.loads(args.result_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({
+            "status": "error",
+            "error": f"Invalid JSON for --result-json: {e}",
+        }))
+        return 2
+
+    if not isinstance(raw, dict):
+        print(json.dumps({
+            "status": "error",
+            "error": "--result-json must be a JSON object (SimulationResult dict)",
+        }))
+        return 2
+
+    if raw.get("module") != module_id:
+        print(json.dumps({
+            "status": "error",
+            "error": f"--module-id '{module_id}' does not match result.module '{raw.get('module')}'",
+        }))
+        return 2
+
+    result = SimulationResult(
+        module=raw.get("module", ""),
+        version=raw.get("version", ""),
+        scope=raw.get("scope", []),
+        scores=raw.get("scores", {}),
+        uncertainty=raw.get("uncertainty", 0.0),
+        calibration_set=raw.get("calibration_set"),
+        validated_against=raw.get("validated_against", []),
+        notes=raw.get("notes", []),
+    )
+
+    requested_scopes = [s.strip() for s in args.requested_scopes.split(",") if s.strip()]
+    claimed_level = args.claimed_level
+    baseline_beaten = args.baseline_beaten.lower() == "true"
+
+    packet = assemble_evidence_packet(
+        result=result,
+        requested_scopes=requested_scopes,
+        claimed_evidence_level=claimed_level,
+        baseline_beaten=baseline_beaten,
+    )
+
+    summary = evidence_packet_summary(packet)
+
+    if output_format == "json":
+        print(json.dumps(summary, indent=2))
+    else:
+        status = "PASS" if packet.all_checks_passed else "FAIL"
+        print(f"Simulation Evidence Packet: {packet.module_id}")
+        print(f"  Status:                 {status}")
+        print(f"  Claimed evidence level: {packet.claimed_evidence_level}")
+        print(f"  Effective evidence:     {packet.effective_evidence_level}")
+        print(f"  All checks passed:      {packet.all_checks_passed}")
+        if packet.failure_reasons:
+            print("  Failure reasons:")
+            for reason in packet.failure_reasons:
+                print(f"    - {reason}")
+        print(f"  Dry-lab only:           {packet.dry_lab_only}")
+        print()
+        print("Dry-lab only. Evidence packets are computational audit artifacts,")
+        print("not biological proof.")
+
+    return 0 if packet.all_checks_passed else 3

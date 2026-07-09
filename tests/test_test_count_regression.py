@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3255 tests as of Loop 97 (2026-07-09) -- Phase H H9 (simulation-scope coverage checker)
+# Baseline: 3272 tests as of Loop 98 (2026-07-09) -- Phase H H10 (simulation-evidence packet assembler)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3255
+BASELINE = 3272
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

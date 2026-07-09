@@ -39,6 +39,11 @@ from .baseline_registry import (
     list_baseline_declarations,
     validate_baseline_declarations,
 )
+from .evidence_packet import (
+    SimulationEvidencePacket,
+    assemble_evidence_packet,
+    evidence_packet_summary,
+)
 from .ci_reporter import (
     ScoreCI,
     ci_report,
@@ -69,6 +74,9 @@ from .result_validator import (
 from .structure import StructureProxy
 
 __all__ = [
+    "SimulationEvidencePacket",
+    "assemble_evidence_packet",
+    "evidence_packet_summary",
     "ScopeCoverageResult",
     "check_scope_coverage",
     "check_result_scope",

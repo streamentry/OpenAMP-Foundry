@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check, _run_simulation_evidence_packet
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1561,6 +1561,43 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Simulation-evidence packet assembler (H10 — Phase H capstone) ─
+    sep = sub.add_parser(
+        "simulation-evidence-packet",
+        help=(
+            "Assemble all simulation discipline checks into a single auditable "
+            "evidence packet showing why a simulation result is trustworthy "
+            "enough to support a given evidence level. Dry-lab only."
+        ),
+    )
+    sep.add_argument(
+        "--module-id", type=str, required=True,
+        help="Module ID (validated against result.module).",
+    )
+    sep.add_argument(
+        "--result-json", type=str, required=True,
+        help="JSON string of a SimulationResult dict.",
+    )
+    sep.add_argument(
+        "--requested-scopes", type=str, required=True,
+        help="Comma-separated scopes (e.g. bacterial_membrane_binding,fungal_binding).",
+    )
+    sep.add_argument(
+        "--claimed-level", type=int, required=True,
+        choices=range(1, 7),
+        help="Claimed evidence level (1-6).",
+    )
+    sep.add_argument(
+        "--baseline-beaten", type=str, required=True,
+        choices=["true", "false"],
+        help="Whether the baseline has been beaten (true or false).",
+    )
+    sep.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Simulation-result confidence interval report (H7) ────────────
     sicr = sub.add_parser(
         "simulation-ci-report",
@@ -1765,6 +1802,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "simulation-scope-check":
         return _run_simulation_scope_check(args)
+
+    if args.command == "simulation-evidence-packet":
+        return _run_simulation_evidence_packet(args)
 
     parser.error("unknown command")
     return 2
