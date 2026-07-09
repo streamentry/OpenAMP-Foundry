@@ -247,7 +247,7 @@ Track how well predictions match experimental outcomes over time. Detect drift, 
 | O2 | Add prediction drift monitor schema (complete — Loop 139). | Detects when pipeline predictions are systematically shifting. | B/D |
 | O3 | Add calibration improvement record schema. | Documents what was changed to improve calibration and by how much. | B/D |
 | O4 | Add cross-batch performance aggregator schema (complete — Loop 140). | Aggregates results across batches for trend analysis. | B/D |
-| O5 | Add calibration readiness gate schema. | Validates calibration quality is sufficient before releasing the next batch. | B/D |
+| [x] O5 | Add calibration readiness gate schema. | Validates calibration quality is sufficient before releasing the next batch. | B/D |
 
 ## Prioritization rule
 

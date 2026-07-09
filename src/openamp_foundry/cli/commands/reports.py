@@ -3490,6 +3490,34 @@ def _run_calibration_improvement_check(args) -> int:
     return 0 if result.passed else 1
 
 
+def _run_calibration_readiness_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.calibration_readiness_gate import (
+        validate_calibration_readiness_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_calibration_readiness_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        gate = "GATE-PASS" if result.gate_passed else "GATE-FAIL"
+        print(f"[{status}] Calibration Readiness Gate: {result.gate_id} [{gate}]")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+
 def _run_cross_batch_aggregator_check(args) -> int:
     import json
     from openamp_foundry.evidence.cross_batch_aggregator import (

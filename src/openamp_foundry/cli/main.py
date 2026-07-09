@@ -22,6 +22,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_experiment_priority_check, _run_calibration_performance_check, _run_prediction_drift_check,
     _run_calibration_improvement_check,
     _run_cross_batch_aggregator_check,
+    _run_calibration_readiness_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2347,6 +2348,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_cba.add_argument("--format", choices=["text", "json"], default="text")
     p_cba.set_defaults(func=_run_cross_batch_aggregator_check)
 
+    p_crg = sub.add_parser(
+        "calibration-readiness-check",
+        help="Validate calibration readiness gate entry",
+    )
+    p_crg.add_argument("--entry-json", default=None)
+    p_crg.add_argument("--format", choices=["text", "json"], default="text")
+    p_crg.set_defaults(func=_run_calibration_readiness_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2718,6 +2727,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "cross-batch-aggregator-check":
         return _run_cross_batch_aggregator_check(args)
+
+    if args.command == "calibration-readiness-check":
+        return _run_calibration_readiness_check(args)
 
     parser.error("unknown command")
     return 2

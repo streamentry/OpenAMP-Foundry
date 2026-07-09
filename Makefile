@@ -966,7 +966,7 @@ experiment-priority-check:
 calibration-performance-check:
 	openamp-foundry calibration-performance-check --entry-json '{"summary_id":"CPS-001","pipeline_version":"0.9.9","evaluation_date":"2026-07-10","batch_ids_evaluated":["BATCH-001","BATCH-002"],"total_candidates_evaluated":20,"true_positive_count":10,"false_positive_count":2,"true_negative_count":6,"false_negative_count":2,"brier_score":0.12,"calibration_notes":"Calibration looks reasonable.","reviewer":"test@example.com","dry_lab_only":false}' --format text
 
-.PHONY: prediction-drift-check
+.PHONY: calibration-readiness-check prediction-drift-check
 prediction-drift-check:
 	openamp-foundry prediction-drift-check --entry-json '{"monitor_id":"DRM-TEST","pipeline_version":"v1.0","reference_batch_id":"A","evaluation_batch_id":"B","reference_mean_score":0.6,"reference_std_score":0.1,"evaluation_mean_score":0.65,"evaluation_std_score":0.12,"mean_shift_magnitude":0.05,"population_size_reference":50,"population_size_evaluation":50,"drift_flag":false,"drift_notes":"","reviewer":"test"}'
 
@@ -974,6 +974,10 @@ dataset-release-check:
 	.venv/bin/openamp-foundry dataset-release-check \
 		--entry-json '{"release_id":"DSR-001","dataset_name":"OpenAMP Wave 0.5 Candidates","dataset_version":"1.0.0","release_date":"2026-07-09","license_identifier":"CC-BY-4.0","data_sources":["UniProt AMP database","APD3","in-house pipeline"],"contains_sequences":true,"contains_activity_data":false,"dual_use_assessed":true,"usage_policy_url":"https://openamp.example.org/data-policy","contact_email":"data@openamp.example.org","release_approved":true,"dry_lab_only":true}' \
 		--format text
+
+.PHONY: calibration-readiness-check
+calibration-readiness-check:
+	openamp-foundry calibration-readiness-check --entry-json '{"gate_id":"CRG-TEST","pipeline_version":"v1.0","aggregator_id":"CBA-001","mean_brier_score":0.15,"trend":"stable","total_batches_evaluated":3,"gate_passed":true,"failure_reasons":[],"gate_notes":"","reviewer":"test"}'
 
 .PHONY: calibration-improvement-check
 calibration-improvement-check:

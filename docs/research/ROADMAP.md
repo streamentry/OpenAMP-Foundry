@@ -1,5 +1,10 @@
 # Roadmap
 
+### v0.10.3 - Phase O O5: Calibration Readiness Gate (COMPLETES PHASE O)
+- CalibrationReadinessEntry: binary gate consuming CBA- aggregators
+- gate_passed consistent with failure_reasons; degrading-trend and marginal-Brier warnings
+- Phase O (O1-O5 Calibration QA) fully complete
+
 ### v0.10.2 - Phase O O4: Cross-Batch Performance Aggregator
 - CrossBatchAggregatorEntry aggregates CalibrationPerformanceEntry results across N>=2 batches
 - trend field (improving/stable/degrading) feeds calibration readiness gate
