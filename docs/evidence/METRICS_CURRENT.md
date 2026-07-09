@@ -1153,7 +1153,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 3161 |
+| Total tests | 3162 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 
