@@ -1,5 +1,12 @@
 # Roadmap
 
+### v0.10.0 — Phase O O2: Prediction Drift Monitor
+- Added `PredictionDriftEntry` schema tracking mean/std score shifts between reference and evaluation batches
+- Detects silent model degradation before wet-lab confirmation
+- Constants: SIGNIFICANT_DRIFT_THRESHOLD=0.1, VARIANCE_EXPLOSION_RATIO=2.0
+- CLI: `openamp-foundry prediction-drift-check`
+- 68 tests; all passing
+
 ### v0.9.9 — Phase O O1: Calibration Performance Summary (starts Phase O)
 - Added `CalibrationPerformanceEntry` schema tracking prediction accuracy over batches with known outcomes
 - Confusion matrix validation; Brier score; FP rate, recall, and small-sample warnings
