@@ -41,4 +41,8 @@ extend-exclude = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src", "scripts"]
+# Repo root (".") must be on the path so tests can `import scripts.<mod>`: the
+# scripts package (scripts/__init__.py) is imported as a top-level package by
+# 26 test modules. Without ".", the console-script `pytest` used in CI cannot
+# find it — only `python -m pytest`, which adds the CWD, worked, masking the gap.
+pythonpath = ["src", "scripts", "."]

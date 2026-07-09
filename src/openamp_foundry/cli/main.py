@@ -2286,7 +2286,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     negative_result_parser.set_defaults(func=_run_negative_result_check)
 
-    experiment_priority_parser = subparsers.add_parser(
+    experiment_priority_parser = sub.add_parser(
         "experiment-priority-check",
         help="Validate an experiment priority justification entry",
     )
