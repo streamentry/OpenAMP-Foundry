@@ -621,6 +621,12 @@ validate-rejection-events:
 		--out-json outputs/rejection_events_validation.json \
 		--out-md outputs/rejection_events_validation.md
 
+check-negative-archive-completeness:
+	PYTHONPATH=src $(PYTHON) scripts/check_negative_archive_completeness.py \
+		--input examples/negative_result_archive_example.json \
+		--out-json outputs/negative_archive_completeness_report.json \
+		--out-md outputs/negative_archive_completeness_report.md
+
 negative-result-dashboard:
 	PYTHONPATH=src $(PYTHON) scripts/negative_result_dashboard.py \
 		--input examples/negative_result_dashboard_example.json \

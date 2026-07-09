@@ -1,5 +1,56 @@
 # Roadmap
 
+## v0.5.80 — Loop 80: Phase F F10 — Negative-Result Archive Completeness Checker ✓ (2026-07-09)
+
+CLI that reads a JSON archive of negative-result entries and checks each entry
+against completeness criteria: required fields, duplicate candidate_ids, content
+field presence, date format validity, and intake_report_id format. Prevents
+cherry-picking by ensuring incomplete or poorly documented entries are detected
+before analysis or reporting.
+
+Changes:
+- `scripts/check_negative_archive_completeness.py` (F10) — Standalone CLI that
+  loads negative-result entries (list or dict with `entries` key), checks each
+  entry for: required fields present, no duplicate candidate_ids, at least one
+  content field (assay_result, score_safety, reviewer_notes, or reason_detail),
+  valid YYYY-MM-DD date format, and well-formed intake_report_id (INT-YYYY-NNN).
+  Produces structured JSON + Markdown report with per-check and per-entry pass/fail.
+  Exit 0 on all pass, 1 on any failure, 2 on input errors.
+- `schemas/negative_result_archive_completeness.schema.json` (F10) — JSON Schema
+  Draft 2020-12 for the completeness report output. Validates report_metadata,
+  summary (total_entries, pass/fail count, pass_rate), 5 checks (required_fields,
+  duplicate_candidate_ids, has_content_fields, date_format,
+  intake_report_id_references) each with pass boolean and details array,
+  per_entry_results array, and _caveat.
+- `examples/negative_result_archive_example.json` (F10) — Toy example with 4
+  entries (lab_inactive, lab_toxic, control_failure, synthesis_failure) across
+  4 pipeline versions, including one entry with intake_report_id reference.
+  Clearly marked EXAMPLE — NOT REAL DATA.
+- `tests/evidence/test_negative_archive_completeness.py` — 35 tests covering:
+  valid entries pass all checks, missing required field, duplicate candidate_id,
+  missing content fields, invalid date format, invalid calendar date, invalid
+  intake_report_id format, valid intake_report_id, mixed good/bad entries, empty
+  string required field, reason_detail as content, report structure (5 keys),
+  per-entry results matching count, empty entry handling, missing file, markdown
+  sections (title, summary, check results, caveat, errors), example file loading
+  and round-trip, all load_entries error modes, CLI exit codes (0, 1, 2), and
+  JSON/Markdown output writing.
+- `Makefile` — Added `check-negative-archive-completeness` target.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.80 F10 changelog. Test count: 2919.
+- `tests/test_test_count_regression.py` — baseline updated to 2919.
+
+Honest boundaries:
+- Checks structural and formatting criteria only — a PASS does not confirm
+  biological accuracy, pipeline correctness, or data authenticity.
+- Missing content fields may reflect genuine data absence (e.g., unreviewed
+  entries) rather than record-keeping errors.
+- The intake_report_id format check validates pattern, not referential
+  integrity — a well-formed ID may reference a non-existent intake report.
+- Duplicate candidate_id detection flags structural duplicates; it cannot
+  distinguish accidental duplicates from intentional re-entry of the same
+  candidate under different conditions.
+- All conclusions about entry quality require qualified human review.
+
 ## v0.5.79 — Loop 79: Phase F F9 — Negative-Result Dashboard ✓ (2026-07-09)
 
 CLI that reads a collection of negative-result entries from a JSON file and

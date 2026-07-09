@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Negative-Result Archive Completeness Report",
+  "description": "Schema for the structured completeness report produced by scripts/check_negative_archive_completeness.py.",
+  "type": "object",
+  "required": ["report_metadata", "summary", "checks", "per_entry_results", "_caveat"],
+  "properties": {
+    "report_metadata": {
+      "type": "object",
+      "required": ["generated_at", "pipeline_version", "source_file", "total_entries"],
+      "properties": {
+        "generated_at": {"type": "string", "format": "date-time"},
+        "pipeline_version": {"type": "string"},
+        "source_file": {"type": "string"},
+        "total_entries": {"type": "integer", "minimum": 0}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_entries", "pass_count", "fail_count", "pass_rate"],
+      "properties": {
+        "total_entries": {"type": "integer", "minimum": 0},
+        "pass_count": {"type": "integer", "minimum": 0},
+        "fail_count": {"type": "integer", "minimum": 0},
+        "pass_rate": {"type": "string"}
+      }
+    },
+    "checks": {
+      "type": "object",
+      "required": ["required_fields", "duplicate_candidate_ids", "has_content_fields", "date_format", "intake_report_id_references"],
+      "properties": {
+        "required_fields": {
+          "type": "object",
+          "required": ["pass", "details"],
+          "properties": {
+            "pass": {"type": "boolean"},
+            "details": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "duplicate_candidate_ids": {
+          "type": "object",
+          "required": ["pass", "details"],
+          "properties": {
+            "pass": {"type": "boolean"},
+            "details": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "has_content_fields": {
+          "type": "object",
+          "required": ["pass", "details"],
+          "properties": {
+            "pass": {"type": "boolean"},
+            "details": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "date_format": {
+          "type": "object",
+          "required": ["pass", "details"],
+          "properties": {
+            "pass": {"type": "boolean"},
+            "details": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "intake_report_id_references": {
+          "type": "object",
+          "required": ["pass", "details"],
+          "properties": {
+            "pass": {"type": "boolean"},
+            "details": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "per_entry_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entry_id", "candidate_id", "checks", "errors", "pass"],
+        "properties": {
+          "entry_id": {"type": ["integer", "string"]},
+          "candidate_id": {"type": "string"},
+          "checks": {"type": "object"},
+          "errors": {"type": "array", "items": {"type": "string"}},
+          "pass": {"type": "boolean"}
+        }
+      }
+    },
+    "_caveat": {"type": "string"}
+  }
+}

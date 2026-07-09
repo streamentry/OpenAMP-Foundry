@@ -1,0 +1,56 @@
+{
+  "schema": "EXAMPLE — NOT REAL DATA. For demonstration only.",
+  "description": "Toy negative-result archive entries for completeness checker demonstration. All candidates, sequences, scores, and reasons are synthetic and must not be treated as real experimental results.",
+  "pipeline_version": "v0.5.80",
+  "entries": [
+    {
+      "entry_id": 1,
+      "date": "2026-06-01",
+      "candidate_id": "ARCHIVE-001",
+      "sequence": "RRIRIIRRIRIIRRI",
+      "reason_category": "lab_inactive",
+      "reason_detail": "MIC > 128 ug/mL against E. coli.",
+      "pipeline_version": "v0.5.70",
+      "source_batch": "wave0.5",
+      "assay_result": ">128",
+      "score_activity": 0.82,
+      "score_safety": 0.35,
+      "reviewer_notes": "Confirmed inactive across 3 replicates."
+    },
+    {
+      "entry_id": 2,
+      "date": "2026-06-03",
+      "candidate_id": "ARCHIVE-002",
+      "sequence": "KLAKLAKKLAKLAK",
+      "reason_category": "lab_toxic",
+      "reason_detail": "HC50 = 8 ug/mL. High hemolysis risk.",
+      "pipeline_version": "v0.5.71",
+      "source_batch": "wave0.5",
+      "score_safety": 0.30,
+      "score_activity": 0.90
+    },
+    {
+      "entry_id": 3,
+      "date": "2026-06-05",
+      "candidate_id": "ARCHIVE-003",
+      "sequence": "GIGKFLHSAKKWGKAFVGEIMNS",
+      "reason_category": "control_failure",
+      "reason_detail": "Positive control failed. MIC for polymyxin B exceeded expected range.",
+      "pipeline_version": "v0.5.72",
+      "source_batch": "wave0.5",
+      "intake_report_id": "INT-2026-001",
+      "score_activity": 0.75,
+      "score_safety": 0.88
+    },
+    {
+      "entry_id": 4,
+      "date": "2026-06-10",
+      "candidate_id": "ARCHIVE-004",
+      "sequence": "RWQWRWQWRWQWRW",
+      "reason_category": "synthesis_failure",
+      "reason_detail": "Crude purity 62%, below 80% threshold. Synthesis failed after 3 attempts.",
+      "pipeline_version": "v0.5.73",
+      "source_batch": "wave0.5"
+    }
+  ]
+}
