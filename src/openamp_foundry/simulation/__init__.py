@@ -1,5 +1,12 @@
 """Virtual assay simulation layer for OpenAMP Foundry."""
 
+from .deprecation_enforcer import (
+    BLOCKED_STATUSES,
+    DeprecationCheckResult,
+    check_module_deprecation,
+    enforce_deprecation,
+    run_deprecation_check_batch,
+)
 from .adapter_gate import (
     AdapterGateResult,
     FAIL_CLOSED_REASONS,
@@ -56,6 +63,11 @@ from .result_validator import (
 from .structure import StructureProxy
 
 __all__ = [
+    "BLOCKED_STATUSES",
+    "DeprecationCheckResult",
+    "check_module_deprecation",
+    "enforce_deprecation",
+    "run_deprecation_check_batch",
     "AdapterGateResult",
     "FAIL_CLOSED_REASONS",
     "evaluate_adapter_gate",

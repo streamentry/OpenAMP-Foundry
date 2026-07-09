@@ -51,6 +51,52 @@ Honest boundaries:
   not invalidate results; it highlights them for human review.
 - All CI reports are dry-lab only and must not be presented as biological proof.
 
+## v0.5.96 — Loop 96: Phase H H8 — Simulation-Module Deprecation Enforcer ✓ (2026-07-09)
+
+`DeprecationCheckResult` dataclass (5 fields: module_id, status, is_blocked,
+block_reason, dry_lab_only). `BLOCKED_STATUSES = {"deprecated", "unavailable"}`.
+`check_module_deprecation()` looks up module in registry: not-found returns
+is_blocked=True status="unknown"; deprecated/unavailable returns is_blocked=True
+with reason; active/experimental returns is_blocked=False.
+`enforce_deprecation()` filters list[SimulationResult] to only non-blocked
+modules, returns dict with total_input/passed/blocked/blocked_modules/
+passed_results/checks/dry_lab_only. `run_deprecation_check_batch()` bulk-checks
+module_ids with total/blocked/allowed/any_blocked/results/dry_lab_only.
+CLI (`openamp-foundry simulation-deprecation-check`) with `--module-ids`,
+`--format text|json`. `make simulation-deprecation-check` target with demo
+invocation. Deprecated simulation modules must not be used in production
+scoring — the enforcer prevents stale or unreliable modules from tainting
+evidence packets.
+
+Changes:
+- `src/openamp_foundry/simulation/deprecation_enforcer.py` (H8) — Core
+  module with `DeprecationCheckResult` dataclass, `check_module_deprecation()`,
+  `enforce_deprecation()`, `run_deprecation_check_batch()`.
+- `src/openamp_foundry/simulation/__init__.py` — Exports `BLOCKED_STATUSES`,
+  `DeprecationCheckResult`, `check_module_deprecation`, `enforce_deprecation`,
+  `run_deprecation_check_batch`.
+- `src/openamp_foundry/cli/main.py` — Registered `simulation-deprecation-check`
+  subcommand with `--module-ids`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_simulation_deprecation_check()` CLI handler.
+- `Makefile` — Added `simulation-deprecation-check` target. Added to `.PHONY`.
+- `tests/simulation/test_deprecation_enforcer.py` — 21 tests covering: active
+  module not blocked, deprecated/unavailable blocked, unknown blocked with
+  status="unknown", dry_lab_only always True, enforce_deprecation filters
+  results, passed count, blocked_modules sorted/deduplicated, dry_lab_only flag,
+  all-allowed blocked=0, batch total/any_blocked/not blocked.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.96 H8 changelog. Test count: 3238.
+- `tests/test_test_count_regression.py` — baseline updated to 3238.
+
+Honest boundaries:
+- Deprecation checks are based on registry status, not biological validity.
+  A module may be "active" in the registry but still produce unreliable scores.
+- Blocking removes results from evidence packets but does not invalidate them
+  as research data — blocked results may still be useful for internal analysis.
+- The enforcer does not evaluate whether a module's underlying science is sound;
+  it enforces the pipeline's declared module lifecycle policy.
+- All outputs are dry-lab only and must not be presented as biological proof.
+
 ## v0.5.94 — Loop 94: Phase H H6 — Simulation-Ensemble Agreement Checker ✓ (2026-07-09)
 
 `EnsembleAgreementResult` dataclass (9 fields: sequence, modules_checked,

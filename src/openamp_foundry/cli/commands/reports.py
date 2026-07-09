@@ -1704,3 +1704,40 @@ def _run_simulation_provenance(args: argparse.Namespace) -> int:
         print("not biological proof.")
 
     return 0
+
+
+def _run_simulation_deprecation_check(args: argparse.Namespace) -> int:
+    """Check whether simulation modules are deprecated or unavailable."""
+    import json
+
+    from openamp_foundry.simulation.deprecation_enforcer import (
+        run_deprecation_check_batch,
+    )
+
+    module_ids = [m.strip() for m in args.module_ids.split(",") if m.strip()]
+    if not module_ids:
+        print(json.dumps({"status": "error", "error": "No module IDs provided."}))
+        return 2
+
+    result = run_deprecation_check_batch(module_ids)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"Simulation Deprecation Check")
+        print(f"  Total modules:  {result['total']}")
+        print(f"  Blocked:        {result['blocked']}")
+        print(f"  Allowed:        {result['allowed']}")
+        print(f"  Any blocked:    {result['any_blocked']}")
+        print()
+        for check in result["results"]:
+            status = "BLOCKED" if check["is_blocked"] else "ALLOWED"
+            print(f"  [{status:7}] {check['module_id']:35s} "
+                  f"status={check['status']:15s} "
+                  f"{check['block_reason']}")
+        print()
+        print("Dry-lab only. Deprecation checks are computational safeguards,")
+        print("not biological proof.")
+
+    return 3 if result["any_blocked"] else 0

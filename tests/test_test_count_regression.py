@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3217 tests as of Loop 95 (2026-07-09) -- Phase H H7 (simulation-result confidence interval reporter)
+# Baseline: 3238 tests as of Loop 96 (2026-07-09) -- Phase H H8 (simulation-module deprecation enforcer)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3217
+BASELINE = 3238
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 
