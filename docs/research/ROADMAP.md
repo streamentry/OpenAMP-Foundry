@@ -1,5 +1,21 @@
 # Roadmap
 
+## v0.8.0 — Loop 120: Phase K K2 — Batch Experiment Priority Ranker ✓ (2026-07-09)
+
+`docs/evidence/BATCH_PRIORITY_GUIDE.md` with field table and validation workflow
+for batch synthesis wave priority entries.
+
+`src/openamp_foundry/evidence/batch_priority.py` with `BatchPriorityEntry`
+dataclass (12 fields, dry_lab_only=True enforced), `BatchPriorityResult`
+dataclass (6 fields), `VALID_SYNTHESIS_COMPLEXITIES` (3: high/low/medium),
+`VALID_NOVELTY_TIERS` (3: high/low/medium), `VALID_EVIDENCE_LEVELS` (1–6),
+`validate_batch_priority()` (11 checks, 3 warning conditions: low evidence,
+top-rank+high-complexity, low score), `validate_batch_priority_dict()`
+(10 required fields guard).
+CLI: `openamp-foundry batch-priority-check`. `make batch-priority-check` target.
+**v0.8.0 milestone** — synthesis wave ranking is now machine-validated with
+explicit evidence level and complexity signals.
+
 ## v0.7.9 — Loop 119: Phase K K1 — Selection Rationale Schema ✓ (2026-07-09)
 
 `docs/evidence/SELECTION_RATIONALE_GUIDE.md` documenting what selection rationale
