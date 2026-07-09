@@ -2163,3 +2163,41 @@ def _run_artifact_changelog(args: argparse.Namespace) -> int:
     if validation_errors:
         return 3
     return 0
+
+
+def _run_integration_check(args: argparse.Namespace) -> int:
+    """Run integration checks against a candidate manifest dict."""
+    from openamp_foundry.adoption.integration_checker import (
+        run_integration_checks,
+    )
+
+    try:
+        manifest_dict = json.loads(args.manifest_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --manifest-json: {e}"}))
+        return 2
+
+    if not isinstance(manifest_dict, dict):
+        print(json.dumps({"status": "error", "error": "--manifest-json must be a JSON object"}))
+        return 2
+
+    result = run_integration_checks(manifest_dict)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps(result, indent=2))
+    else:
+        print("Integration Check Results")
+        print("=" * 60)
+        print(f"All checks passed: {result['all_passed']}")
+        print(f"  Passed: {result['passed_count']} / Failed: {result['failed_count']}")
+        print()
+        for check in result["checks"]:
+            status = "PASS" if check["passed"] else "FAIL"
+            print(f"  [{status}] {check['check_name']}")
+            print(f"          {check['detail']}")
+        print()
+        print("Dry-lab only. Integration checks are computational safeguards,")
+        print("not biological proof.")
+
+    return 0 if result["all_passed"] else 3

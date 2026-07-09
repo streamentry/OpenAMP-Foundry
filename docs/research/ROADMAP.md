@@ -1,5 +1,80 @@
 # Roadmap
 
+## v0.6.3 — Loop 103: Phase I I5 — Downstream Project Template ✓ (2026-07-09)
+
+`docs/adoption/DOWNSTREAM_PROJECT_TEMPLATE.md` with overview of OpenAMP
+artifacts (candidate manifests, benchmark cards, evidence certificates,
+simulation results — all dry-lab only), minimum viable integration steps
+(consume candidate manifest, validate against schema, use Python library),
+schema validation guide against `candidate_manifest.schema.json`, evidence
+level interpretation table (L1-L6 with labels, meanings, and caveats),
+safety flag conventions table (6 flags with meanings and suggested actions),
+benchmark card consumption guide with comparison against baselines, explicit
+dry-lab limitations section, and contact/contribution section.
+
+`src/openamp_foundry/adoption/integration_checker.py` with
+`REQUIRED_INTEGRATION_CHECKS` list (5 checks: manifest_schema_valid,
+evidence_level_in_range, dry_lab_only_acknowledged, safety_flags_reviewed,
+baseline_comparison_present). `IntegrationCheckResult` dataclass (4 fields:
+check_name, passed, detail, dry_lab_only). `run_integration_checks()` that
+validates a manifest dict against all 5 checks and returns checks list,
+passed_count, failed_count, all_passed, dry_lab_only.
+
+Exported from `src/openamp_foundry/adoption/__init__.py`.
+
+CLI (`openamp-foundry integration-check`) with `--manifest-json` (required,
+JSON of candidate manifest dict), `--format text|json`. `make integration-check`
+target. Handler `_run_integration_check` in reports.py.
+
+14 tests. **3356 total.** External researchers who want to use OpenAMP
+artifacts in their own pipelines now have a guide that shows them the minimum
+viable integration: how to consume a candidate manifest, validate it, and
+produce their own evidence packet.
+
+Changes:
+- `docs/adoption/DOWNSTREAM_PROJECT_TEMPLATE.md` (I5) — Full downstream
+  project guide with integration steps, schema validation, evidence table,
+  safety flags, benchmark card consumption, dry-lab limitations.
+- `src/openamp_foundry/adoption/__init__.py` (I5) — Package init, exports
+  `REQUIRED_INTEGRATION_CHECKS`, `IntegrationCheckResult`,
+  `run_integration_checks`.
+- `src/openamp_foundry/adoption/integration_checker.py` (I5) — Core module
+  with `REQUIRED_INTEGRATION_CHECKS` (5 items), `IntegrationCheckResult`
+  dataclass (4 fields), `run_integration_checks()` (5 checks against
+  manifest dict, returns dict with checks, counts, all_passed, dry_lab_only).
+- `src/openamp_foundry/cli/main.py` (I5) — Registered `integration-check`
+  subcommand with `--manifest-json`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I5) — Added
+  `_run_integration_check()` CLI handler with JSON parsing, text and JSON
+  output, integration check execution, and error handling.
+- `Makefile` (I5) — Added `integration-check` target with demo invocation
+  using AMP-001 manifest. Added to `.PHONY`.
+- `tests/adoption/__init__.py` (I5) — Empty package init.
+- `tests/adoption/test_integration_checker.py` (I5) — 14 tests covering:
+  valid manifest all_passed=True, missing candidate_id fails, level=0 fails,
+  level=7 fails, dry_lab_only=False fails, dry_lab_only key missing fails,
+  safety_flags key missing fails, empty scores fails, all checks return
+  dry_lab_only=True, REQUIRED_INTEGRATION_CHECKS has 5 entries,
+  run_integration_checks returns dry_lab_only=True, passed+failed=5,
+  valid manifest failed_count=0, IntegrationCheckResult dataclass
+  constructor.
+- `docs/evidence/METRICS_CURRENT.md` — v0.6.3 I5 changelog. Test count: 3356.
+- `tests/test_test_count_regression.py` — baseline updated to 3356.
+
+Honest boundaries:
+- The downstream project template is a guide for consuming dry-lab artifacts.
+  It does not contain biological instructions, assay protocols, or safety
+  procedures.
+- The integration checker validates structural and policy requirements only.
+  It does not verify that a downstream project actually consumes the artifacts
+  correctly or that the candidate manifests are biologically meaningful.
+- `dry_lab_only: true` is preserved throughout — all integration checks are
+  computational safeguards, not biological proof.
+- The evidence level table is a taxonomy, not a validation ladder. L1-L3
+  outputs remain computational hypotheses regardless of integration status.
+- Safety flag conventions are advisory. Downstream projects must conduct
+  their own safety review.
+
 ## v0.6.2 — Loop 102: Phase I I4 — Evidence-Certificate Changelog ✓ (2026-07-09)
 
 `docs/engineering/ARTIFACT_CHANGELOG.md` with structured changelog format
