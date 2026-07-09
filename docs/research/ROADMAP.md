@@ -1,5 +1,61 @@
 # Roadmap
 
+## v0.5.82 — Loop 82: Phase G G4 — Active-Learning Strategy Comparison Report ✓ (2026-07-09)
+
+CLI (`openamp-foundry bench strategy-compare`) that compares 5 selection strategies
+(exploitation, exploration, diversity, combined, random) on the same synthetic pool
+with identical hidden active candidates. Each strategy runs multi-round recovery of
+hidden actives using the same batch-2 selector with different weights. The report
+ranks strategies by recall, compares the production selector vs pure strategies and
+random baseline, and produces structured JSON + Markdown output with caveats.
+Prevents one-selector bias by making strategy performance transparent.
+
+Changes:
+- `src/openamp_foundry/active_learning/strategy_comparison.py` (G4) —
+  `run_strategy_comparison()` generates a synthetic pool, hides N active candidates,
+  runs 5 strategies (exploitation, exploration, diversity, combined, random) via
+  multi-round selection, and produces a `StrategyComparisonReport` with per-strategy
+  recovery metrics, ranking by recall, best strategy identification, and production
+  selector comparison (vs random, exploitation, exploration, diversity).
+  `STRATEGY_WEIGHTS` dict defines the weight tuples for each strategy.
+  `write_comparison_json()` and `write_comparison_markdown()` produce structured output.
+- `schemas/active_learning_strategy_comparison.schema.json` (G4) — JSON Schema
+  Draft 2020-12 for the strategy comparison report. Validates all required fields
+  including per-strategy results, ranking, production comparisons, and notes.
+- `src/openamp_foundry/active_learning/__init__.py` — Exports `STRATEGY_WEIGHTS`,
+  `StrategyComparisonReport`, `StrategyResult`, `run_strategy_comparison`,
+  `write_comparison_json`, `write_comparison_markdown`.
+- `src/openamp_foundry/cli/commands/benchmark.py` — Added
+  `_run_active_learning_strategy_compare()` CLI handler with `--n-total`, `--n-active`,
+  `--n-hidden`, `--batch-size`, `--max-rounds`, `--rng-seed`, `--out-json`, `--out-md` flags.
+- `src/openamp_foundry/cli/main.py` — Registered `strategy-compare` subcommand under
+  `bench` with all argument flags and dispatch to handler.
+- `Makefile` — Added `bench-strategy-compare` target with default params writing to
+  `outputs/strategy_comparison.json` and `outputs/strategy_comparison.md`.
+- `tests/active_learning/test_strategy_comparison.py` — 18 tests covering: all 5
+  strategies present, required fields (top-level + per-result), valid recall range,
+  ranking order, production strategy name, best strategy not null, exploitation
+  recovers actives, random baseline notes, production vs comparison fields, notes
+  presence, JSON and Markdown output writing, CLI exit 0, CLI writes files, random
+  baseline ranges, JSON Schema conformance, and production_outperforms_random type.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.82 G4 changelog. Test count: 2955.
+- `tests/test_test_count_regression.py` — baseline updated to 2955.
+
+Honest boundaries:
+- This report uses **synthetic data** with known active/inactive labels. Results
+  reflect code-path integrity, not biological performance.
+- All strategies run with safety/selectivity gates disabled to isolate strategy
+  effects. Real performance may differ with gates enabled.
+- Random baseline is averaged over 20 Monte Carlo trials; deterministic strategies
+  use a single run per config.
+- The production selector optimizes for multiple objectives (activity, safety,
+  diversity) that this recall-based benchmark does not fully measure.
+- A strategy that ranks highest on recall may not be the best choice for real
+  candidate selection — domain-specific constraints, safety requirements, and
+  material constraints matter.
+- This comparison is informational and requires qualified human review before
+  influencing selection decisions.
+
 ## v0.5.81 — Loop 81: Phase G G3 — Calibration Pipeline Consistency Audit ✓ (2026-07-09)
 
 CLI (`openamp-foundry calibration-audit`) that checks consistency across the

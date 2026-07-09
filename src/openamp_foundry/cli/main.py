@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from openamp_foundry.cli.commands.core import _run_generate_batch
-from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot, _run_feature_decomp, _run_active_learning_bench, _run_simulation_gate
+from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_scoring, _run_cluster_split_bench, _run_expert_ablation_bench, _run_selectivity_bench, _run_triage, _run_metrics_snapshot, _run_feature_decomp, _run_active_learning_bench, _run_active_learning_strategy_compare, _run_simulation_gate
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
@@ -328,6 +328,61 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=42,
         help="Random seed for reproducibility (default: 42).",
+    )
+
+    strategy_compare = bench_sub.add_parser(
+        "strategy-compare",
+        help=(
+            "Compare active-learning selection strategies (exploitation, exploration, "
+            "diversity, combined, random) on the same synthetic pool. Prevents "
+            "one-selector bias by making strategy comparison transparent."
+        ),
+    )
+    strategy_compare.add_argument(
+        "--n-total",
+        type=int,
+        default=50,
+        help="Total candidate pool size (default: 50).",
+    )
+    strategy_compare.add_argument(
+        "--n-active",
+        type=int,
+        default=10,
+        help="Number of active candidates in pool (default: 10).",
+    )
+    strategy_compare.add_argument(
+        "--n-hidden",
+        type=int,
+        default=3,
+        help="Number of active candidates to hide (default: 3).",
+    )
+    strategy_compare.add_argument(
+        "--batch-size",
+        type=int,
+        default=5,
+        help="Batch size per selection round (default: 5).",
+    )
+    strategy_compare.add_argument(
+        "--max-rounds",
+        type=int,
+        default=5,
+        help="Maximum selection rounds (default: 5).",
+    )
+    strategy_compare.add_argument(
+        "--rng-seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (default: 42).",
+    )
+    strategy_compare.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional JSON output path.",
+    )
+    strategy_compare.add_argument(
+        "--out-md",
+        default=None,
+        help="Optional Markdown output path.",
     )
 
     simulation_gate = bench_sub.add_parser(
@@ -1160,6 +1215,8 @@ def main(argv: list[str] | None = None) -> int:
             return _run_metrics_snapshot(args)
         if args.bench_command == "active-learning":
             return _run_active_learning_bench(args)
+        if args.bench_command == "strategy-compare":
+            return _run_active_learning_strategy_compare(args)
         if args.bench_command == "simulation-gate":
             return _run_simulation_gate(args)
         return _run_bench(args)

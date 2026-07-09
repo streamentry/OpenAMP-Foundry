@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp.ai/schemas/active_learning_strategy_comparison.schema.json",
+  "title": "Active-Learning Strategy Comparison Report",
+  "description": "Report comparing multiple active-learning selection strategies on a synthetic pool. All fields are computational results — not biological evidence.",
+  "type": "object",
+  "required": [
+    "version",
+    "pool_size",
+    "n_active_total",
+    "n_hidden_actives",
+    "batch_size",
+    "max_rounds",
+    "results",
+    "ranked_by_recall",
+    "best_strategy",
+    "production_strategy",
+    "production_outperforms_random",
+    "notes"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema/report version."
+    },
+    "pool_size": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of candidates in the synthetic pool."
+    },
+    "n_active_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of active (label=1) candidates."
+    },
+    "n_hidden_actives": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of active candidates hidden during selection."
+    },
+    "batch_size": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of candidates selected per round."
+    },
+    "max_rounds": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum number of selection rounds."
+    },
+    "results": {
+      "type": "array",
+      "description": "Per-strategy recovery results.",
+      "items": {
+        "type": "object",
+        "required": [
+          "strategy_name",
+          "rounds_to_first_recovery",
+          "final_recall",
+          "n_hidden_recovered",
+          "n_hidden_actives",
+          "total_rounds_run",
+          "notes"
+        ],
+        "properties": {
+          "strategy_name": { "type": "string" },
+          "rounds_to_first_recovery": {
+            "oneOf": [
+              { "type": "number", "minimum": 1 },
+              { "type": "null" }
+            ]
+          },
+          "final_recall": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "n_hidden_recovered": { "type": "integer", "minimum": 0 },
+          "n_hidden_actives": { "type": "integer", "minimum": 1 },
+          "total_rounds_run": { "type": "integer", "minimum": 0 },
+          "notes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "ranked_by_recall": {
+      "type": "array",
+      "description": "Strategy names ranked by final recall descending.",
+      "items": { "type": "string" }
+    },
+    "best_strategy": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "null" }
+      ],
+      "description": "Name of the strategy with highest recall."
+    },
+    "production_strategy": {
+      "type": "string",
+      "description": "Name of the production selector strategy."
+    },
+    "production_outperforms_random": {
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "null" }
+      ],
+      "description": "Whether the production selector outperforms random baseline on recall."
+    },
+    "production_vs_exploitation": {
+      "oneOf": [
+        { "type": "string", "enum": ["better", "worse", "similar"] },
+        { "type": "null" }
+      ]
+    },
+    "production_vs_exploration": {
+      "oneOf": [
+        { "type": "string", "enum": ["better", "worse", "similar"] },
+        { "type": "null" }
+      ]
+    },
+    "production_vs_diversity": {
+      "oneOf": [
+        { "type": "string", "enum": ["better", "worse", "similar"] },
+        { "type": "null" }
+      ]
+    },
+    "notes": {
+      "type": "array",
+      "description": "Human-readable notes and caveats.",
+      "items": { "type": "string" }
+    }
+  },
+  "_caveat": "This report is a computational comparison of selection strategies on synthetic data. It is not biological evidence of sampling efficiency, candidate quality, or real-world selection performance."
+}

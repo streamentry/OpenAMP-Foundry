@@ -323,6 +323,37 @@ def _run_active_learning_bench(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_active_learning_strategy_compare(args: argparse.Namespace) -> int:
+    """Run the active-learning strategy comparison report."""
+    import json
+    from pathlib import Path
+    from openamp_foundry.active_learning.strategy_comparison import (
+        run_strategy_comparison,
+        write_comparison_json,
+        write_comparison_markdown,
+    )
+
+    report = run_strategy_comparison(
+        rng_seed=args.rng_seed,
+        n_total=args.n_total,
+        n_active=args.n_active,
+        n_hidden_actives=args.n_hidden,
+        batch_size=args.batch_size,
+        max_rounds=args.max_rounds,
+    )
+
+    out_dict = report.to_dict()
+    if args.out_json:
+        write_comparison_json(report, Path(args.out_json))
+        print(f"JSON report written to {args.out_json}")
+    if args.out_md:
+        write_comparison_markdown(report, Path(args.out_md))
+        print(f"Markdown report written to {args.out_md}")
+    if not args.out_json and not args.out_md:
+        print(json.dumps(out_dict, indent=2))
+    return 0
+
+
 def _run_simulation_gate(args: argparse.Namespace) -> int:
     """Validate whether virtual-assay scores may affect ranking."""
     from openamp_foundry.simulation.gate import evaluate_simulation_gate

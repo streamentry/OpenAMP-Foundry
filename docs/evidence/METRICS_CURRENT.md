@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-09 (Phase G G3 — calibration pipeline consistency audit — v0.5.81)
+> **Last updated:** 2026-07-09 (Phase G G4 — active-learning strategy comparison report — v0.5.82)
+> **New in v0.5.82:** Active-learning strategy comparison report (G4) — CLI (`openamp-foundry bench strategy-compare`) that compares 5 selection strategies (exploitation, exploration, diversity, combined, random) on the same synthetic pool with identical hidden active candidates. Each strategy runs multi-round recovery of hidden actives; the report ranks strategies by recall, compares the production selector vs pure strategies and random baseline, and produces structured JSON + Markdown output with caveats. Prevents one-selector bias by making strategy performance transparent. Schema (`schemas/active_learning_strategy_comparison.schema.json`). `make bench-strategy-compare` target. 18 tests. 2955 total.
 > **New in v0.5.81:** Calibration pipeline consistency audit (G3) — CLI (`openamp-foundry calibration-audit`) that checks consistency across calibration pipeline artifacts (intake report, gate verdict, engine proposal, recalibration report). Checks intake↔gate count matching, engine↔gate verdict agreement, engine L1 budget compliance, report↔gate verdict consistency, report↔engine proposal consistency, timestamp sanity, and cohort-metrics warnings. Schema (`schemas/calibration_audit.schema.json`). `make calibration-audit` and `make calibration-audit-example` targets. 18 tests. 2937 total.
 > **New in v0.5.80:** Negative-result archive completeness checker (F10) — CLI (`scripts/check_negative_archive_completeness.py`) that reads a JSON archive of negative-result entries and checks each entry against completeness criteria: all required fields present, no duplicate candidate_ids, each entry has at least one content field (assay_result, score_safety, reviewer_notes, or reason_detail), date format valid YYYY-MM-DD, and optional intake_report_id references are well-formed. Outputs a structured completeness report as JSON and Markdown with summary, per-check results, and per-entry pass/fail. Schema (`schemas/negative_result_archive_completeness.schema.json`). Example file (`examples/negative_result_archive_example.json`) with 4 toy entries. 35 tests. 2919 total.
 >
@@ -73,7 +74,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.81 (G3)
+> **Pipeline version:** v0.5.82 (G4)
 > **Branch:** main
 
 ---

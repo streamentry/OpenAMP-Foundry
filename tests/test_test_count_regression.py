@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2919 tests as of Loop 80 (2026-07-09) -- Phase F F10 (negative-result archive completeness checker)
+# Baseline: 2955 tests as of Loop 82 (2026-07-09) -- Phase G G4 (active-learning strategy comparison report)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2937
+BASELINE = 2955
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 
