@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3078 tests as of Loop 88 (2026-07-09) -- Phase G G10 (recalibration rollback plan, Phase G complete)
+# Baseline: 3106 tests as of Loop 89 (2026-07-09) -- Phase H H1 (simulation module registry)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3078
+BASELINE = 3106
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

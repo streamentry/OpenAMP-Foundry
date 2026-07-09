@@ -1,5 +1,66 @@
 # Roadmap
 
+## v0.5.89 — Loop 89: Phase H H1 — Simulation Module Registry ✓ (2026-07-09)
+
+`SIMULATION_MODULE_REGISTRY` with 4 entries (membrane_proxy, structure_proxy,
+dummy_membrane_proxy, external_adapter_placeholder). `SimulationModuleEntry`
+dataclass tracks module_id, name, description, status, evidence_level,
+baseline_comparison, scope, maintainer, and notes. Lookup functions:
+`get_module_entry()`, `list_module_entries()` with status/min_evidence
+filtering, `get_active_modules()`, `registry_summary()` with
+total/by_status/by_evidence_level/active_module_ids keys.
+`validate_registry()` checks module_id, name, baseline_comparison,
+evidence_level 1-6, valid status, duplicate detection.
+CLI (`openamp-foundry simulation-registry`) with `--list`, `--show`,
+`--status`, `--min-evidence`, `--format text|json`.
+Schema (`schemas/simulation_module_registry.schema.json`).
+`make simulation-registry` target. 28 tests. 3106 total.
+Starts Phase H (virtual assay discipline).
+
+Changes:
+- `src/openamp_foundry/simulation/module_registry.py` (H1) — Core module with
+  `SimulationModuleStatus` literal type, `SimulationModuleEntry` dataclass
+  (9 fields), `SIMULATION_MODULE_REGISTRY` list (4 entries),
+  `get_module_entry()`, `list_module_entries()`, `get_active_modules()`,
+  `registry_summary()` with aggregation, `validate_registry()` with 6 checks.
+  Imports `PROOF_LADDER_LEVELS` from `evidence/synthetic_result_policy.py`.
+- `schemas/simulation_module_registry.schema.json` (H1) — JSON Schema Draft
+  2020-12 for the registry_summary() output. Validates total, by_status
+  (all 4 status keys), by_evidence_level, active_module_ids.
+- `src/openamp_foundry/simulation/__init__.py` — Exports all module registry
+  symbols.
+- `src/openamp_foundry/cli/main.py` — Registered `simulation-registry`
+  subcommand with `--list`, `--show`, `--status`, `--min-evidence`,
+  `--format` flags.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_simulation_registry()` CLI handler with text and JSON output,
+  per-module details, status/evidence filtering, and validation.
+- `Makefile` — Added `simulation-registry` target with `--list` default.
+  Added to `.PHONY`.
+- `tests/simulation/test_module_registry.py` — 28 tests covering: registry
+  size ≥ 4, all entries pass validation, required field presence, evidence
+  level range 1-6, valid status values, get_module_entry known/unknown,
+  list_module_entries no filter/status filter/min_evidence filter,
+  get_active_modules returns only active, registry_summary keys and totals,
+  validate_registry detection of empty fields, invalid level, invalid
+  status, duplicate ids, PROOF_LADDER_LEVELS completeness.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.89 H1 changelog. Test count: 3106.
+- `tests/test_test_count_regression.py` — baseline updated to 3106.
+
+Honest boundaries:
+- The registry lists module status and evidence level for informational
+  purposes only. It does not measure biological activity, safety, or
+  real-world performance.
+- Registry validation checks structural correctness, not scientific validity.
+  A valid entry may still produce biologically meaningless results.
+- The PROOF_LADDER_LEVELS mapping is a claim-level taxonomy. An evidence_level
+  of 2 ("virtual-assay support") means the module supports computational
+  exploration — it does not constitute biological proof.
+- The registry is dry-lab only. All module entries carry dry-lab caveats
+  regardless of their status or evidence_level.
+- "active" status means the module is available for use, not that it has
+  been biologically validated.
+
 ## v0.5.88 — Loop 88: Phase G G10 — Recalibration Rollback Plan ✓ (2026-07-09)
 
 `build_rollback_plan()` produces a structured `RollbackPlan` with 5 rollback

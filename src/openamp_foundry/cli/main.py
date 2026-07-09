@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1349,6 +1349,37 @@ def build_parser() -> argparse.ArgumentParser:
     cdc.add_argument("--out-json", default=None, help="Optional output path for the checklist JSON.")
     cdc.add_argument("--out-md", default=None, help="Optional output path for the checklist Markdown.")
 
+    # ── Simulation module registry ───────────────────────────────────
+    simreg = sub.add_parser(
+        "simulation-registry",
+        help="Display the simulation module registry (status and evidence level of virtual assay modules). Dry-lab only.",
+    )
+    simreg.add_argument(
+        "--list", action="store_true", default=True,
+        dest="list_modules",
+        help="List all registered modules (default).",
+    )
+    simreg.add_argument(
+        "--show", type=str, default=None,
+        metavar="MODULE_ID",
+        help="Show details for a specific module ID.",
+    )
+    simreg.add_argument(
+        "--status", type=str, default=None,
+        choices=["active", "experimental", "deprecated", "unavailable"],
+        help="Filter by status: active, experimental, deprecated, unavailable.",
+    )
+    simreg.add_argument(
+        "--min-evidence", type=int, default=None,
+        dest="min_evidence",
+        help="Minimum evidence level (1-6) to filter by.",
+    )
+    simreg.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     return parser
 
 
@@ -1503,6 +1534,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "calibration-rollback-plan":
         return _run_calibration_rollback_plan(args)
+
+    if args.command == "simulation-registry":
+        return _run_simulation_registry(args)
 
     parser.error("unknown command")
     return 2

@@ -1,0 +1,39 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://openamp.ai/schemas/simulation_module_registry.schema.json",
+    "title": "Simulation Module Registry Summary",
+    "description": "Schema for the registry_summary() output. Dry-lab only — tracks module status and evidence level, not biological activity.",
+    "type": "object",
+    "properties": {
+        "total": {
+            "description": "Total number of registered modules",
+            "type": "integer",
+            "minimum": 0
+        },
+        "by_status": {
+            "description": "Count of modules per status level",
+            "type": "object",
+            "properties": {
+                "active": { "type": "integer", "minimum": 0 },
+                "experimental": { "type": "integer", "minimum": 0 },
+                "deprecated": { "type": "integer", "minimum": 0 },
+                "unavailable": { "type": "integer", "minimum": 0 }
+            },
+            "required": ["active", "experimental", "deprecated", "unavailable"]
+        },
+        "by_evidence_level": {
+            "description": "Count of modules per proof-ladder evidence level (1-6)",
+            "type": "object",
+            "patternProperties": {
+                "^[1-6]$": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "active_module_ids": {
+            "description": "List of module IDs with status=active",
+            "type": "array",
+            "items": { "type": "string" }
+        }
+    },
+    "required": ["total", "by_status", "by_evidence_level", "active_module_ids"],
+    "additionalProperties": false
+}

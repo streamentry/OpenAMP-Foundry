@@ -1230,3 +1230,111 @@ def _run_calibration_rollback_plan(args: argparse.Namespace) -> int:
         "out_md": args.out_md,
     }, indent=2))
     return 0
+
+
+def _run_simulation_registry(args: argparse.Namespace) -> int:
+    """Display simulation module registry information."""
+    from openamp_foundry.simulation.module_registry import (
+        SIMULATION_MODULE_REGISTRY,
+        get_module_entry,
+        list_module_entries,
+        registry_summary,
+        VALID_STATUSES,
+    )
+
+    PROOF_LADDER_LABELS = {
+        1: "computational nomination",
+        2: "virtual-assay support",
+        3: "in-silico ensemble agreement",
+        4: "ex-vivo preliminary",
+        5: "in-vivo preliminary",
+        6: "clinical evidence",
+    }
+
+    show = getattr(args, "show", None)
+    status_filter = getattr(args, "status", None)
+    min_evidence = getattr(args, "min_evidence", None)
+    output_format = getattr(args, "format", "text")
+
+    if show:
+        entry = get_module_entry(show)
+        if entry is None:
+            print(json.dumps({"status": "error", "error": f"Unknown module_id: '{show}'"}))
+            return 3
+        if output_format == "json":
+            print(json.dumps({
+                "module_id": entry.module_id,
+                "name": entry.name,
+                "description": entry.description,
+                "status": entry.status,
+                "evidence_level": entry.evidence_level,
+                "evidence_label": PROOF_LADDER_LABELS.get(entry.evidence_level, "unknown"),
+                "baseline_comparison": entry.baseline_comparison,
+                "scope": entry.scope,
+                "maintainer": entry.maintainer,
+                "notes": entry.notes,
+            }, indent=2))
+        else:
+            label = PROOF_LADDER_LABELS.get(entry.evidence_level, "unknown")
+            print(f"Module: {entry.module_id}")
+            print(f"  Name:               {entry.name}")
+            print(f"  Description:        {entry.description}")
+            print(f"  Status:             {entry.status}")
+            print(f"  Evidence Level:     {entry.evidence_level} ({label})")
+            print(f"  Baseline:           {entry.baseline_comparison}")
+            print(f"  Scope:              {', '.join(entry.scope)}")
+            print(f"  Maintainer:         {entry.maintainer}")
+            if entry.notes:
+                print(f"  Notes:              {entry.notes}")
+        return 0
+
+    if status_filter:
+        if status_filter not in VALID_STATUSES:
+            print(json.dumps({
+                "status": "error",
+                "error": f"Invalid status '{status_filter}'. Valid: {', '.join(sorted(VALID_STATUSES))}"
+            }))
+            return 3
+        entries = list_module_entries(status=status_filter)
+    elif min_evidence is not None:
+        entries = list_module_entries(min_evidence_level=min_evidence)
+    else:
+        entries = list(SIMULATION_MODULE_REGISTRY)
+
+    summary = registry_summary()
+
+    if output_format == "json":
+        print(json.dumps({
+            "modules": [
+                {
+                    "module_id": e.module_id,
+                    "name": e.name,
+                    "status": e.status,
+                    "evidence_level": e.evidence_level,
+                    "evidence_label": PROOF_LADDER_LABELS.get(e.evidence_level, "unknown"),
+                    "baseline_comparison": e.baseline_comparison,
+                    "scope": e.scope,
+                    "maintainer": e.maintainer,
+                    "notes": e.notes,
+                }
+                for e in entries
+            ],
+            "summary": summary,
+        }, indent=2))
+    else:
+        print("Simulation Module Registry")
+        print("=" * 60)
+        print(f"Total modules: {summary['total']}")
+        print(f"By status:     {dict(sorted(summary['by_status'].items()))}")
+        print(f"By evidence:   {dict(sorted(summary['by_evidence_level'].items()))}")
+        print(f"Active IDs:    {summary['active_module_ids']}")
+        print()
+        for entry in entries:
+            label = PROOF_LADDER_LABELS.get(entry.evidence_level, "unknown")
+            print(f"  [{entry.status:13}] {entry.module_id:35s} "
+                  f"L{entry.evidence_level} {label}")
+        print()
+        print("Dry-lab only. Registry status is informational — it does not")
+        print("measure biological activity, safety, or real-world performance.")
+
+    return 0
