@@ -138,7 +138,7 @@ Do not claim:
 - AI-discovered antibiotic;
 - proof without qualified evidence.
 
-Use `docs/PROOF_LADDER.md` and `docs/CLAIM_REVIEW_CHECKLIST.md`.
+Use `docs/evidence/PROOF_LADDER.md` and `docs/evidence/CLAIM_REVIEW_CHECKLIST.md`.
 
 ## Agent safety
 
@@ -165,7 +165,7 @@ Agents must not autonomously change:
 - claim strength;
 - artifact release decisions.
 
-Use `docs/AGENT_ONBOARDING.md` and `.github/ISSUE_TEMPLATE/agent_safe_task.md`.
+Use `docs/getting-started/AGENT_ONBOARDING.md` and `.github/ISSUE_TEMPLATE/agent_safe_task.md`.
 
 ## Safety review questions
 

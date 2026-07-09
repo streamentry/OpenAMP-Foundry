@@ -124,7 +124,7 @@ Before releasing any model, candidate batch, dataset, or sensitive artifact, ans
 
 Every nontrivial model, scorer, simulator, predictor, generator, or adapter should have a card before release or ranking authority.
 
-Use `docs/MODEL_CARD_TEMPLATE.md`.
+Use `docs/trust/MODEL_CARD_TEMPLATE.md`.
 
 A model card must include:
 
@@ -180,7 +180,7 @@ Non-toy datasets require:
 - intended use;
 - safety-release status.
 
-Use `docs/DATA_GOVERNANCE.md`.
+Use `docs/trust/DATA_GOVERNANCE.md`.
 
 ## Labeling
 

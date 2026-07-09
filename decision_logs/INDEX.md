@@ -12,7 +12,7 @@ This index lists all governance decision logs. Each log records a human-reviewed
 
 ## Adding a new log
 
-1. Create `DECISION_LOG_<YYYY-MM-DD>.md` following DECISION_RECORD_TEMPLATE.md.
+1. Create `DECISION_LOG_<YYYY-MM-DD>.md` following [`docs/operations/DECISION_RECORD_TEMPLATE.md`](../docs/operations/DECISION_RECORD_TEMPLATE.md).
 2. Add a row to the index above.
 3. Update this index when the log is added.
 

@@ -10,19 +10,19 @@ Before contributing, read the path that matches your role:
 
 | Role | Start here |
 |---|---|
-| New human contributor | [`docs/FIRST_RUN_WALKTHROUGH.md`](docs/FIRST_RUN_WALKTHROUGH.md), [`docs/HUMAN_ONBOARDING.md`](docs/HUMAN_ONBOARDING.md) |
-| AI agent | [`AGENTS.md`](AGENTS.md), [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md) |
-| Reviewer | [`docs/REVIEWER_ONBOARDING.md`](docs/REVIEWER_ONBOARDING.md) |
-| Data contributor | [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md) |
-| Model or adapter contributor | [`docs/MODEL_CARD_TEMPLATE.md`](docs/MODEL_CARD_TEMPLATE.md), [`docs/ADAPTER_AUTHOR_GUIDE.md`](docs/ADAPTER_AUTHOR_GUIDE.md) |
-| Maintainer | [`GOVERNANCE.md`](GOVERNANCE.md), [`docs/MAINTAINER_GUIDE.md`](docs/MAINTAINER_GUIDE.md) |
+| New human contributor | [`docs/getting-started/FIRST_RUN_WALKTHROUGH.md`](docs/getting-started/FIRST_RUN_WALKTHROUGH.md), [`docs/getting-started/HUMAN_ONBOARDING.md`](docs/getting-started/HUMAN_ONBOARDING.md) |
+| AI agent | [`AGENTS.md`](AGENTS.md), [`docs/getting-started/AGENT_ONBOARDING.md`](docs/getting-started/AGENT_ONBOARDING.md) |
+| Reviewer | [`docs/getting-started/REVIEWER_ONBOARDING.md`](docs/getting-started/REVIEWER_ONBOARDING.md) |
+| Data contributor | [`docs/trust/DATA_GOVERNANCE.md`](docs/trust/DATA_GOVERNANCE.md) |
+| Model or adapter contributor | [`docs/trust/MODEL_CARD_TEMPLATE.md`](docs/trust/MODEL_CARD_TEMPLATE.md), [`docs/engineering/ADAPTER_AUTHOR_GUIDE.md`](docs/engineering/ADAPTER_AUTHOR_GUIDE.md) |
+| Maintainer | [`GOVERNANCE.md`](GOVERNANCE.md), [`docs/getting-started/MAINTAINER_GUIDE.md`](docs/getting-started/MAINTAINER_GUIDE.md) |
 
 Everyone should also read:
 
 - [`SAFETY.md`](SAFETY.md) — safety posture and disallowed contributions;
 - [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md) — allowed and disallowed use;
 - [`docs/PROJECT_INDEX.md`](docs/PROJECT_INDEX.md) — navigation hub;
-- [`docs/PROOF_LADDER.md`](docs/PROOF_LADDER.md) — claim boundaries.
+- [`docs/evidence/PROOF_LADDER.md`](docs/evidence/PROOF_LADDER.md) — claim boundaries.
 
 ## Quickstart for contributors
 
@@ -36,7 +36,7 @@ make lint
 make ci
 ```
 
-For interpretation of commands and outputs, read [`docs/COMMAND_SURFACE.md`](docs/COMMAND_SURFACE.md).
+For interpretation of commands and outputs, read [`docs/getting-started/COMMAND_SURFACE.md`](docs/getting-started/COMMAND_SURFACE.md).
 
 ## What high-leverage contributions look like
 
@@ -48,7 +48,7 @@ High-leverage work improves at least one of these:
 4. **External usefulness** — easier onboarding for labs, scientists, engineers, and reviewers.
 5. **Compounding** — changes that make future agents and humans faster without lowering standards.
 
-See [`docs/HIGH_LEVERAGE_TASKS.md`](docs/HIGH_LEVERAGE_TASKS.md) and [`docs/NEXT_100_PR_MAP.md`](docs/NEXT_100_PR_MAP.md).
+See [`docs/operations/HIGH_LEVERAGE_TASKS.md`](docs/operations/HIGH_LEVERAGE_TASKS.md) and [`docs/research/NEXT_100_PR_MAP.md`](docs/research/NEXT_100_PR_MAP.md).
 
 ## Types of contributions
 
@@ -68,7 +68,7 @@ See [`GOVERNANCE.md`](GOVERNANCE.md) for decision classes.
 
 ## Claim policy
 
-When contributing documentation, code comments, commit messages, PR descriptions, or releases, use [`docs/CLAIM_REVIEW_CHECKLIST.md`](docs/CLAIM_REVIEW_CHECKLIST.md).
+When contributing documentation, code comments, commit messages, PR descriptions, or releases, use [`docs/evidence/CLAIM_REVIEW_CHECKLIST.md`](docs/evidence/CLAIM_REVIEW_CHECKLIST.md).
 
 Allowed for dry-lab outputs:
 
@@ -125,7 +125,7 @@ Pipeline-sensitive:
 make regenerate-all
 ```
 
-Future checks are described in [`docs/CI_AND_QUALITY_GATES.md`](docs/CI_AND_QUALITY_GATES.md).
+Future checks are described in [`docs/engineering/CI_AND_QUALITY_GATES.md`](docs/engineering/CI_AND_QUALITY_GATES.md).
 
 ## PR requirements
 

@@ -167,7 +167,7 @@ revisit_condition: text
 
 ## Release governance
 
-All releases should follow [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md).
+All releases should follow [`docs/trust/RELEASE_CHECKLIST.md`](docs/trust/RELEASE_CHECKLIST.md).
 
 A release should include:
 
@@ -181,7 +181,7 @@ A release should include:
 
 ## Agent governance
 
-Agent work should follow [`AGENTS.md`](AGENTS.md) and [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md).
+Agent work should follow [`AGENTS.md`](AGENTS.md) and [`docs/getting-started/AGENT_ONBOARDING.md`](docs/getting-started/AGENT_ONBOARDING.md).
 
 Agents may work independently on low-risk issues labeled `agent-safe`.
 
