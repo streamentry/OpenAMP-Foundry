@@ -1,5 +1,11 @@
 # Roadmap
 
+### v0.9.0 — Phase M M2: Claim-to-Evidence Mapper
+- Added `ClaimToEvidenceEntry` schema mapping each claim to supporting artifacts
+- 7 valid claim types; 4 warning conditions for exploratory or weakly-evidenced claims
+- CLI: `openamp-foundry claim-to-evidence-check`
+- 50 tests; all passing
+
 ### v0.8.9
 - Phase M M1: pipeline decision audit entry schema — records each filter/threshold/rank decision with rationale and alternatives considered for external audit. PipelineDecisionAuditEntry dataclass, validate_pipeline_decision_audit(), CLI pipeline-decision-audit-check.
 

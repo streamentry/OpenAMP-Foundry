@@ -15,7 +15,7 @@ from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 from openamp_foundry.cli.commands.reports import _run_security_report_check
 from openamp_foundry.cli.commands.reports import _run_citation_check
 from openamp_foundry.cli.commands.reports import _run_roadmap_sync_check
-from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check, _run_batch_priority_check, _run_pilot_package_check, _run_calibration_intake_check, _run_uncertainty_report_check, _run_preprint_bundle_check, _run_reproducibility_manifest_check, _run_candidate_summary_card_check, _run_multi_candidate_comparison_check, _run_dataset_release_check, _run_pipeline_decision_audit_check
+from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check, _run_batch_priority_check, _run_pilot_package_check, _run_calibration_intake_check, _run_uncertainty_report_check, _run_preprint_bundle_check, _run_reproducibility_manifest_check, _run_candidate_summary_card_check, _run_multi_candidate_comparison_check, _run_dataset_release_check, _run_pipeline_decision_audit_check, _run_claim_to_evidence_check
 
 import argparse
 import json
@@ -2179,6 +2179,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Claim-to-evidence check (Phase M M2) ───────────────────────────
+    ctec = sub.add_parser(
+        "claim-to-evidence-check",
+        help=(
+            "Validate a claim-to-evidence mapping entry. Maps each scientific "
+            "claim to the artifact that supports it for external audit. Dry-lab only."
+        ),
+    )
+    ctec.add_argument(
+        "--entry-json", type=str, required=True,
+        help="JSON string of a ClaimToEvidenceEntry dict (required).",
+    )
+    ctec.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2516,6 +2534,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "pipeline-decision-audit-check":
         return _run_pipeline_decision_audit_check(args)
+
+    if args.command == "claim-to-evidence-check":
+        return _run_claim_to_evidence_check(args)
 
     parser.error("unknown command")
     return 2
