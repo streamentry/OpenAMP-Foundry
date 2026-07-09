@@ -1,5 +1,96 @@
 # Roadmap
 
+## v0.7.4 — Loop 114: Phase J J6 — Security Policy ✓ (2026-07-09)
+
+`docs/governance/SECURITY_POLICY.md` with private vulnerability reporting
+process, response timeline (48h acknowledgment, 30d patch), severity
+classification (critical/high/medium/low), 5 vulnerability categories
+(code_vulnerability, secret_leakage, dependency_vulnerability,
+safety_guardrail_bypass, dual_use_risk), out-of-scope items, disclosure
+process.
+
+`src/openamp_foundry/governance/security_policy.py` with
+`VulnerabilityReport` dataclass (9 fields: report_id, severity, category,
+description, affected_version, reporter_handle, report_date, status,
+dry_lab_only), `SecurityReportValidationResult` dataclass (6 fields:
+report_id, severity, passed, errors, warnings, dry_lab_only=True),
+`VALID_SEVERITY_LEVELS` (4: critical, high, medium, low),
+`VALID_VULNERABILITY_CATEGORIES` (5: code_vulnerability, secret_leakage,
+dependency_vulnerability, safety_guardrail_bypass, dual_use_risk),
+`VALID_REPORT_STATUSES` (6: received, acknowledged, under_review, patched,
+disclosed, not_applicable), `validate_vulnerability_report()` (9 checks:
+report_id SEC- prefix, valid severity, valid category, non-empty
+description, non-empty affected_version, non-empty reporter_handle,
+YYYY-MM-DD date, valid status, dry_lab_only must be True; critical+received
+warning, safety_guardrail_bypass warning), `validate_report_dict()` (dict
+input with 8 required fields guard, missing fields returns passed=False
+early).
+
+CLI (`openamp-foundry security-report-check`) with `--report-json`
+(required), `--format text|json`. Handler `_run_security_report_check` in
+reports.py.
+
+`make security-report-check` target. 18 tests. **3575 total.**
+
+Private vulnerability reporting now has a validated structure and
+documented process — security reporters have a clear channel and the
+project has a documented response process.
+
+Changes:
+- `docs/governance/SECURITY_POLICY.md` (J6) — Private vulnerability
+  reporting process with response timeline, severity classification
+  (critical/high/medium/low), 5 vulnerability categories, out-of-scope
+  items, disclosure process.
+- `src/openamp_foundry/governance/security_policy.py` (J6) — Core module
+  with `VulnerabilityReport` (9 fields), `SecurityReportValidationResult`
+  (6 fields, dry_lab_only=True), `VALID_SEVERITY_LEVELS` (4),
+  `VALID_VULNERABILITY_CATEGORIES` (5), `VALID_REPORT_STATUSES` (6),
+  `validate_vulnerability_report()` (9 checks with critical+received
+  warning and safety_guardrail_bypass warning),
+  `validate_report_dict()` (dict input with 8 required fields guard).
+- `tests/governance/test_security_policy.py` (J6) — 18 tests covering:
+  valid report passes, report_id not SEC- fails, empty report_id fails,
+  invalid severity fails, invalid category fails, empty description fails,
+  empty affected_version fails, empty reporter_handle fails, invalid date
+  fails, invalid status fails, dry_lab_only=False fails, critical+received
+  warns, safety_guardrail_bypass warns, validate_report_dict passes,
+  validate_report_dict missing fields fails, all results dry_lab_only=True,
+  VALID_SEVERITY_LEVELS has 4, VALID_VULNERABILITY_CATEGORIES has 5.
+- `src/openamp_foundry/cli/main.py` (J6) — Registered `security-report-check`
+  subcommand with `--report-json`, `--format` flags. Added import and
+  dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (J6) — Added
+  `_run_security_report_check()` CLI handler with JSON parsing,
+  `validate_report_dict()` call, text and JSON output, exit code 3 on
+  validation failure.
+- `Makefile` (J6) — Added `security-report-check` target with demo
+  invocation using dependency_vulnerability severity medium. Added to
+  `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (J6) — v0.7.4 J6 changelog. Pipeline
+  version: v0.7.4. Test count: 3575.
+- `tests/test_test_count_regression.py` — baseline updated to 3575.
+
+Honest boundaries:
+- Security policy validation checks structural and policy requirements
+  only. It does not verify that the vulnerability actually exists, that
+  the reporter has accurately described it, or that the severity
+  assessment is correct.
+- `dry_lab_only: true` is a const field on all dataclasses — security
+  reports are governance artifacts, not biological findings.
+- The validator checks that the report_date is in YYYY-MM-DD format but
+  does not verify that the date is reasonable (e.g. not in the future).
+- Critical severity with received status produces a warning but does not
+  fail validation — the maintainer may have good reasons for delayed
+  acknowledgment, but the warning ensures it is visible.
+- Safety guardrail bypass reports always produce a warning to ensure
+  immediate maintainer attention, regardless of other validation status.
+- The security policy defines a process and timeline but does not
+  guarantee that maintainers will actually meet those timelines.
+- The policy covers code vulnerabilities, secret leakage, dependency
+  vulnerabilities, safety guardrail bypass, and dual-use risks. It does
+  not cover theoretical vulnerabilities without a reproducible PoC,
+  social engineering, or upstream dependency issues without fixes.
+
 ## v0.7.3 — Loop 113: Phase J J5 — Maintainer Rotation Plan ✓ (2026-07-09)
 
 `docs/governance/MAINTAINER_ROTATION_PLAN.md` with maintainer rotation and

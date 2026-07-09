@@ -2,11 +2,11 @@
 import subprocess
 import sys
 
-# Baseline: 3557 tests as of Loop 113 (2026-07-09) -- Phase J J5 (maintainer rotation plan)
+# Baseline: 3575 tests as of Loop 114 (2026-07-09) -- Phase J J6 (security policy)
 # Note: 3 pre-existing collection errors in test_benchmark_calibration.py,
 # test_benchmark_charge_distribution.py, test_benchmark_cheap_enemies.py.
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3557
+BASELINE = 3575
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

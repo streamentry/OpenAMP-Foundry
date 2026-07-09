@@ -2647,3 +2647,37 @@ def _run_rotation_plan_check(args: argparse.Namespace) -> int:
         print("governance check, not a legal determination.")
 
     return 0 if result.passed else 3
+
+
+def _run_security_report_check(args: argparse.Namespace) -> int:
+    """Validate a security vulnerability report."""
+    import json as _json
+    from openamp_foundry.governance.security_policy import validate_report_dict
+
+    try:
+        d = _json.loads(args.report_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--report-json must be a JSON object"}))
+        return 2
+
+    result = validate_report_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Security report {result.report_id} ({result.severity}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Report validated. Ready for maintainer review.")
+
+    return 0 if result.passed else 3

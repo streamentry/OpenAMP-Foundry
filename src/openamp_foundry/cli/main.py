@@ -12,6 +12,7 @@ from openamp_foundry.cli.commands.reports import _run_decision_log
 from openamp_foundry.cli.commands.reports import _run_release_request_check
 from openamp_foundry.cli.commands.reports import _run_coi_check
 from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
+from openamp_foundry.cli.commands.reports import _run_security_report_check
 
 import argparse
 import json
@@ -1924,6 +1925,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Security report check (Phase J J6) ──────────────────────────
+    src = sub.add_parser(
+        "security-report-check",
+        help=(
+            "Validate a security vulnerability report before the "
+            "formal review queue. Dry-lab only."
+        ),
+    )
+    src.add_argument(
+        "--report-json", type=str, required=True,
+        help="JSON string of a VulnerabilityReport dict (required).",
+    )
+    src.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Simulation-result confidence interval report (H7) ────────────
     sicr = sub.add_parser(
         "simulation-ci-report",
@@ -2176,6 +2195,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "rotation-plan-check":
         return _run_rotation_plan_check(args)
+
+    if args.command == "security-report-check":
+        return _run_security_report_check(args)
 
     parser.error("unknown command")
     return 2
