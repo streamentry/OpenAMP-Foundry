@@ -5,7 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-09 (Phase F report generator — v0.5.75)
+> **Last updated:** 2026-07-09 (Phase F safe-publication filter — v0.5.76)
+> **New in v0.5.76:** Safe-publication filter (F5) — CLI that reads candidate panel data with safety metadata and checks each candidate against publication safety constraints before external release. FAIL-CLOSED: defaults to reject unless all checks pass. Checks: dry_lab_only (must be true), proof_ladder_level (≤4), toxicity_screened, hemolysis_screened, dual_use_reviewed (all must be true). Produces structured JSON filter result and human-readable Markdown summary. 33 tests. 2758 total.
+>
 > **New in v0.5.75:** Failed-candidate report generator (F4) — CLI that reads candidate rejection data + taxonomy, produces structured JSON report with summary aggregation (by category, severity, stage, evidence impact) and human-readable Markdown summary. 26 tests. 2724 total.
 >
 > **New in v0.5.74:** Rejection reason taxonomy schema (F3) — machine-readable taxonomy with severity, evidence_impact, and applies_at_stage fields. Comprehensive REJECTION_TAXONOMY.md doc. 19 tests. 2698 total.
@@ -60,7 +62,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.75
+> **Pipeline version:** v0.5.76
 > **Branch:** main
 
 ---

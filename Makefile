@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-pilot pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version generate-review-packet failed-candidate-report
+.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-pilot pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version generate-review-packet failed-candidate-report safe-publication-filter
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -602,3 +602,9 @@ failed-candidate-report:
 		--out-json outputs/failed_candidate_report.json \
 		--out-md outputs/failed_candidate_report.md \
 		--validate-rejection-codes
+
+safe-publication-filter:
+	PYTHONPATH=src $(PYTHON) scripts/safe_publication_filter.py \
+		--input examples/safe_publication_filter_example_input.json \
+		--out-json outputs/safe_publication_filter_result.json \
+		--out-md outputs/safe_publication_filter_result.md

@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp-foundry.org/schemas/safe_publication_filter.schema.json",
+  "title": "OpenAMP Safe Publication Filter Result",
+  "description": "JSON Schema for the safe-publication filter result. Validates the output of scripts/safe_publication_filter.py before any external release. FAIL-CLOSED: the filter defaults to reject unless all publication safety checks pass.",
+  "type": "object",
+  "required": [
+    "filter_metadata",
+    "global_checks",
+    "global_pass",
+    "candidates",
+    "summary",
+    "caveats"
+  ],
+  "properties": {
+    "filter_metadata": {
+      "type": "object",
+      "required": [
+        "generated_at",
+        "filter_type",
+        "filter_version",
+        "input_source",
+        "pipeline_version"
+      ],
+      "properties": {
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the filter was run"
+        },
+        "filter_type": {
+          "type": "string",
+          "enum": ["safe_publication_filter"],
+          "description": "Filter type identifier"
+        },
+        "filter_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Filter schema version (semver)"
+        },
+        "input_source": {
+          "type": "string",
+          "description": "Source identifier of the input data"
+        },
+        "pipeline_version": {
+          "type": "string",
+          "description": "OpenAMP pipeline version"
+        }
+      }
+    },
+    "global_checks": {
+      "type": "object",
+      "description": "Global-level publication safety checks applied to the entire batch",
+      "required": ["dry_lab_only", "global_proof_ladder_level", "safety_checks"],
+      "properties": {
+        "dry_lab_only": {
+          "type": "object",
+          "required": ["required", "actual", "passed", "description"],
+          "properties": {
+            "required": { "type": "boolean", "enum": [true] },
+            "actual": { "type": "boolean" },
+            "passed": { "type": "boolean" },
+            "description": { "type": "string" },
+            "reason": { "type": "string" }
+          }
+        },
+        "global_proof_ladder_level": {
+          "type": "object",
+          "required": ["max_allowed", "actual", "passed", "description"],
+          "properties": {
+            "required": { "type": "string" },
+            "max_allowed": { "type": "integer", "minimum": 1, "maximum": 8 },
+            "actual": { "type": "integer", "minimum": 1, "maximum": 8 },
+            "passed": { "type": "boolean" },
+            "description": { "type": "string" },
+            "reason": { "type": "string" }
+          }
+        },
+        "safety_checks": {
+          "type": "object",
+          "required": ["all_passed", "checks"],
+          "properties": {
+            "all_passed": { "type": "boolean" },
+            "checks": {
+              "type": "object",
+              "minProperties": 3,
+              "additionalProperties": {
+                "type": "object",
+                "required": ["required", "actual", "passed"],
+                "properties": {
+                  "required": { "type": "boolean", "enum": [true] },
+                  "actual": { "type": "boolean" },
+                  "passed": { "type": "boolean" },
+                  "reason": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "global_pass": {
+      "type": "boolean",
+      "description": "Whether all global-level checks passed. If false, the filter FAILS regardless of per-candidate results."
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate_id", "overall", "checks"],
+        "properties": {
+          "candidate_id": { "type": "string" },
+          "overall": {
+            "type": "string",
+            "enum": ["PASS", "FAIL", "WARN"],
+            "description": "PASS: all checks pass, FAIL: any check fails, WARN: passes but at boundary"
+          },
+          "checks": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "object",
+              "required": ["value", "max_allowed", "passed"],
+              "properties": {
+                "value": { "type": ["integer", "null"] },
+                "max_allowed": { "type": "integer" },
+                "passed": { "type": "boolean" },
+                "reason": { "type": "string" }
+              }
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_candidates", "passed", "failed", "overall_filter_pass"],
+      "properties": {
+        "total_candidates": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "warned": { "type": "integer", "minimum": 0 },
+        "overall_filter_pass": {
+          "type": "boolean",
+          "description": "True only if ALL global checks pass AND NO candidates FAIL. FAIL-CLOSED."
+        }
+      }
+    },
+    "caveats": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "dry_lab_only": {
+      "type": "boolean",
+      "description": "Copied from input — all outputs are dry-lab computational hypotheses, not biological proof."
+    }
+  }
+}

@@ -1,5 +1,49 @@
 # Roadmap
 
+## v0.5.76 — Loop 75: Phase F F5 — Safe-Publication Filter ✓ (2026-07-09)
+
+Safe-publication filter: CLI that reads a candidate panel with safety metadata
+and checks each candidate against publication safety constraints before external
+release. FAIL-CLOSED: defaults to reject unless all checks pass.
+
+Changes:
+- `scripts/safe_publication_filter.py` (F5) — Standalone CLI that loads candidate
+  panel data with publication safety metadata and applies global-level checks
+  (dry_lab_only must be true, proof_ladder_level ≤ 4, toxicity_screened,
+  hemolysis_screened, dual_use_reviewed all true) plus per-candidate checks
+  (proof_ladder_level ≤ 4). Produces structured JSON with filter metadata,
+  global checks, per-candidate results, and summary. Exit code 0 if all
+  checks pass, 1 if any fail (FAIL-CLOSED), 2 for input errors.
+- `schemas/safe_publication_filter.schema.json` (F5) — JSON Schema Draft 2020-12
+  for the filter result output. Validates filter_metadata, global_checks
+  (3 required sub-check groups), per-candidate results, summary counts, and
+  caveats.
+- `examples/safe_publication_filter_example_input.json` (F5) — Toy input
+  with 4 candidates spanning PASS (pll=2, pll=1), WARN (pll=4 at boundary),
+  and FAIL (pll=5 too high). Clearly marked EXAMPLE.
+- `Makefile` — Added `safe-publication-filter` target.
+- `tests/evidence/test_safe_publication_filter.py` — 33 tests covering:
+  global check success/failure paths (dry_lab_only, proof_ladder_level,
+  all safety checks individually), per-candidate checks (valid, missing,
+  too-high, boundary/warn), mixed candidate results, filter result summary
+  counts, overall PASS/FAIL logic, markdown output sections, input loading
+  (valid/missing/invalid JSON), CLI exit codes (0, 1, 2), CLI output
+  (JSON + Markdown), caveat generation, metadata structure, and example
+  input round-trip validation.
+
+Honest boundaries:
+- The filter checks structural publication safety constraints, not scientific
+  validity. A PASS result does not mean the candidate is biologically active
+  or safe.
+- dry_lab_only attestation is a safety-constraint field; it relies on the
+  generator's honesty.
+- Proof ladder levels are self-reported by the pipeline; independent
+  verification is recommended.
+- Safety checks (toxicity, hemolysis, dual-use) are computational assessments
+  and require qualified human review.
+- A FAIL result does not mean the candidate is biologically inactive — it
+  means publication safety checks are not satisfied.
+
 ## v0.5.75 — Loop 74: Phase F F4 — Failed-Candidate Report Generator ✓ (2026-07-09)
 
 Failed-candidate report generator: CLI that reads candidate rejection data validated

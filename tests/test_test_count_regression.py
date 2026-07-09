@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2724 tests as of Loop 74 (2026-07-09) — Phase F F4 (failed-candidate report generator)
+# Baseline: 2758 tests as of Loop 75 (2026-07-09) — Phase F F5 (safe-publication filter)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2724
+BASELINE = 2758
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

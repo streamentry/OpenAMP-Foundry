@@ -1,0 +1,39 @@
+{
+  "source": "wave0.5-example",
+  "pipeline_version": "v0.5.75",
+  "report_type": "safe_publication_input",
+  "description": "EXAMPLE safe-publication filter input. NOT a real candidate panel — illustrative only.",
+  "dry_lab_only": true,
+  "proof_ladder_level": 2,
+  "safety_checks": {
+    "toxicity_screened": true,
+    "hemolysis_screened": true,
+    "dual_use_reviewed": true
+  },
+  "candidates": [
+    {
+      "candidate_id": "EXAMPLE-CAND-001",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "ensemble_score": 0.85,
+      "proof_ladder_level": 2
+    },
+    {
+      "candidate_id": "EXAMPLE-CAND-002",
+      "sequence": "KLAKLAKKLAKLAK",
+      "ensemble_score": 0.80,
+      "proof_ladder_level": 4
+    },
+    {
+      "candidate_id": "EXAMPLE-CAND-003",
+      "sequence": "GIGKFLHSAKKWGKAFVGEIMNS",
+      "ensemble_score": 0.78,
+      "proof_ladder_level": 5
+    },
+    {
+      "candidate_id": "EXAMPLE-CAND-004",
+      "sequence": "RRWQWRMKKLG",
+      "ensemble_score": 0.72,
+      "proof_ladder_level": 1
+    }
+  ]
+}
