@@ -1,5 +1,34 @@
 # Roadmap
 
+## v0.7.7 — Loop 117: Phase J J9 — External Advisory Review Process ✓ (2026-07-09)
+
+`docs/governance/EXTERNAL_ADVISORY_REVIEW_PROCESS.md` with reviewer eligibility
+criteria (4 requirements), review scope table (5 review types with minimum
+reviewer counts: candidate_review and safety_policy_review require ≥2 reviewers,
+others ≥1), 5-step process (prepare packet, assign+disclose COI, receive+log,
+respond to findings by severity, close and record), finding severity handling
+(critical halts release, major resolves before release, minor defers, informational
+notes), limitations section.
+
+`src/openamp_foundry/governance/advisory_review.py` with `AdvisoryReview` dataclass
+(11 fields: review_id, review_type, artifact_id, reviewer_handle, assigned_date,
+deadline_date, status, finding_severity, finding_summary, resolved, dry_lab_only),
+`AdvisoryReviewResult` dataclass (5 fields, dry_lab_only=True),
+`VALID_REVIEW_TYPES` (5: benchmark_audit, candidate_review, evidence_review,
+governance_review, safety_policy_review), `VALID_REVIEW_STATUSES` (5: assigned,
+completed, deferred, in_progress, pending), `VALID_FINDING_SEVERITIES` (4:
+critical, informational, major, minor), `MINIMUM_REVIEWER_COUNTS` (5 entries),
+`validate_advisory_review()` (9 checks + 3 warning conditions),
+`validate_advisory_review_dict()` (7 required fields guard).
+
+CLI (`openamp-foundry advisory-review-check`) with `--review-json` (required),
+`--format text|json`. Handler `_run_advisory_review_check` in reports.py.
+
+`make advisory-review-check` target. 29 tests. **3653 total.**
+
+Credibility: external advisory reviews now have a validated structure, documented
+eligibility criteria, and a clear process from assignment to closure.
+
 ## v0.7.6 — Loop 116: Phase J J8 — Roadmap-to-Issue Sync Checklist ✓ (2026-07-09)
 
 `docs/governance/ROADMAP_ISSUE_SYNC_CHECKLIST.md` with 5-section checklist:

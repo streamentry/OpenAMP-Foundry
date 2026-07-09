@@ -15,6 +15,7 @@ from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 from openamp_foundry.cli.commands.reports import _run_security_report_check
 from openamp_foundry.cli.commands.reports import _run_citation_check
 from openamp_foundry.cli.commands.reports import _run_roadmap_sync_check
+from openamp_foundry.cli.commands.reports import _run_advisory_review_check
 
 import argparse
 import json
@@ -1981,6 +1982,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Advisory review check (Phase J J9) ──────────────────────────
+    arc = sub.add_parser(
+        "advisory-review-check",
+        help=(
+            "Validate an external advisory review entry. Dry-lab only."
+        ),
+    )
+    arc.add_argument(
+        "--review-json", type=str, required=True,
+        help="JSON string of an AdvisoryReview dict (required).",
+    )
+    arc.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Simulation-result confidence interval report (H7) ────────────
     sicr = sub.add_parser(
         "simulation-ci-report",
@@ -2242,6 +2260,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "roadmap-sync-check":
         return _run_roadmap_sync_check(args)
+
+    if args.command == "advisory-review-check":
+        return _run_advisory_review_check(args)
 
     parser.error("unknown command")
     return 2
