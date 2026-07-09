@@ -1,5 +1,43 @@
 # Roadmap
 
+## v0.5.79 — Loop 78: Phase F F8 — Bulk Rejection-Event Validator ✓ (2026-07-09)
+
+CLI that validates rejection events against the rejection taxonomy. Checks
+required fields, known rejection codes, and date format. Produces PASS/FAIL
+report with per-event errors.
+
+Changes:
+- `scripts/validate_rejection_events.py` (F8) — Standalone CLI that reads a JSON
+  list of rejection events, validates each rejection_code against the rejection
+  taxonomy, checks required fields (candidate_id, rejection_code, date,
+  pipeline_version), and outputs a structured validation report with per-event
+  errors. Supports `--out-json` and `--out-md` output. Exit 0 on all valid,
+  3 on any invalid, 2 on input errors.
+- `examples/rejection_events_example.json` (F8) — Toy example with 6 rejection
+  events spanning activity, safety, diversity, reviewer, and lab codes.
+  Clearly marked EXAMPLE.
+- `Makefile` — Added `validate-rejection-events` target.
+- `tests/evidence/test_validate_rejection_events.py` — 26 tests covering:
+  taxonomy code loading, valid events (single + multiple), missing required
+  fields (each of 4 individually), unknown rejection_code, invalid date format,
+  empty string fields, empty list, multi-error reporting, build_report structure,
+  rejection_code_summary counts, markdown generation (title, summary, errors,
+  caveat), and CLI exit codes (0, 3, 2) and output writing (JSON + Markdown).
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.79 changelog. Pipeline version bumped.
+  Test count: 2849.
+- `tests/test_test_count_regression.py` — baseline updated to 2849.
+
+Honest boundaries:
+- Validates structural correctness of rejection events, not biological truth.
+- A PASS means the event has valid fields and a known rejection code; it does
+  not mean the rejection decision was correct.
+- Unknown rejection codes may indicate a stale taxonomy rather than an invalid
+  event — the report flags them as errors but the taxonomy may need updating.
+- The rejection_code distribution is a descriptive summary, not evidence of
+  bias or correctness in rejection decisions.
+- This validator does not enforce that downstream tools actually use the
+  rejection taxonomy — adoption requires tool-chain updates.
+
 ## v0.5.78 — Loop 77: Phase F F7 — Calibration Link from Negative-Result Entries to Intake Reports ✓ (2026-07-09)
 
 Closes the learning loop by tracing each negative-result entry back to its

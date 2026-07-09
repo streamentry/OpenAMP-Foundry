@@ -614,3 +614,9 @@ safe-publication-filter:
 		--input examples/safe_publication_filter_example_input.json \
 		--out-json outputs/safe_publication_filter_result.json \
 		--out-md outputs/safe_publication_filter_result.md
+
+validate-rejection-events:
+	PYTHONPATH=src $(PYTHON) scripts/validate_rejection_events.py \
+		--input examples/rejection_events_example.json \
+		--out-json outputs/rejection_events_validation.json \
+		--out-md outputs/rejection_events_validation.md

@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2822 tests as of Loop 77 (2026-07-09) -- Phase F F7 (calibration link negative results to intake)
+# Baseline: 2849 tests as of Loop 78 (2026-07-09) -- Phase F F8 (bulk rejection-event validator)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2822
+BASELINE = 2849
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

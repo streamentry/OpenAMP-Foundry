@@ -1,0 +1,44 @@
+[
+  {
+    "candidate_id": "WAVE0.5-001",
+    "rejection_code": "PIPE_ACTIVITY_LOW",
+    "date": "2026-07-09",
+    "pipeline_version": "v0.5.78",
+    "notes": "Activity score 0.42 below minimum threshold 0.50."
+  },
+  {
+    "candidate_id": "WAVE0.5-002",
+    "rejection_code": "PIPE_SAFETY_LOW",
+    "date": "2026-07-08",
+    "pipeline_version": "v0.5.77",
+    "notes": "Safety score 0.31 below threshold 0.50."
+  },
+  {
+    "candidate_id": "WAVE0.5-010",
+    "rejection_code": "DIV_TOO_SIMILAR",
+    "date": "2026-07-07",
+    "pipeline_version": "v0.5.76",
+    "notes": "Similarity 0.82 to already-selected WAVE0.5-003."
+  },
+  {
+    "candidate_id": "WAVE0.5-021",
+    "rejection_code": "REV_EXPERT_REJECT",
+    "date": "2026-07-06",
+    "pipeline_version": "v0.5.75",
+    "notes": "Expert reviewer recommended against proceeding."
+  },
+  {
+    "candidate_id": "WAVE0.5-030",
+    "rejection_code": "LAB_INACTIVE",
+    "date": "2026-07-05",
+    "pipeline_version": "v0.5.74",
+    "notes": "MIC > 128 ug/mL across all test strains."
+  },
+  {
+    "candidate_id": "WAVE0.5-045",
+    "rejection_code": "PIPE_ACTIVITY_LOW",
+    "date": "2026-07-04",
+    "pipeline_version": "v0.5.73",
+    "notes": "Activity score 0.38."
+  }
+]
