@@ -1,0 +1,70 @@
+{
+  "source_batch": "wave0.5",
+  "pipeline_version": "v0.5.74",
+  "date": "2026-07-09",
+  "description": "EXAMPLE failed candidates from Wave 0.5 selection pipeline. NOT real rejected candidates — illustrative only.",
+  "candidates": [
+    {
+      "candidate_id": "WAVE0.5_EXAMPLE-001",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "rejections": [
+        {
+          "code": "PIPE_ACTIVITY_LOW",
+          "detail": "Activity score 0.42 below minimum threshold 0.50."
+        },
+        {
+          "code": "PIPE_SAFETY_LOW",
+          "detail": "Safety score 0.31 below minimum threshold 0.50 (driven by high hemolysis proxy 0.89)."
+        }
+      ]
+    },
+    {
+      "candidate_id": "WAVE0.5_EXAMPLE-002",
+      "sequence": "KLAKLAKKLAKLAK",
+      "rejections": [
+        {
+          "code": "PIPE_ENSEMBLE_LOW",
+          "detail": "Ensemble score 0.55 below synthesis gate threshold 0.65."
+        },
+        {
+          "code": "PIPE_NOVELTY_LOW",
+          "detail": "Novelty score 0.35 below minimum threshold 0.40 (near-duplicate of known AMP)."
+        }
+      ]
+    },
+    {
+      "candidate_id": "WAVE0.5_EXAMPLE-003",
+      "sequence": "RRWQWRMKKLG",
+      "rejections": [
+        {
+          "code": "DIV_TOO_SIMILAR",
+          "detail": "Sequence similarity 0.82 to already-selected candidate WAVE0.5-003 exceeds diversity threshold 0.70."
+        },
+        {
+          "code": "DIV_FAMILY_CAP",
+          "detail": "Family SEED-003 has reached its cap of 2 panel slots."
+        }
+      ]
+    },
+    {
+      "candidate_id": "WAVE0.5_EXAMPLE-004",
+      "sequence": "AAAABBBBCCCC",
+      "rejections": [
+        {
+          "code": "PRE_SEQ_INVALID",
+          "detail": "Sequence contains non-canonical amino-acid symbols 'B' at positions 5-8."
+        }
+      ]
+    },
+    {
+      "candidate_id": "WAVE0.5_EXAMPLE-005",
+      "sequence": "GIGKFLHSAKKWGKAFVGEIMNS",
+      "rejections": [
+        {
+          "code": "DIV_BUDGET",
+          "detail": "Panel budget limited to 24 candidates; lowest-ranked qualifying candidate excluded."
+        }
+      ]
+    }
+  ]
+}

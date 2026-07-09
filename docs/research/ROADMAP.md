@@ -1,5 +1,41 @@
 # Roadmap
 
+## v0.5.75 — Loop 74: Phase F F4 — Failed-Candidate Report Generator ✓ (2026-07-09)
+
+Failed-candidate report generator: CLI that reads candidate rejection data validated
+against the rejection taxonomy and produces structured JSON + Markdown reports.
+Foundation for F5 (safe-publication filter).
+
+Changes:
+- `scripts/generate_failed_candidate_report.py` (F4) — Standalone CLI that loads a batch
+  of failed candidates with rejection codes, validates them against the taxonomy
+  (optional `--validate-rejection-codes`), and builds a structured report with:
+  per-candidate breakdown, summary statistics, by-category/severity/stage/evidence-impact
+  aggregation, and rejection-code frequency table.
+- `examples/failed_candidates_example.json` — Toy input file with 5 candidates spanning
+  6 rejection codes across pipeline, pre_selection, and diversity categories. Clearly
+  marked EXAMPLE.
+- `docs/evidence/FAILED_CANDIDATE_REPORT.md` — Reference doc with usage, input/output
+  format tables, validation instructions, caveats, and cross-references.
+- `Makefile` — Added `make failed-candidate-report` target.
+- `tests/evidence/test_failed_candidate_report.py` — 26 tests covering: taxonomy loading,
+  rejection code validation (valid + unknown), report build with summary aggregation,
+  category/severity/rejection-code frequency aggregation, metadata and caveat generation,
+  candidate entry enrichment with taxonomy metadata, markdown section content, input
+  loading (valid + missing file), CLI output (JSON + Markdown), validation success and
+  failure paths, missing input and empty candidates error paths, empty taxonomy handling,
+  and example input validation round-trip.
+
+Honest boundaries:
+- The report is a computational summary of pipeline rejection decisions; it is not
+  biological proof of inactivity unless confirmed by lab assay.
+- Soft rejections may be overcome by threshold or policy changes; the report does not
+  determine whether such changes are justified.
+- Code validation depends on taxonomy being loaded; without the taxonomy, unknown codes
+  are silently included in the report (flagged only in the `unknown_codes` field).
+- The report does not enforce that downstream tools or human reviewers actually use
+  the rejection taxonomy codes — adoption requires tool-chain updates.
+
 ## v0.5.74 — Loop 73: Phase F F3 — Rejection Reason Taxonomy Schema ✓ (2026-07-09)
 
 Negative-result infrastructure begins: machine-readable rejection reason taxonomy

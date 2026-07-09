@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2698 tests as of Loop 73 (2026-07-09) — Phase F F3 (rejection taxonomy schema)
+# Baseline: 2724 tests as of Loop 74 (2026-07-09) — Phase F F4 (failed-candidate report generator)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2698
+BASELINE = 2724
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

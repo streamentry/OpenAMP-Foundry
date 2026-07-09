@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-pilot pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version generate-review-packet
+.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-pilot pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version generate-review-packet failed-candidate-report
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -595,3 +595,10 @@ generate-review-packet:
 		--proof-ladder-level 2 \
 		--out outputs/review_packet_skeleton.json \
 		--validate
+
+failed-candidate-report:
+	PYTHONPATH=src $(PYTHON) scripts/generate_failed_candidate_report.py \
+		--input examples/failed_candidates_example.json \
+		--out-json outputs/failed_candidate_report.json \
+		--out-md outputs/failed_candidate_report.md \
+		--validate-rejection-codes
