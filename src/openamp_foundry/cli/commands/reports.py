@@ -2441,6 +2441,54 @@ def _run_decision_log(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_release_request_check(args: argparse.Namespace) -> int:
+    """Validate a release request before human review."""
+    from openamp_foundry.governance.release_request import validate_request_dict
+
+    try:
+        request_dict = json.loads(args.request_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --request-json: {e}"}))
+        return 2
+
+    if not isinstance(request_dict, dict):
+        print(json.dumps({"status": "error", "error": "--request-json must be a JSON object"}))
+        return 2
+
+    result = validate_request_dict(request_dict)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps({
+            "release_id": result.release_id,
+            "release_type": result.release_type,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "dry_lab_only": result.dry_lab_only,
+        }, indent=2))
+    else:
+        print("Release Request Check")
+        print("=" * 60)
+        print(f"Release ID:     {result.release_id}")
+        print(f"Release type:   {result.release_type}")
+        print(f"Status:         {'PASS' if result.passed else 'FAIL'}")
+        print()
+        if result.errors:
+            print("Errors:")
+            for err in result.errors:
+                print(f"  - {err}")
+        if result.warnings:
+            print("Warnings:")
+            for w in result.warnings:
+                print(f"  - {w}")
+        print()
+        print("Dry-lab only. Release request validation is a computational")
+        print("safeguard, not biological proof.")
+
+    return 0 if result.passed else 3
+
+
 def _run_adoption_scorecard(args: argparse.Namespace) -> int:
     """Build an adoption scorecard from dimension inputs."""
     from openamp_foundry.adoption.scorecard import build_scorecard

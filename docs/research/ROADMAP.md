@@ -1,5 +1,86 @@
 # Roadmap
 
+## v0.7.1 — Loop 111: Phase J J3 — Release Request Template ✓ (2026-07-09)
+
+`docs/governance/RELEASE_REQUEST_TEMPLATE.md` with structured release request
+template (purpose, fill-in-the-blank format with 17 fields: Release ID,
+release type, artifact ID/version, requestor name/institution, request date,
+evidence level 1-6, dry_lab_only, safety_review_status, benchmark_summary,
+known_limitations, intended_use, data_license, human_reviewer, review_class
+A-D, approval_status; review criteria with 8 checks; process with classes A-D
+timelines and escalation path).
+
+`src/openamp_foundry/governance/release_request.py` with `ReleaseRequest`
+dataclass (17 fields), `ReleaseRequestValidationResult` dataclass (6 fields,
+dry_lab_only=True), `VALID_RELEASE_TYPES` (5: candidate, model, dataset,
+evidence_packet, schema), `VALID_SAFETY_STATUSES` (3: pending, approved,
+not_required), `VALID_INTENDED_USES` (4: research, internal, external_partner,
+public), `VALID_APPROVAL_STATUSES` (4: pending, approved, rejected, deferred),
+`VALID_REVIEW_CLASSES` (4: A, B, C, D), `validate_release_request()` (17 checks:
+release_id format, release_type valid, non-empty artifact_id/artifact_version/
+requestor_name/requestor_institution, request_date YYYY-MM-DD, evidence_level
+1-6, dry_lab_only must be True, safety_review_status valid, non-empty
+benchmark_summary/known_limitations/data_license/human_reviewer, intended_use
+valid, review_class valid, approval_status valid, dry_lab_only+evidence_level>4
+error, public+safety_pending error, model+review_class warning).
+
+`validate_request_dict()` (dict input with 17 required fields guard, missing
+fields returns passed=False early).
+
+CLI (`openamp-foundry release-request-check`) with `--request-json` (required),
+`--format text|json`. Handler `_run_release_request_check` in reports.py.
+
+`make release-request-check` target. 25 tests. **3516 total.**
+
+Blocks public releases with pending safety review, blocks dry_lab_only
+artifacts with evidence_level>4. Formal release requests now have a validated
+structure before entering human review.
+
+Changes:
+- `docs/governance/RELEASE_REQUEST_TEMPLATE.md` (J3) — Structured release
+  request template with purpose, template (17 fields), review criteria (8
+  checks), process (5 steps with A-D timelines and escalation path).
+- `src/openamp_foundry/governance/release_request.py` (J3) — Core module with
+  `ReleaseRequest` (17 fields), `ReleaseRequestValidationResult` (6 fields,
+  dry_lab_only=True), `VALID_RELEASE_TYPES` (5), `VALID_SAFETY_STATUSES` (3),
+  `VALID_INTENDED_USES` (4), `VALID_APPROVAL_STATUSES` (4),
+  `VALID_REVIEW_CLASSES` (4), `validate_release_request()` (17 checks),
+  `validate_request_dict()` (dict input with missing-fields guard).
+- `tests/governance/test_release_request.py` (J3) — 25 tests covering: valid
+  candidate release request passes, release_id not starting with REL- fails,
+  invalid release_type fails, empty artifact_id fails, empty requestor_name
+  fails, invalid request_date format fails, evidence_level=0 fails,
+  evidence_level=7 fails, dry_lab_only=False fails, invalid safety_review_status
+  fails, empty benchmark_summary fails, empty known_limitations fails, invalid
+  intended_use fails, public release with pending safety fails, dry_lab_only
+  with evidence_level=5 fails, all results dry_lab_only=True, validate_request_
+  dict passes, VALID_RELEASE_TYPES has 5, VALID_SAFETY_STATUSES has 3,
+  VALID_INTENDED_USES has 4, VALID_APPROVAL_STATUSES has 4, VALID_REVIEW_CLASSES
+  has 4, model review_class warning, dict missing fields fails.
+- `src/openamp_foundry/cli/main.py` (J3) — Registered `release-request-check`
+  subcommand with `--request-json`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (J3) — Added
+  `_run_release_request_check()` CLI handler with JSON parsing, validate_request
+  _dict call, text and JSON output, exit code 3 on validation failure.
+- `Makefile` (J3) — Added `release-request-check` target. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (J3) — v0.7.1 J3 changelog. Pipeline
+  version: v0.7.1. Test count: 3516.
+- `tests/test_test_count_regression.py` — baseline updated to 3516.
+
+Honest boundaries:
+- Release request validation checks structural and policy requirements only.
+  It does not verify that the artifact actually exists, that the evidence level
+  claim is accurate, or that the safety review was thorough.
+- `dry_lab_only: true` is a const field on all dataclasses — release requests
+  are governance artifacts, not biological findings.
+- The validator blocks public releases with pending safety review, but it cannot
+  verify that the safety review was correctly performed or that the reviewer was
+  qualified.
+- Review classes are policy declarations — the validator checks that the class
+  is valid (A-D) but not that the appropriate review process was followed.
+- The release request template is a communication and governance tool — it does
+  not replace the judgment of the human reviewer.
+
 ## v0.7.0 — Loop 110: Phase J J2 — Governance Decision Log ✓ (2026-07-09)
 
 `docs/governance/DECISION_LOG.md` with structured governance decision log
@@ -75,6 +156,75 @@ Honest boundaries:
   does not verify that the declared review class was actually applied.
 - The decision log is a documentation and validation tool — it does not
   replace human judgment about whether a decision is appropriate.
+
+## v0.7.1 — Loop 111: Phase J J3 — Release Request Template ✓ (2026-07-09)
+
+`docs/governance/RELEASE_REQUEST_TEMPLATE.md` with structured release
+request template (purpose, fill-in template with 17 fields, review
+criteria with 8 checks, process with classes A-D timelines and escalation).
+
+`src/openamp_foundry/governance/release_request.py` with `ReleaseRequest`
+dataclass (17 fields), `ReleaseRequestValidationResult` dataclass (6 fields,
+dry_lab_only=True), `VALID_RELEASE_TYPES` (5), `VALID_SAFETY_STATUSES` (3),
+`VALID_INTENDED_USES` (4), `VALID_APPROVAL_STATUSES` (4),
+`VALID_REVIEW_CLASSES` (4), `validate_release_request()` (17 checks with
+dry_lab_only+evidence_level>4 error, public+safety_pending error,
+model+review_class warning), `validate_request_dict()` (dict input with
+missing-fields guard).
+
+CLI (`openamp-foundry release-request-check`) with `--request-json`,
+`--format text|json`. Handler `_run_release_request_check` in reports.py.
+
+`make release-request-check` target. 25 tests. **3516 total.**
+
+Changes:
+- `docs/governance/RELEASE_REQUEST_TEMPLATE.md` (J3) — Structured release
+  request template with purpose, fill-in template (17 fields), review
+  criteria (8 checks), process (submit→validate→review→decision→release),
+  expected timelines per class A-D, escalation path.
+- `src/openamp_foundry/governance/release_request.py` (J3) — Core module
+  with `ReleaseRequest` (17 fields), `ReleaseRequestValidationResult`
+  (6 fields, dry_lab_only=True), `VALID_RELEASE_TYPES` (5),
+  `VALID_SAFETY_STATUSES` (3), `VALID_INTENDED_USES` (4),
+  `VALID_APPROVAL_STATUSES` (4), `VALID_REVIEW_CLASSES` (4),
+  `validate_release_request()` (17 checks including cross-field rules:
+  dry_lab_only+evidence_level>4 error, public+safety_pending error,
+  model+review_class C/D warning), `validate_request_dict()`.
+- `tests/governance/test_release_request.py` (J3) — 25 tests covering:
+  valid candidate passes, release_id must start with REL-, invalid type,
+  empty artifact_id/requestor_name, invalid date format, evidence_level
+  0/7, dry_lab_only=False, invalid safety_status, empty benchmark_summary/
+  known_limitations, invalid intended_use, public+safety_pending fails,
+  dry_lab_only+evidence_level 5 fails, dry_lab_only=True on results,
+  valid dict passes, VALID_RELEASE_TYPES has 5 entries, VALID_SAFETY_STATUSES
+  has 3, VALID_INTENDED_USES has 4, VALID_APPROVAL_STATUSES has 4,
+  VALID_REVIEW_CLASSES has 4, model+low review_class warning, dict missing
+  fields, invalid type via dict.
+- `src/openamp_foundry/cli/main.py` (J3) — Registered `release-request-check`
+  subcommand with `--request-json` (required), `--format` flags. Added import
+  and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (J3) — Added
+  `_run_release_request_check()` CLI handler with JSON parsing,
+  `validate_request_dict()` call, text and JSON output, exit code 3
+  on failure.
+- `Makefile` (J3) — Added `release-request-check` target with demo invocation
+  using schema release type with all fields valid. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (J3) — v0.7.1 J3 changelog. Pipeline
+  version: v0.7.1. Test count: 3516.
+- `tests/test_test_count_regression.py` — baseline updated to 3516.
+
+Honest boundaries:
+- Release request validation checks structural and policy requirements only.
+  It does not verify that the release was actually performed, that the
+  artifact exists, or that the benchmark claims are biologically meaningful.
+- `dry_lab_only: true` is a const field on all dataclasses — release requests
+  are computational governance artifacts, not biological findings.
+- The validator does not verify that the human reviewer has actually reviewed
+  the request — it only checks that a GitHub handle was provided.
+- Review class appropriateness is advisory: the validator warns about model
+  releases with low review classes but does not block them.
+- The template and process are governance tools — they do not replace human
+  judgment about whether a release is appropriate or safe.
 
 ## v0.6.9 — Loop 109: Phase J J1 — Release Checklist ✓ (2026-07-09)
 

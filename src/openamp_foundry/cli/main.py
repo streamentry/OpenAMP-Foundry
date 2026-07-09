@@ -9,6 +9,7 @@ from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _r
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
 from openamp_foundry.cli.commands.reports import _run_decision_log
+from openamp_foundry.cli.commands.reports import _run_release_request_check
 
 import argparse
 import json
@@ -1838,6 +1839,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Release request check (Phase J J3) ─────────────────────────
+    rrc = sub.add_parser(
+        "release-request-check",
+        help=(
+            "Validate a release request before human review. "
+            "Checks all required fields are present and valid. "
+            "Dry-lab only."
+        ),
+    )
+    rrc.add_argument(
+        "--request-json", type=str, required=True,
+        help="JSON string of a ReleaseRequest dict (required).",
+    )
+    rrc.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Release gate check (Phase J J1) ─────────────────────────────
     rgc = sub.add_parser(
         "release-gate-check",
@@ -2109,6 +2129,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "decision-log":
         return _run_decision_log(args)
+
+    if args.command == "release-request-check":
+        return _run_release_request_check(args)
 
     parser.error("unknown command")
     return 2
