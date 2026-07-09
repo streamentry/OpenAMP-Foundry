@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3291 tests as of Loop 99 (2026-07-09) -- Phase I I1 (artifact versioning policy)
+# Baseline: 3310 tests as of Loop 100 (2026-07-09) -- Phase I I2 (candidate manifest schema)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3291
+BASELINE = 3310
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

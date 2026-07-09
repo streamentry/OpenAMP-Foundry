@@ -1,0 +1,100 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://openamp-foundry.org/schemas/candidate_manifest.schema.json",
+    "title": "CandidateManifest",
+    "description": "Schema for a dry-lab candidate manifest — a machine-readable artifact describing a candidate AMP sequence, its scores, evidence level, scopes, safety flags, and provenance. Dry-lab only — does not measure biological activity.",
+    "type": "object",
+    "properties": {
+        "candidate_id": {
+            "description": "Unique identifier for the candidate",
+            "type": "string",
+            "minLength": 1
+        },
+        "sequence": {
+            "description": "Amino acid sequence of the candidate AMP",
+            "type": "string",
+            "minLength": 1
+        },
+        "evidence_level": {
+            "description": "Proof-ladder evidence level (1=computational nomination, 2=virtual-assay support, 3=in-silico ensemble agreement, 4=ex-vivo preliminary, 5=in-vivo preliminary, 6=clinical evidence)",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6
+        },
+        "scopes": {
+            "description": "List of biological scopes this candidate is assessed for (e.g. bacterial_binding, anti_fungal)",
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+        },
+        "scores": {
+            "description": "Dictionary of named score values from pipeline modules",
+            "type": "object",
+            "patternProperties": {
+                "^.*$": { "type": "number" }
+            }
+        },
+        "uncertainty": {
+            "description": "Overall uncertainty estimate (0.0 = fully certain, 1.0 = fully uncertain)",
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+        },
+        "source_modules": {
+            "description": "List of pipeline modules or scorers that produced this manifest",
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+        },
+        "calibration_set": {
+            "description": "Optional identifier for the calibration dataset used",
+            "type": ["string", "null"]
+        },
+        "safety_flags": {
+            "description": "List of safety flags (empty array = no flags raised)",
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "provenance_run_id": {
+            "description": "Optional run ID linking this manifest to a specific pipeline execution",
+            "type": ["string", "null"]
+        },
+        "dry_lab_only": {
+            "description": "Must be true — this is a dry-lab computational artifact",
+            "type": "boolean",
+            "const": true
+        },
+        "version": {
+            "description": "Manifest schema version (MAJOR.MINOR.PATCH)",
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "created_at": {
+            "description": "ISO 8601 UTC timestamp of manifest creation",
+            "type": "string",
+            "format": "date-time"
+        },
+        "notes": {
+            "description": "Free-text notes about this candidate",
+            "type": "array",
+            "items": { "type": "string" }
+        }
+    },
+    "required": [
+        "candidate_id",
+        "sequence",
+        "evidence_level",
+        "scopes",
+        "scores",
+        "uncertainty",
+        "source_modules",
+        "calibration_set",
+        "safety_flags",
+        "provenance_run_id",
+        "dry_lab_only",
+        "version",
+        "created_at",
+        "notes"
+    ],
+    "additionalProperties": false
+}

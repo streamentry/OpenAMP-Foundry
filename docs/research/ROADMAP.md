@@ -1,5 +1,72 @@
 # Roadmap
 
+## v0.6.0 — Loop 100: Phase I I2 — Candidate Manifest Schema ✓ (2026-07-09)
+
+`schemas/candidate_manifest.schema.json` (Draft 2020-12, 14 required fields:
+candidate_id, sequence, evidence_level, scopes, scores, uncertainty,
+source_modules, calibration_set, safety_flags, provenance_run_id, dry_lab_only,
+version, created_at, notes). `$schema`, `$id`, `title`, `description`,
+`additionalProperties: false`.
+
+`src/openamp_foundry/manifests/` module with `CandidateManifest` dataclass
+(14 fields), `make_candidate_manifest()`, `validate_candidate_manifest()`
+(8 checks: non-empty candidate_id, non-empty sequence, evidence_level 1-6,
+non-empty scopes, uncertainty 0.0-1.0, non-empty source_modules,
+dry_lab_only must be True, version MAJOR.MINOR.PATCH), `manifest_to_dict()`,
+`manifest_summary()` (total, by_evidence_level, with_safety_flags, dry_lab_only).
+
+CLI (`openamp-foundry candidate-manifest`) with `--candidate-id`, `--sequence`,
+`--evidence-level`, `--scopes`, `--scores-json`, `--uncertainty`,
+`--source-modules`, `--validate`, `--format text|json`.
+`make candidate-manifest` target.
+
+19 tests. **3310 total.** A candidate manifest is the core interoperable
+artifact — it describes a dry-lab candidate (sequence, scores, evidence level,
+scopes, safety flags, provenance) in a machine-readable format that external
+tools can consume without the full OpenAMP stack. This is Loop 100 — the
+100th PR in the NEXT_100_PR_MAP series.
+
+Changes:
+- `schemas/candidate_manifest.schema.json` (I2) — Draft 2020-12 schema with
+  14 required fields, `$id`, `title`, `description`, `additionalProperties: false`.
+- `src/openamp_foundry/manifests/__init__.py` (I2) — Package init, exports
+  `CandidateManifest`, `make_candidate_manifest`, `validate_candidate_manifest`,
+  `manifest_to_dict`, `manifest_summary`.
+- `src/openamp_foundry/manifests/candidate_manifest.py` (I2) — Core module
+  with `CandidateManifest` dataclass (14 fields), `make_candidate_manifest()`,
+  `validate_candidate_manifest()`, `manifest_to_dict()`, `manifest_summary()`.
+- `src/openamp_foundry/cli/main.py` (I2) — Registered `candidate-manifest`
+  subcommand with `--candidate-id`, `--sequence`, `--evidence-level`,
+  `--scopes`, `--scores-json`, `--uncertainty`, `--source-modules`,
+  `--validate`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I2) — Added
+  `_run_candidate_manifest()` CLI handler with JSON and text output,
+  manifest creation, optional validation, and error handling.
+- `Makefile` (I2) — Added `candidate-manifest` target with demo invocation
+  using AMP-001. Added to `.PHONY`.
+- `tests/manifests/__init__.py` (I2) — Empty package init.
+- `tests/manifests/test_candidate_manifest.py` (I2) — 19 tests covering:
+  make_candidate_manifest returns CandidateManifest, dry_lab_only always True,
+  valid manifest passes validation, empty candidate_id fails, empty sequence
+  fails, evidence_level 0 or 7 fails, empty scopes fails, uncertainty out of
+  range fails, empty source_modules fails, dry_lab_only=False fails,
+  invalid version fails, manifest_to_dict returns all fields, manifest_summary
+  total correct, with_safety_flags correct, dry_lab_only=True, by_evidence_level
+  correct, schema file exists.
+- `docs/evidence/METRICS_CURRENT.md` — v0.6.0 I2 changelog. Test count: 3310.
+- `tests/test_test_count_regression.py` — baseline updated to 3310.
+
+Honest boundaries:
+- Candidate manifests describe dry-lab candidates only — they are computational
+  artifacts, not biological proof.
+- Scores and uncertainty are pipeline outputs, not measured biological properties.
+- The manifest schema is versioned (currently 1.0.0) and should be updated when
+  fields are added or changed.
+- Validation checks structural correctness only — it does not verify biological
+  plausibility, safety, or efficacy.
+- `dry_lab_only: true` is a const field — all manifests are inherently dry-lab
+  and must never be presented as validated wet-lab candidates.
+
 ## v0.5.95 — Loop 95: Phase H H7 — Simulation-Result Confidence Interval Reporter ✓ (2026-07-09)
 
 `ScoreCI` dataclass (9 fields: module_id, score_key, point_estimate, uncertainty,

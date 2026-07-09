@@ -1936,3 +1936,81 @@ def _run_artifact_version(args: argparse.Namespace) -> int:
         print("See docs/engineering/ARTIFACT_VERSIONING_POLICY.md for policy details.")
 
     return 0
+
+
+def _run_candidate_manifest(args: argparse.Namespace) -> int:
+    """Build and optionally validate a candidate manifest from CLI arguments."""
+    from openamp_foundry.manifests.candidate_manifest import (
+        make_candidate_manifest,
+        manifest_to_dict,
+        validate_candidate_manifest,
+    )
+
+    try:
+        scores = json.loads(args.scores_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --scores-json: {e}"}))
+        return 2
+
+    if not isinstance(scores, dict):
+        print(json.dumps({"status": "error", "error": "--scores-json must be a JSON object"}))
+        return 2
+
+    scopes = [s.strip() for s in args.scopes.split(",") if s.strip()]
+    source_modules = [s.strip() for s in args.source_modules.split(",") if s.strip()]
+
+    try:
+        evidence_level = int(args.evidence_level)
+    except (TypeError, ValueError):
+        print(json.dumps({"status": "error", "error": "--evidence-level must be an integer"}))
+        return 2
+
+    manifest = make_candidate_manifest(
+        candidate_id=args.candidate_id,
+        sequence=args.sequence,
+        evidence_level=evidence_level,
+        scopes=scopes,
+        scores=scores,
+        uncertainty=args.uncertainty,
+        source_modules=source_modules,
+    )
+
+    validation_errors: list[str] = []
+    if getattr(args, "validate", False):
+        validation_errors = validate_candidate_manifest(manifest)
+
+    output_format = getattr(args, "format", "text")
+    if output_format == "json":
+        result = manifest_to_dict(manifest)
+        if validation_errors:
+            result["validation_errors"] = validation_errors
+            result["valid"] = len(validation_errors) == 0
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"Candidate Manifest: {manifest.candidate_id}")
+        print(f"  Sequence:        {manifest.sequence}")
+        print(f"  Evidence level:  {manifest.evidence_level}")
+        print(f"  Scopes:          {', '.join(manifest.scopes)}")
+        print(f"  Scores:          {manifest.scores}")
+        print(f"  Uncertainty:     {manifest.uncertainty}")
+        print(f"  Source modules:  {', '.join(manifest.source_modules)}")
+        print(f"  Calibration set: {manifest.calibration_set}")
+        print(f"  Safety flags:    {', '.join(manifest.safety_flags) if manifest.safety_flags else '(none)'}")
+        print(f"  Provenance run:  {manifest.provenance_run_id}")
+        print(f"  Dry-lab only:    {manifest.dry_lab_only}")
+        print(f"  Version:         {manifest.version}")
+        print(f"  Created at:      {manifest.created_at}")
+        print(f"  Notes:           {len(manifest.notes)}")
+        if validation_errors:
+            print(f"  Validation:      {len(validation_errors)} error(s)")
+            for err in validation_errors:
+                print(f"    - {err}")
+        else:
+            print(f"  Validation:      passed")
+        print()
+        print("Dry-lab only. Candidate manifests are computational artifacts,")
+        print("not biological proof.")
+
+    if validation_errors:
+        return 3
+    return 0

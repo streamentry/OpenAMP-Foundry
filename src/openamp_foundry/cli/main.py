@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check, _run_simulation_evidence_packet, _run_artifact_version
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check, _run_simulation_evidence_packet, _run_artifact_version, _run_candidate_manifest
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1625,6 +1625,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Candidate manifest (Phase I I2) ──────────────────────────────
+    cm = sub.add_parser(
+        "candidate-manifest",
+        help=(
+            "Build and optionally validate a candidate manifest — the core "
+            "interoperable artifact describing a dry-lab candidate. Dry-lab only."
+        ),
+    )
+    cm.add_argument("--candidate-id", type=str, required=True, help="Candidate identifier (required).")
+    cm.add_argument("--sequence", type=str, required=True, help="Amino acid sequence (required).")
+    cm.add_argument("--evidence-level", type=str, required=True, help="Proof-ladder level 1-6 (required).")
+    cm.add_argument("--scopes", type=str, required=True, help="Comma-separated scopes (required).")
+    cm.add_argument("--scores-json", type=str, required=True, help="JSON object of score name→value (required).")
+    cm.add_argument("--uncertainty", type=float, required=True, help="Uncertainty 0.0-1.0 (required).")
+    cm.add_argument("--source-modules", type=str, required=True, help="Comma-separated source modules (required).")
+    cm.add_argument("--validate", action="store_true", default=False, help="Run validate_candidate_manifest.")
+    cm.add_argument("--format", type=str, default="text", choices=["text", "json"], help="Output format (default: text).")
+
     # ── Simulation-result confidence interval report (H7) ────────────
     sicr = sub.add_parser(
         "simulation-ci-report",
@@ -1835,6 +1853,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "artifact-version":
         return _run_artifact_version(args)
+
+    if args.command == "candidate-manifest":
+        return _run_candidate_manifest(args)
 
     parser.error("unknown command")
     return 2

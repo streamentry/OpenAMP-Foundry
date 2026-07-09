@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate bench-strategy-compare regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-pilot pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version generate-review-packet failed-candidate-report safe-publication-filter classify-negative-informativeness validate-rejection-events negative-result-dashboard calibration-audit calibration-audit-example calibration-overfit-check result-quality-filter synthetic-result-policy-check calibration-decision-checklist calibration-rollback-plan simulation-registry validate-simulation-result-schema simulation-baseline-check adapter-gate-check simulation-provenance simulation-ensemble-check simulation-ci-report simulation-deprecation-check simulation-scope-check simulation-evidence-packet artifact-version
+.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate bench-strategy-compare regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-pilot pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version generate-review-packet failed-candidate-report safe-publication-filter classify-negative-informativeness validate-rejection-events negative-result-dashboard calibration-audit calibration-audit-example calibration-overfit-check result-quality-filter synthetic-result-policy-check calibration-decision-checklist calibration-rollback-plan simulation-registry validate-simulation-result-schema simulation-baseline-check adapter-gate-check simulation-provenance simulation-ensemble-check simulation-ci-report simulation-deprecation-check simulation-scope-check simulation-evidence-packet artifact-version candidate-manifest
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -780,3 +780,15 @@ simulation-evidence-packet:
 artifact-version:
 	.venv/bin/openamp-foundry artifact-version --list
 	@echo "Artifact version list complete."
+
+candidate-manifest:
+	.venv/bin/openamp-foundry candidate-manifest \
+		--candidate-id AMP-001 \
+		--sequence AKLWKR \
+		--evidence-level 2 \
+		--scopes bacterial_binding \
+		--scores-json '{"binding_energy": 0.75}' \
+		--uncertainty 0.1 \
+		--source-modules membrane_proxy \
+		--validate
+	@echo "Candidate manifest complete."
