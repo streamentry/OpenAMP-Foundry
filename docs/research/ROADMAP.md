@@ -1,5 +1,8 @@
 # Roadmap
 
+### v0.8.7
+- Phase L L4: multi-candidate comparison schema — validates structured side-by-side comparisons of two or more candidates for publication-ready supplementary tables. MultiCandidateComparisonEntry dataclass, validate_multi_candidate_comparison(), CLI multi-candidate-comparison-check.
+
 ### v0.8.6
 - Phase L L3: candidate summary card schema — validates publication-ready per-candidate structured summaries with sequence, evidence level, activity prediction, and safety flags. CandidateSummaryCardEntry dataclass, validate_candidate_summary_card(), CLI candidate-summary-card-check.
 
