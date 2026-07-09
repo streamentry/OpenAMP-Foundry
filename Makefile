@@ -974,3 +974,7 @@ dataset-release-check:
 	.venv/bin/openamp-foundry dataset-release-check \
 		--entry-json '{"release_id":"DSR-001","dataset_name":"OpenAMP Wave 0.5 Candidates","dataset_version":"1.0.0","release_date":"2026-07-09","license_identifier":"CC-BY-4.0","data_sources":["UniProt AMP database","APD3","in-house pipeline"],"contains_sequences":true,"contains_activity_data":false,"dual_use_assessed":true,"usage_policy_url":"https://openamp.example.org/data-policy","contact_email":"data@openamp.example.org","release_approved":true,"dry_lab_only":true}' \
 		--format text
+
+.PHONY: calibration-improvement-check
+calibration-improvement-check:
+	openamp-foundry calibration-improvement-check --entry-json '{"improvement_id":"CIR-TEST","pipeline_version_before":"v1.0","pipeline_version_after":"v1.1","trigger_ids":["CPS-001"],"action_taken":"threshold adjustment","action_category":"threshold_adjustment","brier_score_before":0.3,"brier_score_after":0.2,"improvement_confirmed":true,"reviewer":"test"}'

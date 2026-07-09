@@ -1,5 +1,10 @@
 # Roadmap
 
+### v0.10.1 - Phase O O3: Calibration Improvement Record
+- CalibrationImprovementEntry schema documents recalibration actions taken after drift/quality failures
+- 6 action categories, trigger_ids linked to CPS-/DRM- records
+- Closes the loop between detection and correction
+
 ### v0.10.0 — Phase O O2: Prediction Drift Monitor
 - Added `PredictionDriftEntry` schema tracking mean/std score shifts between reference and evaluation batches
 - Detects silent model degradation before wet-lab confirmation
