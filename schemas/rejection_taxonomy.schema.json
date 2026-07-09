@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp-foundry.org/schemas/rejection_taxonomy.schema.json",
+  "title": "OpenAMP Rejection Reason Taxonomy",
+  "description": "Machine-readable rejection reason taxonomy for OpenAMP candidate failures. Each entry defines a valid rejection reason code with its category, severity, evidence impact, and the stage at which it applies. Tools read this schema as the single source of truth for valid rejection reasons across the pipeline.",
+  "type": "array",
+  "items": {
+    "$ref": "#/$defs/taxonomy_entry"
+  },
+  "minItems": 1,
+  "uniqueItems": true,
+  "$defs": {
+    "taxonomy_entry": {
+      "type": "object",
+      "required": [
+        "code",
+        "category",
+        "label",
+        "description",
+        "severity",
+        "evidence_impact",
+        "applies_at_stage"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z]+_[A-Za-z_]+$",
+          "description": "Machine-readable unique code for this rejection reason (e.g. PIPE_ACTIVITY_LOW)."
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "pre_selection",
+            "pipeline",
+            "diversity",
+            "reviewer",
+            "lab",
+            "lifecycle"
+          ],
+          "description": "Top-level phase when this rejection typically occurs."
+        },
+        "label": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Short human-readable label for reports and summaries."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Detailed explanation of what this rejection means."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["hard", "soft", "informational"],
+          "description": "How definitive or irreversible this rejection is. 'hard' = final (e.g. sequence invalid), 'soft' = conditional on current thresholds (e.g. safety score below gate), 'informational' = context-dependent (e.g. budget limit)."
+        },
+        "evidence_impact": {
+          "type": "string",
+          "enum": [
+            "claim_unsupported",
+            "downgrade_by_1",
+            "downgrade_by_2",
+            "no_impact"
+          ],
+          "description": "Effect on the proof-ladder level if this reason applies. 'claim_unsupported' = claim cannot be made at any level, 'downgrade_by_N' = lower the claim level by N, 'no_impact' = claims at current level remain valid."
+        },
+        "applies_at_stage": {
+          "type": "string",
+          "enum": [
+            "pre_selection",
+            "after_scoring",
+            "after_diversity",
+            "after_review",
+            "after_lab",
+            "any"
+          ],
+          "description": "The pipeline stage at which this rejection reason first becomes applicable."
+        },
+        "related_reason_category": {
+          "type": "string",
+          "enum": [
+            "pre_selection_reject",
+            "selected_untested",
+            "lab_inactive",
+            "lab_toxic",
+            "control_failure",
+            "synthesis_failure"
+          ],
+          "description": "Maps to the reason_category in schemas/negative_result_entry.schema.json for archive entries."
+        },
+        "example": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Brief example illustrating when this rejection would apply."
+        }
+      },
+      "examples": [
+        {
+          "code": "PIPE_ACTIVITY_LOW",
+          "category": "pipeline",
+          "label": "Activity score below threshold",
+          "description": "The pipeline activity score falls below the configured minimum gate threshold, indicating low predicted antimicrobial potential.",
+          "severity": "soft",
+          "evidence_impact": "downgrade_by_1",
+          "applies_at_stage": "after_scoring",
+          "related_reason_category": "pre_selection_reject",
+          "example": "Activity score 0.42 below minimum threshold 0.50."
+        }
+      ]
+    },
+    "all_reasons": {
+      "type": "array",
+      "description": "The complete set of valid rejection reason codes registered in this schema version.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

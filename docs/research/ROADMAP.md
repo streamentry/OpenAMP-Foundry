@@ -1,5 +1,45 @@
 # Roadmap
 
+## v0.5.74 — Loop 73: Phase F F3 — Rejection Reason Taxonomy Schema ✓ (2026-07-09)
+
+Negative-result infrastructure begins: machine-readable rejection reason taxonomy
+with severity, evidence impact, and stage classification. Foundation for F4 (report
+generator) and F5 (publication filter).
+
+Changes:
+- `schemas/rejection_taxonomy.schema.json` (F3) — JSON Schema Draft 2020-12 defining
+  rejection taxonomy entries. Required fields: code (pattern `^[A-Z]+_[A-Za-z_]+$`),
+  category (pre_selection/pipeline/diversity/reviewer/lab/lifecycle), label,
+  description (min 10 chars), severity (hard/soft/informational), evidence_impact
+  (claim_unsupported/downgrade_by_1/downgrade_by_2/no_impact), applies_at_stage
+  (pre_selection/after_scoring/after_diversity/after_review/after_lab/any),
+  related_reason_category mapping to negative_result_entry schema. Optional: example.
+- `examples/rejection_taxonomy_example.json` (F3) — Complete taxonomy with 21 entries
+  covering all 6 categories: PRE_SEQ_INVALID, PRE_LENGTH_OUT, PRE_PATENT_NEAR,
+  PIPE_ACTIVITY_LOW, PIPE_SAFETY_LOW, PIPE_NOVELTY_LOW, PIPE_SYNTHESIS_LOW,
+  PIPE_DISAGREEMENT_HI, PIPE_ENSEMBLE_LOW, PIPE_SIM_UNCERTAINTY, DIV_TOO_SIMILAR,
+  DIV_FAMILY_CAP, DIV_BUDGET, REV_EXPERT_REJECT, REV_SAFETY_CONCERN, REV_INSUFFICIENT,
+  LAB_INACTIVE, LAB_TOXIC, LAB_CONTROL_FAIL, LAB_SYNTHESIS_FAIL, LIFECYCLE_SUPERSEDED,
+  LIFECYCLE_WITHDRAWN.
+- `docs/evidence/REJECTION_TAXONOMY.md` — Comprehensive reference doc with hierarchy
+  tables, severity definitions, evidence impact definitions, usage in tools, and
+  cross-references to related schemas/docs.
+- `tests/evidence/test_rejection_taxonomy_schema.py` — 19 tests covering valid entry,
+  missing required fields, invalid enums (category, severity, evidence_impact,
+  applies_at_stage, related_reason_category), code pattern validation, description
+  length, multiple entries, optional fields, example file validation, code uniqueness,
+  and stage coverage completeness.
+
+Honest boundaries:
+- The taxonomy defines valid rejection reasons but does not enforce that tools
+  actually use them — adoption requires downstream tool updates (F4, F5).
+- Hard rejections require new evidence to overturn, but the taxonomy does not
+  define what counts as sufficient new evidence.
+- The `evidence_impact` field describes claim-level effects; it does not guarantee
+  that reviewers will apply the specified downgrade in practice.
+- Severity is a guideline; final rejection authority rests with human reviewers
+  for class C/D decisions.
+
 ## v0.5.73 — Loop 72: Phase E E4-E6 — Safety Release, Preregistration, Packet CLI ✓ (2026-07-09)
 
 External review infrastructure: human-gated release decisions, pre-registered pilot
