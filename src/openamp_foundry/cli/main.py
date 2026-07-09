@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1280,6 +1280,34 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional output path for markdown report.",
     )
 
+    # ── Synthetic result policy check ──────────────────────────────
+    srp = sub.add_parser(
+        "synthetic-result-policy-check",
+        help=(
+            "Check whether synthetic/simulation results are used to raise "
+            "a candidate's proof-ladder level. Anti-overclaim safeguard. "
+            "Dry-lab only."
+        ),
+    )
+    srp.add_argument(
+        "--proposals-json",
+        required=True,
+        help=(
+            "Path to JSON file with list of {candidate_id, current_level, "
+            "proposed_level, evidence_source} objects."
+        ),
+    )
+    srp.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional output path for policy check JSON.",
+    )
+    srp.add_argument(
+        "--out-md",
+        default=None,
+        help="Optional output path for policy check markdown report.",
+    )
+
     return parser
 
 
@@ -1425,6 +1453,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "result-quality-filter":
         return _run_result_quality_filter(args)
+
+    if args.command == "synthetic-result-policy-check":
+        return _run_synthetic_result_policy_check(args)
 
     parser.error("unknown command")
     return 2

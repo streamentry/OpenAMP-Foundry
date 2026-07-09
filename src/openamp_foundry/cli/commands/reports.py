@@ -1032,6 +1032,54 @@ def _run_calibration_overfit_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_synthetic_result_policy_check(args: argparse.Namespace) -> int:
+    """Check whether synthetic/simulation results raise proof-ladder level."""
+    from pathlib import Path
+    from openamp_foundry.evidence.synthetic_result_policy import (
+        check_synthetic_result_policy,
+        run_policy_batch,
+        write_policy_check_json,
+        write_policy_check_markdown,
+    )
+
+    proposals_path = Path(args.proposals_json)
+    if not proposals_path.exists():
+        print(json.dumps({
+            "status": "error",
+            "error": f"proposals JSON not found: {proposals_path}",
+        }))
+        return 2
+
+    with proposals_path.open() as f:
+        proposals = json.load(f)
+
+    if not isinstance(proposals, list):
+        print(json.dumps({
+            "status": "error",
+            "error": "proposals JSON must be a list of {candidate_id, current_level, proposed_level, evidence_source} objects",
+        }))
+        return 2
+
+    result = run_policy_batch(proposals)
+
+    if args.out_json:
+        write_policy_check_json(result, args.out_json)
+    if args.out_md:
+        write_policy_check_markdown(result, args.out_md)
+
+    print(json.dumps({
+        "status": "ok",
+        "total": result["summary"]["total"],
+        "passed": result["summary"]["passed"],
+        "failed": result["summary"]["failed"],
+        "any_violation": result["any_violation"],
+        "dry_lab_only": result["dry_lab_only"],
+        "out_json": args.out_json,
+        "out_md": args.out_md,
+    }, indent=2))
+    return 3 if result["any_violation"] else 0
+
+
 def _run_result_quality_filter(args: argparse.Namespace) -> int:
     """Filter lab results by quality flags for calibration eligibility."""
     import json

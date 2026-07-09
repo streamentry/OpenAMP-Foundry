@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openamp.ai/schemas/synthetic_result_policy_check.schema.json",
+  "title": "Synthetic Result Policy Check",
+  "description": "Schema for a synthetic result policy check result. Dry-lab only — does not measure biological activity.",
+  "type": "object",
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "description": "Identifier for the candidate peptide."
+    },
+    "current_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 6,
+      "description": "Current proof-ladder level of the candidate."
+    },
+    "proposed_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 6,
+      "description": "Proposed proof-ladder level for the candidate."
+    },
+    "evidence_source": {
+      "type": "string",
+      "enum": ["synthetic", "lab", "literature", "unknown"],
+      "description": "Source of the evidence for the proposed level."
+    },
+    "policy_pass": {
+      "type": "boolean",
+      "description": "Whether the proposal passes the synthetic result policy."
+    },
+    "violation": {
+      "type": "string",
+      "description": "Description of the policy violation, if any."
+    },
+    "recommendation": {
+      "type": "string",
+      "description": "Human-readable recommendation."
+    },
+    "dry_lab_only": {
+      "type": "boolean",
+      "description": "Always true. This is a computational assessment, not biological proof.",
+      "const": true
+    }
+  },
+  "required": [
+    "candidate_id",
+    "current_level",
+    "proposed_level",
+    "evidence_source",
+    "policy_pass",
+    "violation",
+    "recommendation",
+    "dry_lab_only"
+  ],
+  "additionalProperties": false
+}

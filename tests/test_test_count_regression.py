@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3022 tests as of Loop 85 (2026-07-09) -- Phase G G7 (result-quality flag propagation)
+# Baseline: 3049 tests as of Loop 86 (2026-07-09) -- Phase G G8 (synthetic result policy)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3022
+BASELINE = 3049
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

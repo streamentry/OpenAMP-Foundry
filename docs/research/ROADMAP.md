@@ -1,5 +1,67 @@
 # Roadmap
 
+## v0.5.86 — Loop 86: Phase G G8 — Synthetic-Result Policy (Anti-Overclaim) ✓ (2026-07-09)
+
+`check_synthetic_result_policy()` and `run_policy_batch()` enforce that synthetic/
+simulation results cannot raise the proof-ladder level of a candidate. Levels 4+
+require wet-lab evidence; synthetic or unknown sources are blocked for such proposals.
+CLI (`openamp-foundry synthetic-result-policy-check`). Schema
+(`schemas/synthetic_result_policy_check.schema.json`). `make synthetic-result-policy-check`
+target. 27 tests. 3049 total. Anti-overclaim safeguard.
+
+## v0.5.86 — Loop 86: Phase G G8 — Synthetic Result Policy — Anti-Overclaim ✓ (2026-07-09)
+
+`check_synthetic_result_policy()` enforces that synthetic/simulation outputs cannot
+raise a candidate's proof-ladder level. Simulation outputs are anti-overclaim —
+they must not be used as evidence to move a candidate up the proof ladder.
+
+Changes:
+- `src/openamp_foundry/evidence/synthetic_result_policy.py` (G8) — Core module with
+  `PROOF_LADDER_LEVELS` dictionary (1–6 mapping to descriptions),
+  `SyntheticResultPolicyCheck` dataclass (8 fields: candidate_id, current_level,
+  proposed_level, evidence_source, policy_pass, violation, recommendation,
+  dry_lab_only), `check_synthetic_result_policy()` applying multi-tier rules
+  (synthetic cannot raise, synthetic cannot lower, levels 4+ require wet-lab
+  evidence, invalid level raises ValueError), `run_policy_batch()` aggregating
+  results with summary counts and any_violation flag,
+  `write_policy_check_json()` and `write_policy_check_markdown()` for output.
+- `schemas/synthetic_result_policy_check.schema.json` (G8) — JSON Schema Draft 07
+  for single or batch policy check results. Validates all 8 required fields
+  including evidence_source enum constraint and dry_lab_only const=true.
+- `src/openamp_foundry/evidence/__init__.py` — Exports all synthetic result policy
+  symbols.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_synthetic_result_policy_check()` CLI handler with `--proposals-json`,
+  `--out-json`, `--out-md` flags.
+- `src/openamp_foundry/cli/main.py` — Registered `synthetic-result-policy-check`
+  subcommand with all argument flags and dispatch to handler.
+- `Makefile` — Added `synthetic-result-policy-check` target with default example
+  data writing to `/tmp/srp_output.json` and `/tmp/srp_output.md`. Added to
+  `.PHONY`.
+- `tests/evidence/test_synthetic_result_policy.py` — 27 tests covering: synthetic
+  raising level, synthetic maintaining level, synthetic lowering level, lab raising
+  level, literature raising level, proposed_level > 3 with synthetic/unknown source
+  violation, proposed_level > 3 with lab/literature pass, invalid current_level,
+  invalid proposed_level, unknown source normalization, unknown source + level 4
+  violation, dry_lab_only always True, run_policy_batch summary counts, all-pass
+  batch, any_violation flag, to_dict output, PROOF_LADDER_LEVELS completeness,
+  JSON writer (single + batch), Markdown writer (single + batch), recommendation
+  non-empty for violation, recommendation for pass, empty batch list.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.86 G8 changelog. Test count: 3049.
+- `tests/test_test_count_regression.py` — baseline updated to 3049.
+
+Honest boundaries:
+- This policy check validates evidence-source discipline, not biological truth.
+  A PASS does not confirm biological activity or safety.
+- Synthetic evidence can still be useful for negative-result documentation and
+  exploratory research — the policy restricts proof-ladder movement, not usage.
+- Level 4+ wet-lab evidence requirement is a policy rule, not a biological
+  guarantee. Wet-lab evidence can be wrong, inconclusive, or non-reproducible.
+- The evidence_source classification relies on the submitter's honest labeling.
+  A "lab" source may still be noisy or erroneous.
+- All proof-ladder determinations require qualified human review regardless of
+  policy check results.
+
 ## v0.5.85 — Loop 85: Phase G G7 — Result-Quality Flag Propagation into Calibration Engine ✓ (2026-07-09)
 
 `assess_result_quality()` and `filter_results_for_calibration()` propagate
