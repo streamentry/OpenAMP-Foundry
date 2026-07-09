@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Calibration Audit Report",
+  "description": "Consistency audit across the calibration pipeline — intake report, gate verdict, engine proposal, and combined recalibration report.",
+  "type": "object",
+  "required": [
+    "report_type",
+    "schema_version",
+    "timestamp",
+    "artifacts_checked",
+    "overall_pass",
+    "checks",
+    "summary"
+  ],
+  "properties": {
+    "report_type": {
+      "type": "string",
+      "enum": ["calibration_audit"],
+      "description": "Fixed discriminator for this report type."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Version of this schema."
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "ISO-8601 timestamp when the audit was generated."
+    },
+    "artifacts_checked": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["intake", "gate", "engine", "report"] },
+      "description": "Which artifacts were available and checked."
+    },
+    "overall_pass": {
+      "type": "boolean",
+      "description": "True only if every check passed."
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check_id", "description", "passed", "observed", "expected", "severity"],
+        "properties": {
+          "check_id": { "type": "string" },
+          "description": { "type": "string" },
+          "passed": { "type": "boolean" },
+          "observed": { "type": "string" },
+          "expected": { "type": "string" },
+          "severity": { "type": "string", "enum": ["error", "warning", "info"] }
+        }
+      },
+      "minItems": 1
+    },
+    "n_checks": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_passed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_failed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "n_warnings": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable audit summary."
+    }
+  }
+}

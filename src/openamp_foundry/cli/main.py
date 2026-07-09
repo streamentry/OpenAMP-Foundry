@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -920,6 +920,46 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
 
+    calibration_audit = sub.add_parser(
+        "calibration-audit",
+        help=(
+            "Run a consistency audit across the calibration pipeline — "
+            "intake report, gate verdict, engine proposal, and combined "
+            "recalibration report. Checks that counts, verdicts, "
+            "proposals, and timestamps are internally consistent."
+        ),
+    )
+    calibration_audit.add_argument(
+        "--intake-report",
+        default=None,
+        help="Path to the calibration intake JSON report.",
+    )
+    calibration_audit.add_argument(
+        "--gate-verdict",
+        default=None,
+        help="Path to the recalibration gate verdict JSON.",
+    )
+    calibration_audit.add_argument(
+        "--engine-proposal",
+        default=None,
+        help="Path to the recalibration engine proposal JSON.",
+    )
+    calibration_audit.add_argument(
+        "--recalibration-report",
+        default=None,
+        help="Path to the combined recalibration report JSON.",
+    )
+    calibration_audit.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional output path for the audit report JSON.",
+    )
+    calibration_audit.add_argument(
+        "--out-md",
+        default=None,
+        help="Optional output path for the audit report Markdown.",
+    )
+
     novelty_broad = sub.add_parser(
         "novelty-check-broad",
         help=(
@@ -1183,6 +1223,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "validate-policy-version":
         return _run_validate_policy_version(args)
+
+    if args.command == "calibration-audit":
+        return _run_calibration_audit(args)
 
     if args.command == "select-batch":
         return _run_select_batch(args)

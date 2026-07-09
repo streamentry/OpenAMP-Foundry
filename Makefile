@@ -1,4 +1,4 @@
-.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-pilot pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version generate-review-packet failed-candidate-report safe-publication-filter classify-negative-informativeness validate-rejection-events negative-result-dashboard
+.PHONY: help demo test lint ci clean bench-leakage bench-multi-negatives bench-baseline bench-hidden-active bench-cluster-split bench-expert-ablation bench-expert-ablation-500 bench-selectivity bench-feature-decomp bench-gate bench-easy-baseline bench-charge-matched bench-order-dependent bench-precision-at-k bench-per-family bench-simulation-ablation bench-simulation-ablation-within-amp simulation-gate regenerate-all generate phase3 pilot validate-scoring validate-scoring-phase3 validate-scoring-strict external-pilot pilot-confident presynth-qc gold-standard diversity synthesis-order novelty-broad external-consensus questionnaire gate-check ip-report benchmark-card wave0-5-gate-check wave0-5-novelty-audit wave0-5-novelty-audit-v2 wave0-5-panel wave0-5-evidence wave0-5-fill-external wave0-5b-generate wave0-5b-filter recalibration-engine recalibration-engine-dry-run validate-policy-version generate-synthetic-lab-results bump-policy-version generate-review-packet failed-candidate-report safe-publication-filter classify-negative-informativeness validate-rejection-events negative-result-dashboard calibration-audit calibration-audit-example
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
@@ -75,7 +75,9 @@ help:
 	@echo "  make validate-policy-version    Validate proposed policy version against predecessor"
 	@echo "  make bump-policy-version        Bump policy version with decision-log guard (requires --human-reviewer)"
 	@echo "  make generate-synthetic-lab-results  Generate synthetic lab results for calibration testing"
-	@echo "  make test               Run full test suite (1803 passing tests, >=80% coverage)"
+	@echo "  make calibration-audit-example  Run calibration pipeline consistency audit on synthetic example"
+	@echo "  make calibration-audit          Run calibration pipeline consistency audit (INTAKE=[path] GATE=[path] ...)"
+	@echo "  make test               Run full test suite (2937 passing tests, >=80% coverage)"
 	@echo "  make coverage           Test suite with per-module coverage report"
 	@echo "  make lint               Ruff lint check on src/ tests/ scripts/"
 	@echo "  make typecheck          mypy type check on src/"
@@ -478,6 +480,32 @@ calibration-loop:
 	PYTHONPATH=src $(PYTHON) scripts/calibration/run_calibration_loop.py \
 		--out-dir outputs/calibration_loop \
 		--seed 42 --n-batch-2 10
+
+calibration-audit-example: lab-result-intake-example
+	-PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli recalibration-gate \
+		--intake-report outputs/calibration_intake_example.json \
+		--intake-report-date 2026-07-04 \
+		--out-json outputs/recalibration_gate_example.json \
+		--out-md outputs/recalibration_gate_example.md 2>/dev/null
+	-PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli calibration-audit \
+		--intake-report outputs/calibration_intake_example.json \
+		--gate-verdict outputs/recalibration_gate_example.json \
+		--out-json outputs/calibration_audit_example.json \
+		--out-md outputs/calibration_audit_example.md
+
+calibration-audit:
+	@if [ -z "$(INTAKE)" ] && [ -z "$(GATE)" ] && [ -z "$(ENGINE)" ] && [ -z "$(REPORT)" ]; then \
+		echo "Usage: make calibration-audit [INTAKE=<intake.json>] [GATE=<gate.json>] [ENGINE=<engine.json>] [REPORT=<report.json>] [OUT_JSON=<path>] [OUT_MD=<path>]"; \
+		echo "At least one artifact path is required."; \
+		exit 1; \
+	fi
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli calibration-audit \
+		$$(if [ -n "$(INTAKE)" ]; then echo --intake-report "$(INTAKE)"; fi) \
+		$$(if [ -n "$(GATE)" ]; then echo --gate-verdict "$(GATE)"; fi) \
+		$$(if [ -n "$(ENGINE)" ]; then echo --engine-proposal "$(ENGINE)"; fi) \
+		$$(if [ -n "$(REPORT)" ]; then echo --recalibration-report "$(REPORT)"; fi) \
+		$$(if [ -n "$(OUT_JSON)" ]; then echo --out-json "$(OUT_JSON)"; fi) \
+		$$(if [ -n "$(OUT_MD)" ]; then echo --out-md "$(OUT_MD)"; fi)
 
 generate-synthetic-lab-results:
 	PYTHONPATH=src $(PYTHON) examples/lab_results_generator.py \

@@ -1,5 +1,55 @@
 # Roadmap
 
+## v0.5.81 — Loop 81: Phase G G3 — Calibration Pipeline Consistency Audit ✓ (2026-07-09)
+
+CLI (`openamp-foundry calibration-audit`) that checks consistency across the
+calibration pipeline artifacts — intake report, gate verdict, engine proposal,
+and combined recalibration report. Ensures a human reviewer inspecting the
+calibration pipeline output can verify that all stages agree on candidate
+counts, gate verdicts, weight proposals, and timestamps.
+
+Changes:
+- `src/openamp_foundry/calibration/audit.py` (G3) — `run_calibration_audit()`
+  accepts file paths or pre-loaded dicts for any combination of the four
+  artifacts. Runs 12 consistency checks: artifact path existence, intake↔gate
+  count matching, engine↔gate verdict agreement, engine L1 budget compliance,
+  engine intake-link match, report↔gate verdict match, report↔engine proposal
+  match, timestamp sanity, and intake cohort-metrics warnings. Each check has
+  check_id, description, pass/fail, observed, expected, and severity (error/
+  warning/info). Returns structured dict with overall_pass, checks array, and
+  summary.
+- `schemas/calibration_audit.schema.json` (G3) — JSON Schema Draft 2020-12 for
+  the calibration audit report. Validates report_type, schema_version, timestamp,
+  artifacts_checked, overall_pass, checks array, and summary.
+- `src/openamp_foundry/cli/commands/reports.py` — Added `_run_calibration_audit`
+  CLI handler with `--intake-report`, `--gate-verdict`, `--engine-proposal`,
+  `--recalibration-report`, `--out-json`, `--out-md` flags.
+- `src/openamp_foundry/cli/main.py` — Registered `calibration-audit` subcommand
+  with all argument flags and dispatch to `_run_calibration_audit`.
+- `Makefile` — Added `calibration-audit-example` and `calibration-audit` targets.
+  Example target runs on synthetic intake + gate outputs.
+- `tests/calibration/test_calibration_audit.py` — 18 tests covering: no
+  artifact edge case, single artifact, intake↔gate count match/mismatch,
+  engine↔gate verdict match/mismatch, L1 budget within/exceeds, report↔gate
+  match, report↔engine match, future timestamp detection, cohort-metrics
+  warning, JSON schema conformance, Markdown output, synthetic example
+  consistency, synthetic path existence, engine without gate_passed, and
+  nonexistent path handling.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.81 G3 changelog. Test count: 2937.
+- `tests/test_test_count_regression.py` — baseline updated to 2937.
+
+Honest boundaries:
+- This audit checks **consistency** between pipeline artifacts, not biological
+  validity. A passing audit means the pipeline stages agreed with each other,
+  not that calibration decisions are correct.
+- All tests use synthetic dict fixtures, not real wet-lab data.
+- Timestamp checks detect future timestamps but do not validate chronological
+  ordering between artifacts (e.g., gate must precede engine). This is a known
+  limitation for a future iteration.
+- The audit does not validate artifact schema conformance (each artifact's
+  schema validity is tested separately). It focuses on cross-artifact
+  consistency.
+
 ## v0.5.80 — Loop 80: Phase F F10 — Negative-Result Archive Completeness Checker ✓ (2026-07-09)
 
 CLI that reads a JSON archive of negative-result entries and checks each entry

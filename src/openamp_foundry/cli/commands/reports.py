@@ -964,3 +964,39 @@ def _run_validate_policy_version(args: argparse.Namespace) -> int:
     }
     print(json.dumps(payload, indent=2))
     return 0 if result.passed else 3
+
+
+def _run_calibration_audit(args: argparse.Namespace) -> int:
+    """Run a consistency audit across the calibration pipeline artifacts."""
+    from openamp_foundry.calibration.audit import (
+        run_calibration_audit,
+        write_calibration_audit_json,
+        write_calibration_audit_markdown,
+    )
+
+    audit = run_calibration_audit(
+        intake_path=args.intake_report,
+        gate_path=args.gate_verdict,
+        engine_path=args.engine_proposal,
+        report_path=args.recalibration_report,
+    )
+
+    if args.out_json:
+        write_calibration_audit_json(audit, args.out_json)
+    if args.out_md:
+        write_calibration_audit_markdown(audit, args.out_md)
+
+    cli_summary = {
+        "status": "ok" if audit["overall_pass"] else "issues_found",
+        "overall_pass": audit["overall_pass"],
+        "n_checks": audit["n_checks"],
+        "n_passed": audit["n_passed"],
+        "n_failed": audit["n_failed"],
+        "n_warnings": audit["n_warnings"],
+        "artifacts_checked": audit["artifacts_checked"],
+        "summary": audit["summary"],
+        "out_json": args.out_json,
+        "out_md": args.out_md,
+    }
+    print(json.dumps(cli_summary, indent=2))
+    return 0 if audit["overall_pass"] else 3

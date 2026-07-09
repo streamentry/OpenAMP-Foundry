@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-09 (Phase F F10 — negative-result archive completeness checker — v0.5.80)
+> **Last updated:** 2026-07-09 (Phase G G3 — calibration pipeline consistency audit — v0.5.81)
+> **New in v0.5.81:** Calibration pipeline consistency audit (G3) — CLI (`openamp-foundry calibration-audit`) that checks consistency across calibration pipeline artifacts (intake report, gate verdict, engine proposal, recalibration report). Checks intake↔gate count matching, engine↔gate verdict agreement, engine L1 budget compliance, report↔gate verdict consistency, report↔engine proposal consistency, timestamp sanity, and cohort-metrics warnings. Schema (`schemas/calibration_audit.schema.json`). `make calibration-audit` and `make calibration-audit-example` targets. 18 tests. 2937 total.
 > **New in v0.5.80:** Negative-result archive completeness checker (F10) — CLI (`scripts/check_negative_archive_completeness.py`) that reads a JSON archive of negative-result entries and checks each entry against completeness criteria: all required fields present, no duplicate candidate_ids, each entry has at least one content field (assay_result, score_safety, reviewer_notes, or reason_detail), date format valid YYYY-MM-DD, and optional intake_report_id references are well-formed. Outputs a structured completeness report as JSON and Markdown with summary, per-check results, and per-entry pass/fail. Schema (`schemas/negative_result_archive_completeness.schema.json`). Example file (`examples/negative_result_archive_example.json`) with 4 toy entries. 35 tests. 2919 total.
 >
 > **New in v0.5.79:** Negative-result dashboard (F9) — CLI (`scripts/negative_result_dashboard.py`) that reads a collection of negative-result entries from a JSON file and produces a structured dashboard with summary statistics (by category, by pipeline version), score distributions (activity, safety, novelty, ensemble), per-category cross-analysis, and pipeline insights (most common failure category, recalibration opportunities). Outputs JSON + Markdown. Example file (`examples/negative_result_dashboard_example.json`) with 15 toy entries across all 6 failure categories. Schema (`schemas/negative_result_dashboard.schema.json`). `make negative-result-dashboard` target. 33 tests. 2883 total.
@@ -72,7 +73,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.79 (F9)
+> **Pipeline version:** v0.5.81 (G3)
 > **Branch:** main
 
 ---

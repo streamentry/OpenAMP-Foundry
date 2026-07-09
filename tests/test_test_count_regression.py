@@ -4,7 +4,7 @@ import sys
 
 # Baseline: 2919 tests as of Loop 80 (2026-07-09) -- Phase F F10 (negative-result archive completeness checker)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2919
+BASELINE = 2937
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 
