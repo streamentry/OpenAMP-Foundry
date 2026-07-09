@@ -2201,3 +2201,49 @@ def _run_integration_check(args: argparse.Namespace) -> int:
         print("not biological proof.")
 
     return 0 if result["all_passed"] else 3
+
+
+def _run_adapter_check(args: argparse.Namespace) -> int:
+    """Validate an adapter declaration dict via the adapter author guide contract."""
+    from openamp_foundry.adapters.adapter_validator import validate_adapter_dict
+
+    try:
+        adapter_dict = json.loads(args.adapter_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --adapter-json: {e}"}))
+        return 2
+
+    if not isinstance(adapter_dict, dict):
+        print(json.dumps({"status": "error", "error": "--adapter-json must be a JSON object"}))
+        return 2
+
+    result = validate_adapter_dict(adapter_dict)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps({
+            "adapter_id": result.adapter_id,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings_list,
+            "dry_lab_only": result.dry_lab_only,
+        }, indent=2))
+    else:
+        print("Adapter Declaration Check")
+        print("=" * 60)
+        print(f"Adapter ID:     {result.adapter_id}")
+        print(f"Status:         {'PASS' if result.passed else 'FAIL'}")
+        print()
+        if result.errors:
+            print("Errors:")
+            for err in result.errors:
+                print(f"  - {err}")
+        if result.warnings_list:
+            print("Warnings:")
+            for w in result.warnings_list:
+                print(f"  - {w}")
+        print()
+        print("Dry-lab only. Adapter validation is a computational safeguard,")
+        print("not biological proof.")
+
+    return 0 if result.passed else 3

@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check, _run_simulation_evidence_packet, _run_artifact_version, _run_candidate_manifest, _run_benchmark_card, _run_artifact_changelog, _run_integration_check
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check, _run_simulation_evidence_packet, _run_artifact_version, _run_candidate_manifest, _run_benchmark_card, _run_artifact_changelog, _run_integration_check, _run_adapter_check
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1715,6 +1715,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Adapter declaration check (Phase I I6) ─────────────────────────
+    ac = sub.add_parser(
+        "adapter-check",
+        help=(
+            "Validate an adapter declaration against the Adapter Author Guide "
+            "contract. Checks mode, output_status, ranking_effect, "
+            "release_status, dry_lab_only, baseline comparison, network call "
+            "documentation, and uncertainty. Dry-lab only."
+        ),
+    )
+    ac.add_argument(
+        "--adapter-json", type=str, required=True,
+        help="JSON string of an adapter declaration dict (required).",
+    )
+    ac.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Simulation-result confidence interval report (H7) ────────────
     sicr = sub.add_parser(
         "simulation-ci-report",
@@ -1937,6 +1957,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "integration-check":
         return _run_integration_check(args)
+
+    if args.command == "adapter-check":
+        return _run_adapter_check(args)
 
     parser.error("unknown command")
     return 2

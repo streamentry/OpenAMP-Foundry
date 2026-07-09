@@ -1,5 +1,74 @@
 # Roadmap
 
+## v0.6.4 — Loop 104: Phase I I6 — Adapter Author Validator ✓ (2026-07-09)
+
+`src/openamp_foundry/adapters/adapter_validator.py` with `AdapterDeclaration`
+dataclass (14 fields: adapter_id, adapter_version, mode, output_status,
+score_fields, uncertainty, warnings, failure_reason, release_status,
+ranking_effect, has_baseline_comparison, makes_network_calls,
+network_call_documented, dry_lab_only). `AdapterValidationResult` dataclass
+(5 fields: adapter_id, passed, errors, warnings_list, dry_lab_only).
+`validate_adapter_declaration()` with 10 checks covering all fields against
+their valid value sets (VALID_ADAPTER_MODES, VALID_OUTPUT_STATUSES,
+VALID_RANKING_EFFECTS, VALID_RELEASE_STATUSES) plus cross-field rules
+(baseline comparison required for ranking_effect=proposed/active, network
+call documentation required when makes_network_calls=True, deprecated mode
+must not have active/proposed ranking_effect, uncertainty must be 0.0-1.0
+or None, dry_lab_only must be True). Gated mode with ranking_effect=none
+produces a warning. `validate_adapter_dict()` for raw dict validation with
+missing-fields guard.
+
+CLI (`openamp-foundry adapter-check`) with `--adapter-json` (required) and
+`--format text|json`. Handler `_run_adapter_check` in reports.py.
+
+`make adapter-author-check` target. 31 tests. **3387 total.** External adapter
+authors can now validate their declarations against the ADAPTER_AUTHOR_GUIDE
+contract before submitting. This is Loop 104 — the 104th PR in the
+NEXT_100_PR_MAP series.
+
+Changes:
+- `src/openamp_foundry/adapters/__init__.py` (I6) — Empty package init.
+- `src/openamp_foundry/adapters/adapter_validator.py` (I6) — Core module
+  with AdapterDeclaration (14 fields), AdapterValidationResult (5 fields),
+  validate_adapter_declaration (10 checks), validate_adapter_dict (dict
+  input with missing-fields guard), 4 valid-value sets (VALID_ADAPTER_MODES,
+  VALID_OUTPUT_STATUSES, VALID_RANKING_EFFECTS, VALID_RELEASE_STATUSES),
+  REQUIRED_OUTPUT_CONTRACT_FIELDS (10 items). All dataclasses carry
+  dry_lab_only=True.
+- `tests/adapters/__init__.py` (I6) — Empty package init.
+- `tests/adapters/test_adapter_validator.py` (I6) — 31 tests covering:
+  valid minimal declaration, empty adapter_id/version, invalid mode/output_
+  status/ranking_effect/release_status, dry_lab_only=False, ranking_effect
+  active/proposed requires baseline, network calls require documentation,
+  deprecated+active ranking, uncertainty range, None uncertainty passes,
+  gated+none warning, all valid modes/output_statuses parametrized, result
+  dry_lab_only, valid dict, missing fields in dict, constants counts.
+- `src/openamp_foundry/cli/main.py` (I6) — Registered `adapter-check`
+  subcommand with `--adapter-json`, `--format` flags. Added import and
+  dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I6) — Added
+  `_run_adapter_check()` CLI handler with JSON parsing, text and JSON
+  output, adapter validation, and error handling.
+- `Makefile` (I6) — Added `adapter-author-check` target with demo
+  invocation using example-adapter. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` — v0.6.4 I6 changelog. Fixed > >
+  formatting bug on v0.6.2 line. Test count: 3387.
+- `tests/test_test_count_regression.py` — baseline updated to 3373.
+
+Honest boundaries:
+- Adapter validation checks structural and policy requirements only. It
+  does not verify that the adapter produces biologically meaningful outputs
+  or that the adapter implementation is correct.
+- Valid value sets are policy-defined and may need updating as the adapter
+  ecosystem evolves.
+- The validator accepts declarative metadata only — it does not run the
+  adapter or verify its behavior at runtime.
+- `dry_lab_only: true` is a const field on all dataclasses — adapters are
+  inherently dry-lab and must never be presented as biological proof.
+- Safety, toxicity, and dual-use safeguards are preserved — the validator
+  enforces no-ranking-effect for deprecated adapters, baseline comparison
+  for active adapters, and documentation for network calls.
+
 ## v0.6.3 — Loop 103: Phase I I5 — Downstream Project Template ✓ (2026-07-09)
 
 `docs/adoption/DOWNSTREAM_PROJECT_TEMPLATE.md` with overview of OpenAMP
