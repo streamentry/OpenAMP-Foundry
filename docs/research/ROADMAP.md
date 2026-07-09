@@ -1,5 +1,51 @@
 # Roadmap
 
+## v0.5.90 — Loop 90: Phase H H2 — Simulation-Result Schema and Validator ✓ (2026-07-09)
+
+`schemas/simulation_result.schema.json` (Draft 2020-12) validates SimulationResult
+outputs with uncertainty 0.0–1.0 range and all required fields.
+`validate_simulation_result()` checks module, version, scope, scores, uncertainty,
+validated_against, notes. Strict mode rejects dummy/stub modules, uncertainty=1.0,
+and empty validated_against. `validate_simulation_result_batch()` aggregates
+results with counts and `any_invalid` flag. CLI (`openamp-foundry
+validate-simulation-result`) with `--results-json`, `--strict`, `--out-json`.
+Prevents undocumented proxy output — every SimulationResult is now
+machine-checkable against a formal JSON schema.
+
+Changes:
+- `schemas/simulation_result.schema.json` (H2) — JSON Schema Draft 2020-12
+  for SimulationResult outputs. Required fields: module, version, scope, scores,
+  uncertainty (min 0.0, max 1.0), calibration_set (string or null),
+  validated_against, notes. Optional `dry_lab_context` const "dry-lab-only".
+- `src/openamp_foundry/simulation/result_validator.py` (H2) —
+  `validate_simulation_result()` with 6 always-checked rules and 3 strict-mode
+  rules. `validate_simulation_result_batch()` with checked/valid/invalid/
+  errors_by_module/any_invalid/dry_lab_only keys.
+- `src/openamp_foundry/simulation/__init__.py` — Exports
+  `validate_simulation_result`, `validate_simulation_result_batch`.
+- `src/openamp_foundry/cli/main.py` — Registered `validate-simulation-result`
+  subcommand with `--results-json`, `--strict`, `--out-json` flags.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_validate_simulation_result()` CLI handler with JSON loading,
+  SimulationResult deserialization, batch validation, and output.
+- `Makefile` — Added `validate-simulation-result-schema` target to `.PHONY`.
+  Fixed duplicate `.PHONY` entry for `simulation-registry`.
+- `tests/simulation/test_result_validator.py` — 19 tests covering: valid
+  result, empty module/version, uncertainty bounds, strict mode rules,
+  batch validation, and non-finite scores.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.90 H2 changelog. Test count: 3125.
+- `tests/test_test_count_regression.py` — baseline updated to 3125.
+
+Honest boundaries:
+- Schema validation checks structural correctness, not biological truth.
+- A schema-valid SimulationResult may still be biologically meaningless.
+- Uncertainties are self-reported by simulation modules and not independently
+  verified by this validation layer.
+- Strict mode is an additional policy layer; it does not guarantee that a
+  passing result is biologically meaningful.
+- All simulation results are dry-lab only and must not be presented as
+  biological proof.
+
 ## v0.5.89 — Loop 89: Phase H H1 — Simulation Module Registry ✓ (2026-07-09)
 
 `SIMULATION_MODULE_REGISTRY` with 4 entries (membrane_proxy, structure_proxy,

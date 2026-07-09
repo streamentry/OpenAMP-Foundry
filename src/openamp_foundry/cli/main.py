@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1380,6 +1380,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Simulation result validation ──────────────────────────────────
+    vsr = sub.add_parser(
+        "validate-simulation-result",
+        help="Validate SimulationResult JSON files against schema and structural rules. Dry-lab only.",
+    )
+    vsr.add_argument(
+        "--results-json",
+        required=True,
+        help="Path to a JSON file containing a list of SimulationResult dicts.",
+    )
+    vsr.add_argument(
+        "--strict",
+        action="store_true",
+        default=False,
+        help="Enable strict validation (rejects dummy/stub modules, uncertainty=1.0, empty validated_against).",
+    )
+    vsr.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional output path for structured validation result JSON.",
+    )
+
     return parser
 
 
@@ -1537,6 +1559,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "simulation-registry":
         return _run_simulation_registry(args)
+
+    if args.command == "validate-simulation-result":
+        return _run_validate_simulation_result(args)
 
     parser.error("unknown command")
     return 2

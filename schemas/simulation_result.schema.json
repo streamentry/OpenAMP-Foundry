@@ -1,42 +1,68 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Simulation Result",
-  "description": "Schema for virtual assay / simulation proxy outputs. See docs/evidence/VIRTUAL_ASSAY_SCOPE.md.",
-  "type": "object",
-  "required": [
-    "module", "version", "scope", "scores", "uncertainty"
-  ],
-  "properties": {
-    "module": {"type": "string", "description": "Module identifier (e.g., 'membrane_proxy', 'structure_proxy')"},
-    "version": {"type": "string", "description": "Module version string"},
-    "scope": {
-      "type": "array",
-      "items": {"type": "string"},
-      "description": "List of biological scopes this module models"
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://openamp.ai/schemas/simulation_result.schema.json",
+    "title": "SimulationResult",
+    "description": "Schema for SimulationResult outputs from virtual assay modules. Dry-lab only — does not measure biological activity.",
+    "type": "object",
+    "properties": {
+        "module": {
+            "description": "Name of the simulation module that produced this result",
+            "type": "string",
+            "minLength": 1
+        },
+        "version": {
+            "description": "Version of the simulation module",
+            "type": "string",
+            "minLength": 1
+        },
+        "scope": {
+            "description": "List of scope labels describing what this module measures",
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 0
+        },
+        "scores": {
+            "description": "Dictionary of named score values",
+            "type": "object",
+            "patternProperties": {
+                "^.*$": { "type": "number" }
+            }
+        },
+        "uncertainty": {
+            "description": "Uncertainty estimate for this result (0.0 = fully certain, 1.0 = fully uncertain)",
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+        },
+        "calibration_set": {
+            "description": "Optional identifier for the calibration dataset used",
+            "type": ["string", "null"]
+        },
+        "validated_against": {
+            "description": "List of reference datasets or benchmarks this module was validated against",
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "notes": {
+            "description": "Free-text notes about this result",
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "dry_lab_context": {
+            "description": "Marks this result as dry-lab only",
+            "type": "string",
+            "const": "dry-lab-only"
+        }
     },
-    "scores": {
-      "type": "object",
-      "description": "Machine-readable score dictionary. Keys and ranges depend on the module."
-    },
-    "uncertainty": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1,
-      "description": "Module-level uncertainty estimate. 1.0 = completely uncertain (error state). Values > 0.5 are experimental and must not affect selection."
-    },
-    "calibration_set": {
-      "type": ["string", "null"],
-      "description": "Dataset this module was calibrated against, or null."
-    },
-    "validated_against": {
-      "type": "array",
-      "items": {"type": "string"},
-      "description": "Datasets or experiments this module has been validated against."
-    },
-    "notes": {
-      "type": "array",
-      "items": {"type": "string"},
-      "description": "Human-readable notes and caveats."
-    }
-  }
+    "required": [
+        "module",
+        "version",
+        "scope",
+        "scores",
+        "uncertainty",
+        "calibration_set",
+        "validated_against",
+        "notes"
+    ],
+    "additionalProperties": false
 }

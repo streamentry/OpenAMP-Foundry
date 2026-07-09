@@ -1232,6 +1232,59 @@ def _run_calibration_rollback_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_validate_simulation_result(args: argparse.Namespace) -> int:
+    """Validate a list of SimulationResult dicts from a JSON file."""
+    import json
+    from pathlib import Path
+
+    from openamp_foundry.simulation.interfaces import SimulationResult
+    from openamp_foundry.simulation.result_validator import (
+        validate_simulation_result,
+        validate_simulation_result_batch,
+    )
+
+    results_path = Path(args.results_json)
+    if not results_path.exists():
+        print(json.dumps({
+            "status": "error",
+            "error": f"results JSON not found: {results_path}",
+        }))
+        return 2
+
+    with results_path.open() as f:
+        raw = json.load(f)
+
+    if not isinstance(raw, list):
+        print(json.dumps({
+            "status": "error",
+            "error": "results JSON must be a list of SimulationResult dicts",
+        }))
+        return 2
+
+    results = []
+    for item in raw:
+        results.append(SimulationResult(
+            module=item.get("module", ""),
+            version=item.get("version", ""),
+            scope=item.get("scope", []),
+            scores=item.get("scores", {}),
+            uncertainty=item.get("uncertainty", 0.0),
+            calibration_set=item.get("calibration_set"),
+            validated_against=item.get("validated_against", []),
+            notes=item.get("notes", []),
+        ))
+
+    batch_result = validate_simulation_result_batch(results, strict=args.strict)
+
+    if args.out_json:
+        out_path = Path(args.out_json)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(batch_result, indent=2))
+
+    print(json.dumps(batch_result, indent=2))
+    return 3 if batch_result["any_invalid"] else 0
+
+
 def _run_simulation_registry(args: argparse.Namespace) -> int:
     """Display simulation module registry information."""
     from openamp_foundry.simulation.module_registry import (

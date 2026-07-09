@@ -17,6 +17,10 @@ from .module_registry import (
     registry_summary,
     validate_registry,
 )
+from .result_validator import (
+    validate_simulation_result,
+    validate_simulation_result_batch,
+)
 from .structure import StructureProxy
 
 __all__ = [
@@ -35,4 +39,6 @@ __all__ = [
     "get_active_modules",
     "registry_summary",
     "validate_registry",
+    "validate_simulation_result",
+    "validate_simulation_result_batch",
 ]

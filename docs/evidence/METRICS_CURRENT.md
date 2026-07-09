@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-09 (Phase H H1 — simulation module registry — v0.5.89)
+> **Last updated:** 2026-07-09 (Phase H H2 — simulation-result schema — v0.5.90)
+> **New in v0.5.90:** Simulation-result schema and validator (H2) — `schemas/simulation_result.schema.json` (Draft 2020-12) validates SimulationResult outputs with uncertainty 0.0–1.0 range, required fields (module, version, scope, scores, uncertainty, calibration_set, validated_against, notes), and optional `dry_lab_context` const "dry-lab-only". `validate_simulation_result()` checks module, version, scope, scores, uncertainty, validated_against, notes. Strict mode adds: module must not be "dummy" or contain "stub", uncertainty < 1.0, validated_against non-empty. `validate_simulation_result_batch()` aggregates results with counts and `any_invalid` flag. CLI (`openamp-foundry validate-simulation-result`) with `--results-json`, `--strict`, `--out-json`. `make validate-simulation-result-schema` target. 19 tests. **3125 total.** Dry-lab only.
 > **New in v0.5.89:** Simulation module registry (H1) — `SimulationModuleEntry` dataclass tracks module_id, name, description, status, evidence_level, baseline_comparison, scope, maintainer, and notes. `SIMULATION_MODULE_REGISTRY` holds 4 entries (membrane_proxy, structure_proxy, dummy_membrane_proxy, external_adapter_placeholder). Lookup functions: `get_module_entry()`, `list_module_entries()` with status/min_evidence filtering, `get_active_modules()`, `registry_summary()` with total/by_status/by_evidence_level/active_module_ids keys. `validate_registry()` checks module_id, name, baseline_comparison, evidence_level 1-6, valid status, duplicate detection. CLI (`openamp-foundry simulation-registry`) supports `--list`, `--show`, `--status`, `--min-evidence`, `--format text|json`. Schema (`schemas/simulation_module_registry.schema.json`). `make simulation-registry` target. 28 tests. 3106 total. Starts Phase H (virtual assay discipline).
 > **New in v0.5.87:** Calibration decision review checklist (G9) — `build_checklist()` produces a structured `CalibrationDecisionChecklist` with 12 checklist items (10 required) covering data quality, statistical validity, safety consistency, approval, and documentation. Each item has an id, category, question, rationale, and required flag. `CalibrationDecisionChecklist` dataclass tracks responses, notes, overall_pass, and missing_required. CLI (`openamp-foundry calibration-decision-checklist`) accepts `--checklist-id`, `--date`, `--reviewer`, `--responses-json`, `--out-json`, `--out-md`. JSON + Markdown output. Schema (`schemas/calibration_decision_checklist.schema.json`). `make calibration-decision-checklist` target. 14 tests. 3063 total. Makes human review structured and auditable.
 > **New in v0.5.86:** Synthetic-result policy enforcement (G8) — `check_synthetic_result_policy()` and `run_policy_batch()` enforce that synthetic/simulation outputs cannot raise the proof-ladder level of a candidate. Levels 4+ require wet-lab evidence; synthetic/unknown sources are rejected for such proposals. CLI (`openamp-foundry synthetic-result-policy-check`) accepts `--proposals-json`, `--out-json`, `--out-md`. Schema (`schemas/synthetic_result_policy_check.schema.json`). `make synthetic-result-policy-check` target. 27 tests. 3049 total. Anti-overclaim safeguard.
@@ -80,7 +81,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.89 (H1 — Phase H started)
+> **Pipeline version:** v0.5.90 (H2 — simulation-result schema)
 > **Branch:** main
 
 ---
@@ -1150,7 +1151,7 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 
 | Metric | Value |
 |--------|-------|
-| Total tests | 2724 |
+| Total tests | 3125 |
 | Coverage (branch) | 99% (6 CLI guard lines only) |
 | Source modules at 100% | All pipeline, QC, scoring modules |
 
