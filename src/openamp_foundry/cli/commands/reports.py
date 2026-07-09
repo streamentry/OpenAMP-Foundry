@@ -3634,3 +3634,35 @@ def _run_recalibration_refusal_check(args) -> int:
         for warn in result.warnings:
             print(f"  WARN:  {warn}")
     return 0 if result.passed else 1
+
+
+def _run_batch_outcome_summary_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.batch_outcome_summary import (
+        validate_batch_outcome_summary_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_batch_outcome_summary_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        synth = "SYNTHETIC" if result.is_synthetic else "REAL"
+        print(f"[{status}] Batch Outcome Summary: {result.bos_id} ({synth})")
+        print(f"  BSP: {result.bsp_id}")
+        print(f"  Tested: {result.candidates_tested}/{result.candidates_proposed} "
+              f"(active={result.candidates_active}, inactive={result.candidates_inactive}, "
+              f"untested={result.candidates_untested})")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1

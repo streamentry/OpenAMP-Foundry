@@ -25,6 +25,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_calibration_readiness_check,
     _run_batch_selection_proposal_check,
     _run_recalibration_refusal_check,
+    _run_batch_outcome_summary_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2374,6 +2375,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_rrf.add_argument("--format", choices=["text", "json"], default="text")
     p_rrf.set_defaults(func=_run_recalibration_refusal_check)
 
+    p_bos = sub.add_parser(
+        "batch-outcome-summary-check",
+        help="Validate batch outcome summary entry",
+    )
+    p_bos.add_argument("--entry-json", default=None)
+    p_bos.add_argument("--format", choices=["text", "json"], default="text")
+    p_bos.set_defaults(func=_run_batch_outcome_summary_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2754,6 +2763,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "recalibration-refusal-check":
         return _run_recalibration_refusal_check(args)
+
+    if args.command == "batch-outcome-summary-check":
+        return _run_batch_outcome_summary_check(args)
 
     parser.error("unknown command")
     return 2
