@@ -1,5 +1,8 @@
 # Roadmap
 
+### v0.8.9
+- Phase M M1: pipeline decision audit entry schema — records each filter/threshold/rank decision with rationale and alternatives considered for external audit. PipelineDecisionAuditEntry dataclass, validate_pipeline_decision_audit(), CLI pipeline-decision-audit-check.
+
 ### v0.8.8
 - Phase L L5: dataset release package checker — validates that open dataset releases meet data governance requirements (license, provenance, dual-use assessment, release approval). DatasetReleaseEntry dataclass, validate_dataset_release(), CLI dataset-release-check. Completes Phase L.
 

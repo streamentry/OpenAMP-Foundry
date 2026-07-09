@@ -213,6 +213,18 @@ Bridge the gap between evidence packages and published science.
 | L5 | Add dataset release package checker (complete — Loop 127). | Validates open dataset releases meet data governance. | B/D |
 
 
+## Phase M — Audit Trail Infrastructure
+
+Make every pipeline decision traceable, independently verifiable, and resistant to post-hoc rationalization.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| M1 | Add pipeline decision audit entry schema (complete — Loop 128). | Records filter/threshold/rank decisions with rationale for external audit. | B |
+| M2 | Add claim-to-evidence mapper schema. | Maps each scientific claim to the artifact that supports it. | B |
+| M3 | Add score decomposition report schema. | Documents how composite scores are computed from components. | B |
+| M4 | Add reviewer briefing package checker. | One-stop summary that external reviewers need before auditing. | B |
+| M5 | Add audit chain completeness checker. | Validates the evidence chain has no gaps from sequences to submission. | B/D |
+
 ## Prioritization rule
 
 When choosing between tasks, prefer the one that:

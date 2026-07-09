@@ -15,7 +15,7 @@ from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 from openamp_foundry.cli.commands.reports import _run_security_report_check
 from openamp_foundry.cli.commands.reports import _run_citation_check
 from openamp_foundry.cli.commands.reports import _run_roadmap_sync_check
-from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check, _run_batch_priority_check, _run_pilot_package_check, _run_calibration_intake_check, _run_uncertainty_report_check, _run_preprint_bundle_check, _run_reproducibility_manifest_check, _run_candidate_summary_card_check, _run_multi_candidate_comparison_check, _run_dataset_release_check
+from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check, _run_batch_priority_check, _run_pilot_package_check, _run_calibration_intake_check, _run_uncertainty_report_check, _run_preprint_bundle_check, _run_reproducibility_manifest_check, _run_candidate_summary_card_check, _run_multi_candidate_comparison_check, _run_dataset_release_check, _run_pipeline_decision_audit_check
 
 import argparse
 import json
@@ -2161,6 +2161,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Pipeline decision audit check (Phase M M1) ────────────────────
+    pdac = sub.add_parser(
+        "pipeline-decision-audit-check",
+        help=(
+            "Validate a pipeline decision audit entry. Records filter/threshold/rank "
+            "decisions with rationale for external audit. Dry-lab only."
+        ),
+    )
+    pdac.add_argument(
+        "--entry-json", type=str, required=True,
+        help="JSON string of a PipelineDecisionAuditEntry dict (required).",
+    )
+    pdac.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2495,6 +2513,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "dataset-release-check":
         return _run_dataset_release_check(args)
+
+    if args.command == "pipeline-decision-audit-check":
+        return _run_pipeline_decision_audit_check(args)
 
     parser.error("unknown command")
     return 2
