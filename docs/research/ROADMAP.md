@@ -1,5 +1,33 @@
 # Roadmap
 
+## v0.7.8 — Loop 118: Phase J J10 — Annual Safety and Benchmark Review Checklist ✓ (2026-07-09)
+
+`docs/governance/ANNUAL_REVIEW_CHECKLIST.md` with 5-section structured annual
+review checklist (safety_policy: 6 checks covering dual-use safeguards,
+dry_lab_only enforcement, toxicity/hemolysis filter thresholds, evidence_level
+guard; benchmark_thresholds: 6 checks covering threshold loosening guard,
+easy-baseline requirement, selectivity benchmarks, deprecation check;
+calibration_status: 4 checks covering recalibration gate, decision checklist,
+rollback plan; governance_decisions: 4 checks covering active decisions,
+COI disclosures, maintainer rotation; data_governance: 3 checks covering
+proprietary data license flags, external source documentation).
+
+`src/openamp_foundry/governance/annual_review.py` with `AnnualReviewEntry`
+dataclass (10 fields: review_id, year, section, reviewer, finding_count,
+action_items_count, status, notes, completion_date, dry_lab_only),
+`AnnualReviewResult` dataclass (6 fields, dry_lab_only=True),
+`VALID_REVIEW_SECTIONS` (5: benchmark_thresholds, calibration_status,
+data_governance, governance_decisions, safety_policy),
+`VALID_ENTRY_STATUSES` (5: completed, deferred, in_progress, not_applicable,
+pending), `validate_annual_review_entry()` (9 checks: ANN- prefix, 4-digit year,
+valid section, non-empty reviewer, non-negative finding_count,
+non-negative action_items_count, valid status, completed requires YYYY-MM-DD
+completion_date, dry_lab_only must be True; completed+no-notes warns, deferred
+warns, findings+no-action-items warns), `validate_annual_review_dict()` (7
+required fields guard). CLI (`openamp-foundry annual-review-check`) with
+`--entry-json`, `--format text|json`. `make annual-review-check` target.
+Long-term trust: annual review entries are now machine-validated.
+
 ## v0.7.7 — Loop 117: Phase J J9 — External Advisory Review Process ✓ (2026-07-09)
 
 `docs/governance/EXTERNAL_ADVISORY_REVIEW_PROCESS.md` with reviewer eligibility
