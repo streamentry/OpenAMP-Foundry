@@ -1,5 +1,12 @@
 # Roadmap
 
+### v0.9.7 — Phase N N4: Negative Result Record
+- Added `NegativeResultEntry` schema ensuring failed experiments are documented, not discarded
+- 6 failure categories, 5 assay types; warns on suppressed reporting, systematic failures, uncalibrated overprediction
+- dry_lab_only=False supported for real lab data
+- CLI: `openamp-foundry negative-result-check`
+- 68 tests; all passing
+
 ### v0.9.6 — Phase N N3: Baseline Comparison Manifest
 - Added `BaselineComparisonEntry` schema for machine-verifiable proof the pipeline beats cheap baselines
 - 6 metric names, 2 comparison directions, p_value sentinel for uncomputed significance
