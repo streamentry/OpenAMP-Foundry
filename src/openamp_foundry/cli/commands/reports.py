@@ -3607,3 +3607,30 @@ def _run_batch_selection_proposal_check(args: argparse.Namespace) -> int:
             print(f"  WARN: {w}")
 
     return 0 if result.passed else 1
+
+
+def _run_recalibration_refusal_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.recalibration_refusal_record import (
+        validate_recalibration_refusal_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_recalibration_refusal_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Recalibration Refusal: {result.rrf_id}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1

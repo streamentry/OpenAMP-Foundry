@@ -258,6 +258,7 @@ preventing the pipeline from selecting candidates under poor calibration.
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | P1 | Add batch selection proposal schema (complete). | Enforces calibration gate must pass before proposing a next batch; documents exploitation/exploration strategy. | B/D |
+| P2 | Add recalibration refusal record schema (complete). | Documents when recalibration was correctly rejected; prevents spurious recalibrations and creates audit trail. | B/D |
 
 ## Prioritization rule
 
