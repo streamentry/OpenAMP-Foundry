@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1308,6 +1308,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional output path for policy check markdown report.",
     )
 
+    # ── Calibration decision review checklist ────────────────────────
+    cdc = sub.add_parser(
+        "calibration-decision-checklist",
+        help=(
+            "Build a structured calibration decision review checklist. "
+            "Evaluates which required items are missing and sets overall_pass. "
+            "Dry-lab only."
+        ),
+    )
+    cdc.add_argument("--checklist-id", required=True, help="Unique checklist identifier (e.g. CHK-2026-001).")
+    cdc.add_argument("--date", required=True, help="Review date in YYYY-MM-DD format.")
+    cdc.add_argument("--reviewer", required=True, help="Name or role of the human reviewer.")
+    cdc.add_argument(
+        "--responses-json",
+        required=True,
+        help="Path to a JSON file mapping item IDs to boolean responses "
+        '(e.g. {"G9-01": true, "G9-02": false, ...}).',
+    )
+    cdc.add_argument("--out-json", default=None, help="Optional output path for the checklist JSON.")
+    cdc.add_argument("--out-md", default=None, help="Optional output path for the checklist Markdown.")
+
     return parser
 
 
@@ -1456,6 +1477,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "synthetic-result-policy-check":
         return _run_synthetic_result_policy_check(args)
+
+    if args.command == "calibration-decision-checklist":
+        return _run_calibration_decision_checklist(args)
 
     parser.error("unknown command")
     return 2

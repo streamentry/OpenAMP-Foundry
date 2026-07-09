@@ -1,5 +1,56 @@
 # Roadmap
 
+## v0.5.87 — Loop 87: Phase G G9 — Calibration Decision Review Checklist ✓ (2026-07-09)
+
+`build_checklist()` produces a structured `CalibrationDecisionChecklist` with 12
+checklist items (10 required) covering data quality, statistical validity, safety
+consistency, approval, and documentation. Each item has an id, category, question,
+rationale, and required flag. `CalibrationDecisionChecklist` dataclass tracks
+responses, notes, overall_pass, and missing_required. JSON + Markdown output.
+Schema (`schemas/calibration_decision_checklist.schema.json`).
+CLI (`openamp-foundry calibration-decision-checklist`).
+`make calibration-decision-checklist` target. 14 tests. 3063 total.
+Makes human review structured and auditable.
+
+Changes:
+- `src/openamp_foundry/calibration/decision_checklist.py` (G9) — Core module with
+  `CHECKLIST_ITEMS` list (12 items), `CalibrationDecisionChecklist` dataclass
+  (8 fields: checklist_id, date, reviewer, responses, notes, overall_pass,
+  missing_required, dry_lab_only), `build_checklist()` applying response validation
+  and missing-required analysis, `write_checklist_json()` and
+  `write_checklist_markdown()` for structured output.
+- `schemas/calibration_decision_checklist.schema.json` (G9) — JSON Schema Draft
+  2020-12 for the decision checklist. Validates all 8 required fields including
+  date pattern, responses object, and dry_lab_only const=true.
+- `src/openamp_foundry/calibration/__init__.py` — Exports all decision checklist
+  symbols.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_calibration_decision_checklist()` CLI handler with `--checklist-id`,
+  `--date`, `--reviewer`, `--responses-json`, `--out-json`, `--out-md` flags.
+- `src/openamp_foundry/cli/main.py` — Registered `calibration-decision-checklist`
+  subcommand with all argument flags and dispatch to handler.
+- `Makefile` — Added `calibration-decision-checklist` target with default example
+  data writing to `/tmp/checklist_output.json` and `/tmp/checklist_output.md`.
+  Added to `.PHONY`.
+- `tests/calibration/test_decision_checklist.py` — 14 tests covering: all required
+  pass → overall_pass=True, missing required → overall_pass=False, missing_required
+  list correct, unknown response id raises ValueError, dry_lab_only always True,
+  notes stored correctly, checklist_id stored correctly, reviewer stored correctly,
+  date stored correctly, CHECKLIST_ITEMS minimum count, required items have
+  required=True attribute, all items have required fields, JSON writer, Markdown
+  writer with table and icons.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.87 G9 changelog. Test count: 3063.
+- `tests/test_test_count_regression.py` — baseline updated to 3063.
+
+Honest boundaries:
+- The checklist validates structured human-review completion, not biological
+  correctness. A passing checklist does not confirm biological activity or safety.
+- Required items are policy-defined. Missing or false required items block the
+  overall_pass, but a pass does not guarantee that human review was thorough.
+- All calibration decisions require qualified human review regardless of checklist
+  results.
+- The dry_lab_only=True constraint is an attestation, not a technical proof.
+
 ## v0.5.86 — Loop 86: Phase G G8 — Synthetic-Result Policy (Anti-Overclaim) ✓ (2026-07-09)
 
 `check_synthetic_result_policy()` and `run_policy_batch()` enforce that synthetic/

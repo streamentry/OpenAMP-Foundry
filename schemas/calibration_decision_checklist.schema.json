@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Calibration Decision Review Checklist",
+  "description": "Structured human-review checklist applied before any recalibration update takes effect. Dry-lab only.",
+  "type": "object",
+  "required": [
+    "checklist_id",
+    "date",
+    "reviewer",
+    "responses",
+    "notes",
+    "overall_pass",
+    "missing_required",
+    "dry_lab_only"
+  ],
+  "properties": {
+    "checklist_id": { "type": "string", "minLength": 1 },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "responses": {
+      "type": "object",
+      "additionalProperties": { "type": "boolean" },
+      "minProperties": 1
+    },
+    "notes": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "overall_pass": { "type": "boolean" },
+    "missing_required": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dry_lab_only": { "type": "boolean", "const": true }
+  }
+}

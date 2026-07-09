@@ -83,6 +83,14 @@ from openamp_foundry.calibration.result_quality import (
     write_result_quality_markdown,
 )
 
+from openamp_foundry.calibration.decision_checklist import (
+    CHECKLIST_ITEMS,
+    CalibrationDecisionChecklist,
+    build_checklist,
+    write_checklist_json,
+    write_checklist_markdown,
+)
+
 __all__ = [
     # Constants
     "MIN_COHORT_SIZE",
@@ -136,4 +144,10 @@ __all__ = [
     "filter_results_for_calibration",
     "write_result_quality_json",
     "write_result_quality_markdown",
+    # Decision checklist
+    "CHECKLIST_ITEMS",
+    "CalibrationDecisionChecklist",
+    "build_checklist",
+    "write_checklist_json",
+    "write_checklist_markdown",
 ]

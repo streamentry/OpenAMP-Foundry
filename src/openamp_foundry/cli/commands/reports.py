@@ -1128,3 +1128,63 @@ def _run_result_quality_filter(args: argparse.Namespace) -> int:
         "out_md": args.out_md,
     }, indent=2))
     return 0
+
+
+def _run_calibration_decision_checklist(args: argparse.Namespace) -> int:
+    """Build a structured calibration decision review checklist."""
+    import json
+    from pathlib import Path
+
+    from openamp_foundry.calibration.decision_checklist import (
+        build_checklist,
+        write_checklist_json,
+        write_checklist_markdown,
+    )
+
+    responses_path = Path(args.responses_json)
+    if not responses_path.exists():
+        print(json.dumps({
+            "status": "error",
+            "error": f"responses JSON not found: {responses_path}",
+        }))
+        return 2
+
+    with responses_path.open() as f:
+        responses = json.load(f)
+
+    if not isinstance(responses, dict):
+        print(json.dumps({
+            "status": "error",
+            "error": "responses JSON must be a dict mapping item IDs to booleans",
+        }))
+        return 2
+
+    try:
+        checklist = build_checklist(
+            checklist_id=args.checklist_id,
+            date=args.date,
+            reviewer=args.reviewer,
+            responses=responses,
+        )
+    except ValueError as e:
+        print(json.dumps({"status": "error", "error": str(e)}))
+        return 3
+
+    if args.out_json:
+        write_checklist_json(checklist, args.out_json)
+    if args.out_md:
+        write_checklist_markdown(checklist, args.out_md)
+
+    print(json.dumps({
+        "status": "ok",
+        "checklist_id": checklist.checklist_id,
+        "date": checklist.date,
+        "reviewer": checklist.reviewer,
+        "overall_pass": checklist.overall_pass,
+        "missing_required": checklist.missing_required,
+        "n_responses": len(checklist.responses),
+        "dry_lab_only": checklist.dry_lab_only,
+        "out_json": args.out_json,
+        "out_md": args.out_md,
+    }, indent=2))
+    return 0 if checklist.overall_pass else 3
