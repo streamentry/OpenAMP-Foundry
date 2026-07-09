@@ -3328,3 +3328,23 @@ def _run_pre_registration_check(args: argparse.Namespace) -> None:
             print(f"  ERROR: {e}")
         for w in result.warnings:
             print(f"  WARN:  {w}")
+
+
+def _run_hypothesis_outcome_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.hypothesis_outcome_record import validate_hypothesis_outcome_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_hypothesis_outcome_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        threshold_status = "MET" if result.success_threshold_met else "NOT MET"
+        print(f"[{status}] Hypothesis Outcome: {result.outcome_id} -> {result.outcome_verdict} (threshold {threshold_status})")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")

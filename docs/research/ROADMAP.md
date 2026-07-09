@@ -1,5 +1,13 @@
 # Roadmap
 
+### v0.9.5 — Phase N N2: Hypothesis Outcome Record
+- Added `HypothesisOutcomeEntry` schema linking pre-registration to actual experimental outcomes
+- Records confirmed/refuted/inconclusive/partially_confirmed verdicts with observed metric value
+- Warns on threshold/verdict inconsistency and undocumented inconclusive deviations
+- dry_lab_only=False supported (real lab data can be recorded)
+- CLI: `openamp-foundry hypothesis-outcome-check`
+- 48 tests; all passing
+
 ### v0.9.4 — Phase N N1: Pre-Registration Form (starts Phase N)
 - Added `PreRegistrationEntry` schema for machine-verifiable experiment pre-commitment
 - Records hypothesis, outcome metric, success threshold, and baseline comparators before results are observed
