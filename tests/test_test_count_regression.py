@@ -2,11 +2,11 @@
 import subprocess
 import sys
 
-# Baseline: 3446 tests as of Loop 108 (2026-07-09) -- Phase I I10 (adoption scorecard, Phase I complete)
+# Baseline: 3478 tests as of Loop 109 (2026-07-09) -- Phase J J1 (release checklist)
 # Note: 3 pre-existing collection errors in test_benchmark_calibration.py,
 # test_benchmark_charge_distribution.py, test_benchmark_cheap_enemies.py.
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3446
+BASELINE = 3478
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 
