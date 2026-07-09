@@ -2,11 +2,11 @@
 import subprocess
 import sys
 
-# Baseline: 3373 tests as of Loop 104 (2026-07-09) -- Phase I I6 (adapter author validator)
+# Baseline: 3393 tests as of Loop 105 (2026-07-09) -- Phase I I7 (data license checker)
 # Note: 3 pre-existing collection errors in test_benchmark_calibration.py,
 # test_benchmark_charge_distribution.py, test_benchmark_cheap_enemies.py.
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3373
+BASELINE = 3393
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

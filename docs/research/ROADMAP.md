@@ -1,5 +1,70 @@
 # Roadmap
 
+## v0.6.5 — Loop 105: Phase I I7 — Data License Checker ✓ (2026-07-09)
+
+`src/openamp_foundry/licensing/license_checker.py` with `DataLicenseDeclaration`
+dataclass (11 fields: source_id, source_name, license_id, use_context,
+attribution_required, commercial_use_allowed, redistribution_allowed,
+modifications_allowed, human_review_required, notes, dry_lab_only).
+`LicenseCheckResult` dataclass (8 fields: source_id, license_id, use_context,
+passed, status, errors, warnings, dry_lab_only). `check_data_license()` validates
+declarations against three license sets: `APPROVED_LICENSES` (11 entries: CC0-1.0,
+CC-BY-4.0, CC-BY-SA-4.0, MIT, Apache-2.0, GPL-3.0, LGPL-2.1, BSD-2-Clause,
+BSD-3-Clause, ODbL-1.0, PDDL-1.0), `RESTRICTED_LICENSES` (4 entries: CC-BY-NC-4.0,
+CC-BY-NC-SA-4.0, custom, proprietary), `BLOCKED_LICENSES` (3 entries: unknown,
+unlicensed, all-rights-reserved). Blocked licenses fail immediately; restricted
+require human_review_required=True; unknown licenses require governance review.
+`check_license_batch()` summarizes total/passed/failed/blocked/any_blocked/
+all_passed with dry_lab_only=True. `VALID_USE_CONTEXTS` (6 entries: training,
+scoring, benchmarking, reporting, publication, internal).
+
+CLI (`openamp-foundry license-check`) with `--source-json` (required) and
+`--format text|json`. Handler `_run_license_check` in reports.py.
+
+`make license-check` target. 20 tests. **3393 total.** External data sources
+used in pipeline outputs now require explicit license declarations, preventing
+hidden legal risk. This is Loop 105 — the 105th PR in the NEXT_100_PR_MAP series.
+
+Changes:
+- `src/openamp_foundry/licensing/__init__.py` (I7) — Empty package init.
+- `src/openamp_foundry/licensing/license_checker.py` (I7) — Core module with
+  `DataLicenseDeclaration` (11 fields), `LicenseCheckResult` (8 fields),
+  `check_data_license()` (validates against APPROVED_LICENSES 11 entries,
+  RESTRICTED_LICENSES 4, BLOCKED_LICENSES 3, VALID_USE_CONTEXTS 6),
+  `check_license_batch()` (summary with counts, any_blocked, all_passed,
+  dry_lab_only=True). All dataclasses carry dry_lab_only=True.
+- `tests/licensing/__init__.py` (I7) — Empty package init.
+- `tests/licensing/test_license_checker.py` (I7) — 20 tests covering: valid CC0
+  passes, valid MIT passes, blocked unknown/unlicensed/all-rights-reserved fail,
+  restricted CC-BY-NC-4.0 without human_review fails, restricted with human_review
+  passes, empty source_id/source_name/license_id fail, invalid use_context fails,
+  dry_lab_only=False fails, publication without redistribution fails, unknown
+  license gets status=unknown_license, batch counts correct, all results
+  dry_lab_only, constant counts.
+- `src/openamp_foundry/cli/main.py` (I7) — Registered `license-check` subcommand
+  with `--source-json`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I7) — Added `_run_license_check()`
+  CLI handler with JSON parsing, DataLicenseDeclaration creation, text and JSON
+  output, and exit code 3 on failure.
+- `Makefile` (I7) — Added `license-check` target with demo invocation using
+  apd-v2 source and CC-BY-4.0 license. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` — v0.6.5 I7 changelog. Test count: 3393.
+- `tests/test_test_count_regression.py` — baseline updated to 3393.
+
+Honest boundaries:
+- License validation checks declared license identifiers against known lists.
+  It does not verify that the data source actually uses the declared license,
+  that the license is legally enforceable in a given jurisdiction, or that the
+  data was lawfully obtained.
+- Approved and blocked lists are policy-defined and may need updating as the
+  legal landscape evolves.
+- `dry_lab_only: true` is a const field on all dataclasses — license checks
+  are inherently computational and must never be presented as legal advice.
+- External adapter authors who produce data from new sources must declare their
+  licenses before those data can influence pipeline outputs.
+- Restricted licenses require human_review_required=True — this is a structural
+  check that the flag is set, not verification that human review actually occurred.
+
 ## v0.6.4 — Loop 104: Phase I I6 — Adapter Author Validator ✓ (2026-07-09)
 
 `src/openamp_foundry/adapters/adapter_validator.py` with `AdapterDeclaration`

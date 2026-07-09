@@ -2247,3 +2247,59 @@ def _run_adapter_check(args: argparse.Namespace) -> int:
         print("not biological proof.")
 
     return 0 if result.passed else 3
+
+
+def _run_license_check(args: argparse.Namespace) -> int:
+    """Validate a data license declaration."""
+    from openamp_foundry.licensing.license_checker import (
+        DataLicenseDeclaration,
+        check_data_license,
+    )
+
+    try:
+        source_dict = json.loads(args.source_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --source-json: {e}"}))
+        return 2
+
+    if not isinstance(source_dict, dict):
+        print(json.dumps({"status": "error", "error": "--source-json must be a JSON object"}))
+        return 2
+
+    decl = DataLicenseDeclaration(**source_dict)
+    result = check_data_license(decl)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps({
+            "source_id": result.source_id,
+            "license_id": result.license_id,
+            "use_context": result.use_context,
+            "passed": result.passed,
+            "status": result.status,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "dry_lab_only": result.dry_lab_only,
+        }, indent=2))
+    else:
+        print("License Check")
+        print("=" * 60)
+        print(f"Source ID:      {result.source_id}")
+        print(f"License ID:     {result.license_id}")
+        print(f"Use Context:    {result.use_context}")
+        print(f"Status:         {result.status.upper()}")
+        print(f"Result:         {'PASS' if result.passed else 'FAIL'}")
+        print()
+        if result.errors:
+            print("Errors:")
+            for err in result.errors:
+                print(f"  - {err}")
+        if result.warnings:
+            print("Warnings:")
+            for w in result.warnings:
+                print(f"  - {w}")
+        print()
+        print("Dry-lab only. License checks are computational safeguards,")
+        print("not legal advice.")
+
+    return 0 if result.passed else 3
