@@ -3407,3 +3407,22 @@ def _run_experiment_priority_check(args: argparse.Namespace) -> None:
             print(f"  ERROR: {e}")
         for w in result.warnings:
             print(f"  WARN:  {w}")
+
+
+def _run_calibration_performance_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.calibration_performance_summary import validate_calibration_performance_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_calibration_performance_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Calibration Performance: {result.summary_id} (v{result.pipeline_version}, n={result.total_candidates_evaluated}, Brier={result.brier_score:.3f})")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")

@@ -1,5 +1,12 @@
 # Roadmap
 
+### v0.9.9 — Phase O O1: Calibration Performance Summary (starts Phase O)
+- Added `CalibrationPerformanceEntry` schema tracking prediction accuracy over batches with known outcomes
+- Confusion matrix validation; Brier score; FP rate, recall, and small-sample warnings
+- dry_lab_only=False (requires real experimental data)
+- CLI: `openamp-foundry calibration-performance-check`
+- 46 tests; all passing
+
 ### v0.9.8 — Phase N N5: Experiment Priority Justification (Completes Phase N)
 - Added `ExperimentPriorityEntry` schema documenting why a batch was selected over alternatives
 - Safety review enforcement; post-hoc selection warning; resource constraint transparency

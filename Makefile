@@ -963,6 +963,9 @@ negative-result-check:
 experiment-priority-check:
 	openamp-foundry experiment-priority-check --entry-json '{"justification_id":"EPJ-001","batch_id":"BATCH-002","pipeline_version":"0.9.8","decision_date":"2026-07-10","selection_criteria":["Highest predicted hit rate","All candidates passed safety filters"],"rejected_alternatives":["BATCH-001"],"rejection_rationale":"BATCH-001 showed lower predicted hit rate and higher predicted toxicity scores.","resource_constraint":"Synthesis limited to 10 candidates per wave.","safety_reviewed":true,"pre_specified":true,"decided_by":"pipeline@example.com","dry_lab_only":true}' --format text
 
+calibration-performance-check:
+	openamp-foundry calibration-performance-check --entry-json '{"summary_id":"CPS-001","pipeline_version":"0.9.9","evaluation_date":"2026-07-10","batch_ids_evaluated":["BATCH-001","BATCH-002"],"total_candidates_evaluated":20,"true_positive_count":10,"false_positive_count":2,"true_negative_count":6,"false_negative_count":2,"brier_score":0.12,"calibration_notes":"Calibration looks reasonable.","reviewer":"test@example.com","dry_lab_only":false}' --format text
+
 dataset-release-check:
 	.venv/bin/openamp-foundry dataset-release-check \
 		--entry-json '{"release_id":"DSR-001","dataset_name":"OpenAMP Wave 0.5 Candidates","dataset_version":"1.0.0","release_date":"2026-07-09","license_identifier":"CC-BY-4.0","data_sources":["UniProt AMP database","APD3","in-house pipeline"],"contains_sequences":true,"contains_activity_data":false,"dual_use_assessed":true,"usage_policy_url":"https://openamp.example.org/data-policy","contact_email":"data@openamp.example.org","release_approved":true,"dry_lab_only":true}' \
