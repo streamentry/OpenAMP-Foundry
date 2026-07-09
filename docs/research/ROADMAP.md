@@ -1,5 +1,25 @@
 # Roadmap
 
+## v0.8.1 — Loop 121: Phase K K3 — Pilot Package Completeness Checker
+
+`docs/evidence/PILOT_PACKAGE_GUIDE.md` with purpose, required field table (11
+fields), mandatory artifact types table (3 types: selection_rationale,
+batch_priority, evidence_certificate), valid artifact types (8 types), warnings,
+validation workflow, honest-use boundary.
+
+`src/openamp_foundry/evidence/pilot_package.py` with `PilotPackageEntry`
+dataclass (11 fields, dry_lab_only=True enforced), `PilotPackageResult`
+dataclass (5 fields, dry_lab_only=True), `MINIMUM_REQUIRED_ARTIFACTS` (3),
+`READINESS_SCORE_THRESHOLD` (0.80), `MANDATORY_ARTIFACT_TYPES` (3:
+batch_priority, evidence_certificate, selection_rationale),
+`VALID_ARTIFACT_TYPES` (8 types), `validate_pilot_package()` (11 checks, 3
+warning conditions: missing artifacts, low completeness score, same
+reviewer/approver), `validate_pilot_package_dict()` (10 required fields guard).
+
+CLI: `openamp-foundry pilot-package-check`. `make pilot-package-check` target.
+**v0.8.1 milestone** — every pilot submission is machine-validated for
+completeness before external lab submission.
+
 ## v0.8.0 — Loop 120: Phase K K2 — Batch Experiment Priority Ranker ✓ (2026-07-09)
 
 `docs/evidence/BATCH_PRIORITY_GUIDE.md` with field table and validation workflow

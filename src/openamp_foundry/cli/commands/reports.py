@@ -2885,3 +2885,37 @@ def _run_batch_priority_check(args: argparse.Namespace) -> int:
             print("  Batch priority validated. Synthesis wave ranking is auditable.")
 
     return 0 if result.passed else 3
+
+
+def _run_pilot_package_check(args: argparse.Namespace) -> int:
+    """Validate a pilot package completeness entry."""
+    import json as _json
+    from openamp_foundry.evidence.pilot_package import validate_pilot_package_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_pilot_package_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Pilot package {result.package_id} (batch {result.batch_id}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Pilot package validated. All required artifacts present.")
+
+    return 0 if result.passed else 3

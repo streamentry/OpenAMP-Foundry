@@ -15,7 +15,7 @@ from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 from openamp_foundry.cli.commands.reports import _run_security_report_check
 from openamp_foundry.cli.commands.reports import _run_citation_check
 from openamp_foundry.cli.commands.reports import _run_roadmap_sync_check
-from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check, _run_batch_priority_check
+from openamp_foundry.cli.commands.reports import _run_advisory_review_check, _run_annual_review_check, _run_selection_rationale_check, _run_batch_priority_check, _run_pilot_package_check
 
 import argparse
 import json
@@ -2017,6 +2017,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Pilot package check (Phase K K3) ─────────────────────────────
+    ppc = sub.add_parser(
+        "pilot-package-check",
+        help=(
+            "Validate a pilot package completeness entry. Confirms all required "
+            "artifacts are present before external lab submission. Dry-lab only."
+        ),
+    )
+    ppc.add_argument(
+        "--entry-json", type=str, required=True,
+        help="JSON string of a PilotPackageEntry dict (required).",
+    )
+    ppc.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2327,6 +2345,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "batch-priority-check":
         return _run_batch_priority_check(args)
+
+    if args.command == "pilot-package-check":
+        return _run_pilot_package_check(args)
 
     parser.error("unknown command")
     return 2
