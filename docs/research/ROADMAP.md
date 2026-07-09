@@ -1,5 +1,69 @@
 # Roadmap
 
+## v0.6.2 — Loop 102: Phase I I4 — Evidence-Certificate Changelog ✓ (2026-07-09)
+
+`docs/engineering/ARTIFACT_CHANGELOG.md` with structured changelog format
+(version, date, artifact_name, change_type, description, breaking flag).
+Unreleased section at top for pending changes. 5 entries covering recent
+Phase H and I additions (candidate_manifest, benchmark_card,
+simulation_result, simulation_module_registry, artifact_versioning_policy)
+plus the changelog itself — all as "added", non-breaking, v1.0.0.
+
+`src/openamp_foundry/versioning/artifact_changelog.py` with `CHANGE_TYPES`
+set (6 values: added, changed, deprecated, removed, fixed, security),
+`ChangelogEntry` dataclass (7 fields: version, date, artifact_name,
+change_type, description, breaking, notes), `ARTIFACT_CHANGELOG` list
+(6 entries), `get_changelog_entries()` (filters by artifact_name, version,
+change_type, breaking_only), `validate_changelog()` (5 checks: version
+MAJOR.MINOR.PATCH, date YYYY-MM-DD with dashes, artifact_name non-empty,
+change_type in CHANGE_TYPES, description non-empty), `changelog_summary()`
+(total, by_change_type, breaking_changes, artifacts_covered sorted,
+dry_lab_only).
+
+CLI (`openamp-foundry artifact-changelog`) with `--artifact`, `--version`,
+`--change-type`, `--breaking-only`, `--format text|json`.
+`make artifact-changelog` target.
+
+13 tests. **3342 total.** External tools that consume OpenAMP artifacts
+now have a machine-readable changelog to detect breaking changes and adapt
+consumers. This is Loop 102 — the 102nd PR in the NEXT_100_PR_MAP series.
+
+Changes:
+- `docs/engineering/ARTIFACT_CHANGELOG.md` (I4) — Structured changelog
+  document with versioned entries, Unreleased section, and dry-lab-only
+  disclaimer.
+- `src/openamp_foundry/versioning/artifact_changelog.py` (I4) — Core
+  module with `CHANGE_TYPES`, `ChangelogEntry` dataclass,
+  `ARTIFACT_CHANGELOG`, `get_changelog_entries()`, `validate_changelog()`,
+  `changelog_summary()`.
+- `src/openamp_foundry/versioning/__init__.py` (I4) — Exported
+  `CHANGE_TYPES`, `ChangelogEntry`, `ARTIFACT_CHANGELOG`,
+  `get_changelog_entries`, `validate_changelog`, `changelog_summary`.
+- `src/openamp_foundry/cli/main.py` (I4) — Registered `artifact-changelog`
+  subcommand with `--artifact`, `--version`, `--change-type`,
+  `--breaking-only`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I4) — Added
+  `_run_artifact_changelog()` CLI handler with JSON and text output,
+  filtering, validation display, and summary.
+- `Makefile` (I4) — Added `artifact-changelog` target with `.PHONY`.
+- `tests/versioning/test_artifact_changelog.py` (I4) — 13 tests covering:
+  at least 5 entries, all pass validation, no filter returns all, filter
+  by artifact_name, breaking_only, change_type, catches empty artifact_name,
+  invalid change_type, invalid version format, summary total, dry_lab_only,
+  breaking_changes count, artifacts_covered sorted.
+- `docs/evidence/METRICS_CURRENT.md` — v0.6.2 I4 changelog. Test count: 3342.
+- `tests/test_test_count_regression.py` — baseline updated to 3342.
+
+Honest boundaries:
+- Changelog entries describe schema and format changes only — they do not
+  measure biological activity, safety, or clinical value.
+- All current entries are "added" and non-breaking; breaking changes are
+  expected in future major versions.
+- The changelog is a computational artifact — it records version history,
+  not biological findings.
+- `dry_lab_only: true` applies to all entries — changelogs are inherently
+  dry-lab and must never be presented as validated biological findings.
+
 ## v0.6.1 — Loop 101: Phase I I3 — Benchmark Card Schema ✓ (2026-07-09)
 
 `schemas/benchmark_card.schema.json` (Draft 2020-12, 15 required fields:

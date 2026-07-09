@@ -2087,3 +2087,79 @@ def _run_benchmark_card(args: argparse.Namespace) -> int:
     if validation_errors:
         return 3
     return 0
+
+
+def _run_artifact_changelog(args: argparse.Namespace) -> int:
+    """Display evidence-certificate changelog entries."""
+    from openamp_foundry.versioning.artifact_changelog import (
+        ARTIFACT_CHANGELOG,
+        get_changelog_entries,
+        validate_changelog,
+        changelog_summary,
+    )
+
+    artifact = getattr(args, "artifact", None)
+    version = getattr(args, "version", None)
+    change_type = getattr(args, "change_type", None)
+    breaking_only = getattr(args, "breaking_only", False)
+    output_format = getattr(args, "format", "text")
+
+    entries = get_changelog_entries(
+        artifact_name=artifact,
+        version=version,
+        change_type=change_type,
+        breaking_only=breaking_only,
+    )
+
+    summary = changelog_summary()
+    validation_errors = validate_changelog()
+
+    if output_format == "json":
+        result = {
+            "entries": [
+                {
+                    "version": e.version,
+                    "date": e.date,
+                    "artifact_name": e.artifact_name,
+                    "change_type": e.change_type,
+                    "description": e.description,
+                    "breaking": e.breaking,
+                    "notes": e.notes,
+                }
+                for e in entries
+            ],
+            "summary": summary,
+            "valid": len(validation_errors) == 0,
+        }
+        if validation_errors:
+            result["validation_errors"] = validation_errors
+        print(json.dumps(result, indent=2))
+    else:
+        print("Artifact Changelog")
+        print("=" * 60)
+        print(f"Total entries:  {summary['total']}")
+        print(f"By change type: {dict(sorted(summary['by_change_type'].items()))}")
+        print(f"Breaking:       {summary['breaking_changes']}")
+        print(f"Artifacts:      {', '.join(summary['artifacts_covered'])}")
+        print(f"Dry-lab only:   {summary['dry_lab_only']}")
+        if validation_errors:
+            print(f"Validation:     {len(validation_errors)} error(s)")
+        else:
+            print(f"Validation:     passed")
+        print()
+        for entry in entries:
+            breaking_label = " [BREAKING]" if entry.breaking else ""
+            print(f"  v{entry.version:8s} {entry.date}  "
+                  f"[{entry.change_type:10s}]{breaking_label}")
+            print(f"  {'':18s} {entry.artifact_name}")
+            print(f"  {'':18s} {entry.description[:80]}")
+            if entry.notes:
+                print(f"  {'':18s} Notes: {entry.notes[:80]}")
+            print()
+
+        print("Dry-lab only. Changelog entries describe schema and format")
+        print("changes, not biological validity, safety, or efficacy.")
+
+    if validation_errors:
+        return 3
+    return 0

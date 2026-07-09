@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3329 tests as of Loop 101 (2026-07-09) -- Phase I I3 (benchmark card schema)
+# Baseline: 3342 tests as of Loop 102 (2026-07-09) -- Phase I I4 (evidence-certificate changelog)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3329
+BASELINE = 3342
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 
