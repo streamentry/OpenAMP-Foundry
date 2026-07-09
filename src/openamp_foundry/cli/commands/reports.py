@@ -1495,3 +1495,77 @@ def _run_adapter_gate_check(args: argparse.Namespace) -> int:
         print("not biological proof.")
 
     return 0 if gate_result.passed else 3
+
+
+def _run_simulation_provenance(args: argparse.Namespace) -> int:
+    """Generate and display a simulation-result provenance record."""
+    import json
+
+    from openamp_foundry.simulation.provenance import (
+        make_provenance_record,
+        validate_provenance_record,
+    )
+
+    run_id = args.run_id
+    module_id = args.module_id
+    module_version = args.module_version
+    timestamp_utc = args.timestamp_utc
+    input_sequence = args.input_sequence
+    output_format = getattr(args, "format", "text")
+
+    try:
+        scores = json.loads(args.scores_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({
+            "status": "error",
+            "error": f"Invalid JSON for --scores-json: {e}",
+        }))
+        return 2
+
+    if not isinstance(scores, dict):
+        print(json.dumps({
+            "status": "error",
+            "error": "--scores-json must be a JSON object (dict)",
+        }))
+        return 2
+
+    calibration_set = getattr(args, "calibration_set", None)
+
+    record = make_provenance_record(
+        run_id=run_id,
+        module_id=module_id,
+        module_version=module_version,
+        timestamp_utc=timestamp_utc,
+        input_sequence=input_sequence,
+        result_scores=scores,
+        calibration_set=calibration_set,
+    )
+
+    validation_errors = validate_provenance_record(record)
+    if validation_errors:
+        print(json.dumps({
+            "status": "validation_error",
+            "errors": validation_errors,
+        }))
+        return 3
+
+    if output_format == "json":
+        print(json.dumps(record.to_dict(), indent=2))
+    else:
+        print(f"Simulation Provenance Record")
+        print(f"  Run ID:          {record.run_id}")
+        print(f"  Module:          {record.module_id} v{record.module_version}")
+        print(f"  Timestamp (UTC): {record.timestamp_utc}")
+        print(f"  Input hash:      {record.input_hash}")
+        print(f"  Result hash:     {record.result_hash}")
+        if record.calibration_set:
+            print(f"  Calibration set: {record.calibration_set}")
+        if record.notes:
+            for note in record.notes:
+                print(f"  Note:            {note}")
+        print(f"  Dry-lab only:    {record.dry_lab_only}")
+        print()
+        print("Dry-lab only. Provenance records are computational audit trails,")
+        print("not biological proof.")
+
+    return 0

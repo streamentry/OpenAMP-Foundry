@@ -6,6 +6,12 @@ from .adapter_gate import (
     evaluate_adapter_gate,
     run_adapter_gate_batch,
 )
+from .provenance import (
+    SimulationProvenanceRecord,
+    make_provenance_record,
+    provenance_summary,
+    validate_provenance_record,
+)
 from .baseline_registry import (
     BASELINE_DECLARATIONS,
     BaselineDeclaration,
@@ -57,6 +63,10 @@ __all__ = [
     "get_active_modules",
     "registry_summary",
     "validate_registry",
+    "SimulationProvenanceRecord",
+    "make_provenance_record",
+    "validate_provenance_record",
+    "provenance_summary",
     "validate_simulation_result",
     "validate_simulation_result_batch",
     "BaselineDeclaration",

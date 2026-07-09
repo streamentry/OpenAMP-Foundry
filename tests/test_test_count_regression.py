@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3162 tests as of Loop 92 (2026-07-09) -- Phase H H4 (fail-closed adapter integration tests)
+# Baseline: 3181 tests as of Loop 93 (2026-07-09) -- Phase H H5 (simulation-result provenance chain)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3162
+BASELINE = 3181
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

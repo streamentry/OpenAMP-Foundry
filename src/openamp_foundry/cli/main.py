@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1469,6 +1469,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Simulation-result provenance (H5) ────────────────────────────────
+    sp = sub.add_parser(
+        "simulation-provenance",
+        help=(
+            "Generate a simulation-result provenance record with SHA-256 "
+            "input and result hashes. Dry-lab only."
+        ),
+    )
+    sp.add_argument("--run-id", type=str, required=True, help="Unique run ID (e.g. UUID).")
+    sp.add_argument("--module-id", type=str, required=True, help="Module ID (e.g. membrane_proxy).")
+    sp.add_argument("--module-version", type=str, required=True, help="Module version (e.g. 0.1.0).")
+    sp.add_argument("--timestamp-utc", type=str, required=True, help="ISO 8601 UTC timestamp.")
+    sp.add_argument("--input-sequence", type=str, required=True, help="Input peptide sequence.")
+    sp.add_argument("--scores-json", type=str, required=True, help="JSON object of str→float scores.")
+    sp.add_argument("--calibration-set", type=str, default=None, help="Optional calibration set identifier.")
+    sp.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     return parser
 
 
@@ -1635,6 +1656,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "adapter-gate-check":
         return _run_adapter_gate_check(args)
+
+    if args.command == "simulation-provenance":
+        return _run_simulation_provenance(args)
 
     parser.error("unknown command")
     return 2

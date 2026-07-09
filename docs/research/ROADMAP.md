@@ -1,5 +1,52 @@
 # Roadmap
 
+## v0.5.93 — Loop 93: Phase H H5 — Simulation-Result Provenance Chain ✓ (2026-07-09)
+
+`SimulationProvenanceRecord` dataclass with run_id, module_id, module_version,
+timestamp_utc, input_hash (SHA-256 of input sequence), result_hash (SHA-256 of
+sorted scores dict), calibration_set, notes, and dry_lab_only.
+`make_provenance_record()` computes hashes deterministically (sort_keys=True for
+result_hash). `validate_provenance_record()` checks non-empty fields, ISO 8601
+timestamp, 64-char hex hashes, and dry_lab_only=True. `provenance_summary()`
+aggregates total, unique modules, run_ids, and dry_lab_only flag. Every simulation
+result carries a traceable provenance chain so results can be audited, reproduced,
+or invalidated later without relying on memory.
+
+Changes:
+- `src/openamp_foundry/simulation/provenance.py` (H5) — Core module with
+  `SimulationProvenanceRecord` dataclass (9 fields), `make_provenance_record()`
+  computing SHA-256 input_hash and sorted result_hash, `validate_provenance_record()`
+  with 7 integrity checks, `provenance_summary()` with aggregation.
+- `src/openamp_foundry/simulation/__init__.py` — Exports `SimulationProvenanceRecord`,
+  `make_provenance_record`, `validate_provenance_record`, `provenance_summary`.
+- `src/openamp_foundry/cli/main.py` — Registered `simulation-provenance` subcommand
+  with `--run-id`, `--module-id`, `--module-version`, `--timestamp-utc`,
+  `--input-sequence`, `--scores-json`, `--calibration-set`, `--format` flags.
+  Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added `_run_simulation_provenance()`
+  CLI handler with JSON parsing, validation, text and JSON output, exit code 3 on
+  validation error.
+- `Makefile` — Added `simulation-provenance` target with demo invocation using
+  `test-run-001`. Added to `.PHONY`.
+- `tests/simulation/test_provenance.py` — 19 tests covering: record creation,
+  deterministic hashes, dry_lab_only always True, all validation checks
+  (empty fields, bad timestamp, wrong-length hash, dry_lab_only=False),
+  provenance_summary with 0 and N records.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.93 H5 changelog. Test count: 3181.
+- `tests/test_test_count_regression.py` — baseline updated to 3181.
+
+Honest boundaries:
+- SHA-256 hashes prove content integrity, not biological activity.
+- The provenance record attests that a simulation ran, not that the result
+  is biologically meaningful.
+- `input_hash` covers the input sequence only; other input parameters
+  (e.g., engine settings) are not hashed.
+- `result_hash` uses JSON serialisation with sort_keys=True; any future
+  change to the serialisation format will change the hash for identical data.
+- Timestamps are self-reported by the caller and not independently verified.
+- Provenance records are dry-lab only and must not be presented as
+  biological proof.
+
 ## v0.5.92 — Loop 92: Phase H H4 — Fail-Closed Adapter Integration Tests ✓ (2026-07-09)
 
 `FAIL_CLOSED_REASONS` dict (6 keys) enumerates known adapter failure reasons.
