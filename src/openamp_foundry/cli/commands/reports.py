@@ -2715,3 +2715,37 @@ def _run_citation_check(args: argparse.Namespace) -> int:
             print("  Citation entry validated. Ready for publication reference.")
 
     return 0 if result.passed else 3
+
+
+def _run_roadmap_sync_check(args: argparse.Namespace) -> int:
+    """Validate a roadmap sync entry."""
+    import json as _json
+    from openamp_foundry.governance.roadmap_sync import validate_roadmap_sync_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_roadmap_sync_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Roadmap sync entry {result.item_id} (phase {result.phase}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Roadmap sync entry validated. Strategy is actionable.")
+
+    return 0 if result.passed else 3

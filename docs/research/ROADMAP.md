@@ -1,5 +1,29 @@
 # Roadmap
 
+## v0.7.6 — Loop 116: Phase J J8 — Roadmap-to-Issue Sync Checklist ✓ (2026-07-09)
+
+`docs/governance/ROADMAP_ISSUE_SYNC_CHECKLIST.md` with 5-section checklist:
+roadmap items → issues (5 checks), issues → roadmap (3 checks), completed
+items (4 checks), priority alignment (3 checks), version consistency (3 checks).
+
+`src/openamp_foundry/governance/roadmap_sync.py` with `RoadmapSyncEntry`
+dataclass (10 fields: item_id, phase, description, priority, sync_status,
+issue_number, pr_number, completed, completion_date, dry_lab_only),
+`RoadmapSyncResult` dataclass (5 fields, dry_lab_only=True),
+`VALID_SYNC_STATUSES` (5: synced, missing_issue, orphaned_issue, stale,
+completed), `VALID_PRIORITY_LEVELS` (4: A, B, C, D), `VALID_PHASES` (7:
+E, F, G, H, I, J, K), `validate_roadmap_sync_entry()` (8 checks + 4 warning
+conditions), `validate_roadmap_sync_dict()` (5 required fields guard).
+
+CLI (`openamp-foundry roadmap-sync-check`) with `--entry-json` (required),
+`--format text|json`. Handler `_run_roadmap_sync_check` in reports.py.
+
+`make roadmap-sync-check` target. 24 tests. **3624 total.**
+
+Keeps strategy actionable: roadmap sync entries are machine-validated,
+priority A items without issues get an immediate warning, and stale or
+orphaned items are flagged for cleanup.
+
 ## v0.7.5 — Loop 115: Phase J J7 — Citation and Reuse Guide ✓ (2026-07-09)
 
 `docs/governance/CITATION_AND_REUSE_GUIDE.md` with citation formats (inline,

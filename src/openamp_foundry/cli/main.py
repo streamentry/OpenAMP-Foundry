@@ -14,6 +14,7 @@ from openamp_foundry.cli.commands.reports import _run_coi_check
 from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 from openamp_foundry.cli.commands.reports import _run_security_report_check
 from openamp_foundry.cli.commands.reports import _run_citation_check
+from openamp_foundry.cli.commands.reports import _run_roadmap_sync_check
 
 import argparse
 import json
@@ -1962,6 +1963,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Roadmap sync check (Phase J J8) ─────────────────────────────
+    rsc = sub.add_parser(
+        "roadmap-sync-check",
+        help=(
+            "Validate a roadmap-to-issue sync entry. Ensures roadmap items "
+            "are tracked and actionable. Dry-lab only."
+        ),
+    )
+    rsc.add_argument(
+        "--entry-json", type=str, required=True,
+        help="JSON string of a RoadmapSyncEntry dict (required).",
+    )
+    rsc.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Simulation-result confidence interval report (H7) ────────────
     sicr = sub.add_parser(
         "simulation-ci-report",
@@ -2220,6 +2239,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "citation-check":
         return _run_citation_check(args)
+
+    if args.command == "roadmap-sync-check":
+        return _run_roadmap_sync_check(args)
 
     parser.error("unknown command")
     return 2
