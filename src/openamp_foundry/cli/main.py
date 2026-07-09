@@ -13,6 +13,7 @@ from openamp_foundry.cli.commands.reports import _run_release_request_check
 from openamp_foundry.cli.commands.reports import _run_coi_check
 from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 from openamp_foundry.cli.commands.reports import _run_security_report_check
+from openamp_foundry.cli.commands.reports import _run_citation_check
 
 import argparse
 import json
@@ -1943,6 +1944,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Citation check (Phase J J7) ─────────────────────────────────
+    cit = sub.add_parser(
+        "citation-check",
+        help=(
+            "Validate a citation entry against the OpenAMP Foundry citation "
+            "and reuse policy. Dry-lab only."
+        ),
+    )
+    cit.add_argument(
+        "--citation-json", type=str, required=True,
+        help="JSON string of a CitationEntry dict (required).",
+    )
+    cit.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Simulation-result confidence interval report (H7) ────────────
     sicr = sub.add_parser(
         "simulation-ci-report",
@@ -2198,6 +2217,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "security-report-check":
         return _run_security_report_check(args)
+
+    if args.command == "citation-check":
+        return _run_citation_check(args)
 
     parser.error("unknown command")
     return 2

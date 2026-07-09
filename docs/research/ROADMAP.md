@@ -1,5 +1,30 @@
 # Roadmap
 
+## v0.7.5 — Loop 115: Phase J J7 — Citation and Reuse Guide ✓ (2026-07-09)
+
+`docs/governance/CITATION_AND_REUSE_GUIDE.md` with citation formats (inline,
+BibTeX), reuse table (4 artifact types with open/attribution_required/
+contact_required/restricted classes), attribution requirements, honest-use
+boundary (dry-lab outputs only), contact information, linked policies.
+
+`src/openamp_foundry/governance/citation_policy.py` with
+`CitationEntry` dataclass (11 fields: artifact_id, citation_type, title,
+version, authors, year, license_identifier, reuse_class, url, bibtex_key,
+dry_lab_only), `CitationValidationResult` dataclass (6 fields,
+dry_lab_only=True), `VALID_CITATION_TYPES` (4: dataset, method, schema,
+software), `VALID_REUSE_CLASSES` (4: attribution_required, contact_required,
+open, restricted), `VALID_LICENSE_IDENTIFIERS` (5: Apache-2.0, CC-BY-4.0,
+CC-BY-NC-4.0, MIT, Proprietary), `validate_citation_entry()` (9 checks
++ 3 warning conditions), `validate_citation_dict()` (8 required fields guard).
+
+CLI (`openamp-foundry citation-check`) with `--citation-json` (required),
+`--format text|json`. Handler `_run_citation_check` in reports.py.
+
+`make citation-check` target. 24 tests. **3599 total.**
+
+Ecosystem clarity: citation entries are machine-validated, reuse classes are
+explicit, and the honest-use boundary is documented in the guide.
+
 ## v0.7.4 — Loop 114: Phase J J6 — Security Policy ✓ (2026-07-09)
 
 `docs/governance/SECURITY_POLICY.md` with private vulnerability reporting
