@@ -1855,3 +1855,84 @@ def _run_simulation_evidence_packet(args: argparse.Namespace) -> int:
         print("not biological proof.")
 
     return 0 if packet.all_checks_passed else 3
+
+
+def _run_artifact_version(args: argparse.Namespace) -> int:
+    """Display artifact versioning information."""
+    from openamp_foundry.versioning.artifact_version import (
+        STABILITY_TIERS,
+        VERSIONED_ARTIFACTS,
+        get_artifact_version,
+        list_versioned_artifacts,
+        artifact_version_summary,
+    )
+
+    show_name = getattr(args, "show", None)
+    tier_filter = getattr(args, "tier", None)
+    output_format = getattr(args, "format", "text")
+
+    if show_name:
+        entry = get_artifact_version(show_name)
+        if entry is None:
+            print(json.dumps({
+                "status": "error",
+                "error": f"Unknown artifact '{show_name}'. "
+                         f"Use --list to see available artifacts.",
+            }))
+            return 3
+        if output_format == "json":
+            print(json.dumps({
+                "artifact_name": entry.artifact_name,
+                "version": entry.version,
+                "stability_tier": entry.stability_tier,
+                "schema_id": entry.schema_id,
+                "description": entry.description,
+                "is_breaking_change": entry.is_breaking_change,
+                "notes": entry.notes,
+            }, indent=2))
+        else:
+            tier_desc = STABILITY_TIERS.get(entry.stability_tier, entry.stability_tier)
+            print(f"Artifact: {entry.artifact_name}")
+            print(f"  Version:           {entry.version}")
+            print(f"  Stability tier:    {tier_desc}")
+            if entry.schema_id:
+                print(f"  Schema $id:        {entry.schema_id}")
+            print(f"  Description:       {entry.description}")
+            print(f"  Breaking change:   {entry.is_breaking_change}")
+            if entry.notes:
+                print(f"  Notes:             {entry.notes}")
+        return 0
+
+    entries = list_versioned_artifacts(tier=tier_filter)
+    summary = artifact_version_summary()
+
+    if output_format == "json":
+        print(json.dumps({
+            "artifacts": [
+                {
+                    "artifact_name": e.artifact_name,
+                    "version": e.version,
+                    "stability_tier": e.stability_tier,
+                    "schema_id": e.schema_id,
+                    "description": e.description,
+                }
+                for e in entries
+            ],
+            "summary": summary,
+        }, indent=2))
+    else:
+        print("Artifact Version Registry")
+        print("=" * 60)
+        print(f"Total artifacts: {summary['total']}")
+        print(f"By tier:         {dict(sorted(summary['by_tier'].items()))}")
+        print(f"Dry-lab only:    {summary['dry_lab_only']}")
+        print()
+        for entry in entries:
+            sid = f"  $id: {entry.schema_id}" if entry.schema_id else ""
+            print(f"  [{entry.stability_tier:12}] {entry.artifact_name:30s} v{entry.version}{sid}")
+        print()
+        print("Dry-lab only. Artifact versioning describes schema compatibility,")
+        print("not biological validity, safety, or efficacy.")
+        print("See docs/engineering/ARTIFACT_VERSIONING_POLICY.md for policy details.")
+
+    return 0

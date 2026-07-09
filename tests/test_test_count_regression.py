@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3272 tests as of Loop 98 (2026-07-09) -- Phase H H10 (simulation-evidence packet assembler)
+# Baseline: 3291 tests as of Loop 99 (2026-07-09) -- Phase I I1 (artifact versioning policy)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3272
+BASELINE = 3291
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

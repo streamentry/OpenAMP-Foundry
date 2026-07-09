@@ -51,6 +51,73 @@ Honest boundaries:
   not invalidate results; it highlights them for human review.
 - All CI reports are dry-lab only and must not be presented as biological proof.
 
+## v0.5.99 — Loop 99: Phase I I1 — Artifact Versioning Policy ✓ (2026-07-09)
+
+`docs/engineering/ARTIFACT_VERSIONING_POLICY.md` with structured versioning
+policy covering scope (schemas, evidence certificates, candidate manifests,
+provenance records, benchmark cards, model cards), version format
+(MAJOR.MINOR.PATCH), breaking/non-breaking change definitions, deprecation
+timeline (at least one minor version warning), schema `$id` policy, changelog
+requirement, and three stability tiers (Tier 1 stable, Tier 2 experimental,
+Tier 3 internal). Dry-lab-only statement included.
+
+`src/openamp_foundry/versioning/` module with `ArtifactVersionInfo` dataclass
+(7 fields), `STABILITY_TIERS` dict (3 tiers), `VERSIONED_ARTIFACTS` list
+(6 entries: candidate, lab_result, run_manifest, external_review_packet,
+safety_release_decision, simulation_result — all at v1.0.0; 5 stable,
+1 experimental). `get_artifact_version()`, `list_versioned_artifacts()` with
+tier filtering, `validate_version_format()` (regex MAJOR.MINOR.PATCH),
+`artifact_version_summary()` with total/by_tier/stable_count/experimental_count/
+dry_lab_only.
+
+CLI (`openamp-foundry artifact-version`) with `--list`, `--show <name>`,
+`--tier <stable|experimental|internal>`, `--format text|json`.
+`make artifact-version` target.
+
+19 tests. **3291 total.** Starts Phase I (interoperability and adoption)
+— external users now have stability guarantees for schemas, evidence
+certificates, and candidate manifests.
+
+Changes:
+- `docs/engineering/ARTIFACT_VERSIONING_POLICY.md` (I1) — Full versioning
+  policy document with scope, SemVer, breaking/non-breaking rules,
+  deprecation timeline, $id policy, changelog requirement, stability tiers,
+  dry-lab-only statement.
+- `src/openamp_foundry/versioning/__init__.py` (I1) — Package init,
+  exports all versioning symbols.
+- `src/openamp_foundry/versioning/artifact_version.py` (I1) — Core module
+  with `STABILITY_TIERS` dict, `ArtifactVersionInfo` dataclass,
+  `VERSIONED_ARTIFACTS` list (6 entries), `get_artifact_version()`,
+  `list_versioned_artifacts()`, `validate_version_format()`,
+  `artifact_version_summary()`.
+- `src/openamp_foundry/cli/main.py` — Registered `artifact-version`
+  subcommand with `--list`, `--show`, `--tier`, `--format` flags.
+  Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_artifact_version()` CLI handler with text and JSON output,
+  artifact lookup, tier filtering, and error handling.
+- `Makefile` — Added `artifact-version` target. Added to `.PHONY`.
+- `tests/versioning/__init__.py` — Empty package init.
+- `tests/versioning/test_artifact_version.py` — 19 tests covering:
+  at least 5 entries, all valid versions, valid stability tiers, no duplicate
+  names, get known/unknown, list all/filtered, validate valid/invalid
+  versions, summary dry_lab_only, summary total, stable/experimental counts,
+  by_tier sum.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.99 I1 changelog. Test count: 3291.
+- `tests/test_test_count_regression.py` — baseline updated to 3291.
+
+Honest boundaries:
+- Artifact versioning describes schema and format compatibility, not
+  biological validity, safety, or efficacy.
+- The version registry is manually maintained; entries must be updated when
+  schemas change.
+- `validate_version_format()` checks structural validity only — it does not
+  enforce semantic version ordering or compatibility rules.
+- Stability tiers are policy declarations, not machine-enforced guarantees.
+  A Tier 1 artifact may still have undiscovered bugs or incompatibilities.
+- All artifacts remain dry-lab hypotheses requiring wet-lab validation
+  regardless of version number.
+
 ## v0.5.98 — Loop 98: Phase H H10 — Simulation-Evidence Packet Assembler ✓ (2026-07-09)
 
 `SimulationEvidencePacket` dataclass (12 fields: module_id, result,
