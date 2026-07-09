@@ -261,6 +261,7 @@ preventing the pipeline from selecting candidates under poor calibration.
 | P2 | Add recalibration refusal record schema (complete). | Documents when recalibration was correctly rejected; prevents spurious recalibrations and creates audit trail. | B/D |
 | P3 | Add batch outcome summary schema (complete). | Closes the BSP→lab→outcomes feedback loop; enforces synthetic/real boundary at the batch level. | B/D |
 | P4 | Add pilot batch safety clearance schema (complete). | Safety gate before wet-lab synthesis: all 4 screens required, high-risk batches cannot be cleared. | B/D |
+| P5 | Add calibration cycle summary schema (complete). | Index record for one complete BSP→PSC→BOS→CPS→CBA→CRG cycle; crg_id_previous must differ from crg_id_next. | B/D |
 
 ## Prioritization rule
 
