@@ -3056,3 +3056,37 @@ def _run_reproducibility_manifest_check(args: argparse.Namespace) -> int:
             print("  Reproducibility manifest validated. Run is fully documented for third-party reproduction.")
 
     return 0 if result.passed else 3
+
+
+def _run_candidate_summary_card_check(args: argparse.Namespace) -> int:
+    """Validate a candidate summary card entry."""
+    import json as _json
+    from openamp_foundry.evidence.candidate_summary_card import validate_candidate_summary_card_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_candidate_summary_card_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Candidate summary card {result.card_id} (candidate {result.candidate_id}, length {result.sequence_length}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Candidate summary card validated. Ready for reviewer packet.")
+
+    return 0 if result.passed else 3

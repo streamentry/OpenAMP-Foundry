@@ -1,5 +1,8 @@
 # Roadmap
 
+### v0.8.6
+- Phase L L3: candidate summary card schema — validates publication-ready per-candidate structured summaries with sequence, evidence level, activity prediction, and safety flags. CandidateSummaryCardEntry dataclass, validate_candidate_summary_card(), CLI candidate-summary-card-check.
+
 ### v0.8.5
 - Phase L L2: reproducibility manifest schema — captures exact software versions, data checksums, and random seeds for a pipeline run. ReproducibilityManifestEntry dataclass, validate_reproducibility_manifest(), CLI reproducibility-manifest-check.
 
