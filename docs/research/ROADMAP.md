@@ -1,5 +1,81 @@
 # Roadmap
 
+## v0.7.0 — Loop 110: Phase J J2 — Governance Decision Log ✓ (2026-07-09)
+
+`docs/governance/DECISION_LOG.md` with structured governance decision log
+(purpose, decision index with 8 entries GOV-001 through GOV-008 covering
+safety/benchmark/release/evidence/data/adapter/contribution/docs scopes,
+how to add entries, linked policies).
+
+`src/openamp_foundry/governance/decision_log.py` with `VALID_SCOPES` (8:
+safety, benchmark, release, evidence, data, adapter, contribution, docs),
+`VALID_STATUSES` (4: active, superseded, under_review, proposed),
+`VALID_REVIEW_CLASSES` (4: A, B, C, D), `GovernanceDecision` dataclass
+(8 fields: decision_id, date, scope, decision, status, rationale,
+review_class, dry_lab_only=True), `DecisionValidationResult` dataclass
+(5 fields: decision_id, passed, errors, warnings, dry_lab_only=True),
+`GOVERNANCE_DECISIONS` list (8 entries: GOV-001 through GOV-008),
+`validate_governance_decision()` (9 checks: decision_id format, date
+format, valid scope, non-empty decision, valid status, non-empty rationale,
+valid review_class, dry_lab_only must be True, superseded warning),
+`validate_all_decisions()` (aggregates total/passed/failed/all_passed/
+results/dry_lab_only), `get_decisions_by_scope()` (filters by scope),
+`get_decisions_by_status()` (filters by status).
+
+CLI (`openamp-foundry decision-log`) with `--validate`, `--scope`,
+`--format text|json`. Handler `_run_decision_log` in reports.py.
+
+`make decision-log` target. 27 tests. **3491 total.**
+
+**Phase J milestone: v0.7.0** — governance decisions are now discoverable
+and machine-validated.
+
+Changes:
+- `docs/governance/DECISION_LOG.md` (J2) — Structured governance decision
+  log with purpose, decision index (8 entries GOV-001 through GOV-008),
+  how to add entries, linked policies.
+- `src/openamp_foundry/governance/decision_log.py` (J2) — Core module with
+  `VALID_SCOPES` (8), `VALID_STATUSES` (4), `VALID_REVIEW_CLASSES` (4),
+  `GovernanceDecision` (8 fields, dry_lab_only=True default),
+  `DecisionValidationResult` (5 fields, dry_lab_only=True default),
+  `GOVERNANCE_DECISIONS` (8 entries: GOV-001 through GOV-008),
+  `validate_governance_decision()` (9 checks),
+  `validate_all_decisions()` (aggregates total/passed/failed/all_passed),
+  `get_decisions_by_scope()`, `get_decisions_by_status()`.
+- `tests/governance/test_decision_log.py` (J2) — 27 tests covering all
+  8 GOV entries pass validation, empty/invalid decision_id, invalid date
+  format, invalid scope (parametrized), empty decision text, invalid
+  status (parametrized), empty rationale, invalid review_class
+  (parametrized), dry_lab_only=False failure, superseded warning,
+  validate_all_decisions passes, get_decisions_by_scope safety → GOV-001,
+  get_decisions_by_status active → all 8, 8 entries constant check,
+  all results dry_lab_only=True, valid set counts, DecisionValidationResult
+  dataclass fields.
+- `src/openamp_foundry/cli/main.py` (J2) — Registered `decision-log`
+  subcommand with `--validate`, `--scope`, `--format` flags. Added import
+  and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (J2) — Added
+  `_run_decision_log()` CLI handler with validate/scope filtering/list all
+  modes, text and JSON output, exit code 3 on validation failure.
+- `Makefile` (J2) — Added `decision-log` target. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (J2) — v0.7.0 J2 changelog. Pipeline
+  version: v0.7.0. Test count: 3491.
+- `tests/test_test_count_regression.py` — baseline updated to 3491.
+
+Honest boundaries:
+- Decision log tracks governance decisions only — it does not measure
+  biological activity, safety, or clinical value.
+- `dry_lab_only: true` is a const field on all dataclasses — the decision
+  log is a computational governance artifact, not a biological finding.
+- The list of valid scopes and statuses is policy-defined and may need
+  expansion as governance matures.
+- Validation checks structural and policy requirements only — it does
+  not verify that the decision was correctly implemented or enforced.
+- Review classes are declarations stored on each decision; the validator
+  does not verify that the declared review class was actually applied.
+- The decision log is a documentation and validation tool — it does not
+  replace human judgment about whether a decision is appropriate.
+
 ## v0.6.9 — Loop 109: Phase J J1 — Release Checklist ✓ (2026-07-09)
 
 `docs/governance/RELEASE_CHECKLIST.md` with structured release checklist

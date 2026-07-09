@@ -8,6 +8,7 @@ from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_
 from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check, _run_simulation_evidence_packet, _run_artifact_version, _run_candidate_manifest, _run_benchmark_card, _run_artifact_changelog, _run_integration_check, _run_adapter_check, _run_license_check, _run_artifact_compat_check, _run_adoption_scorecard
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
+from openamp_foundry.cli.commands.reports import _run_decision_log
 
 import argparse
 import json
@@ -1813,6 +1814,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Decision log (Phase J J2) ──────────────────────────────────
+    dl = sub.add_parser(
+        "decision-log",
+        help=(
+            "Query and validate the governance decision log. "
+            "Lists all governance decisions (GOV-001 through GOV-008) with "
+            "scope, status, and review class. "
+            "Dry-lab only."
+        ),
+    )
+    dl.add_argument(
+        "--validate", action="store_true", default=False,
+        help="Validate all governance decisions.",
+    )
+    dl.add_argument(
+        "--scope", type=str, default=None,
+        help="Filter decisions by scope (e.g. safety, benchmark, release).",
+    )
+    dl.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Release gate check (Phase J J1) ─────────────────────────────
     rgc = sub.add_parser(
         "release-gate-check",
@@ -2081,6 +2106,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "adoption-scorecard":
         return _run_adoption_scorecard(args)
+
+    if args.command == "decision-log":
+        return _run_decision_log(args)
 
     parser.error("unknown command")
     return 2

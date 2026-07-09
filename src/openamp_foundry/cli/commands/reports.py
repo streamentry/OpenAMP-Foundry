@@ -2389,6 +2389,58 @@ def _run_contribution_check(args: argparse.Namespace) -> int:
     return 0 if result.passed else 3
 
 
+def _run_decision_log(args: argparse.Namespace) -> int:
+    """Query and validate the governance decision log."""
+    from openamp_foundry.governance.decision_log import (
+        validate_all_decisions,
+        get_decisions_by_scope,
+        GOVERNANCE_DECISIONS,
+    )
+    import json as _json
+
+    if args.validate:
+        result = validate_all_decisions()
+        if args.format == "json":
+            print(_json.dumps(result, indent=2))
+        else:
+            print(f"Decision log validation: {result['total']} decisions")
+            print(f"  Passed: {result['passed']}")
+            print(f"  Failed: {result['failed']}")
+            print(f"  All passed: {result['all_passed']}")
+            if result["failed"] > 0:
+                for r in result["results"]:
+                    if not r["passed"]:
+                        print(f"  FAIL: {r['decision_id']}")
+                        for e in r["errors"]:
+                            print(f"    - {e}")
+            print(f"  dry_lab_only: {result['dry_lab_only']}")
+        return 0 if result["all_passed"] else 3
+
+    if args.scope:
+        decisions = get_decisions_by_scope(args.scope)
+        if args.format == "json":
+            print(_json.dumps([vars(d) for d in decisions], indent=2))
+        else:
+            print(f"Decisions in scope '{args.scope}': {len(decisions)}")
+            for d in decisions:
+                print(f"  {d.decision_id} ({d.date}) — {d.decision}")
+                print(f"    Status: {d.status}  Review: {d.review_class}")
+        return 0
+
+    # Default: list all
+    if args.format == "json":
+        print(_json.dumps([vars(d) for d in GOVERNANCE_DECISIONS], indent=2))
+    else:
+        print("Governance Decision Log")
+        print("=" * 60)
+        for d in GOVERNANCE_DECISIONS:
+            print(f"  {d.decision_id} | {d.date} | {d.scope:15s} | {d.status:12s} | {d.review_class}")
+            print(f"    {d.decision}")
+        print(f"\nTotal: {len(GOVERNANCE_DECISIONS)} decisions  (dry_lab_only: True)")
+
+    return 0
+
+
 def _run_adoption_scorecard(args: argparse.Namespace) -> int:
     """Build an adoption scorecard from dimension inputs."""
     from openamp_foundry.adoption.scorecard import build_scorecard
