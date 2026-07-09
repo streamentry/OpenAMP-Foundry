@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2758 tests as of Loop 75 (2026-07-09) — Phase F F5 (safe-publication filter)
+# Baseline: 2796 tests as of Loop 76 (2026-07-09) — Phase F F6 (negative-result informativeness guide)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2758
+BASELINE = 2796
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

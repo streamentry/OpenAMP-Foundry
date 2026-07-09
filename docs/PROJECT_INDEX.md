@@ -236,6 +236,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`docs/review/ASSAY_PREREGISTRATION.md`](review/ASSAY_PREREGISTRATION.md) | Candidate-selection pilot pre-registration template, not a protocol. |
 | [`docs/review/COLLABORATION_PLAYBOOK.md`](review/COLLABORATION_PLAYBOOK.md) | External collaboration modes and boundaries. |
 | [`docs/evidence/NEGATIVE_RESULT_ARCHIVE.md`](evidence/../evidence/NEGATIVE_RESULT_ARCHIVE.md) | Safe negative-result format. |
+| [`docs/evidence/NEGATIVE_RESULT_INFORMATIVENESS_GUIDE.md`](evidence/../evidence/NEGATIVE_RESULT_INFORMATIVENESS_GUIDE.md) | 7-dimension framework for classifying negative-result entries as informative/neutral/non-informative. |
 
 ## Core safety docs
 

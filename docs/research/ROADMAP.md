@@ -1,5 +1,45 @@
 # Roadmap
 
+## v0.5.77 — Loop 76: Phase F F6 — Negative-Result Informativeness Guide ✓ (2026-07-09)
+
+Comprehensive guide defining informative vs non-informative negative results with
+a 7-dimension framework, 14 examples across all 6 reason categories, before/after
+transformation pairs, and a CLI classifier that scores entries.
+
+Changes:
+- `docs/evidence/NEGATIVE_RESULT_INFORMATIVENESS_GUIDE.md` (F6) — Standalone guide
+  with 7-dimension informativeness framework (identity, context, specificity,
+  actionability, verifiability, structured metadata, interpretation). 14 annotated
+  examples across all 6 reason categories, 2 before/after transformation pairs,
+  quick-reference checklist with scoring rubric. Classification: INFORMATIVE
+  (6.0–7.0), NEUTRAL (3.5–5.5), NON_INFORMATIVE (0.0–3.0).
+- `scripts/classify_negative_result_informativeness.py` (F6) — CLI that loads a
+  single negative-result entry (JSON string or file), scores it on 7 dimensions,
+  and produces a classification with per-dimension breakdown. Supports `--entry`,
+  `--input`, `--out-json`, and `--out-md` flags. Fail-closed on missing entries.
+- `examples/negative_result_entry_example.json` (F6) — Toy example entry with
+  full informative documentation. Clearly marked EXAMPLE.
+- `Makefile` — Added `classify-negative-informativeness` target.
+- `tests/evidence/test_negative_result_informativeness.py` — 37 tests covering:
+  entry classification (informative/neutral/non-informative), each dimension
+  scorer (presence/absence thresholds), markdown/caveat generation, output
+  structure, entry loading (dict/JSON/file/error paths), CLI flags (entry,
+  input, missing flag, JSON output file, Markdown output file), and example
+  file validation.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.77 changelog. Pipeline version bumped.
+  Test count: 2796.
+- `tests/test_test_count_regression.py` — baseline updated to 2796.
+
+Honest boundaries:
+- Informativeness scoring is heuristic. A score of 7.0 does not guarantee
+  scientific correctness — only thorough documentation.
+- A NON_INFORMATIVE entry may contain genuinely important data that the
+  submitter simply did not document well.
+- The framework assumes the entry is intended for machine analysis and human
+  review. Privacy-constrained entries (e.g., dual-use rejections) should be
+  flagged rather than classified as non-informative.
+- The classifier validates documentation quality, not scientific validity.
+
 ## v0.5.76 — Loop 75: Phase F F5 — Safe-Publication Filter ✓ (2026-07-09)
 
 Safe-publication filter: CLI that reads a candidate panel with safety metadata
