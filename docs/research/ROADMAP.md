@@ -1,5 +1,10 @@
 # Roadmap
 
+### v0.10.2 - Phase O O4: Cross-Batch Performance Aggregator
+- CrossBatchAggregatorEntry aggregates CalibrationPerformanceEntry results across N>=2 batches
+- trend field (improving/stable/degrading) feeds calibration readiness gate
+- min/mean/max Brier scores, high-variance warning
+
 ### v0.10.1 - Phase O O3: Calibration Improvement Record
 - CalibrationImprovementEntry schema documents recalibration actions taken after drift/quality failures
 - 6 action categories, trigger_ids linked to CPS-/DRM- records

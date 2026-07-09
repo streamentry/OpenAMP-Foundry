@@ -21,6 +21,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_hypothesis_outcome_check, _run_baseline_comparison_check, _run_negative_result_check,
     _run_experiment_priority_check, _run_calibration_performance_check, _run_prediction_drift_check,
     _run_calibration_improvement_check,
+    _run_cross_batch_aggregator_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2338,6 +2339,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_cir.add_argument("--format", choices=["text", "json"], default="text")
     p_cir.set_defaults(func=_run_calibration_improvement_check)
 
+    p_cba = sub.add_parser(
+        "cross-batch-aggregator-check",
+        help="Validate cross-batch performance aggregator entry",
+    )
+    p_cba.add_argument("--entry-json", default=None)
+    p_cba.add_argument("--format", choices=["text", "json"], default="text")
+    p_cba.set_defaults(func=_run_cross_batch_aggregator_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2706,6 +2715,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "prediction-drift-check":
         return _run_prediction_drift_check(args)
+
+    if args.command == "cross-batch-aggregator-check":
+        return _run_cross_batch_aggregator_check(args)
 
     parser.error("unknown command")
     return 2

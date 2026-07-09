@@ -978,3 +978,7 @@ dataset-release-check:
 .PHONY: calibration-improvement-check
 calibration-improvement-check:
 	openamp-foundry calibration-improvement-check --entry-json '{"improvement_id":"CIR-TEST","pipeline_version_before":"v1.0","pipeline_version_after":"v1.1","trigger_ids":["CPS-001"],"action_taken":"threshold adjustment","action_category":"threshold_adjustment","brier_score_before":0.3,"brier_score_after":0.2,"improvement_confirmed":true,"reviewer":"test"}'
+
+.PHONY: cross-batch-aggregator-check
+cross-batch-aggregator-check:
+	openamp-foundry cross-batch-aggregator-check --entry-json '{"aggregator_id":"CBA-TEST","pipeline_version":"v1.0","batch_ids_included":["A","B"],"summary_ids_included":["CPS-A","CPS-B"],"mean_brier_score":0.15,"min_brier_score":0.10,"max_brier_score":0.20,"trend":"stable","total_candidates_evaluated":100,"aggregation_notes":"","reviewer":"test"}'
