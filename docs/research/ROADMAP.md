@@ -1,5 +1,8 @@
 # Roadmap
 
+### v0.8.5
+- Phase L L2: reproducibility manifest schema — captures exact software versions, data checksums, and random seeds for a pipeline run. ReproducibilityManifestEntry dataclass, validate_reproducibility_manifest(), CLI reproducibility-manifest-check.
+
 ### v0.8.4
 - Phase L L1: preprint evidence bundle schema — ties K-phase artifacts into a submission-ready record for scientific preprints. PreprintBundleEntry dataclass, validate_preprint_bundle(), CLI preprint-bundle-check.
 
