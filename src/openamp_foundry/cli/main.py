@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check, _run_simulation_evidence_packet, _run_artifact_version, _run_candidate_manifest, _run_benchmark_card, _run_artifact_changelog, _run_integration_check, _run_adapter_check, _run_license_check, _run_artifact_compat_check, _run_adoption_scorecard, _run_reviewer_briefing_check
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check, _run_result_quality_filter, _run_synthetic_result_policy_check, _run_calibration_decision_checklist, _run_calibration_rollback_plan, _run_simulation_registry, _run_validate_simulation_result, _run_simulation_baseline_check, _run_adapter_gate_check, _run_simulation_provenance, _run_simulation_ensemble_check, _run_simulation_ci_report, _run_simulation_deprecation_check, _run_simulation_scope_check, _run_simulation_evidence_packet, _run_artifact_version, _run_candidate_manifest, _run_benchmark_card, _run_artifact_changelog, _run_integration_check, _run_adapter_check, _run_license_check, _run_artifact_compat_check, _run_adoption_scorecard, _run_reviewer_briefing_check, _run_audit_chain_check
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
 from openamp_foundry.cli.commands.reports import _run_decision_log
@@ -2232,6 +2232,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Audit chain completeness check (Phase M M5) ──────────────────
+    audit_chain_parser = sub.add_parser(
+        "audit-chain-check",
+        help="Validate audit chain completeness for a batch",
+    )
+    audit_chain_parser.add_argument("--entry-json", required=True)
+    audit_chain_parser.add_argument(
+        "--format", choices=["text", "json"], default="text"
+    )
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2578,6 +2588,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "reviewer-briefing-check":
         return _run_reviewer_briefing_check(args)
+
+    if args.command == "audit-chain-check":
+        return _run_audit_chain_check(args)
 
     parser.error("unknown command")
     return 2

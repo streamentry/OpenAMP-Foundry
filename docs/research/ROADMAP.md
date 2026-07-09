@@ -1,5 +1,13 @@
 # Roadmap
 
+### v0.9.3 — Phase M M5: Audit Chain Completeness Checker (Completes Phase M)
+- Added `AuditChainEntry` schema validating all 9 evidence chain links exist for a batch
+- Detects gaps from sequence input through benchmark, filter, scoring, selection, certificate, claims, decision audit, and reviewer briefing
+- missing_links consistency check catches declaration errors
+- CLI: `openamp-foundry audit-chain-check`
+- 39 tests; all passing
+- Phase M (Audit Trail Infrastructure) complete
+
 ### v0.9.2 — Phase M M4: Reviewer Briefing Package
 - Added `ReviewerBriefingEntry` schema for one-stop external auditor handoff packages
 - Validates CoI declaration, minimum artifact count, scope, candidate count

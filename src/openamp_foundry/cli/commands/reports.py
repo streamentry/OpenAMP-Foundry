@@ -3290,3 +3290,22 @@ def _run_reviewer_briefing_check(args: argparse.Namespace) -> int:
             print("  Reviewer briefing package validated. External auditor handoff is documented.")
 
     return 0 if result.passed else 3
+
+
+def _run_audit_chain_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.audit_chain_completeness import validate_audit_chain_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_audit_chain_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Audit Chain Check: {result.chain_id} ({result.missing_link_count} gaps)")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
