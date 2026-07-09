@@ -3348,3 +3348,23 @@ def _run_hypothesis_outcome_check(args: argparse.Namespace) -> None:
             print(f"  ERROR: {e}")
         for w in result.warnings:
             print(f"  WARN:  {w}")
+
+
+def _run_baseline_comparison_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.baseline_comparison_manifest import validate_baseline_comparison_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_baseline_comparison_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        beats = "beats all" if result.pipeline_beats_all_baselines else "loses to some"
+        print(f"[{status}] Baseline Comparison: {result.manifest_id} ({result.metric_name}, pipeline {beats} {result.baseline_count} baseline(s))")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")

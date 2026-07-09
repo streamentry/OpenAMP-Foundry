@@ -1,5 +1,12 @@
 # Roadmap
 
+### v0.9.6 — Phase N N3: Baseline Comparison Manifest
+- Added `BaselineComparisonEntry` schema for machine-verifiable proof the pipeline beats cheap baselines
+- 6 metric names, 2 comparison directions, p_value sentinel for uncomputed significance
+- Detects inconsistent beat/lose verdicts, missing p-values, large unchecked effects
+- CLI: `openamp-foundry baseline-comparison-check`
+- 68 tests; all passing
+
 ### v0.9.5 — Phase N N2: Hypothesis Outcome Record
 - Added `HypothesisOutcomeEntry` schema linking pre-registration to actual experimental outcomes
 - Records confirmed/refuted/inconclusive/partially_confirmed verdicts with observed metric value
