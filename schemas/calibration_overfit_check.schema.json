@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenAMP Calibration Overfit Risk Check",
+  "description": "Assesses whether a calibration cohort is too small relative to model parameters — prevents false learning from under-powered cohorts. Dry-lab only.",
+  "type": "object",
+  "required": [
+    "per_cohort",
+    "worst_level",
+    "any_critical",
+    "any_warning",
+    "recommendation",
+    "dry_lab_only"
+  ],
+  "properties": {
+    "per_cohort": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "cohort_size",
+          "model_params",
+          "n_features",
+          "ratio",
+          "warning_level",
+          "message",
+          "recommendation",
+          "dry_lab_only"
+        ],
+        "properties": {
+          "cohort_size": { "type": "integer", "minimum": 0 },
+          "model_params": { "type": "integer", "minimum": 1 },
+          "n_features": { "type": "integer", "minimum": 1 },
+          "ratio": { "type": "number", "minimum": 0 },
+          "warning_level": {
+            "type": "string",
+            "enum": ["none", "caution", "warning", "critical"]
+          },
+          "message": { "type": "string", "minLength": 1 },
+          "recommendation": { "type": "string", "minLength": 1 },
+          "dry_lab_only": { "type": "boolean", "const": true }
+        }
+      }
+    },
+    "worst_level": {
+      "type": "string",
+      "enum": ["none", "caution", "warning", "critical"]
+    },
+    "any_critical": { "type": "boolean" },
+    "any_warning": { "type": "boolean" },
+    "recommendation": { "type": "string", "minLength": 1 },
+    "dry_lab_only": { "type": "boolean", "const": true }
+  }
+}

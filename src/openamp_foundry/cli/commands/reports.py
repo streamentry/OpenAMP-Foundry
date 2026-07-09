@@ -1000,3 +1000,33 @@ def _run_calibration_audit(args: argparse.Namespace) -> int:
     }
     print(json.dumps(cli_summary, indent=2))
     return 0 if audit["overall_pass"] else 3
+
+
+def _run_calibration_overfit_check(args: argparse.Namespace) -> int:
+    from openamp_foundry.calibration.overfit_warning import (
+        run_overfit_check,
+        write_overfit_check_json,
+        write_overfit_check_markdown,
+    )
+
+    report = run_overfit_check(
+        cohort_sizes=args.cohort_sizes,
+        model_params=args.model_params,
+        n_features=args.n_features,
+        min_recommended=args.min_recommended,
+    )
+    if args.out_json:
+        write_overfit_check_json(report, args.out_json)
+    if args.out_md:
+        write_overfit_check_markdown(report, args.out_md)
+
+    print(json.dumps({
+        "status": "ok",
+        "worst_level": report["worst_level"],
+        "any_critical": report["any_critical"],
+        "any_warning": report["any_warning"],
+        "n_cohorts": len(report["per_cohort"]),
+        "out_json": args.out_json,
+        "out_md": args.out_md,
+    }, indent=2))
+    return 0

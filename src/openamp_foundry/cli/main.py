@@ -5,7 +5,7 @@ from openamp_foundry.cli.commands.benchmark import _run_bench, _run_validate_sco
 from openamp_foundry.cli.commands.selection import _run_pilot_panel, _run_pilot_confident, _run_diversity_check, _run_select_batch, _run_batch_rationale
 from openamp_foundry.cli.commands.external import _run_external_predict, _run_external_consensus
 from openamp_foundry.cli.commands.qc import _run_synthesis_order, _run_presynth_qc
-from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit
+from openamp_foundry.cli.commands.reports import _run_reviewer_questionnaire, _run_ip_report, _run_batch_pack, _run_gold_standard, _run_novelty_check_broad, _run_lab_result_report, _run_calibration_intake, _run_recalibration_gate, _run_recalibration_engine, _run_validate_policy_version, _run_calibration_audit, _run_calibration_overfit_check
 from openamp_foundry.cli.commands.gates import _run_gate_check
 
 import argparse
@@ -1082,6 +1082,50 @@ def build_parser() -> argparse.ArgumentParser:
         help="ISO date (YYYY-MM-DD) for 'today'. Defaults to actual today.",
     )
 
+    # ── Calibration overfit check ────────────────────────────────────
+    calibration_overfit = sub.add_parser(
+        "calibration-overfit-check",
+        help=(
+            "Check whether calibration cohort sizes are adequate relative "
+            "to model parameters. Prevents false learning from under-powered "
+            "cohorts. Dry-lab only — does not measure biological activity."
+        ),
+    )
+    calibration_overfit.add_argument(
+        "--cohort-sizes",
+        required=True,
+        type=lambda s: [int(x) for x in s.split(",")],
+        help="Comma-separated cohort sizes (e.g. '12,45,30').",
+    )
+    calibration_overfit.add_argument(
+        "--model-params",
+        required=True,
+        type=int,
+        help="Number of trainable model parameters.",
+    )
+    calibration_overfit.add_argument(
+        "--n-features",
+        required=True,
+        type=int,
+        help="Number of input features.",
+    )
+    calibration_overfit.add_argument(
+        "--min-recommended",
+        type=int,
+        default=30,
+        help="Minimum recommended cohort size (default: 30).",
+    )
+    calibration_overfit.add_argument(
+        "--out-json",
+        default=None,
+        help="Optional JSON output path.",
+    )
+    calibration_overfit.add_argument(
+        "--out-md",
+        default=None,
+        help="Optional Markdown output path.",
+    )
+
     # ── Batch-2 rationale report ─────────────────────────────────────
     batch_rationale = sub.add_parser(
         "batch-rationale",
@@ -1350,6 +1394,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "select-batch":
         return _run_select_batch(args)
+
+    if args.command == "calibration-overfit-check":
+        return _run_calibration_overfit_check(args)
 
     parser.error("unknown command")
     return 2

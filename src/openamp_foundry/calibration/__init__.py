@@ -61,6 +61,13 @@ from openamp_foundry.calibration.recalibration_gate import (
     write_gate_verdict_markdown,
 )
 
+from openamp_foundry.calibration.overfit_warning import (
+    check_cohort_overfit_risk,
+    run_overfit_check,
+    write_overfit_check_json,
+    write_overfit_check_markdown,
+)
+
 from openamp_foundry.calibration.policy_version import (
     VersionValidation,
     validate_policy_version,
@@ -108,4 +115,9 @@ __all__ = [
     "validate_policy_version",
     "auto_increment_version",
     "VersionValidation",
+    # Overfit warning
+    "check_cohort_overfit_risk",
+    "run_overfit_check",
+    "write_overfit_check_json",
+    "write_overfit_check_markdown",
 ]

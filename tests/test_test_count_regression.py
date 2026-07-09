@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 2974 tests as of Loop 83 (2026-07-09) -- Phase G G5 (batch-2 selection rationale report)
+# Baseline: 2995 tests as of Loop 84 (2026-07-09) -- Phase G G6 (calibration-overfit warning)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 2974
+BASELINE = 2995
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

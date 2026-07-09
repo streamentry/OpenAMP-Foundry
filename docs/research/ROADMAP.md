@@ -1,5 +1,57 @@
 # Roadmap
 
+## v0.5.84 — Loop 84: Phase G G6 — Calibration-Overfit Warning for Small Cohorts ✓ (2026-07-09)
+
+`check_cohort_overfit_risk()` and `run_overfit_check()` flag when a calibration
+cohort is too small relative to model parameters. Prevents false learning from
+under-powered cohorts. Warns at three severity levels (critical/warning/caution)
+with human-readable messages and actionable recommendations.
+
+Changes:
+- `src/openamp_foundry/calibration/overfit_warning.py` (G6) —
+  `check_cohort_overfit_risk()` assesses a single cohort's overfit risk from
+  cohort_size, model_params, n_features, and min_recommended threshold. Returns
+  warning_level (none/caution/warning/critical), ratio, message, and
+  recommendation. `run_overfit_check()` accepts a list of cohort sizes and
+  aggregates per-cohort results with worst_level, any_critical, any_warning flags.
+  `write_overfit_check_json()` and `write_overfit_check_markdown()` produce
+  structured output.
+- `schemas/calibration_overfit_check.schema.json` (G6) — JSON Schema Draft
+  2020-12 for the overfit check report. Validates per_cohort array, worst_level,
+  any_critical, any_warning, recommendation, dry_lab_only constraint.
+- `src/openamp_foundry/calibration/__init__.py` — Exports
+  `check_cohort_overfit_risk`, `run_overfit_check`, `write_overfit_check_json`,
+  `write_overfit_check_markdown`.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_calibration_overfit_check()` CLI handler with `--cohort-sizes`,
+  `--model-params`, `--n-features`, `--min-recommended`, `--out-json`,
+  `--out-md` flags.
+- `src/openamp_foundry/cli/main.py` — Registered `calibration-overfit-check`
+  subcommand with all argument flags and dispatch to handler.
+- `Makefile` — Added `calibration-overfit-check` target with default params
+  writing to `/tmp/overfit_check.json` and `/tmp/overfit_check.md`.
+- `tests/calibration/test_overfit_warning.py` — 21 tests covering: critical
+  threshold (<10), warning threshold (size < min_recommended AND ratio < 3.0),
+  caution (size < min_recommended OR ratio < 5.0), none level, run_overfit_check
+  mixed severity/all-none/all-critical, ratio calculation, message non-empty,
+  dry_lab_only=True everywhere, worst_level logic, any_critical/any_warning
+  flags, empty cohort list, single-cohort matching, ratio zero-division edge,
+  JSON writer, Markdown writer.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.84 G6 changelog. Test count: 2995.
+- `tests/test_test_count_regression.py` — baseline updated to 2995.
+
+Honest boundaries:
+- This check evaluates **statistical overfit risk** only. A passing check does
+  not confirm biological validity, safety, or real-world performance.
+- Small cohorts can produce spurious correlations that appear significant in
+  dry-lab benchmarks. The warning is a computational safeguard, not a
+  biological guarantee.
+- The severity thresholds (min_recommended=30, ratio<3.0 for warning, ratio<5.0
+  for caution) are heuristic rules of thumb. Specific domains may require
+  stricter or looser thresholds.
+- All calibration decisions require qualified human review regardless of
+  overfit check results.
+
 ## v0.5.83 — Loop 83: Phase G G5 — Batch-2 Selection Rationale Report ✓ (2026-07-09)
 
 CLI (`openamp-foundry batch-rationale`) that generates a synthetic candidate pool,
