@@ -1,5 +1,73 @@
 # Roadmap
 
+## v0.6.8 — Loop 108: Phase I I10 — Adoption Scorecard Dashboard ✓ (2026-07-09)
+
+`src/openamp_foundry/adoption/scorecard.py` with `SCORECARD_DIMENSIONS`
+(5 weighted dimensions summing to 1.0: integration_check 0.25,
+license_compliance 0.20, adapter_validation 0.20, schema_compatibility 0.20,
+contribution_readiness 0.15), `ADOPTION_TIERS` (4 tiers: not_ready 0.0-0.40,
+emerging 0.40-0.65, established 0.65-0.85, mature 0.85-1.01),
+`DimensionScore` dataclass (8 fields: dimension, weight, raw_score,
+weighted_score, passed_checks, total_checks, notes, dry_lab_only=True),
+`AdoptionScorecard` dataclass (6 fields: total_score, adoption_tier,
+dimensions, summary, recommendations, dry_lab_only=True),
+`build_scorecard()` (aggregates dimension inputs into weighted total score
+with tier classification and actionable recommendations),
+`compute_adoption_tier()` (maps float score 0.0-1.0 to tier string).
+
+CLI (`openamp-foundry adoption-scorecard`) with `--scores-json` and
+`--format text|json`. Handler `_run_adoption_scorecard` in reports.py.
+
+`make adoption-scorecard` target. 17 tests. **3446 total.**
+
+**Phase I (Interoperability and Adoption) is now fully complete** — all 10
+items I1–I10 implemented (artifact versioning, candidate manifest, benchmark
+card, artifact changelog, integration checker, adapter validator, data license
+checker, schema compatibility, contribution intake, adoption scorecard).
+
+Changes:
+- `src/openamp_foundry/adoption/scorecard.py` (I10) — Core module with
+  `SCORECARD_DIMENSIONS` (5 weighted dimensions summing to 1.0),
+  `ADOPTION_TIERS` (4 tiers), `DimensionScore` (8 fields, dry_lab_only=True
+  default), `AdoptionScorecard` (6 fields, dry_lab_only=True default),
+  `build_scorecard()` (aggregates dimension inputs into weighted total score,
+  tier, and per-dimension scores with recommendations),
+  `compute_adoption_tier()` (maps float 0.0-1.0 to tier string).
+- `tests/adoption/__init__.py` (I10) — Empty package init.
+- `tests/adoption/test_scorecard.py` (I10) — 17 tests covering: perfect scores
+  → mature, all zeros → not_ready, score 0.50 → emerging, score 0.75 →
+  established, weights sum to 1.0, SCORECARD_DIMENSIONS has 5 entries,
+  ADOPTION_TIERS has 4 entries, DimensionScore dry_lab_only=True default,
+  AdoptionScorecard dry_lab_only=True default, recommendations empty when
+  all pass, recommendations populated on failures, weighted sum correctness,
+  missing dimension defaults to 0/0, compute_adoption_tier boundaries,
+  build_scorecard returns correct fields.
+- `src/openamp_foundry/cli/main.py` (I10) — Registered `adoption-scorecard`
+  subcommand with `--scores-json` (required), `--format` flags. Added import
+  and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I10) — Added
+  `_run_adoption_scorecard()` CLI handler with JSON parsing, `build_scorecard`
+  call, text and JSON output.
+- `Makefile` (I10) — Added `adoption-scorecard` target with demo invocation
+  using all 5 dimensions at perfect scores. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (I10) — v0.6.8 I10 changelog. Pipeline
+  version: v0.6.8. Test count: 3446. Phase I complete note.
+- `tests/test_test_count_regression.py` — baseline updated to 3446.
+
+Honest boundaries:
+- Scorecard measures adoption readiness only — whether the checks pass or fail.
+  It does not measure actual downstream adoption, user satisfaction, or
+  biological validity.
+- Dimension weights are heuristic and may need adjustment as adoption data
+  accumulates. The current weights (integration 0.25, license 0.20, adapter
+  0.20, schema 0.20, contribution 0.15) are the initial guess.
+- `dry_lab_only: true` is a const field on all dataclasses — the scorecard is
+  a computational governance tool, not a biological assessment.
+- The scorecard aggregates structural signals from other Phase I modules. If
+  any of those modules have blind spots, the aggregation inherits them.
+- Perfect scores mean all structural checks pass, not that real-world adoption
+  is happening. Adoption is a social outcome, not a pipeline metric.
+
 ## v0.6.7 — Loop 107: Phase I I9 — Public-Good Contribution Guide ✓ (2026-07-09)
 
 `docs/community/PUBLIC_GOOD_CONTRIBUTION_GUIDE.md` with 6 contribution types

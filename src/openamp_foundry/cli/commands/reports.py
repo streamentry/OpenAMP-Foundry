@@ -2387,3 +2387,65 @@ def _run_contribution_check(args: argparse.Namespace) -> int:
         print("safeguards, not biological proof.")
 
     return 0 if result.passed else 3
+
+
+def _run_adoption_scorecard(args: argparse.Namespace) -> int:
+    """Build an adoption scorecard from dimension inputs."""
+    from openamp_foundry.adoption.scorecard import build_scorecard
+
+    try:
+        dimension_inputs = json.loads(args.scores_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --scores-json: {e}"}))
+        return 2
+
+    if not isinstance(dimension_inputs, dict):
+        print(json.dumps({"status": "error", "error": "--scores-json must be a JSON object"}))
+        return 2
+
+    card = build_scorecard(dimension_inputs)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps({
+            "total_score": card.total_score,
+            "adoption_tier": card.adoption_tier,
+            "dimensions": [
+                {
+                    "dimension": d.dimension,
+                    "weight": d.weight,
+                    "raw_score": d.raw_score,
+                    "weighted_score": d.weighted_score,
+                    "passed_checks": d.passed_checks,
+                    "total_checks": d.total_checks,
+                    "notes": d.notes,
+                    "dry_lab_only": d.dry_lab_only,
+                }
+                for d in card.dimensions
+            ],
+            "summary": card.summary,
+            "recommendations": card.recommendations,
+            "dry_lab_only": card.dry_lab_only,
+        }, indent=2))
+    else:
+        print("Adoption Scorecard")
+        print("=" * 60)
+        print(f"Total score:     {card.total_score:.4f}")
+        print(f"Adoption tier:   {card.adoption_tier}")
+        print()
+        print("Dimensions:")
+        for d in card.dimensions:
+            status = "PASS" if d.raw_score >= 1.0 else f"FAIL ({d.passed_checks}/{d.total_checks})"
+            print(f"  {d.dimension:30s} {d.weight:.2f}w  raw={d.raw_score:.2f}  wtd={d.weighted_score:.3f}  {status}")
+        print()
+        print(f"Summary: {card.summary}")
+        if card.recommendations:
+            print()
+            print("Recommendations:")
+            for r in card.recommendations:
+                print(f"  - {r}")
+        print()
+        print("Dry-lab only. Scorecard measures adoption readiness,")
+        print("not biological validity.")
+
+    return 0
