@@ -2597,3 +2597,53 @@ def _run_adoption_scorecard(args: argparse.Namespace) -> int:
         print("not biological validity.")
 
     return 0
+
+
+def _run_rotation_plan_check(args: argparse.Namespace) -> int:
+    """Validate a maintainer rotation plan for bus-factor coverage."""
+    from openamp_foundry.governance.maintainer_rotation import validate_rotation_plan_dict
+
+    try:
+        plan_dict = json.loads(args.plan_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({"status": "error", "error": f"Invalid --plan-json: {e}"}))
+        return 2
+
+    if not isinstance(plan_dict, dict):
+        print(json.dumps({"status": "error", "error": "--plan-json must be a JSON object"}))
+        return 2
+
+    result = validate_rotation_plan_dict(plan_dict)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        print(json.dumps({
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "maintainer_count": result.maintainer_count,
+            "critical_role_coverage": result.critical_role_coverage,
+            "bus_factor_sufficient": result.bus_factor_sufficient,
+            "dry_lab_only": result.dry_lab_only,
+        }, indent=2))
+    else:
+        print("Rotation Plan Check")
+        print("=" * 60)
+        print(f"Status:                   {'PASS' if result.passed else 'FAIL'}")
+        print(f"Maintainer count:         {result.maintainer_count}")
+        print(f"Bus-factor sufficient:    {result.bus_factor_sufficient}")
+        print(f"Critical role coverage:   {result.critical_role_coverage}")
+        print()
+        if result.errors:
+            print("Errors:")
+            for err in result.errors:
+                print(f"  - {err}")
+        if result.warnings:
+            print("Warnings:")
+            for w in result.warnings:
+                print(f"  - {w}")
+        print()
+        print("Dry-lab only. Rotation plan validation is a computational")
+        print("governance check, not a legal determination.")
+
+    return 0 if result.passed else 3

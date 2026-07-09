@@ -11,6 +11,7 @@ from openamp_foundry.cli.commands.reports import _run_contribution_check
 from openamp_foundry.cli.commands.reports import _run_decision_log
 from openamp_foundry.cli.commands.reports import _run_release_request_check
 from openamp_foundry.cli.commands.reports import _run_coi_check
+from openamp_foundry.cli.commands.reports import _run_rotation_plan_check
 
 import argparse
 import json
@@ -1877,6 +1878,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: text).",
     )
 
+    # ── Maintainer rotation plan check (Phase J J5) ──────────────────
+    rpc = sub.add_parser(
+        "rotation-plan-check",
+        help=(
+            "Validate a maintainer rotation plan for bus-factor "
+            "coverage. Dry-lab only."
+        ),
+    )
+    rpc.add_argument(
+        "--plan-json", type=str, required=True,
+        help="JSON string of a rotation plan dict (required).",
+    )
+    rpc.add_argument(
+        "--format", type=str, default="text",
+        choices=["text", "json"],
+        help="Output format (default: text).",
+    )
+
     # ── Release gate check (Phase J J1) ─────────────────────────────
     rgc = sub.add_parser(
         "release-gate-check",
@@ -2154,6 +2173,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "coi-check":
         return _run_coi_check(args)
+
+    if args.command == "rotation-plan-check":
+        return _run_rotation_plan_check(args)
 
     parser.error("unknown command")
     return 2

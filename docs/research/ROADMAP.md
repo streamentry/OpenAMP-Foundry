@@ -1,5 +1,87 @@
 # Roadmap
 
+## v0.7.3 — Loop 113: Phase J J5 — Maintainer Rotation Plan ✓ (2026-07-09)
+
+`docs/governance/MAINTAINER_ROTATION_PLAN.md` with maintainer rotation and
+bus-factor plan (purpose, current maintainers table with 3 entries covering
+primary_maintainer, secondary_maintainer, external_advisor, role definitions
+for 4 roles, bus-factor assessment with target >=2 per critical function,
+rotation schedule every 6 months, onboarding and offboarding checklists,
+linked policies).
+
+`src/openamp_foundry/governance/maintainer_rotation.py` with `MaintainerEntry`
+dataclass (6 fields: github_handle, role, backup_handle, responsibilities,
+status, dry_lab_only), `RotationPlanValidationResult` dataclass (7 fields:
+passed, errors, warnings, maintainer_count, critical_role_coverage,
+bus_factor_sufficient, dry_lab_only), `VALID_ROLES` (4: primary_maintainer,
+secondary_maintainer, external_advisor, contributor), `CRITICAL_ROLES` (2:
+primary_maintainer, secondary_maintainer), `VALID_STATUSES` (4: active,
+on_leave, emeritus, departing), `validate_maintainer_entry()` (6 checks:
+non-empty github_handle, valid role, critical role requires backup_handle,
+non-empty responsibilities, valid status, dry_lab_only=True),
+`validate_rotation_plan()` (aggregates entry validation + bus-factor
+coverage: missing critical role is error, single coverage is warning),
+`validate_rotation_plan_dict()` (dict input with missing-fields guard).
+
+CLI (`openamp-foundry rotation-plan-check`) with `--plan-json` (required),
+`--format text|json`. Handler `_run_rotation_plan_check` in reports.py.
+
+`make rotation-plan-check` target. 21 tests. **3557 total.**
+
+Maintainer rotation and bus-factor coverage is now machine-validated — the
+project can detect when critical roles lack backups.
+
+Changes:
+- `docs/governance/MAINTAINER_ROTATION_PLAN.md` (J5) — Maintainer rotation
+  and bus-factor plan with purpose, current maintainers table (3 entries),
+  role definitions (4 roles), bus-factor assessment, rotation schedule
+  (every 6 months), onboarding checklist (11 items), offboarding checklist
+  (7 items), linked policies.
+- `src/openamp_foundry/governance/maintainer_rotation.py` (J5) — Core module
+  with `MaintainerEntry` (6 fields), `RotationPlanValidationResult` (7 fields,
+  dry_lab_only=True), `VALID_ROLES` (4), `CRITICAL_ROLES` (2),
+  `VALID_STATUSES` (4), `validate_maintainer_entry()` (6 checks),
+  `validate_rotation_plan()` (bus-factor coverage: missing critical role is
+  error, single coverage is warning), `validate_rotation_plan_dict()` (dict
+  input with missing-fields guard).
+- `tests/governance/test_maintainer_rotation.py` (J5) — 21 tests covering:
+  valid plan passes, empty entries fails, empty github_handle fails, invalid
+  role fails, critical role without backup fails, empty responsibilities fails,
+  invalid status fails, dry_lab_only=False fails, no active primary maintainer
+  fails, no active secondary maintainer fails, single primary maintainer warns,
+  single secondary maintainer warns, validate_rotation_plan_dict missing
+  'entries' key fails, validate_rotation_plan_dict valid dict passes,
+  validate_rotation_plan_dict missing entry fields fails, all results
+  dry_lab_only=True, VALID_ROLES has 4 entries, CRITICAL_ROLES has 2 entries,
+  contributor role valid, on_leave status valid, emeritus status valid.
+- `src/openamp_foundry/cli/main.py` (J5) — Registered `rotation-plan-check`
+  subcommand with `--plan-json`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (J5) — Added
+  `_run_rotation_plan_check()` CLI handler with JSON parsing,
+  `validate_rotation_plan_dict()` call, text and JSON output, exit code 3 on
+  validation failure.
+- `Makefile` (J5) — Added `rotation-plan-check` target with demo invocation
+  using maintainer and backup-maintainer. Added to `.PHONY`.
+- `docs/evidence/METRICS_CURRENT.md` (J5) — v0.7.3 J5 changelog. Pipeline
+  version: v0.7.3. Test count: 3557.
+- `tests/test_test_count_regression.py` — baseline updated to 3557.
+
+Honest boundaries:
+- Maintainer rotation validation checks structural and policy requirements only.
+  It does not verify that the listed maintainers actually have the skills or
+  availability to perform their roles.
+- `dry_lab_only: true` is a const field on all dataclasses — rotation plan
+  validation is a governance artifact, not a legal determination.
+- Bus-factor assessment is a project-durability estimate, not a security
+  guarantee. A bus-factor of 2 means two named people can cover a function,
+  but both might be unavailable simultaneously.
+- The validator cannot detect unlisted critical dependencies (e.g., institutional
+  knowledge, CI secrets, domain expertise held by only one person).
+- The rotation schedule is a policy declaration; this validator does not track
+  whether rotations actually occurred.
+- Onboarding and offboarding checklists are documentation and guidance — they
+  do not replace judgment about whether a new maintainer is ready.
+
 ## v0.7.2 — Loop 112: Phase J J4 — COI Disclosure Template ✓ (2026-07-09)
 
 `docs/governance/COI_DISCLOSURE_TEMPLATE.md` with structured COI disclosure
