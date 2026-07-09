@@ -2,9 +2,9 @@
 import subprocess
 import sys
 
-# Baseline: 3181 tests as of Loop 93 (2026-07-09) -- Phase H H5 (simulation-result provenance chain)
+# Baseline: 3201 tests as of Loop 94 (2026-07-09) -- Phase H H6 (simulation-ensemble agreement checker)
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 3181
+BASELINE = 3201
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

@@ -1339,7 +1339,78 @@ def _run_simulation_registry(args: argparse.Namespace) -> int:
             print(f"  Maintainer:         {entry.maintainer}")
             if entry.notes:
                 print(f"  Notes:              {entry.notes}")
-        return 0
+    return 0
+
+
+def _run_simulation_ensemble_check(args: argparse.Namespace) -> int:
+    """Check agreement across multiple simulation results for a sequence."""
+    import json
+
+    from openamp_foundry.simulation.ensemble_checker import (
+        check_ensemble_agreement,
+    )
+    from openamp_foundry.simulation.interfaces import SimulationResult
+
+    sequence = args.sequence
+    output_format = getattr(args, "format", "text")
+    score_key = args.score_key
+    threshold = args.threshold
+
+    try:
+        raw_results = json.loads(args.results_json)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(json.dumps({
+            "status": "error",
+            "error": f"Invalid JSON for --results-json: {e}",
+        }))
+        return 2
+
+    if not isinstance(raw_results, list):
+        print(json.dumps({
+            "status": "error",
+            "error": "--results-json must be a JSON array of SimulationResult dicts",
+        }))
+        return 2
+
+    results = []
+    for item in raw_results:
+        results.append(SimulationResult(
+            module=item.get("module", ""),
+            version=item.get("version", ""),
+            scope=item.get("scope", []),
+            scores=item.get("scores", {}),
+            uncertainty=item.get("uncertainty", 0.0),
+            calibration_set=item.get("calibration_set"),
+            validated_against=item.get("validated_against", []),
+            notes=item.get("notes", []),
+        ))
+
+    agreement = check_ensemble_agreement(
+        sequence=sequence,
+        results=results,
+        score_key=score_key,
+        threshold=threshold,
+    )
+
+    if output_format == "json":
+        print(json.dumps(agreement.to_dict(), indent=2))
+    else:
+        print(f"Ensemble Agreement Check: {agreement.sequence}")
+        print(f"  Modules checked:  {', '.join(agreement.modules_checked)}")
+        print(f"  Agreement level:  {agreement.agreement_level}")
+        print(f"  Description:      {agreement.agreement_description}")
+        print(f"  Mean score:       {agreement.mean_score}")
+        print(f"  Score range:      {agreement.score_range}")
+        print(f"  Threshold:        {agreement.threshold}")
+        if agreement.scores_by_module:
+            print(f"  Scores by module:")
+            for mod, sc in agreement.scores_by_module.items():
+                print(f"    {mod}: {sc}")
+        print()
+        print("Dry-lab only. Ensemble agreement is a computational measure,")
+        print("not biological proof.")
+
+    return 0
 
     if status_filter:
         if status_filter not in VALID_STATUSES:

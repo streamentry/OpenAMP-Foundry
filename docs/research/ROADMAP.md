@@ -1,5 +1,59 @@
 # Roadmap
 
+## v0.5.94 — Loop 94: Phase H H6 — Simulation-Ensemble Agreement Checker ✓ (2026-07-09)
+
+`EnsembleAgreementResult` dataclass (9 fields: sequence, modules_checked,
+agreement_level, agreement_description, mean_score, score_range, scores_by_module,
+threshold, dry_lab_only). `AGREEMENT_LEVELS` dict (5 levels: strong/moderate/
+weak/conflict/insufficient). `check_ensemble_agreement()` extracts score_key from
+each SimulationResult's scores dict, computes score_range, classifies agreement:
+strong (≥3 modules within threshold), moderate (2 modules within threshold),
+weak (1 module), conflict (beyond threshold), or insufficient (no results).
+`run_ensemble_check_batch()` aggregates multiple calls with counts and any_conflict
+flag. CLI (`openamp-foundry simulation-ensemble-check`) with `--sequence`,
+`--results-json`, `--score-key`, `--threshold`, `--format text|json`.
+`make simulation-ensemble-check` target with demo invocation. When multiple
+simulation modules independently agree on a candidate, that agreement is stronger
+evidence than a single module alone. The ensemble checker makes this agreement
+explicit and auditable.
+
+Changes:
+- `src/openamp_foundry/simulation/ensemble_checker.py` (H6) — Core module with
+  `AGREEMENT_LEVELS` dict (5 entries), `EnsembleAgreementResult` dataclass
+  (9 fields), `check_ensemble_agreement()` with 5-path classification logic,
+  `run_ensemble_check_batch()` with per-level counts and any_conflict flag.
+- `src/openamp_foundry/simulation/__init__.py` — Exports `AGREEMENT_LEVELS`,
+  `EnsembleAgreementResult`, `check_ensemble_agreement`, `run_ensemble_check_batch`.
+- `src/openamp_foundry/cli/main.py` — Registered `simulation-ensemble-check`
+  subcommand with `--sequence`, `--results-json`, `--score-key`, `--threshold`,
+  `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` — Added
+  `_run_simulation_ensemble_check()` CLI handler with JSON parsing,
+  SimulationResult deserialization, text and JSON output.
+- `Makefile` — Added `simulation-ensemble-check` target with demo invocation
+  using AKLWKR + two module results. Added to `.PHONY`.
+- `tests/simulation/test_ensemble_checker.py` — 20 tests covering: empty
+  results, 1 result weak, 2 results moderate, 3+ results strong, conflict,
+  missing score_key skipped, mean_score, score_range, dry_lab_only always True,
+  scores_by_module, threshold parameter, modules_checked, agreement_description,
+  to_dict fields, batch counts, batch any_conflict, batch dry_lab_only.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.94 H6 changelog. Test count: 3201.
+- `tests/test_test_count_regression.py` — baseline updated to 3201.
+
+Honest boundaries:
+- Agreement is a computational measure: when N modules agree within threshold,
+  it means their scores are numerically close, not that they are biologically
+  correct.
+- The threshold is a user-parameterized float; different thresholds produce
+  different agreement levels for the same data.
+- A "strong" agreement from three weak modules is still weak evidence. The
+  checker measures consistency, not quality.
+- Missing score_key entries are silently skipped — the checker does not validate
+  that the score_key is meaningful or calibrated.
+- The dry_lab_only flag is a safety constraint, not a technical guarantee.
+- Ensemble agreement does not constitute biological proof. All simulation
+  outputs remain dry-lab hypotheses requiring wet-lab validation.
+
 ## v0.5.93 — Loop 93: Phase H H5 — Simulation-Result Provenance Chain ✓ (2026-07-09)
 
 `SimulationProvenanceRecord` dataclass with run_id, module_id, module_version,

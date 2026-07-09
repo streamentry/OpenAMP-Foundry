@@ -6,6 +6,12 @@ from .adapter_gate import (
     evaluate_adapter_gate,
     run_adapter_gate_batch,
 )
+from .ensemble_checker import (
+    AGREEMENT_LEVELS,
+    EnsembleAgreementResult,
+    check_ensemble_agreement,
+    run_ensemble_check_batch,
+)
 from .provenance import (
     SimulationProvenanceRecord,
     make_provenance_record,
@@ -48,6 +54,10 @@ __all__ = [
     "FAIL_CLOSED_REASONS",
     "evaluate_adapter_gate",
     "run_adapter_gate_batch",
+    "AGREEMENT_LEVELS",
+    "EnsembleAgreementResult",
+    "check_ensemble_agreement",
+    "run_ensemble_check_batch",
     "SimulationResult",
     "VirtualAssayProxy",
     "ExternalSimulationAdapter",
