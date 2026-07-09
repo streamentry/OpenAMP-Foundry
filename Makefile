@@ -360,9 +360,18 @@ ip-report:
 		--novelty-csv outputs/novelty_audit_full.csv \
 		--out outputs/ip_report.md
 
-benchmark-card: validate-scoring
-	@echo "Benchmark card is a static document at docs/BENCHMARK_CARD.md"
-	@echo "Run 'make validate-scoring' to update outputs/validate_scoring_report.json"
+benchmark-card:
+	.venv/bin/openamp-foundry benchmark-card \
+		--benchmark-id bench-auroc-001 \
+		--benchmark-name "AMP vs Decoy AUROC" \
+		--metric AUROC \
+		--metric-value 0.82 \
+		--baseline-name "random" \
+		--baseline-value 0.50 \
+		--dataset APD3 \
+		--dataset-size 500 \
+		--validate
+	@echo "Benchmark card complete."
 
 pilot-confident:
 	@if [ -z "$(KEEP)" ]; then \

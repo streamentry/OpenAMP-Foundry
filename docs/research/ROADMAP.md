@@ -1,5 +1,73 @@
 # Roadmap
 
+## v0.6.1 — Loop 101: Phase I I3 — Benchmark Card Schema ✓ (2026-07-09)
+
+`schemas/benchmark_card.schema.json` (Draft 2020-12, 15 required fields:
+benchmark_id, benchmark_name, version, date, metric, metric_value, baseline_name,
+baseline_value, delta, beats_baseline, dataset, dataset_size, scope, caveats,
+dry_lab_only). `$schema`, `$id`, `title`, `additionalProperties: false`.
+
+`src/openamp_foundry/benchmarks/` module with `BenchmarkCard` dataclass
+(15 fields), `make_benchmark_card()` (auto-computes delta, beats_baseline),
+`validate_benchmark_card()` (10 checks: non-empty benchmark_id, non-empty
+benchmark_name, non-empty metric, non-empty dataset, non-empty baseline_name,
+dataset_size >= 1, delta matches metric_value - baseline_value within 1e-9,
+beats_baseline matches delta > 0, dry_lab_only must be True),
+`benchmark_card_summary()` (total, beats_baseline_count, fails_baseline_count,
+dry_lab_only).
+
+CLI (`openamp-foundry benchmark-card`) with `--benchmark-id`, `--benchmark-name`,
+`--metric`, `--metric-value`, `--baseline-name`, `--baseline-value`, `--dataset`,
+`--dataset-size`, `--validate`, `--format text|json`.
+`make benchmark-card` target.
+
+19 tests. **3329 total.** A benchmark card is the standard format for describing
+external benchmark results — what was benchmarked, what the baseline was, what
+the result was, and what claims are supported. This is Loop 101 — the 101st PR
+in the NEXT_100_PR_MAP series.
+
+Changes:
+- `schemas/benchmark_card.schema.json` (I3) — Draft 2020-12 schema with
+  15 required fields, `$id`, `title`, `additionalProperties: false`.
+- `src/openamp_foundry/benchmarks/__init__.py` (I3) — Package init, exports
+  `BenchmarkCard`, `make_benchmark_card`, `validate_benchmark_card`,
+  `benchmark_card_summary`.
+- `src/openamp_foundry/benchmarks/benchmark_card.py` (I3) — Core module
+  with `BenchmarkCard` dataclass (15 fields), `make_benchmark_card()`,
+  `validate_benchmark_card()`, `benchmark_card_summary()`.
+- `src/openamp_foundry/cli/main.py` (I3) — Registered `benchmark-card`
+  subcommand with `--benchmark-id`, `--benchmark-name`, `--metric`,
+  `--metric-value`, `--baseline-name`, `--baseline-value`, `--dataset`,
+  `--dataset-size`, `--validate`, `--format` flags. Added import and dispatch.
+- `src/openamp_foundry/cli/commands/reports.py` (I3) — Added
+  `_run_benchmark_card()` CLI handler with JSON and text output,
+  card creation, optional validation, and error handling.
+- `Makefile` (I3) — Updated `benchmark-card` target with demo invocation
+  using bench-auroc-001. Added to `.PHONY`.
+- `tests/benchmarks/__init__.py` (I3) — Empty package init.
+- `tests/benchmarks/test_benchmark_card.py` (I3) — 19 tests covering:
+  make_benchmark_card returns BenchmarkCard, delta computed correctly,
+  beats_baseline True/False, dry_lab_only always True, valid card passes
+  validation, catches empty benchmark_id, empty benchmark_name, empty metric,
+  empty dataset, empty baseline_name, dataset_size < 1, wrong delta,
+  wrong beats_baseline, dry_lab_only=False, summary total, summary
+  beats_baseline_count, dry_lab_only, schema file exists.
+- `docs/evidence/METRICS_CURRENT.md` — v0.6.1 I3 changelog. Test count: 3329.
+- `tests/test_test_count_regression.py` — baseline updated to 3329.
+
+Honest boundaries:
+- Benchmark cards describe computational benchmark results only — they do not
+  measure biological activity, safety, or clinical value.
+- Delta and beats_baseline are computed from metric_value and baseline_value,
+  not independently measured.
+- The schema is versioned (currently 1.0.0) and should be updated when fields
+  are added or changed.
+- Validation checks structural correctness and internal consistency only — it
+  does not verify that the benchmark was correctly designed or that the results
+  generalize.
+- `dry_lab_only: true` is a const field — all benchmark cards are inherently
+  dry-lab and must never be presented as validated biological findings.
+
 ## v0.6.0 — Loop 100: Phase I I2 — Candidate Manifest Schema ✓ (2026-07-09)
 
 `schemas/candidate_manifest.schema.json` (Draft 2020-12, 14 required fields:

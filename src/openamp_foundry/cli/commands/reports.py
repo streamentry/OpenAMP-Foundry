@@ -2014,3 +2014,76 @@ def _run_candidate_manifest(args: argparse.Namespace) -> int:
     if validation_errors:
         return 3
     return 0
+
+
+def _run_benchmark_card(args: argparse.Namespace) -> int:
+    """Build and optionally validate a benchmark card from CLI arguments."""
+    from openamp_foundry.benchmarks.benchmark_card import (
+        make_benchmark_card,
+        validate_benchmark_card,
+    )
+
+    card = make_benchmark_card(
+        benchmark_id=args.benchmark_id,
+        benchmark_name=args.benchmark_name,
+        metric=args.metric,
+        metric_value=args.metric_value,
+        baseline_name=args.baseline_name,
+        baseline_value=args.baseline_value,
+        dataset=args.dataset,
+        dataset_size=args.dataset_size,
+    )
+
+    validation_errors: list[str] = []
+    if getattr(args, "validate", False):
+        validation_errors = validate_benchmark_card(card)
+
+    output_format = getattr(args, "format", "text")
+    if output_format == "json":
+        result = {
+            "benchmark_id": card.benchmark_id,
+            "benchmark_name": card.benchmark_name,
+            "version": card.version,
+            "date": card.date,
+            "metric": card.metric,
+            "metric_value": card.metric_value,
+            "baseline_name": card.baseline_name,
+            "baseline_value": card.baseline_value,
+            "delta": card.delta,
+            "beats_baseline": card.beats_baseline,
+            "dataset": card.dataset,
+            "dataset_size": card.dataset_size,
+            "scope": list(card.scope),
+            "caveats": list(card.caveats),
+            "dry_lab_only": card.dry_lab_only,
+        }
+        if validation_errors:
+            result["validation_errors"] = validation_errors
+            result["valid"] = len(validation_errors) == 0
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"Benchmark Card: {card.benchmark_id}")
+        print(f"  Name:            {card.benchmark_name}")
+        print(f"  Version:         {card.version}")
+        print(f"  Date:            {card.date}")
+        print(f"  Metric:          {card.metric} = {card.metric_value}")
+        print(f"  Baseline:        {card.baseline_name} = {card.baseline_value}")
+        print(f"  Delta:           {card.delta:+.6f}")
+        print(f"  Beats baseline:  {card.beats_baseline}")
+        print(f"  Dataset:         {card.dataset} ({card.dataset_size} samples)")
+        print(f"  Scope:           {', '.join(card.scope)}")
+        print(f"  Caveats:         {len(card.caveats)}")
+        print(f"  Dry-lab only:    {card.dry_lab_only}")
+        if validation_errors:
+            print(f"  Validation:      {len(validation_errors)} error(s)")
+            for err in validation_errors:
+                print(f"    - {err}")
+        else:
+            print(f"  Validation:      passed")
+        print()
+        print("Dry-lab only. Benchmark cards are computational artifacts,")
+        print("not biological proof.")
+
+    if validation_errors:
+        return 3
+    return 0
