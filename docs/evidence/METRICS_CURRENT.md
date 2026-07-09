@@ -5,7 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-09 (Phase F F8 — bulk rejection-event validator — v0.5.79)
+> **Last updated:** 2026-07-09 (Phase F F9 — negative-result dashboard — v0.5.79)
+> **New in v0.5.79:** Negative-result dashboard (F9) — CLI (`scripts/negative_result_dashboard.py`) that reads a collection of negative-result entries from a JSON file and produces a structured dashboard with summary statistics (by category, by pipeline version), score distributions (activity, safety, novelty, ensemble), per-category cross-analysis, and pipeline insights (most common failure category, recalibration opportunities). Outputs JSON + Markdown. Example file (`examples/negative_result_dashboard_example.json`) with 15 toy entries across all 6 failure categories. Schema (`schemas/negative_result_dashboard.schema.json`). `make negative-result-dashboard` target. 33 tests. 2883 total.
+>
 > **New in v0.5.79:** Bulk rejection-event validator (F8) — CLI (`scripts/validate_rejection_events.py`) that reads a JSON list of rejection events, validates each `rejection_code` against the rejection taxonomy (`examples/rejection_taxonomy_example.json`), checks required fields (candidate_id, rejection_code, date, pipeline_version), and outputs a PASS/FAIL validation report with per-event errors, rejection-code distribution, and Markdown summary. Example file (`examples/rejection_events_example.json`) with 6 toy events. `make validate-rejection-events` target. 26 tests. 2849 total.
 >
 > **New in v0.5.78:** Calibration link from negative-result entries to intake reports (F7) — closes learning loop by tracing each negative-result entry back to its prediction-vs-actual data in the calibration intake report. Schema addition: `intake_report_id` optional field on `negative_result_entry.schema.json`. CLI (`scripts/link_negative_result_to_intake.py`) reads negative-result archive JSON + calibration intake report, links by candidate_id, reports matched/unmatched entries, orphan intake candidates, lab summary for matched entries, and validates intake_report_id references. Produces structured JSON + Markdown link report. 25 tests. 2822 total.
@@ -68,7 +70,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **New in v0.5.31:** Added dipeptide-order features for sequence-order awareness. `dipeptide_order_score` achieves AUROC 0.7861 on AMP-vs-scrambled discrimination — the strongest order-dependent feature in the pipeline. Only 7/31 features survive scrambling (amphipathicity/helix-wheel + dipeptide). All composition features are purely position-independent (exactly 0.5000 AUROC on scrambled test).
 > **New in v0.5.30:** Easy baseline benchmark added — charge density alone (AUROC 0.8166) outperforms the full pipeline ensemble (0.7792) on AMP-vs-Swiss-Prot-decoy discrimination. Honest finding documented: expected because pipeline optimizes for safety, not raw discrimination.
 > **New in v0.5.29:** Expanded benchmark to 500 AMPs + 500 composition-matched decoys (n=1000). AUROC 0.7792 (CI₉₅: 0.7505–0.8065) confirms signal generalizes. Cluster-aware CI: 0.746–0.8102. Representative AUROC: 0.778. Standard benchmark (n=191) retained for backward comparison.
-> **Pipeline version:** v0.5.79
+> **Pipeline version:** v0.5.79 (F9)
 > **Branch:** main
 
 ---

@@ -1,5 +1,59 @@
 # Roadmap
 
+## v0.5.79 — Loop 79: Phase F F9 — Negative-Result Dashboard ✓ (2026-07-09)
+
+CLI that reads a collection of negative-result entries from a JSON file and
+produces a structured dashboard with summary statistics, score distributions,
+per-category cross-analysis, and pipeline insights. Shows the value of
+failures by making failure patterns reviewable at a glance.
+
+Changes:
+- `scripts/negative_result_dashboard.py` (F9) — Standalone CLI that loads
+  negative-result entries (list or dict with `entries` key), builds a dashboard
+  with category breakdown, pipeline version distribution, per-score statistics
+  (mean, min, max, std), per-category score cross-analysis, and insights (most
+  common failure category, recalibration opportunities). Supports `--out-json`
+  and `--out-md` output. Exit 0 on success, 2 on input errors.
+- `schemas/negative_result_dashboard.schema.json` (F9) — JSON Schema Draft
+  2020-12 for the dashboard output. Validates dashboard_metadata, summary
+  (by_category, by_pipeline_version), scores_distribution (activity, safety,
+  novelty, ensemble with mean/min/max/std), category_score_summary, insights
+  (most_common_failure_category, recalibration_opportunities), and _caveat.
+- `examples/negative_result_dashboard_example.json` (F9) — Toy example with 15
+  entries spanning all 6 failure categories (pre_selection_reject, selected_untested,
+  lab_inactive, lab_toxic, control_failure, synthesis_failure) across 9 pipeline
+  versions. Clearly marked EXAMPLE — NOT REAL DATA.
+- `Makefile` — Added `negative-result-dashboard` target.
+- `tests/evidence/test_negative_result_dashboard.py` — 33 tests covering:
+  dashboard required structure, summary counts, by-category breakdown,
+  by-pipeline-version distribution, score distribution stats (min, max, mean,
+  count), insights (most common category, highest activity category, lowest
+  safety category, recalibration opportunities), empty entries handling,
+  entries without scores, category score summary shape, markdown sections
+  (title, summary, category table, score distribution, insights, caveat),
+  example file loading, list/dict input formats, missing file error, empty
+  list error, missing required fields error, CLI exit codes (0, 2), JSON
+  output writing, markdown output writing, and example file round-trip.
+- `docs/evidence/METRICS_CURRENT.md` — v0.5.79 F9 changelog. Test count: 2883.
+- `tests/test_test_count_regression.py` — baseline updated to 2883.
+
+Honest boundaries:
+- Dashboard summaries are computational aggregations of pipeline failure
+  records, not biological measurements.
+- A category with many entries may reflect pipeline prioritisation choices
+  (e.g., more candidates pass through pre-selection than reach lab testing)
+  rather than intrinsic biological failure rates.
+- Score distributions reflect pipeline-predicted scores, not measured
+  activity, safety, or novelty.
+- The "most common failure category" insight is a descriptive count, not
+  evidence that the pipeline is failing correctly or incorrectly.
+- Recalibration opportunity counts track entries flagged with
+  `recalibration_used=yes`; they do not measure whether recalibration
+  actually improved predictions.
+- The dashboard does not determine whether rejected candidates would have
+  been biologically active or safe. All conclusions require qualified
+  human review and wet-lab validation.
+
 ## v0.5.79 — Loop 78: Phase F F8 — Bulk Rejection-Event Validator ✓ (2026-07-09)
 
 CLI that validates rejection events against the rejection taxonomy. Checks

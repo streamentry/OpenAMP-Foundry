@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Negative-Result Dashboard",
+  "description": "Schema for the negative-result dashboard output. Produced by scripts/negative_result_dashboard.py from a collection of negative-result entries. Dashboard is informational only — it summarises failure patterns, not biological truth.",
+  "type": "object",
+  "required": [
+    "dashboard_metadata",
+    "summary",
+    "scores_distribution",
+    "category_score_summary",
+    "insights",
+    "_caveat"
+  ],
+  "properties": {
+    "dashboard_metadata": {
+      "type": "object",
+      "required": ["generated_at", "pipeline_version", "source_file", "total_entries", "pipeline_version_count"],
+      "properties": {
+        "generated_at": {"type": "string", "description": "ISO 8601 timestamp of dashboard generation"},
+        "pipeline_version": {"type": "string", "description": "Pipeline version used to generate dashboard"},
+        "source_file": {"type": "string", "description": "Path to the source negative-result entries file"},
+        "total_entries": {"type": "integer", "minimum": 0},
+        "pipeline_version_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_entries", "by_category", "by_pipeline_version"],
+      "properties": {
+        "total_entries": {"type": "integer", "minimum": 0},
+        "by_category": {
+          "type": "object",
+          "description": "Count of entries per reason_category",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        },
+        "by_pipeline_version": {
+          "type": "object",
+          "description": "Count of entries per pipeline_version",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "scores_distribution": {
+      "type": "object",
+      "description": "Aggregate score statistics across all entries that have score fields",
+      "required": ["activity", "safety", "novelty", "ensemble"],
+      "properties": {
+        "activity": {"$ref": "#/$defs/scoreStats"},
+        "safety": {"$ref": "#/$defs/scoreStats"},
+        "novelty": {"$ref": "#/$defs/scoreStats"},
+        "ensemble": {"$ref": "#/$defs/scoreStats"}
+      }
+    },
+    "category_score_summary": {
+      "type": "object",
+      "description": "Per-category mean scores for cross-analysis"
+    },
+    "insights": {
+      "type": "object",
+      "required": [
+        "total_failures_analyzed",
+        "most_common_failure_category",
+        "most_common_failure_count",
+        "category_with_highest_avg_activity",
+        "category_with_lowest_avg_safety"
+      ],
+      "properties": {
+        "total_failures_analyzed": {"type": "integer"},
+        "most_common_failure_category": {"type": "string"},
+        "most_common_failure_count": {"type": "integer"},
+        "category_with_highest_avg_activity": {"type": "string"},
+        "category_with_lowest_avg_safety": {"type": "string"},
+        "recalibration_opportunities": {"type": "integer"},
+        "note": {"type": "string"}
+      }
+    },
+    "_caveat": {"type": "string"}
+  },
+  "$defs": {
+    "scoreStats": {
+      "type": "object",
+      "required": ["mean", "min", "max", "std", "count"],
+      "properties": {
+        "mean": {"type": "number"},
+        "min": {"type": "number"},
+        "max": {"type": "number"},
+        "std": {"type": "number"},
+        "count": {"type": "integer"}
+      }
+    }
+  }
+}
