@@ -218,7 +218,7 @@ Make the full pipeline auditable and reviewable by external scientists. First ph
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| R1 | Add candidate family clustering evidence schema (CFC-). | Machine-verifiable grouping of related candidates into a "novel family" claim; sequence similarity threshold, family size, novelty evidence type controlled vocabulary. | B/C |
+| R1 | Add candidate family clustering evidence schema (CFC-) (complete). — src/openamp_foundry/evidence/candidate_family_clustering.py: CFC- 15-field schema; VALID_NOVELTY_EVIDENCE_TYPES (6), VALID_CLUSTERING_METHODS (5), VALID_NOVELTY_VERDICTS (4); novel_family requires hard evidence (blast/hmm/structural/charge); variant_of_known requires known_family_hits; n_candidates≥2 enforced; dry_lab_only=True enforced; 66 tests in tests/evidence/test_candidate_family_clustering.py. | Machine-verifiable grouping of related candidates into a "novel family" claim; sequence similarity threshold, family size, novelty evidence type controlled vocabulary. | B/C |
 | R2 | Add family novelty report schema (FNR-). | Bundles CFC- clustering with cheap-baseline comparison; prevents "novel family" overclaim when candidates are merely sequence variants of known AMPs. | B/C |
 | R3 | Add full audit trail report schema (ATR-) linking BSP→WHR→PCU→HCR→PQG for a complete dry-lab→wet-lab loop trace. | End-to-end chain of custody from nomination to confirmed hit; required for scientific reproducibility. | B/C |
 | R4 | Add scientific review readiness gate schema (SRG-). | Machine-verifiable checklist for when a candidate family has enough evidence for external scientific review; requires CFC+FNR+ATR+PQG records and no unresolved safety flags. | C |
