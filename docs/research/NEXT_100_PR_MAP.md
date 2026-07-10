@@ -337,3 +337,4 @@ Machine-verifiable audit trail for claim downgrades, expert decisions, and exter
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | AB1 | Add claim strength downgrade record schema (CSD-). | Auditable trail for every claim downgrade; proof_ladder_steps_dropped auto-computed; is_retracted invariant; trigger_type controlled vocabulary (benchmark/reviewer/cheap_enemy/etc.); prevents silent claim drift upward after challenges. | B/C |
+| AB2 | Add reviewer decision record schema (RDR-). | Machine-parseable expert review: 5 dimensions (novelty/controls/safety/synthesis/claim_scope); rating per dimension (acceptable/concerns_noted/requires_revision/not_assessed); n_blocking auto-computed; "approved" blocked when any required dimension unassessed or any dimension requires_revision. | B/C |
