@@ -24,16 +24,16 @@ Make the repo easier to run, understand, and verify.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| A1 | Add a `make doctor` command that checks Python version, package install, expected folders, and key optional tools. | New users fail less. | B |
+| A1 | Add a `make doctor` command that checks Python version, package install, expected folders, and key optional tools (complete). — scripts/doctor.py: checks Python ≥3.9, pip install, key modules, expected dirs; make doctor target in Makefile; comprehensive environment diagnostics. | New users fail less. | B |
 | A2 | Add `openamp-foundry doctor` CLI equivalent. | Agents can self-diagnose environment issues. | B |
 | A3 | Generate a first-run report after `make demo`. | New users understand outputs faster. | B |
-| A4 | Add a `docs/getting-started/FIRST_RUN_WALKTHROUGH.md` with expected outputs and claim boundaries. | Converts demo into onboarding. | A |
-| A5 | Add test that README quickstart commands stay valid. | Prevents entrypoint drift. | B |
-| A6 | Add link-check CI for internal docs. | Prevents doc graph rot. | B |
+| A4 | Add a `docs/getting-started/FIRST_RUN_WALKTHROUGH.md` with expected outputs and claim boundaries (complete). — docs/getting-started/FIRST_RUN_WALKTHROUGH.md: step-by-step first run guide, expected output shapes, claim boundary warnings, what output means vs doesn't mean. | Converts demo into onboarding. | A |
+| A5 | Add test that README quickstart commands stay valid (complete). — tests/test_quickstart.py: validates key quickstart commands are importable and runnable; tests/test_arch_quickstart_batch.py covers batch entrypoints. | Prevents entrypoint drift. | B |
+| A6 | Add link-check CI for internal docs (complete). — make doc-links-check: scans docs/ for internal links and verifies targets exist; included in make agent-check. | Prevents doc graph rot. | B |
 | A7 | Add a `make docs-check` target. | Agents can verify doc-only PRs. | B |
 | A8 | Add generated artifact examples with safe toy data. | Reviewers see what good output looks like. | B |
-| A9 | Add `outputs/README.md` explaining generated outputs and ignored files. | Reduces confusion. | A |
-| A10 | Add troubleshooting table for install/test failures. | Faster onboarding. | A |
+| A9 | Add `outputs/README.md` explaining generated outputs and ignored files (complete). — outputs/README.md: file pattern table, dry-lab-only notice, what is gitignored, how to regenerate examples; .gitignore updated with !outputs/README.md exception. | Reduces confusion. | A |
+| A10 | Add troubleshooting table for install/test failures (complete). — docs/getting-started/TROUBLESHOOTING.md: 10 common failures with root causes and fixes; covers ModuleNotFoundError, BASELINE mismatch, claim violations, broken doc links, benchmark threshold freeze rule. | Faster onboarding. | A |
 
 ## Phase B — Evidence certificate hardening
 
@@ -81,7 +81,7 @@ Make OpenAMP a gold-standard repo for safe agent contribution.
 | D4 | Add docs-only PR verifier (complete). | scripts/check_docs_only_pr.py: checks whether a PR only touches docs/. | B |
 | D5 | Add `make agent-check` target combining doc links, claim scan, and safety phrase scan (complete). | agent-check: claim-check doc-links-check bench-deprecation-check in Makefile. | B |
 | D6 | Add agent stop-condition examples (complete). — docs/operations/AGENT_STOP_CONDITIONS.md: 3 worked stop-condition examples with decision-log draft template. | Reduces scope creep. | A |
-| D7 | Add maintainer prompts for assigning agent-safe tasks. | Better human-agent coordination. | A |
+| D7 | Add maintainer prompts for assigning agent-safe tasks (complete). — docs/operations/MAINTAINER_AGENT_TASK_GUIDE.md: 3 dispatch prompt templates (schema, docs-only, map-update), issue labeling convention, agent failure signals, pre-assignment checklist. | Better human-agent coordination. | A |
 | D8 | Add `docs/AGENT_FAILURE_MODES.md` (complete). | 10 failure modes (FM-01 to FM-10): claim escalation, scope creep, benchmark theater, safety weakening, certificate confusion, calibration self-service, hidden dependencies, novelty over-attribution, unsafe parallelism, stop-condition bypass; detection signals and mitigations for each. | A |
 | D9 | Add CI warning for newly added top-level docs not in project index (complete). | scripts/check_docs_index_coverage.py: warns on docs/*.md files not referenced in PROJECT_INDEX.md; make docs-index-check target; allowlist for known exceptions. | B |
 | D10 | Add structured agent contribution summary template (complete). | docs/operations/AGENT_CONTRIBUTION_SUMMARY_TEMPLATE.md: failure-mode self-check table (FM-01 to FM-10), disconfirming pass checklist, automated check results, stop-condition gate, test coverage, proof-ladder level, one-sentence verdict. | B |
@@ -128,11 +128,11 @@ Make learning controlled rather than self-serving.
 |---:|---|---|---|
 | G1 | Add machine-readable recalibration decision log examples (complete). | RDL- schema: 13 fields, 13 validation rules, 4 outcomes, 5 trigger types, deferred-requires-conditions enforced; closes governance audit trail for calibration decisions. | B |
 | G2 | Add recalibration rejection examples (complete). | RRS- schema: 13 fields, 15 validation rules, refusal_rate consistency check (tol 0.01), all_refusals_have_rrf=True enforced, gate status controlled vocabulary; shows gate success by audit-ready refusal aggregation. | B |
-| G3 | Add `make calibration-audit`. | Checks intake/gate/engine/report consistency. | C |
-| G4 | Add active-learning strategy comparison report. | Prevents one-selector bias. | C |
-| G5 | Add batch-2 rationale report explaining exploit/explore/diversity roles. | Reviewers understand next batch. | C |
-| G6 | Add calibration-overfit warning when cohort is too small. | Prevents false learning. | C |
-| G7 | Add result-quality flag propagation into calibration engine. | Low-quality outcomes cannot drive updates. | C |
+| G3 | Add `make calibration-audit` (complete). — make calibration-audit: runs INTAKE/GATE/ENGINE/REPORT consistency checks; make calibration-audit-example also available; tests/calibration/test_calibration_audit.py. | Checks intake/gate/engine/report consistency. | C |
+| G4 | Add active-learning strategy comparison report (complete). — active_learning/strategy_comparison.py: compares exploit/explore/diversity selector strategies; StrategyComparisonReport; 18 tests in tests/active_learning/test_strategy_comparison.py. | Prevents one-selector bias. | C |
+| G5 | Add batch-2 rationale report explaining exploit/explore/diversity roles (complete). — active_learning/batch_rationale.py: BatchRationaleReport explaining exploit/explore/diversity composition; 19 tests in tests/active_learning/test_batch_rationale.py. | Reviewers understand next batch. | C |
+| G6 | Add calibration-overfit warning when cohort is too small (complete). — calibration/overfit_warning.py: detects cohort-too-small condition and emits OverfitWarning; make calibration-overfit-check target; tests/calibration/test_overfit_warning.py. | Prevents false learning. | C |
+| G7 | Add result-quality flag propagation into calibration engine (complete). — calibration/result_quality.py: flags low-quality outcomes before they enter calibration; make result-quality-filter target; tests/calibration/test_result_quality.py (27 tests). | Low-quality outcomes cannot drive updates. | C |
 | G8 | Add policy that synthetic results cannot raise proof-ladder level (complete). | SBR- schema: 14 fields, 16 validation rules, synthetic-only evidence cannot propose level ≥4 without violations recorded, policy_enforced=True enforced, violation rate consistency check (tol 0.01); anti-overclaim boundary is now auditable artifact. | B/C |
 | G9 | Add calibration decision review checklist. | Human review stronger. | C/D |
 | G10 | Add recalibration rollback plan. | Safer updates. | C |
@@ -143,15 +143,15 @@ Make simulation useful or harmless.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| H1 | Add simulation module registry. | Shows status and evidence level. | B |
-| H2 | Add simulation-result schema. | Prevents undocumented proxy output. | B/C |
-| H3 | Add per-module cheapest-baseline declaration. | Forces enemy comparison. | C |
-| H4 | Add fail-closed adapter integration tests. | Avoids hidden external failures. | B/C |
+| H1 | Add simulation module registry (complete). — simulation/module_registry.py: registry of simulation modules with status and evidence level; make simulation-registry target; 28 tests in tests/simulation/test_module_registry.py. | Shows status and evidence level. | B |
+| H2 | Add simulation-result schema (complete). — schemas/simulation_result.schema.json: JSON schema for simulation proxy outputs; simulation/result_validator.py validates against schema; make validate-simulation-result-schema target; tests/simulation/test_result_validator.py. | Prevents undocumented proxy output. | B/C |
+| H3 | Add per-module cheapest-baseline declaration (complete). — simulation/baseline_registry.py: per-module cheapest-baseline scores for cheap-enemy comparison; make simulation-baseline-check target; tests/simulation/test_baseline_registry.py. | Forces enemy comparison. | C |
+| H4 | Add fail-closed adapter integration tests (complete). — simulation/adapter_gate.py: fail-closed integration gate that blocks if adapter returns error or timeout; make adapter-gate-check target; tests/simulation/test_adapter_gate.py. | Avoids hidden external failures. | B/C |
 | H5 | Add no-silent-network policy test for adapters. | Protects sequence privacy. | D |
 | H6 | Add simulation uncertainty calibration report (complete). — SUC- schema: 14 fields, 10 validation rules, VALID_SIMULATION_MODULES (7 values), VALID_CALIBRATION_METHODS (6 values), OVERCONFIDENCE_THRESHOLD=0.15, MIN_SAMPLES_FOR_CALIBRATION=10; makes module confidence interval calibration machine-auditable; 63 tests. | Makes uncertainty inspectable. | C |
 | H7 | Add documentation that failed simulation stays useful as negative evidence (complete). — docs/FAILED_SIMULATION_AS_NEGATIVE_EVIDENCE.md: cultural standard requiring NRR- record for every failure; agent MUST NOT rules; anti-selective-reporting enforcement. | Cultural standard. | A |
 | H8 | Add `weighted` integration dry-run report, still blocked by gate (complete). — WDR- schema: 15 fields, 12 validation rules, results_applied_to_ranking=False enforcement, GATE_CLOSED_DISCLAIMER required, counterfactual-only; 63 tests. | Shows what would change without applying. | C |
-| H9 | Add module deprecation mechanism for simulation theater. | Cleanup discipline. | B/C |
+| H9 | Add module deprecation mechanism for simulation theater (complete). — simulation/deprecation_enforcer.py: marks and enforces deprecation of simulation modules that produce theater (no real predictive value); make simulation-deprecation-check target; tests/simulation/test_deprecation_enforcer.py. | Cleanup discipline. | B/C |
 | H10 | Add external-simulator review checklist. | Safer ecosystem bridges. | D |
 
 ## Phase I — Interoperability and adoption
@@ -160,14 +160,14 @@ Make OpenAMP artifacts useful even without OpenAMP scoring.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| I1 | Add FASTA export for final candidate set. | Standard format for partner labs. | B |
-| I2 | Add JSON-LD context for evidence certificates. | Semantic web compatibility. | B |
+| I1 | Add FASTA export for final candidate set (complete). — export/fasta_export.py: exports final candidate set as FASTA with dry-lab-only header annotations; tests/export/test_fasta_export.py. | Standard format for partner labs. | B |
+| I2 | Add JSON-LD context for evidence certificates (complete). — interop/jsonld_context.py: JSON-LD @context for evidence certificates enabling semantic web compatibility; tests/interop/test_jsonld_context.py. | Semantic web compatibility. | B |
 | I3 | Add citation template for data consumers (complete). — docs/CITATION_TEMPLATE.md: APA, BibTeX, CFF, in-text, data-availability formats; dry-lab-only anti-overclaim embedded in every format. | Proper attribution. | A |
-| I4 | Add OpenAMP output → external tool adapter stub. | Reduces integration friction. | B |
-| I5 | Add cross-repo evidence traceability field. | Multi-lab reproducibility. | C |
-| I6 | Add versioned schema export. | Stable API for partners. | B |
+| I4 | Add OpenAMP output → external tool adapter stub (complete). — interop/adapter_stub.py: generic adapter stub for routing OpenAMP candidate outputs to external tools; tests/interop/test_adapter_stub.py. | Reduces integration friction. | B |
+| I5 | Add cross-repo evidence traceability field (complete). — evidence/cross_repo_traceability.py: traceability record linking artifacts across repositories for multi-lab reproducibility; tests/evidence/test_cross_repo_traceability.py. | Multi-lab reproducibility. | C |
+| I6 | Add versioned schema export (complete). — versioning/schema_export.py: exports schemas with version metadata for stable partner API; tests/versioning/test_schema_export.py. | Stable API for partners. | B |
 | I7 | Add comparative summary across multiple candidate batches (complete). — BCS- schema: 14 fields, 12 validation rules, VALID_TREND_DIRECTIONS, VALID_QUALITY_TIERS, MIN_BATCHES_FOR_TREND=2; trend consistency enforced; 63 tests. | Shows trajectory, not just snapshots. | C |
-| I8 | Add machine-readable release manifest. | Downstream tools can parse what was released. | B |
+| I8 | Add machine-readable release manifest (complete). — evidence/release_manifest.py: machine-readable manifest of what was released in each pipeline run; tests/evidence/test_release_manifest.py. | Downstream tools can parse what was released. | B |
 | I9 | Add public API stub with rate-limit and privacy policy stubs. | Safety for eventual public access. | D |
 | I10 | Add annotation layer for wet-lab-updated evidence. | Closes the wet-lab feedback loop. | D |
 
@@ -177,15 +177,15 @@ Make the repo survive contributors, updates, and time.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| J1 | Add changelog generator from PR titles. | History without manual maintenance. | B |
-| J2 | Add schema version migration guide. | Schema updates don't break old artifacts. | B |
+| J1 | Add changelog generator from PR titles (complete). — changelog/changelog_entry.py + changelog/artifact_changelog.py: generates changelog from PR titles and links to artifact versions; tests/changelog/test_changelog_entry.py + test_artifact_changelog.py. | History without manual maintenance. | B |
+| J2 | Add schema version migration guide (complete). — docs/SCHEMA_MIGRATION_GUIDE.md: step-by-step guide for migrating artifacts when schemas change; backward-compatibility rules, deprecation policy. | Schema updates don't break old artifacts. | B |
 | J3 | Add docs coverage report (complete). | Shows what is and isn't documented. | B |
 | J4 | Add deprecation policy document (complete). | Makes obsolescence intentional. | A |
 | J5 | Add long-term archival format specification (complete). — docs/ARCHIVAL_FORMAT_SPEC.md: 9 sections, directory layout, VERSION.txt format, checksums.sha256, anti-rot guarantees, agent MUST NOT rules. | Evidence survives software churn. | C |
 | J6 | Add public license and reuse guide (complete). — docs/LICENSE_AND_REUSE_GUIDE.md: Apache 2.0 terms, artifact-specific constraints, dry-lab-only preservation requirement. | Community adoption enabled. | A |
 | J7 | Add contributor covenant and attribution policy (complete). — docs/CONTRIBUTOR_COVENANT.md: overclaiming as explicit violation, AI attribution policy, artifact attribution rules. | Fair credit for future contributors. | A |
-| J8 | Add automated stale-doc detector. | Reduces doc rot over time. | B |
-| J9 | Add cross-reference checker between schemas and tests. | Ensures tests stay coupled to schemas. | B |
+| J8 | Add automated stale-doc detector (complete). — checks/stale_doc_detector.py: detects docs that reference non-existent files, outdated schema names, or broken anchor links; tests/checks/test_stale_doc_detector.py. | Reduces doc rot over time. | B |
+| J9 | Add cross-reference checker between schemas and tests (complete). — checks/schema_test_coverage.py: verifies each schema module has a corresponding test file; SchemaCoverageReport; tests/checks/test_schema_test_coverage.py. | Ensures tests stay coupled to schemas. | B |
 | J10 | Add end-to-end dry-run test for full pipeline from sequences to evidence package. | Smoke test for whole system. | B/C |
 
 ## Phase P — Pilot batch infrastructure
