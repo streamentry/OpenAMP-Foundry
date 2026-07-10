@@ -17,6 +17,12 @@ _BASELINE_MIN_HYDROPHOBIC_FRACTION = 0.30
 
 
 def _infer_proof_ladder_level(scored: ScoredCandidate) -> str:
+    """Infer highest proof-ladder level supported by this candidate's evidence.
+
+    Pipeline outputs are multi_signal_candidate_evidence (Level 4) by default:
+    they have feature extraction, multiple independent scorers, novelty checking,
+    and diversity selection. Lower levels apply only if key signals are missing.
+    """
     scores = scored.scores
     has_multi_signal = (
         scores.get("activity", 0) > 0
@@ -29,6 +35,20 @@ def _infer_proof_ladder_level(scored: ScoredCandidate) -> str:
 
 
 def _build_baseline_caveat(scored: ScoredCandidate) -> str:
+    """Build a cheap-explanation statement for this candidate.
+
+    Forces cheap-explanation visibility: explicitly states which baseline
+    heuristics this candidate passes, so reviewers can judge whether the
+    residual ML signal justifies selection beyond a trivial rule.
+
+    Three canonical cheap baselines for AMP selection:
+      1. Net charge >= 4 (cationic bias)
+      2. Length in [10, 40] aa (typical AMP range)
+      3. Hydrophobic fraction >= 0.30
+
+    If all three pass, a simple conjunction rule could select this candidate
+    without any ML scoring. The ML residual must exceed this threshold.
+    """
     features = scored.features
     charge = float(features.get("net_charge_proxy", 0))
     length = int(features.get("length", 0))
@@ -47,7 +67,7 @@ def _build_baseline_caveat(scored: ScoredCandidate) -> str:
     if flags_yes == 3:
         residual_note = (
             "All three baseline flags pass — a simple conjunction rule "
-            "(charge\u22654 AND length 10-40 AND hydrophobicity\u22650.30) would select "
+            "(charge>=4 AND length 10-40 AND hydrophobicity>=0.30) would select "
             "this candidate without ML scoring. Residual ML signal must exceed "
             "this baseline to justify pipeline use."
         )
@@ -69,9 +89,9 @@ def _build_baseline_caveat(scored: ScoredCandidate) -> str:
 
     return (
         f"Cheapest-explanation check: "
-        f"charge={charge:.1f} (\u2265{_BASELINE_MIN_CHARGE} passes: {charge_flag}), "
+        f"charge={charge:.1f} (≥{_BASELINE_MIN_CHARGE} passes: {charge_flag}), "
         f"length={length} ({_BASELINE_LENGTH_MIN}-{_BASELINE_LENGTH_MAX} aa range: {length_flag}), "
-        f"hydrophobic_fraction={hydro:.2f} (\u2265{_BASELINE_MIN_HYDROPHOBIC_FRACTION:.2f} passes: {hydro_flag}). "
+        f"hydrophobic_fraction={hydro:.2f} (≥{_BASELINE_MIN_HYDROPHOBIC_FRACTION:.2f} passes: {hydro_flag}). "
         f"{residual_note}"
     )
 
@@ -80,6 +100,8 @@ def build_certificate(
     scored: ScoredCandidate,
     config: dict[str, Any],
     references_checked: list[str],
+    run_id: str = "",
+    run_manifest_hash: str = "",
 ) -> dict[str, Any]:
     return {
         "candidate_id": scored.candidate.candidate_id,
@@ -101,4 +123,6 @@ def build_certificate(
         "config_hash": stable_json_hash(config),
         "proof_ladder_level": _infer_proof_ladder_level(scored),
         "baseline_caveat": _build_baseline_caveat(scored),
+        "run_id": run_id,
+        "run_manifest_hash": run_manifest_hash,
     }

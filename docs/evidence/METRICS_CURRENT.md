@@ -9,6 +9,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.32 — Phase B B8: Certificates linked to run manifest hashes
+- Added `run_id` and `run_manifest_hash` optional parameters to `build_certificate()` in `src/openamp_foundry/evidence/certificate.py`
+- Every certificate now carries the pipeline run_id and the SHA256 hash of the run manifest that produced it
+- Backward-compatible: both fields default to empty string when not provided
+- Makes every certificate traceable to the exact pipeline run for reproducibility auditing
+- 63 tests in `tests/test_certificate_run_link.py`
+- BASELINE 6583→6646
+- Closes Phase B B8 — certificate-to-run-manifest traceability is now machine-verifiable
+
 ### v0.10.31 — Phase B B7: Candidate rejection certificate (CRC-)
 - Added `src/openamp_foundry/evidence/candidate_rejection_certificate.py`
 - CRC- schema: 12 fields (crc_id, pipeline_version, candidate_id, sequence, rejection_date, rejection_gate, rejection_reason, evidence_summary, proof_ladder_level_at_rejection, dry_lab_only, scores, notes)
