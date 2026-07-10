@@ -9,6 +9,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.35 — Phase C C8: Benchmark deprecation banner system
+- Added `src/openamp_foundry/evidence/benchmark_deprecation.py`
+- Functions: get_deprecated_cards(), get_active_cards(), build_deprecation_banner(), print_all_deprecation_banners(), check_no_deprecated_in_ranking() (raises DeprecatedBenchmarkError), deprecation_status_report()
+- DeprecatedBenchmarkError: raised when deprecated benchmarks are used in ranking context
+- Main registry confirmed: all 5 BMC- cards are active (no deprecated)
+- 63 tests in `tests/evidence/test_benchmark_deprecation.py`
+- BASELINE 6772→6835
+- Closes Phase C C8 — stale benchmark authority is now machine-preventable via check_no_deprecated_in_ranking()
+
 ### v0.10.34 — Phase C C1: Machine-readable benchmark registry
 - Added `src/openamp_foundry/evidence/benchmark_registry.py` — benchmark card registry
 - 5 BMC- cards: BMC-0001 (precision@k, leakage_aware_split), BMC-0002 (charge-matched, charge_stratified), BMC-0003 (calibration, random_70_30), BMC-0004 (family-stratified, family_stratified), BMC-0005 (cheap enemy comparison, leakage_aware_split)

@@ -65,7 +65,7 @@ Make OpenAMP the hardest repo to fool in AMP dry-lab selection.
 | C5 | Add `bench-length-matched` control. | Tests length shortcut. | C |
 | C6 | Add `bench-charge-length-matched` control. | Stronger nontrivial signal test. | C |
 | C7 | Add family-stratified precision@k. | Helps panel design. | C |
-| C8 | Add benchmark-deprecation banner system. | Prevents stale benchmark authority. | B |
+| C8 | Add benchmark-deprecation banner system (complete). | benchmark_deprecation.py: get_deprecated_cards(), build_deprecation_banner(), check_no_deprecated_in_ranking() (raises DeprecatedBenchmarkError), deprecation_status_report(); 63 tests; main registry confirmed all-active. | B |
 | C9 | Add command that compares all advanced scorers against declared cheap enemies. | Standardizes anti-hype. | C |
 | C10 | Add benchmark governance CI that rejects missing benchmark cards for new benchmark scripts. | Prevents benchmark sprawl. | B/C |
 
