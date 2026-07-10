@@ -117,7 +117,7 @@ Make failure useful.
 | F6 | Add examples of non-informative vs informative negative results. | Better interpretation. | A |
 | F7 | Add calibration link from negative-result entries to intake reports. | Closes learning loop. | C |
 | F8 | Add benchmark for whether rejected candidates resemble known failure modes. | Improves rejection logic. | C |
-| F9 | Add negative-result dashboard from toy data. | Shows value of failures. | B |
+| F9 | Add negative-result dashboard schema (complete). | NRD- aggregates NRR- rejection statistics: rejection rate consistency check, all_rejections_have_nrr enforced, top stage/reason controlled vocabulary, 100% rejection warning. | B |
 | F10 | Add policy that public claims must mention relevant negative results. | Prevents cherry-picking. | D |
 
 ## Phase G — Calibration and active-learning rigor

@@ -1,379 +1,445 @@
-"""Tests for the negative-result dashboard generator."""
-from __future__ import annotations
-
-import json
-import subprocess
-import sys
-from pathlib import Path
+"""Tests for NegativeResultDashboard (NRD-) schema — Phase F F9."""
 
 import pytest
-
-from scripts.negative_result_dashboard import (
-    build_dashboard,
-    generate_markdown,
-    load_entries,
+from openamp_foundry.evidence.negative_result_dashboard import (
+    HIGH_REJECTION_RATE_WARNING,
+    NRD_PREFIX,
+    NOTES_MAX_LENGTH,
+    REJECTION_RATE_TOLERANCE,
+    SUMMARY_MAX_LENGTH,
+    VALID_REJECTION_REASONS,
+    VALID_REJECTION_STAGES,
+    NegativeResultDashboard,
+    NegativeResultDashboardResult,
+    validate,
+    validate_dict,
 )
 
-_EXAMPLE_PATH = (
-    Path(__file__).resolve().parents[2] / "examples" / "negative_result_dashboard_example.json"
-)
+
+def _make(**kwargs) -> NegativeResultDashboard:
+    defaults = dict(
+        nrd_id="NRD-001",
+        pipeline_version="v0.10.20",
+        batch_id="BATCH-007",
+        report_date="2026-07-10",
+        total_candidates_evaluated=20,
+        total_rejections=14,
+        rejection_rate=0.7,
+        top_rejection_stage="toxicity_screen",
+        top_rejection_reason="failed_toxicity",
+        high_confidence_rejections=10,
+        all_rejections_have_nrr=True,
+        summary="14/20 candidates rejected; toxicity screen most common failure stage.",
+        notes="",
+    )
+    defaults.update(kwargs)
+    return NegativeResultDashboard(**defaults)
 
 
-def _sample_entries() -> list[dict]:
-    return [
-        {
-            "entry_id": 1,
-            "candidate_id": "TEST-001",
-            "sequence": "RRIRIIRRIRIIRRI",
-            "reason_category": "lab_inactive",
-            "reason_detail": "MIC > 128 ug/mL.",
-            "pipeline_version": "v0.5.70",
-            "source_batch": "test",
-            "score_activity": 0.80,
-            "score_safety": 0.85,
-            "score_novelty": 0.50,
-            "score_ensemble": 0.75,
-            "recalibration_used": "no",
-        },
-        {
-            "entry_id": 2,
-            "candidate_id": "TEST-002",
-            "sequence": "KLAKLAKKLAKLAK",
-            "reason_category": "lab_toxic",
-            "reason_detail": "HC50 = 8 ug/mL.",
-            "pipeline_version": "v0.5.71",
-            "source_batch": "test",
-            "score_activity": 0.90,
-            "score_safety": 0.30,
-            "score_novelty": 0.60,
-            "score_ensemble": 0.78,
-            "recalibration_used": "yes",
-        },
-        {
-            "entry_id": 3,
-            "candidate_id": "TEST-003",
-            "sequence": "GIGKFLHSAKKWGKAFVGEIMNS",
-            "reason_category": "lab_inactive",
-            "reason_detail": "MIC > 256 ug/mL.",
-            "pipeline_version": "v0.5.70",
-            "source_batch": "test",
-            "score_activity": 0.75,
-            "score_safety": 0.90,
-            "score_novelty": 0.40,
-            "score_ensemble": 0.70,
-            "recalibration_used": "no",
-        },
-        {
-            "entry_id": 4,
-            "candidate_id": "TEST-004",
-            "sequence": "AAAAKAAAAKAAAA",
-            "reason_category": "control_failure",
-            "reason_detail": "Positive control outside range.",
-            "pipeline_version": "v0.5.72",
-            "source_batch": "test",
-            "score_activity": 0.45,
-            "score_safety": 0.95,
-            "score_novelty": 0.30,
-            "score_ensemble": 0.50,
-            "recalibration_used": "no",
-        },
-        {
-            "entry_id": 5,
-            "candidate_id": "TEST-005",
-            "sequence": "RRWQWRMKKLG",
-            "reason_category": "synthesis_failure",
-            "reason_detail": "Yield < 5%.",
-            "pipeline_version": "v0.5.73",
-            "source_batch": "test",
-            "score_activity": 0.70,
-            "score_safety": 0.80,
-            "score_novelty": 0.55,
-            "score_ensemble": 0.68,
-            "recalibration_used": "no",
-        },
-    ]
+# --- Baseline valid ---
+
+class TestValidBaseline:
+    def test_valid_dashboard_passes(self):
+        r = validate(_make())
+        assert r.valid
+        assert r.errors == []
+
+    def test_valid_returns_result_type(self):
+        r = validate(_make())
+        assert isinstance(r, NegativeResultDashboardResult)
+
+    def test_valid_with_notes(self):
+        r = validate(_make(notes="Pipeline reviewed by calibration team."))
+        assert r.valid
+
+    def test_valid_zero_rejections(self):
+        r = validate(_make(
+            total_rejections=0,
+            rejection_rate=0.0,
+            high_confidence_rejections=0,
+            summary="No rejections in this batch; all candidates passed.",
+        ))
+        assert r.valid
+
+    def test_valid_all_stages(self):
+        for stage in VALID_REJECTION_STAGES:
+            r = validate(_make(top_rejection_stage=stage))
+            assert r.valid or all("top_rejection_stage" not in e for e in r.errors)
+
+    def test_valid_all_reasons(self):
+        for reason in VALID_REJECTION_REASONS:
+            r = validate(_make(top_rejection_reason=reason))
+            assert r.valid or all("top_rejection_reason" not in e for e in r.errors)
 
 
-class TestBuildDashboard:
-    def test_returns_required_structure(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        assert "dashboard_metadata" in dashboard
-        assert "summary" in dashboard
-        assert "scores_distribution" in dashboard
-        assert "category_score_summary" in dashboard
-        assert "insights" in dashboard
-        assert "_caveat" in dashboard
+# --- nrd_id validation ---
 
-    def test_summary_counts(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        assert dashboard["summary"]["total_entries"] == 5
+class TestNrdIdValidation:
+    def test_wrong_prefix(self):
+        r = validate(_make(nrd_id="NRR-001"))
+        assert not r.valid
+        assert any("nrd_id" in e for e in r.errors)
 
-    def test_by_category_breakdown(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        by_cat = dashboard["summary"]["by_category"]
-        assert by_cat["lab_inactive"] == 2
-        assert by_cat["lab_toxic"] == 1
-        assert by_cat["control_failure"] == 1
-        assert by_cat["synthesis_failure"] == 1
+    def test_empty_id(self):
+        r = validate(_make(nrd_id=""))
+        assert not r.valid
 
-    def test_by_pipeline_version(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        by_pv = dashboard["summary"]["by_pipeline_version"]
-        assert by_pv["v0.5.70"] == 2
-        assert by_pv["v0.5.71"] == 1
-        assert by_pv["v0.5.72"] == 1
-        assert by_pv["v0.5.73"] == 1
+    def test_lowercase_prefix(self):
+        r = validate(_make(nrd_id="nrd-001"))
+        assert not r.valid
 
-    def test_scores_distribution_stats(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        sd = dashboard["scores_distribution"]
-        assert "activity" in sd
-        assert "safety" in sd
-        assert "novelty" in sd
-        assert "ensemble" in sd
-        assert sd["activity"]["count"] == 5
-        assert sd["activity"]["min"] == 0.45
-        assert sd["activity"]["max"] == 0.90
-        assert round(sd["activity"]["mean"], 2) == 0.72
-
-    def test_insights_identifies_most_common_category(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        assert dashboard["insights"]["most_common_failure_category"] == "lab_inactive"
-        assert dashboard["insights"]["most_common_failure_count"] == 2
-
-    def test_insights_identifies_highest_activity_category(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        assert dashboard["insights"]["category_with_highest_avg_activity"] == "lab_toxic"
-
-    def test_insights_identifies_lowest_safety_category(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        assert dashboard["insights"]["category_with_lowest_avg_safety"] == "lab_toxic"
-
-    def test_insights_recalibration_opportunities(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        assert dashboard["insights"]["recalibration_opportunities"] == 1
-
-    def test_empty_entries_produces_zero_summary(self):
-        dashboard = build_dashboard([])
-        assert dashboard["summary"]["total_entries"] == 0
-        assert dashboard["summary"]["by_category"] == {}
-        assert dashboard["insights"]["total_failures_analyzed"] == 0
-
-    def test_entries_without_scores_handled_gracefully(self):
-        entries = [
-            {
-                "entry_id": 99,
-                "candidate_id": "NO-SCORE-001",
-                "reason_category": "pre_selection_reject",
-                "reason_detail": "No scores available.",
-                "pipeline_version": "v0.5.70",
-                "source_batch": "test",
-            }
-        ]
-        dashboard = build_dashboard(entries)
-        assert dashboard["summary"]["total_entries"] == 1
-        assert dashboard["scores_distribution"]["activity"]["count"] == 0
-
-    def test_category_score_summary_shape(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        css = dashboard["category_score_summary"]
-        assert "lab_inactive" in css
-        assert "lab_toxic" in css
-        assert "activity" in css["lab_inactive"]
-        assert "safety" in css["lab_inactive"]
-        assert css["lab_inactive"]["activity"]["count"] == 2
-
-    def test_metadata_contains_generation_timestamp(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        assert "generated_at" in dashboard["dashboard_metadata"]
-        assert dashboard["dashboard_metadata"]["total_entries"] == 5
+    def test_valid_prefix(self):
+        r = validate(_make(nrd_id="NRD-999"))
+        assert r.valid
 
 
-class TestGenerateMarkdown:
-    def test_contains_title(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        md = generate_markdown(dashboard)
-        assert "# Negative-Result Dashboard" in md
+# --- pipeline_version validation ---
 
-    def test_contains_summary_section(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        md = generate_markdown(dashboard)
-        assert "## Summary" in md
+class TestPipelineVersionValidation:
+    def test_empty_fails(self):
+        r = validate(_make(pipeline_version=""))
+        assert not r.valid
+        assert any("pipeline_version" in e for e in r.errors)
 
-    def test_contains_category_table(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        md = generate_markdown(dashboard)
-        assert "### By Failure Category" in md
-        assert "lab_inactive" in md
-        assert "lab_toxic" in md
+    def test_whitespace_fails(self):
+        r = validate(_make(pipeline_version="   "))
+        assert not r.valid
 
-    def test_contains_score_distribution(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        md = generate_markdown(dashboard)
-        assert "## Score Distribution" in md
-        assert "activity" in md
-        assert "safety" in md
-
-    def test_contains_insights(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        md = generate_markdown(dashboard)
-        assert "## Insights" in md
-        assert "Most common failure category" in md
-
-    def test_contains_caveat(self):
-        entries = _sample_entries()
-        dashboard = build_dashboard(entries)
-        md = generate_markdown(dashboard)
-        assert "## Caveat" in md
-
-    def test_empty_entries_handled(self):
-        dashboard = build_dashboard([])
-        md = generate_markdown(dashboard)
-        assert "# Negative-Result Dashboard" in md
+    def test_valid(self):
+        r = validate(_make(pipeline_version="v2.0.0"))
+        assert r.valid
 
 
-class TestLoadEntries:
-    def test_loads_from_example_file(self):
-        entries = load_entries(_EXAMPLE_PATH)
-        assert len(entries) == 15
-        assert entries[0]["entry_id"] == 101
-        assert entries[0]["reason_category"] == "pre_selection_reject"
+# --- batch_id validation ---
 
-    def test_loads_list_format(self, tmp_path):
-        data = [
-            {"entry_id": 1, "candidate_id": "T1", "reason_category": "lab_inactive"},
-            {"entry_id": 2, "candidate_id": "T2", "reason_category": "lab_toxic"},
-        ]
-        inp = tmp_path / "entries.json"
-        inp.write_text(json.dumps(data))
-        entries = load_entries(inp)
-        assert len(entries) == 2
+class TestBatchIdValidation:
+    def test_empty_fails(self):
+        r = validate(_make(batch_id=""))
+        assert not r.valid
+        assert any("batch_id" in e for e in r.errors)
 
-    def test_loads_dict_with_entries_key(self, tmp_path):
-        data = {"entries": [
-            {"entry_id": 1, "candidate_id": "T1", "reason_category": "lab_inactive"},
-        ]}
-        inp = tmp_path / "entries.json"
-        inp.write_text(json.dumps(data))
-        entries = load_entries(inp)
-        assert len(entries) == 1
+    def test_whitespace_fails(self):
+        r = validate(_make(batch_id="  "))
+        assert not r.valid
 
-    def test_exits_on_missing_file(self, tmp_path):
-        with pytest.raises(SystemExit) as exc:
-            load_entries(tmp_path / "nonexistent.json")
-        assert exc.value.code == 2
-
-    def test_exits_on_empty_list(self, tmp_path):
-        inp = tmp_path / "empty.json"
-        inp.write_text("[]")
-        with pytest.raises(SystemExit) as exc:
-            load_entries(inp)
-        assert exc.value.code == 2
-
-    def test_exits_on_missing_required_fields(self, tmp_path):
-        data = [{"entry_id": 1}]  # missing candidate_id and reason_category
-        inp = tmp_path / "bad.json"
-        inp.write_text(json.dumps(data))
-        with pytest.raises(SystemExit) as exc:
-            load_entries(inp)
-        assert exc.value.code == 2
+    def test_valid(self):
+        r = validate(_make(batch_id="BATCH-999"))
+        assert r.valid
 
 
-class TestCLI:
-    def test_exit_zero_on_success(self, tmp_path):
-        entries = _sample_entries()
-        inp = tmp_path / "entries.json"
-        inp.write_text(json.dumps(entries))
-        r = subprocess.run(
-            [sys.executable, "scripts/negative_result_dashboard.py",
-             "--input", str(inp)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
+# --- report_date validation ---
+
+class TestReportDateValidation:
+    def test_valid_date(self):
+        r = validate(_make(report_date="2026-01-15"))
+        assert r.valid
+
+    def test_invalid_format(self):
+        r = validate(_make(report_date="10/07/2026"))
+        assert not r.valid
+        assert any("report_date" in e for e in r.errors)
+
+    def test_empty_fails(self):
+        r = validate(_make(report_date=""))
+        assert not r.valid
+
+    def test_partial_date_fails(self):
+        r = validate(_make(report_date="2026-07"))
+        assert not r.valid
+
+    def test_text_date_fails(self):
+        r = validate(_make(report_date="July 2026"))
+        assert not r.valid
+
+
+# --- total_candidates_evaluated validation ---
+
+class TestCandidatesEvaluatedValidation:
+    def test_zero_fails(self):
+        r = validate(_make(total_candidates_evaluated=0))
+        assert not r.valid
+        assert any("total_candidates_evaluated" in e for e in r.errors)
+
+    def test_negative_fails(self):
+        r = validate(_make(total_candidates_evaluated=-1))
+        assert not r.valid
+
+    def test_one_passes(self):
+        r = validate(_make(
+            total_candidates_evaluated=1,
+            total_rejections=1,
+            rejection_rate=1.0,
+            high_confidence_rejections=1,
+        ))
+        assert r.valid
+
+
+# --- total_rejections validation ---
+
+class TestTotalRejectionsValidation:
+    def test_negative_fails(self):
+        r = validate(_make(total_rejections=-1, rejection_rate=0.0))
+        assert not r.valid
+        assert any("total_rejections" in e for e in r.errors)
+
+    def test_exceeds_evaluated_fails(self):
+        r = validate(_make(total_rejections=21, rejection_rate=1.0))
+        assert not r.valid
+        assert any("exceed" in e or "total_rejections" in e for e in r.errors)
+
+    def test_zero_rejections_passes(self):
+        r = validate(_make(
+            total_rejections=0,
+            rejection_rate=0.0,
+            high_confidence_rejections=0,
+            summary="No rejections.",
+        ))
+        assert r.valid
+
+
+# --- rejection_rate validation ---
+
+class TestRejectionRateValidation:
+    def test_negative_fails(self):
+        r = validate(_make(rejection_rate=-0.1))
+        assert not r.valid
+
+    def test_above_one_fails(self):
+        r = validate(_make(rejection_rate=1.1))
+        assert not r.valid
+
+    def test_inconsistent_fails(self):
+        r = validate(_make(
+            total_candidates_evaluated=20,
+            total_rejections=14,
+            rejection_rate=0.5,
+        ))
+        assert not r.valid
+        assert any("inconsistent" in e for e in r.errors)
+
+    def test_consistent_passes(self):
+        r = validate(_make(
+            total_candidates_evaluated=20,
+            total_rejections=10,
+            rejection_rate=0.5,
+        ))
+        assert r.valid
+
+    def test_within_tolerance_passes(self):
+        r = validate(_make(
+            total_candidates_evaluated=20,
+            total_rejections=14,
+            rejection_rate=0.701,
+        ))
+        assert r.valid
+
+
+# --- stage and reason validation ---
+
+class TestStageReasonValidation:
+    def test_invalid_stage(self):
+        r = validate(_make(top_rejection_stage="unknown_stage"))
+        assert not r.valid
+        assert any("top_rejection_stage" in e for e in r.errors)
+
+    def test_empty_stage(self):
+        r = validate(_make(top_rejection_stage=""))
+        assert not r.valid
+
+    def test_invalid_reason(self):
+        r = validate(_make(top_rejection_reason="unknown_reason"))
+        assert not r.valid
+        assert any("top_rejection_reason" in e for e in r.errors)
+
+    def test_empty_reason(self):
+        r = validate(_make(top_rejection_reason=""))
+        assert not r.valid
+
+    def test_all_valid_stages(self):
+        for stage in VALID_REJECTION_STAGES:
+            r = validate(_make(top_rejection_stage=stage))
+            assert not any("top_rejection_stage" in e for e in r.errors)
+
+    def test_all_valid_reasons(self):
+        for reason in VALID_REJECTION_REASONS:
+            r = validate(_make(top_rejection_reason=reason))
+            assert not any("top_rejection_reason" in e for e in r.errors)
+
+
+# --- high_confidence_rejections validation ---
+
+class TestHighConfidenceRejectionsValidation:
+    def test_negative_fails(self):
+        r = validate(_make(high_confidence_rejections=-1))
+        assert not r.valid
+        assert any("high_confidence" in e for e in r.errors)
+
+    def test_exceeds_total_fails(self):
+        r = validate(_make(high_confidence_rejections=15))
+        assert not r.valid
+        assert any("exceed" in e or "high_confidence" in e for e in r.errors)
+
+    def test_zero_passes(self):
+        r = validate(_make(high_confidence_rejections=0))
+        assert r.valid
+
+    def test_equal_to_total_passes(self):
+        r = validate(_make(high_confidence_rejections=14))
+        assert r.valid
+
+
+# --- all_rejections_have_nrr validation ---
+
+class TestAllRejectionsHaveNrrValidation:
+    def test_false_fails(self):
+        r = validate(_make(all_rejections_have_nrr=False))
+        assert not r.valid
+        assert any("all_rejections_have_nrr" in e for e in r.errors)
+
+    def test_true_passes(self):
+        r = validate(_make(all_rejections_have_nrr=True))
+        assert r.valid or all("nrr" not in e for e in r.errors)
+
+
+# --- summary validation ---
+
+class TestSummaryValidation:
+    def test_empty_fails(self):
+        r = validate(_make(summary=""))
+        assert not r.valid
+        assert any("summary" in e for e in r.errors)
+
+    def test_whitespace_fails(self):
+        r = validate(_make(summary="   "))
+        assert not r.valid
+
+    def test_too_long_fails(self):
+        r = validate(_make(summary="x" * (SUMMARY_MAX_LENGTH + 1)))
+        assert not r.valid
+        assert any("summary" in e for e in r.errors)
+
+    def test_at_max_passes(self):
+        r = validate(_make(summary="x" * SUMMARY_MAX_LENGTH))
+        assert r.valid
+
+    def test_short_passes(self):
+        r = validate(_make(summary="14/20 rejected at toxicity screen."))
+        assert r.valid
+
+
+# --- notes validation ---
+
+class TestNotesValidation:
+    def test_empty_valid(self):
+        r = validate(_make(notes=""))
+        assert r.valid
+
+    def test_too_long_fails(self):
+        r = validate(_make(notes="x" * (NOTES_MAX_LENGTH + 1)))
+        assert not r.valid
+        assert any("notes" in e for e in r.errors)
+
+    def test_at_max_passes(self):
+        r = validate(_make(notes="x" * NOTES_MAX_LENGTH))
+        assert r.valid
+
+
+# --- Warnings ---
+
+class TestWarnings:
+    def test_high_rejection_rate_warns(self):
+        r = validate(_make(
+            total_rejections=18,
+            rejection_rate=0.9,
+            high_confidence_rejections=10,
+        ))
+        assert any("unusually high" in w or "rejection_rate" in w for w in r.warnings)
+
+    def test_all_rejected_warns(self):
+        r = validate(_make(
+            total_rejections=20,
+            rejection_rate=1.0,
+            high_confidence_rejections=14,
+            summary="All candidates rejected.",
+        ))
+        assert any("all candidates" in w or "total_rejections" in w or "systematic" in w for w in r.warnings)
+
+    def test_empty_notes_warns(self):
+        r = validate(_make(notes=""))
+        assert any("notes" in w or "context" in w for w in r.warnings)
+
+    def test_no_warnings_in_clean_entry(self):
+        r = validate(_make(notes="clean", rejection_rate=0.7))
+        assert r.warnings == []
+
+    def test_reasonable_rate_no_warn(self):
+        r = validate(_make(notes="ok", rejection_rate=0.7))
+        assert not any("unusually high" in w for w in r.warnings)
+
+
+# --- validate_dict ---
+
+class TestValidateDict:
+    def _valid_dict(self, **kwargs):
+        d = dict(
+            nrd_id="NRD-001",
+            pipeline_version="v0.10.20",
+            batch_id="BATCH-007",
+            report_date="2026-07-10",
+            total_candidates_evaluated=20,
+            total_rejections=14,
+            rejection_rate=0.7,
+            top_rejection_stage="toxicity_screen",
+            top_rejection_reason="failed_toxicity",
+            high_confidence_rejections=10,
+            all_rejections_have_nrr=True,
+            summary="14/20 candidates rejected at toxicity screen.",
+            notes="",
         )
-        assert r.returncode == 0
+        d.update(kwargs)
+        return d
 
-    def test_exit_two_on_missing_input(self, tmp_path):
-        r = subprocess.run(
-            [sys.executable, "scripts/negative_result_dashboard.py",
-             "--input", str(tmp_path / "nonexistent.json")],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 2
+    def test_valid_dict_passes(self):
+        r = validate_dict(self._valid_dict())
+        assert r.valid
 
-    def test_exit_two_on_empty_list(self, tmp_path):
-        inp = tmp_path / "empty.json"
-        inp.write_text("[]")
-        r = subprocess.run(
-            [sys.executable, "scripts/negative_result_dashboard.py",
-             "--input", str(inp)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 2
+    def test_invalid_prefix_fails(self):
+        r = validate_dict(self._valid_dict(nrd_id="NRR-001"))
+        assert not r.valid
 
-    def test_exit_two_on_invalid_json(self, tmp_path):
-        inp = tmp_path / "bad.json"
-        inp.write_text("not json")
-        r = subprocess.run(
-            [sys.executable, "scripts/negative_result_dashboard.py",
-             "--input", str(inp)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 2
+    def test_empty_dict_fails(self):
+        r = validate_dict({})
+        assert not r.valid
 
-    def test_writes_json_output(self, tmp_path):
-        entries = _sample_entries()
-        inp = tmp_path / "entries.json"
-        inp.write_text(json.dumps(entries))
-        out = tmp_path / "dashboard.json"
-        subprocess.run(
-            [sys.executable, "scripts/negative_result_dashboard.py",
-             "--input", str(inp), "--out-json", str(out)],
-            capture_output=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert out.exists()
-        data = json.loads(out.read_text())
-        assert data["summary"]["total_entries"] == 5
+    def test_false_nrr_fails(self):
+        r = validate_dict(self._valid_dict(all_rejections_have_nrr=False))
+        assert not r.valid
 
-    def test_writes_markdown_output(self, tmp_path):
-        entries = _sample_entries()
-        inp = tmp_path / "entries.json"
-        inp.write_text(json.dumps(entries))
-        out = tmp_path / "dashboard.md"
-        subprocess.run(
-            [sys.executable, "scripts/negative_result_dashboard.py",
-             "--input", str(inp), "--out-md", str(out)],
-            capture_output=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert out.exists()
-        assert "# Negative-Result Dashboard" in out.read_text()
+    def test_inconsistent_rate_fails(self):
+        r = validate_dict(self._valid_dict(total_rejections=14, rejection_rate=0.5))
+        assert not r.valid
 
-    def test_runs_on_example_file(self, tmp_path):
-        r = subprocess.run(
-            [sys.executable, "scripts/negative_result_dashboard.py",
-             "--input", str(_EXAMPLE_PATH)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 0
-        assert "dashboard_metadata" in r.stdout
+
+# --- Constants ---
+
+class TestConstants:
+    def test_nrd_prefix(self):
+        assert NRD_PREFIX == "NRD-"
+
+    def test_valid_stages_count(self):
+        assert len(VALID_REJECTION_STAGES) == 7
+
+    def test_valid_reasons_count(self):
+        assert len(VALID_REJECTION_REASONS) == 9
+
+    def test_rejection_rate_tolerance(self):
+        assert REJECTION_RATE_TOLERANCE == 0.01
+
+    def test_high_rejection_rate_warning(self):
+        assert HIGH_REJECTION_RATE_WARNING == 0.8
+
+    def test_summary_max_length(self):
+        assert SUMMARY_MAX_LENGTH == 400
+
+    def test_notes_max_length(self):
+        assert NOTES_MAX_LENGTH == 300

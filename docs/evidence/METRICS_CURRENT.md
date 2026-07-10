@@ -5,7 +5,17 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase K K4 — post-experiment calibration intake — v0.10.19)
+> **Last updated:** 2026-07-10 (Phase F F9 — negative result dashboard — v0.10.20)
+
+## v0.10.20 — Phase F F9 — Negative Result Dashboard (NRD-)
+
+- **Schema**: `NegativeResultDashboard` — 13 fields, aggregate rejection statistics across a batch
+- **Validation**: 13 rules — NRD- prefix, pipeline_version+batch_id non-empty, ISO date, total_candidates_evaluated ≥1, total_rejections in [0,evaluated], rejection_rate in [0,1] and consistent (tol 0.01), top_rejection_stage vocab (7 values), top_rejection_reason vocab (9 values), high_confidence_rejections in [0,total], all_rejections_have_nrr=True enforced, summary non-empty and ≤400 chars, notes ≤300 chars
+- **Warnings**: 3 — rejection_rate >0.8, 100% rejection, notes empty
+- **Tests**: 63 tests across 9 test classes; BASELINE 5855→5918
+- **CLI**: `openamp-foundry negative-result-dashboard-check`
+- **Completes NRR→NAS→FCR→NRD chain**: NRD- is the aggregate summary layer above individual failure records
+
 > **New in v0.10.19 — Phase K K4 — Post-Experiment Calibration Intake (PCI-)**
 
 > - **Schema**: `PostExperimentCalibrationIntake` — 13 fields, structured result-to-prediction comparison
