@@ -9,6 +9,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.30 — Phase B B6: Human-readable certificate report
+- Added `src/openamp_foundry/evidence/certificate_report.py` — build_certificate_report() function
+- Converts cert dict to formatted text with labelled sections: CANDIDATE, PROOF LADDER, SCORES (with not-biological-proof notice), CHEAP-EXPLANATION CHECK, SELECTION REASON, KNOWN FAILURE MODES, RECOMMENDED NEXT STEPS, REFERENCES CHECKED, optional QUALITY TIER
+- Footer: DRY-LAB COMPUTATIONAL OUTPUTS ONLY notice on every report
+- Optional quality_report parameter integrates with assess_certificate_quality()
+- 63 tests in `tests/test_certificate_report.py`
+- BASELINE 6457→6520
+- Closes Phase B B6 — domain experts can now inspect candidate certificates as readable text
+
 ### v0.10.29 — Phase B B5: Certificate quality-tier validator
 - Added `src/openamp_foundry/evidence/certificate_quality.py` — assess_certificate_quality() function
 - Three tiers: draft (candidate_id+sequence+scores) → internal_review (+selection_reason+known_failure_modes+proof_ladder_level+baseline_caveat+pipeline_version, no forbidden claims) → external_review_ready (+recommended_next_steps+references_checked+config_hash, no warnings)

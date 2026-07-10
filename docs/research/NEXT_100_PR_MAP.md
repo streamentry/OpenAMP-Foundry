@@ -46,7 +46,7 @@ Make candidate evidence packages impossible to confuse with biological proof.
 | B3 | Add `baseline_caveat` field (complete). | Added to build_certificate(): auto-computes charge/length/hydrophobicity flags and warns when all three cheap baselines pass; forces cheap-explanation visibility at certificate issue time. 63 tests in tests/test_certificate_baseline_caveat.py. | B |
 | B4 | Add `release_status` field. | Supports staged release. | C/D |
 | B5 | Add certificate quality-tier validator (complete). | assess_certificate_quality() computes draft/internal_review/external_review_ready tier; missing-field detection, forbidden-claim violation check, external-review gate; 63 tests in tests/test_certificate_quality_validator.py. | B |
-| B6 | Add human-readable certificate report. | Domain experts can inspect faster. | B |
+| B6 | Add human-readable certificate report (complete). | build_certificate_report() in certificate_report.py converts cert dict to formatted text with sections: identity, proof ladder, scores, cheap-explanation check, selection reason, failure modes, next steps, references, optional quality tier; 63 tests in tests/test_certificate_report.py. | B |
 | B7 | Add candidate rejection certificate support. | Failures become artifacts. | B |
 | B8 | Link certificates to run manifest hashes. | Stronger reproducibility. | B |
 | B9 | Add test that dry-lab certificates cannot include forbidden claims (complete). | CI gate: tests/test_certificate_claim_discipline.py scans all cert text fields against RISKY_PATTERNS and FORBIDDEN_CLAIM_PATTERNS; default cert proven clean; forbidden phrases confirmed detectable. 35 tests total. | B/C |
