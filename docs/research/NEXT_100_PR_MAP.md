@@ -207,7 +207,7 @@ Close the loop between dry-lab nominations and actual experimental outcomes. Fir
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | Q1 | Add pilot evidence package schema (complete). — src/openamp_foundry/evidence/pilot_evidence_package.py: PEP- schema linking CCS+BSP+PSC+PRE+BCM artifacts; completeness gate, safety enforcement, reference chain validation; docs/evidence/PILOT_EVIDENCE_PACKAGE_GUIDE.md; 63 tests. | External export bundle with full provenance. | B/C |
-| Q2 | Add wet-lab hit record schema (WHR-). | First machine-readable record of actual experimental outcome; dry_lab_only must be False; closes nomination→experiment loop. | B/C |
+| Q2 | Add wet-lab hit record schema (WHR-) (complete). — src/openamp_foundry/evidence/wetlab_hit_record.py: WHR- 16-field schema; dry_lab_only=False enforced; VALID_EXPERIMENT_TYPES (10), VALID_INTERPRETATIONS (active/inactive/inconclusive), proof_ladder_level cap; 59 tests in tests/evidence/test_wetlab_hit_record.py. | First machine-readable record of actual experimental outcome; dry_lab_only must be False; closes nomination→experiment loop. | B/C |
 | Q3 | Add post-experiment calibration update schema. | Records how wet-lab results change score calibration; evidence trail for model improvement decisions. | B/C |
 | Q4 | Add hit confirmation report generator. | Bundles WHR- records with pre-registration for reproducibility check; flags prediction vs actual divergence. | B/C |
 | Q5 | Add Phase Q completeness gate (closes Phase Q). | Machine-verifiable that the full dry-lab→wet-lab→calibration loop has run for at least one candidate family. | C |
