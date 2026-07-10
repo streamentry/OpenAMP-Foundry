@@ -152,7 +152,7 @@ Make simulation useful or harmless.
 | H7 | Add documentation that failed simulation stays useful as negative evidence (complete). — docs/FAILED_SIMULATION_AS_NEGATIVE_EVIDENCE.md: cultural standard requiring NRR- record for every failure; agent MUST NOT rules; anti-selective-reporting enforcement. | Cultural standard. | A |
 | H8 | Add `weighted` integration dry-run report, still blocked by gate (complete). — WDR- schema: 15 fields, 12 validation rules, results_applied_to_ranking=False enforcement, GATE_CLOSED_DISCLAIMER required, counterfactual-only; 63 tests. | Shows what would change without applying. | C |
 | H9 | Add module deprecation mechanism for simulation theater (complete). — simulation/deprecation_enforcer.py: marks and enforces deprecation of simulation modules that produce theater (no real predictive value); make simulation-deprecation-check target; tests/simulation/test_deprecation_enforcer.py. | Cleanup discipline. | B/C |
-| H10 | Add external-simulator review checklist. | Safer ecosystem bridges. | D |
+| H10 | Add external-simulator review checklist. | Safer ecosystem bridges. | D | DONE |
 
 ## Phase I — Interoperability and adoption
 
