@@ -1,377 +1,379 @@
-"""Tests for calibration improvement record schema (Phase O O3)."""
+"""Tests for CalibrationImprovementRecord (CIR-) schema — Phase O O3."""
+
 import pytest
 from openamp_foundry.evidence.calibration_improvement_record import (
-    ACTION_TAKEN_MAX_LENGTH,
-    POOR_BRIER_THRESHOLD,
-    VALID_ACTION_CATEGORIES,
-    VALID_TRIGGER_PREFIXES,
-    CalibrationImprovementEntry,
-    CalibrationImprovementResult,
-    validate_calibration_improvement,
-    validate_calibration_improvement_dict,
+    CIR_PREFIX,
+    HIGHER_IS_BETTER,
+    LOWER_IS_BETTER,
+    MINIMUM_MEANINGFUL_IMPROVEMENT,
+    NOTES_MAX_LENGTH,
+    RATIONALE_MAX_LENGTH,
+    VALID_METRIC_NAMES,
+    CalibrationImprovementRecord,
+    CalibrationImprovementRecordResult,
+    validate,
+    validate_dict,
 )
 
 
-def make_entry(**kwargs) -> CalibrationImprovementEntry:
+def _make(**kwargs) -> CalibrationImprovementRecord:
     defaults = dict(
-        improvement_id="CIR-001",
-        pipeline_version_before="v1.0.0",
-        pipeline_version_after="v1.1.0",
-        trigger_ids=["CPS-001"],
-        action_taken="Adjusted classification threshold from 0.5 to 0.45.",
-        action_category="threshold_adjustment",
-        brier_score_before=0.3,
-        brier_score_after=0.2,
+        cir_id="CIR-001",
+        pipeline_version="v0.10.18",
+        calibration_version_before="cal-v1.0",
+        calibration_version_after="cal-v1.1",
+        improvement_date="2026-07-10",
+        metric_name="auroc",
+        metric_value_before=0.72,
+        metric_value_after=0.79,
         improvement_confirmed=True,
-        reviewer="alice",
-        dry_lab_only=False,
+        improvement_rationale="Added 5 real outcomes from Batch-3; AUROC improved from 0.72 to 0.79.",
+        data_source_id="BATCH-003",
+        notes="",
     )
     defaults.update(kwargs)
-    return CalibrationImprovementEntry(**defaults)
+    return CalibrationImprovementRecord(**defaults)
 
 
-class TestConstants:
-    def test_action_taken_max_length(self):
-        assert ACTION_TAKEN_MAX_LENGTH == 500
+# --- Baseline valid ---
 
-    def test_poor_brier_threshold(self):
-        assert POOR_BRIER_THRESHOLD == 0.25
+class TestValidBaseline:
+    def test_valid_record_passes(self):
+        r = validate(_make())
+        assert r.valid
+        assert r.errors == []
 
-    def test_valid_action_categories_count(self):
-        assert len(VALID_ACTION_CATEGORIES) == 6
+    def test_valid_returns_result_type(self):
+        r = validate(_make())
+        assert isinstance(r, CalibrationImprovementRecordResult)
 
-    def test_valid_action_categories_contents(self):
-        assert "threshold_adjustment" in VALID_ACTION_CATEGORIES
-        assert "retraining" in VALID_ACTION_CATEGORIES
-        assert "feature_removal" in VALID_ACTION_CATEGORIES
-        assert "feature_addition" in VALID_ACTION_CATEGORIES
-        assert "data_augmentation" in VALID_ACTION_CATEGORIES
-        assert "weighting_change" in VALID_ACTION_CATEGORIES
+    def test_valid_with_notes(self):
+        r = validate(_make(notes="Reviewed by calibration team."))
+        assert r.valid
 
-    def test_valid_trigger_prefixes(self):
-        assert "CPS-" in VALID_TRIGGER_PREFIXES
-        assert "DRM-" in VALID_TRIGGER_PREFIXES
+    def test_valid_lower_is_better_metric(self):
+        r = validate(_make(
+            metric_name="brier_score",
+            metric_value_before=0.35,
+            metric_value_after=0.28,
+        ))
+        assert r.valid
 
+    def test_valid_all_higher_is_better_metrics(self):
+        for metric in HIGHER_IS_BETTER:
+            r = validate(_make(metric_name=metric, metric_value_before=0.6, metric_value_after=0.7))
+            assert r.valid or all("metric_name" not in e for e in r.errors)
 
-class TestHappyPath:
-    def test_valid_entry_passes(self):
-        entry = make_entry()
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-        assert result.errors == []
-
-    def test_result_fields(self):
-        entry = make_entry()
-        result = validate_calibration_improvement(entry)
-        assert result.improvement_id == "CIR-001"
-        assert result.pipeline_version_before == "v1.0.0"
-        assert result.pipeline_version_after == "v1.1.0"
-        assert result.brier_score_before == 0.3
-        assert result.brier_score_after == 0.2
-        assert result.improvement_confirmed is True
-        assert result.dry_lab_only is False
-
-    def test_dry_lab_only_default_false(self):
-        entry = CalibrationImprovementEntry(
-            improvement_id="CIR-001",
-            pipeline_version_before="v1.0",
-            pipeline_version_after="v1.1",
-            trigger_ids=["CPS-001"],
-            action_taken="threshold adjustment",
-            action_category="threshold_adjustment",
-            brier_score_before=0.3,
-            brier_score_after=0.2,
-            improvement_confirmed=True,
-            reviewer="bob",
-        )
-        assert entry.dry_lab_only is False
-
-    def test_no_improvement_confirmed_false(self):
-        entry = make_entry(
-            brier_score_before=0.2,
-            brier_score_after=0.3,
-            improvement_confirmed=False,
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-        assert result.errors == []
-
-    def test_equal_scores_confirmed_false(self):
-        entry = make_entry(
-            brier_score_before=0.2,
-            brier_score_after=0.2,
-            improvement_confirmed=False,
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-
-    def test_multiple_trigger_ids(self):
-        entry = make_entry(trigger_ids=["CPS-001", "DRM-001", "CPS-002"])
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-
-    def test_drm_trigger_id(self):
-        entry = make_entry(trigger_ids=["DRM-001"])
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-
-    def test_all_action_categories(self):
-        for cat in VALID_ACTION_CATEGORIES:
-            entry = make_entry(action_category=cat)
-            result = validate_calibration_improvement(entry)
-            assert result.passed, f"Category {cat} should pass"
+    def test_valid_all_lower_is_better_metrics(self):
+        for metric in LOWER_IS_BETTER:
+            r = validate(_make(metric_name=metric, metric_value_before=0.4, metric_value_after=0.3))
+            assert r.valid or all("metric_name" not in e for e in r.errors)
 
 
-class TestImprovementIdValidation:
-    def test_wrong_prefix_fails(self):
-        entry = make_entry(improvement_id="WRONG-001")
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("CIR-" in e for e in result.errors)
+# --- cir_id validation ---
 
-    def test_empty_id_fails(self):
-        entry = make_entry(improvement_id="")
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
+class TestCirIdValidation:
+    def test_wrong_prefix(self):
+        r = validate(_make(cir_id="BSP-001"))
+        assert not r.valid
+        assert any("cir_id" in e for e in r.errors)
 
-    def test_correct_prefix_passes(self):
-        entry = make_entry(improvement_id="CIR-XYZ-2026")
-        result = validate_calibration_improvement(entry)
-        assert result.passed
+    def test_empty_id(self):
+        r = validate(_make(cir_id=""))
+        assert not r.valid
+
+    def test_lowercase_prefix(self):
+        r = validate(_make(cir_id="cir-001"))
+        assert not r.valid
+
+    def test_valid_prefix(self):
+        r = validate(_make(cir_id="CIR-999"))
+        assert r.valid
 
 
-class TestVersionValidation:
+# --- pipeline_version validation ---
+
+class TestPipelineVersionValidation:
+    def test_empty_fails(self):
+        r = validate(_make(pipeline_version=""))
+        assert not r.valid
+        assert any("pipeline_version" in e for e in r.errors)
+
+    def test_whitespace_fails(self):
+        r = validate(_make(pipeline_version="   "))
+        assert not r.valid
+
+    def test_valid(self):
+        r = validate(_make(pipeline_version="v2.0.0"))
+        assert r.valid
+
+
+# --- calibration_version validation ---
+
+class TestCalibrationVersionValidation:
+    def test_empty_before_fails(self):
+        r = validate(_make(calibration_version_before=""))
+        assert not r.valid
+        assert any("calibration_version_before" in e for e in r.errors)
+
+    def test_empty_after_fails(self):
+        r = validate(_make(calibration_version_after=""))
+        assert not r.valid
+        assert any("calibration_version_after" in e for e in r.errors)
+
     def test_same_versions_fail(self):
-        entry = make_entry(
-            pipeline_version_before="v1.0",
-            pipeline_version_after="v1.0",
-        )
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("differ" in e for e in result.errors)
+        r = validate(_make(
+            calibration_version_before="cal-v1.0",
+            calibration_version_after="cal-v1.0",
+        ))
+        assert not r.valid
+        assert any("must differ" in e for e in r.errors)
+
+    def test_whitespace_before_fails(self):
+        r = validate(_make(calibration_version_before="   "))
+        assert not r.valid
+
+    def test_whitespace_after_fails(self):
+        r = validate(_make(calibration_version_after="  "))
+        assert not r.valid
 
     def test_different_versions_pass(self):
-        entry = make_entry(
-            pipeline_version_before="v1.0",
-            pipeline_version_after="v1.1",
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
+        r = validate(_make(calibration_version_before="v1.0", calibration_version_after="v1.1"))
+        assert r.valid
 
 
-class TestTriggerIdsValidation:
-    def test_empty_trigger_ids_fail(self):
-        entry = make_entry(trigger_ids=[])
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("trigger_ids" in e for e in result.errors)
+# --- improvement_date validation ---
 
-    def test_invalid_prefix_trigger_fails(self):
-        entry = make_entry(trigger_ids=["WRONG-001"])
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("CPS-" in e or "DRM-" in e for e in result.errors)
+class TestImprovementDateValidation:
+    def test_valid_date(self):
+        r = validate(_make(improvement_date="2026-01-15"))
+        assert r.valid
 
-    def test_mixed_valid_invalid_trigger_fails(self):
-        entry = make_entry(trigger_ids=["CPS-001", "BAD-001"])
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
+    def test_invalid_format(self):
+        r = validate(_make(improvement_date="15/01/2026"))
+        assert not r.valid
+        assert any("improvement_date" in e for e in r.errors)
 
-    def test_valid_cps_trigger_passes(self):
-        entry = make_entry(trigger_ids=["CPS-XYZ"])
-        result = validate_calibration_improvement(entry)
-        assert result.passed
+    def test_empty_fails(self):
+        r = validate(_make(improvement_date=""))
+        assert not r.valid
 
-    def test_valid_drm_trigger_passes(self):
-        entry = make_entry(trigger_ids=["DRM-XYZ"])
-        result = validate_calibration_improvement(entry)
-        assert result.passed
+    def test_partial_date_fails(self):
+        r = validate(_make(improvement_date="2026-07"))
+        assert not r.valid
+
+    def test_text_date_fails(self):
+        r = validate(_make(improvement_date="July 2026"))
+        assert not r.valid
 
 
-class TestActionTakenValidation:
-    def test_too_long_action_fails(self):
-        entry = make_entry(action_taken="x" * 501)
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("action_taken" in e for e in result.errors)
+# --- metric_name validation ---
 
-    def test_exact_max_length_passes(self):
-        entry = make_entry(action_taken="x" * 500)
-        result = validate_calibration_improvement(entry)
-        assert result.passed
+class TestMetricNameValidation:
+    def test_invalid_metric(self):
+        r = validate(_make(metric_name="unknown_metric"))
+        assert not r.valid
+        assert any("metric_name" in e for e in r.errors)
 
-    def test_empty_action_passes(self):
-        entry = make_entry(action_taken="")
-        result = validate_calibration_improvement(entry)
-        assert result.passed
+    def test_empty_metric(self):
+        r = validate(_make(metric_name=""))
+        assert not r.valid
 
-
-class TestActionCategoryValidation:
-    def test_invalid_category_fails(self):
-        entry = make_entry(action_category="magic_fix")
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("action_category" in e for e in result.errors)
-
-    def test_empty_category_fails(self):
-        entry = make_entry(action_category="")
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
+    def test_all_valid_metrics(self):
+        for m in VALID_METRIC_NAMES:
+            r = validate(_make(metric_name=m, metric_value_before=0.5, metric_value_after=0.6))
+            assert not any("metric_name" in e for e in r.errors)
 
 
-class TestBrierScoreValidation:
-    def test_brier_before_below_zero_fails(self):
-        entry = make_entry(brier_score_before=-0.1, improvement_confirmed=False)
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("brier_score_before" in e for e in result.errors)
-
-    def test_brier_before_above_one_fails(self):
-        entry = make_entry(brier_score_before=1.1)
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-
-    def test_brier_after_below_zero_fails(self):
-        entry = make_entry(
-            brier_score_after=-0.1,
-            improvement_confirmed=False,
-        )
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("brier_score_after" in e for e in result.errors)
-
-    def test_brier_after_above_one_fails(self):
-        entry = make_entry(brier_score_after=1.1, improvement_confirmed=False)
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-
-    def test_brier_zero_values_pass(self):
-        entry = make_entry(
-            brier_score_before=0.1,
-            brier_score_after=0.0,
-            improvement_confirmed=True,
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-
+# --- improvement_confirmed validation ---
 
 class TestImprovementConfirmedValidation:
-    def test_confirmed_true_but_no_improvement_fails(self):
-        entry = make_entry(
-            brier_score_before=0.2,
-            brier_score_after=0.3,
-            improvement_confirmed=True,
-        )
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("improvement_confirmed" in e for e in result.errors)
+    def test_false_fails(self):
+        r = validate(_make(improvement_confirmed=False))
+        assert not r.valid
+        assert any("improvement_confirmed" in e for e in r.errors)
 
-    def test_confirmed_false_but_improved_fails(self):
-        entry = make_entry(
-            brier_score_before=0.3,
-            brier_score_after=0.2,
-            improvement_confirmed=False,
-        )
-        result = validate_calibration_improvement(entry)
-        assert not result.passed
-        assert any("improvement_confirmed" in e for e in result.errors)
+    def test_true_passes(self):
+        r = validate(_make(improvement_confirmed=True))
+        assert r.valid or all("improvement_confirmed" not in e for e in r.errors)
 
-    def test_confirmed_false_equal_scores_passes(self):
-        entry = make_entry(
-            brier_score_before=0.2,
-            brier_score_after=0.2,
-            improvement_confirmed=False,
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
 
-    def test_confirmed_true_improved_passes(self):
-        entry = make_entry(
-            brier_score_before=0.3,
-            brier_score_after=0.1,
-            improvement_confirmed=True,
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
+# --- improvement_rationale validation ---
 
+class TestImprovementRationaleValidation:
+    def test_empty_fails(self):
+        r = validate(_make(improvement_rationale=""))
+        assert not r.valid
+        assert any("improvement_rationale" in e for e in r.errors)
+
+    def test_whitespace_fails(self):
+        r = validate(_make(improvement_rationale="   "))
+        assert not r.valid
+
+    def test_too_long_fails(self):
+        r = validate(_make(improvement_rationale="x" * (RATIONALE_MAX_LENGTH + 1)))
+        assert not r.valid
+        assert any("improvement_rationale" in e for e in r.errors)
+
+    def test_at_max_passes(self):
+        r = validate(_make(improvement_rationale="x" * RATIONALE_MAX_LENGTH))
+        assert r.valid
+
+    def test_short_passes(self):
+        r = validate(_make(improvement_rationale="AUROC improved after adding 5 real outcomes."))
+        assert r.valid
+
+
+# --- data_source_id validation ---
+
+class TestDataSourceIdValidation:
+    def test_empty_fails(self):
+        r = validate(_make(data_source_id=""))
+        assert not r.valid
+        assert any("data_source_id" in e for e in r.errors)
+
+    def test_whitespace_fails(self):
+        r = validate(_make(data_source_id="   "))
+        assert not r.valid
+
+    def test_valid(self):
+        r = validate(_make(data_source_id="BATCH-007"))
+        assert r.valid
+
+
+# --- notes validation ---
+
+class TestNotesValidation:
+    def test_empty_valid(self):
+        r = validate(_make(notes=""))
+        assert r.valid
+
+    def test_too_long_fails(self):
+        r = validate(_make(notes="x" * (NOTES_MAX_LENGTH + 1)))
+        assert not r.valid
+        assert any("notes" in e for e in r.errors)
+
+    def test_at_max_passes(self):
+        r = validate(_make(notes="x" * NOTES_MAX_LENGTH))
+        assert r.valid
+
+
+# --- Warnings ---
 
 class TestWarnings:
-    def test_poor_brier_after_warns(self):
-        entry = make_entry(
-            brier_score_before=0.4,
-            brier_score_after=0.3,
+    def test_higher_is_better_wrong_direction_warns(self):
+        r = validate(_make(
+            metric_name="auroc",
+            metric_value_before=0.80,
+            metric_value_after=0.75,
+        ))
+        assert any("higher-is-better" in w or "genuine improvement" in w for w in r.warnings)
+
+    def test_lower_is_better_wrong_direction_warns(self):
+        r = validate(_make(
+            metric_name="brier_score",
+            metric_value_before=0.25,
+            metric_value_after=0.30,
+        ))
+        assert any("lower-is-better" in w or "genuine improvement" in w for w in r.warnings)
+
+    def test_very_small_improvement_warns(self):
+        r = validate(_make(
+            metric_name="auroc",
+            metric_value_before=0.700,
+            metric_value_after=0.702,
+        ))
+        assert any("very small" in w or "meaningful" in w for w in r.warnings)
+
+    def test_empty_notes_warns(self):
+        r = validate(_make(notes=""))
+        assert any("notes" in w or "context" in w for w in r.warnings)
+
+    def test_no_warnings_in_clean_entry(self):
+        r = validate(_make(notes="Reviewed by calibration team.", metric_value_before=0.70, metric_value_after=0.79))
+        assert r.warnings == []
+
+    def test_good_lower_is_better_no_direction_warn(self):
+        r = validate(_make(
+            metric_name="brier_score",
+            metric_value_before=0.40,
+            metric_value_after=0.30,
+            notes="Brier score improved."
+        ))
+        assert not any("genuine improvement" in w for w in r.warnings)
+
+
+# --- validate_dict ---
+
+class TestValidateDict:
+    def _valid_dict(self, **kwargs):
+        d = dict(
+            cir_id="CIR-001",
+            pipeline_version="v0.10.18",
+            calibration_version_before="cal-v1.0",
+            calibration_version_after="cal-v1.1",
+            improvement_date="2026-07-10",
+            metric_name="auroc",
+            metric_value_before=0.72,
+            metric_value_after=0.79,
             improvement_confirmed=True,
+            improvement_rationale="AUROC improved from 0.72 to 0.79 after adding batch data.",
+            data_source_id="BATCH-003",
+            notes="",
         )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-        assert any("calibration still poor" in w for w in result.warnings)
+        d.update(kwargs)
+        return d
 
-    def test_good_brier_after_no_warn(self):
-        entry = make_entry(
-            brier_score_before=0.3,
-            brier_score_after=0.1,
-            improvement_confirmed=True,
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-        assert not any("calibration still poor" in w for w in result.warnings)
-
-    def test_brier_at_threshold_warns(self):
-        entry = make_entry(
-            brier_score_before=0.4,
-            brier_score_after=0.25,
-            improvement_confirmed=True,
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-        assert any("calibration still poor" in w for w in result.warnings)
-
-    def test_brier_just_below_threshold_no_warn(self):
-        entry = make_entry(
-            brier_score_before=0.3,
-            brier_score_after=0.249,
-            improvement_confirmed=True,
-        )
-        result = validate_calibration_improvement(entry)
-        assert result.passed
-        assert not any("calibration still poor" in w for w in result.warnings)
-
-
-class TestDictInterface:
     def test_valid_dict_passes(self):
-        data = {
-            "improvement_id": "CIR-001",
-            "pipeline_version_before": "v1.0",
-            "pipeline_version_after": "v1.1",
-            "trigger_ids": ["CPS-001"],
-            "action_taken": "Adjusted threshold.",
-            "action_category": "threshold_adjustment",
-            "brier_score_before": 0.3,
-            "brier_score_after": 0.2,
-            "improvement_confirmed": True,
-            "reviewer": "alice",
-        }
-        result = validate_calibration_improvement_dict(data)
-        assert result.passed
+        r = validate_dict(self._valid_dict())
+        assert r.valid
 
-    def test_missing_field_fails(self):
-        data = {"improvement_id": "CIR-001"}
-        result = validate_calibration_improvement_dict(data)
-        assert not result.passed
-        assert any("Missing required field" in e for e in result.errors)
+    def test_invalid_prefix_fails(self):
+        r = validate_dict(self._valid_dict(cir_id="BSP-001"))
+        assert not r.valid
 
-    def test_dict_dry_lab_only_default_false(self):
-        data = {
-            "improvement_id": "CIR-001",
-            "pipeline_version_before": "v1.0",
-            "pipeline_version_after": "v1.1",
-            "trigger_ids": ["CPS-001"],
-            "action_taken": "threshold adjustment",
-            "action_category": "threshold_adjustment",
-            "brier_score_before": 0.3,
-            "brier_score_after": 0.2,
-            "improvement_confirmed": True,
-            "reviewer": "alice",
-        }
-        result = validate_calibration_improvement_dict(data)
-        assert result.dry_lab_only is False
+    def test_empty_dict_fails(self):
+        r = validate_dict({})
+        assert not r.valid
+
+    def test_false_confirmed_fails(self):
+        r = validate_dict(self._valid_dict(improvement_confirmed=False))
+        assert not r.valid
+
+    def test_same_versions_fails(self):
+        r = validate_dict(self._valid_dict(
+            calibration_version_before="v1.0",
+            calibration_version_after="v1.0",
+        ))
+        assert not r.valid
+
+
+# --- Constants ---
+
+class TestConstants:
+    def test_cir_prefix(self):
+        assert CIR_PREFIX == "CIR-"
+
+    def test_valid_metrics_count(self):
+        assert len(VALID_METRIC_NAMES) == 8
+
+    def test_higher_is_better_count(self):
+        assert len(HIGHER_IS_BETTER) == 5
+
+    def test_lower_is_better_count(self):
+        assert len(LOWER_IS_BETTER) == 3
+
+    def test_higher_lower_disjoint(self):
+        assert HIGHER_IS_BETTER.isdisjoint(LOWER_IS_BETTER)
+
+    def test_all_metrics_classified(self):
+        assert VALID_METRIC_NAMES == HIGHER_IS_BETTER | LOWER_IS_BETTER
+
+    def test_rationale_max_length(self):
+        assert RATIONALE_MAX_LENGTH == 400
+
+    def test_notes_max_length(self):
+        assert NOTES_MAX_LENGTH == 300
+
+    def test_minimum_meaningful_improvement(self):
+        assert MINIMUM_MEANINGFUL_IMPROVEMENT == 0.005

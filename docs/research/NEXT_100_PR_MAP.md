@@ -245,7 +245,7 @@ Track how well predictions match experimental outcomes over time. Detect drift, 
 |---:|---|---|---|
 | O1 | Add calibration performance summary schema (complete — Loop 138). | Aggregates prediction accuracy metrics across batches with known outcomes. | B/D |
 | O2 | Add prediction drift monitor schema (complete — Loop 139). | Detects when pipeline predictions are systematically shifting. | B/D |
-| O3 | Add calibration improvement record schema. | Documents what was changed to improve calibration and by how much. | B/D |
+| O3 | Add calibration improvement record schema (complete). | CIR- before/after audit record: metric direction validation (higher/lower-is-better), version diff enforced, improvement_confirmed=True required, per-metric granularity. | B/D |
 | O4 | Add cross-batch performance aggregator schema (complete — Loop 140). | Aggregates results across batches for trend analysis. | B/D |
 | [x] O5 | Add calibration readiness gate schema. | Validates calibration quality is sufficient before releasing the next batch. | B/D |
 

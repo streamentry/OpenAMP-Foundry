@@ -2948,3 +2948,25 @@ def _run_batch_experiment_priority_ranker_check(args):
         for w in result.warnings:
             print(f"WARNING: {w}")
         sys.exit(1)
+
+
+def _run_calibration_improvement_record_check(args):
+    import json, sys
+    from openamp_foundry.evidence.calibration_improvement_record import validate_dict
+    try:
+        data = json.loads(args.json_input)
+    except json.JSONDecodeError as exc:
+        print(f"INVALID: JSON parse error: {exc}", file=sys.stderr)
+        sys.exit(1)
+    result = validate_dict(data)
+    if result.valid:
+        print("VALID")
+        for w in result.warnings:
+            print(f"WARNING: {w}")
+    else:
+        print("INVALID")
+        for e in result.errors:
+            print(f"ERROR: {e}")
+        for w in result.warnings:
+            print(f"WARNING: {w}")
+        sys.exit(1)
