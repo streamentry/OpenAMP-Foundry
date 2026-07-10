@@ -76,11 +76,11 @@ Make OpenAMP a gold-standard repo for safe agent contribution.
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | D1 | Add `AGENT_TASKS.json` with machine-readable task categories and forbidden zones (complete). | Agents can self-classify tasks. | B |
-| D2 | Add agent-safe issue examples. | Better issue creation. | A |
+| D2 | Add agent-safe issue examples (complete). — docs/operations/AGENT_SAFE_ISSUES.md: issue template with safety classification checklist, good vs bad examples. | Better issue creation. | A |
 | D3 | Add agent PR self-check script that scans for forbidden claim language (complete). | pr_claim_checker.py: check_pr_claims() scans .md/.py/.rst/.txt for 11 forbidden patterns; PR_ALLOWLIST skips known-safe files; ClaimViolation, PRClaimReport; format_pr_claim_report(); 63 tests. | B |
 | D4 | Add docs-only PR verifier (complete). | scripts/check_docs_only_pr.py: checks whether a PR only touches docs/. | B |
 | D5 | Add `make agent-check` target combining doc links, claim scan, and safety phrase scan (complete). | agent-check: claim-check doc-links-check bench-deprecation-check in Makefile. | B |
-| D6 | Add agent stop-condition examples. | Reduces scope creep. | A |
+| D6 | Add agent stop-condition examples (complete). — docs/operations/AGENT_STOP_CONDITIONS.md: 3 worked stop-condition examples with decision-log draft template. | Reduces scope creep. | A |
 | D7 | Add maintainer prompts for assigning agent-safe tasks. | Better human-agent coordination. | A |
 | D8 | Add `docs/AGENT_FAILURE_MODES.md` (complete). | 10 failure modes (FM-01 to FM-10): claim escalation, scope creep, benchmark theater, safety weakening, certificate confusion, calibration self-service, hidden dependencies, novelty over-attribution, unsafe parallelism, stop-condition bypass; detection signals and mitigations for each. | A |
 | D9 | Add CI warning for newly added top-level docs not in project index (complete). | scripts/check_docs_index_coverage.py: warns on docs/*.md files not referenced in PROJECT_INDEX.md; make docs-index-check target; allowlist for known exceptions. | B |
@@ -116,7 +116,7 @@ Make failure useful.
 | F5 | Add safe-publication filter for negative results. | Supports openness without unsafe release. | D |
 | F6 | Add examples of non-informative vs informative negative results. | Better interpretation. | A |
 | F7 | Add calibration link from negative-result entries to intake reports. | Closes learning loop. | C |
-| F8 | Add benchmark for whether rejected candidates resemble known failure modes. | Improves rejection logic. | C |
+| F8 | Add benchmark for whether rejected candidates resemble known failure modes (complete). — FMS- schema: 14 fields, 11 validation rules, PATTERN_REPEATED_THRESHOLD=0.80, pattern_repeated_flag enforcement, calibration_action_recommended; 63 tests. | Improves rejection logic. | C |
 | F9 | Add negative-result dashboard schema (complete). | NRD- aggregates NRR- rejection statistics: rejection rate consistency check, all_rejections_have_nrr enforced, top stage/reason controlled vocabulary, 100% rejection warning. | B |
 | F10 | Add policy that public claims must mention relevant negative results. | Prevents cherry-picking. | D |
 
@@ -148,9 +148,9 @@ Make simulation useful or harmless.
 | H3 | Add per-module cheapest-baseline declaration. | Forces enemy comparison. | C |
 | H4 | Add fail-closed adapter integration tests. | Avoids hidden external failures. | B/C |
 | H5 | Add no-silent-network policy test for adapters. | Protects sequence privacy. | D |
-| H6 | Add simulation uncertainty calibration report. | Makes uncertainty inspectable. | C |
-| H7 | Add documentation that failed simulation stays useful as negative evidence. | Cultural standard. | A |
-| H8 | Add `weighted` integration dry-run report, still blocked by gate. | Shows what would change without applying. | C |
+| H6 | Add simulation uncertainty calibration report (complete). — SUC- schema: 14 fields, 10 validation rules, VALID_SIMULATION_MODULES (7 values), VALID_CALIBRATION_METHODS (6 values), OVERCONFIDENCE_THRESHOLD=0.15, MIN_SAMPLES_FOR_CALIBRATION=10; makes module confidence interval calibration machine-auditable; 63 tests. | Makes uncertainty inspectable. | C |
+| H7 | Add documentation that failed simulation stays useful as negative evidence (complete). — docs/FAILED_SIMULATION_AS_NEGATIVE_EVIDENCE.md: cultural standard requiring NRR- record for every failure; agent MUST NOT rules; anti-selective-reporting enforcement. | Cultural standard. | A |
+| H8 | Add `weighted` integration dry-run report, still blocked by gate (complete). — WDR- schema: 15 fields, 12 validation rules, results_applied_to_ranking=False enforcement, GATE_CLOSED_DISCLAIMER required, counterfactual-only; 63 tests. | Shows what would change without applying. | C |
 | H9 | Add module deprecation mechanism for simulation theater. | Cleanup discipline. | B/C |
 | H10 | Add external-simulator review checklist. | Safer ecosystem bridges. | D |
 
@@ -162,11 +162,11 @@ Make OpenAMP artifacts useful even without OpenAMP scoring.
 |---:|---|---|---|
 | I1 | Add FASTA export for final candidate set. | Standard format for partner labs. | B |
 | I2 | Add JSON-LD context for evidence certificates. | Semantic web compatibility. | B |
-| I3 | Add citation template for data consumers. | Proper attribution. | A |
+| I3 | Add citation template for data consumers (complete). — docs/CITATION_TEMPLATE.md: APA, BibTeX, CFF, in-text, data-availability formats; dry-lab-only anti-overclaim embedded in every format. | Proper attribution. | A |
 | I4 | Add OpenAMP output → external tool adapter stub. | Reduces integration friction. | B |
 | I5 | Add cross-repo evidence traceability field. | Multi-lab reproducibility. | C |
 | I6 | Add versioned schema export. | Stable API for partners. | B |
-| I7 | Add comparative summary across multiple candidate batches. | Shows trajectory, not just snapshots. | C |
+| I7 | Add comparative summary across multiple candidate batches (complete). — BCS- schema: 14 fields, 12 validation rules, VALID_TREND_DIRECTIONS, VALID_QUALITY_TIERS, MIN_BATCHES_FOR_TREND=2; trend consistency enforced; 63 tests. | Shows trajectory, not just snapshots. | C |
 | I8 | Add machine-readable release manifest. | Downstream tools can parse what was released. | B |
 | I9 | Add public API stub with rate-limit and privacy policy stubs. | Safety for eventual public access. | D |
 | I10 | Add annotation layer for wet-lab-updated evidence. | Closes the wet-lab feedback loop. | D |
@@ -179,11 +179,11 @@ Make the repo survive contributors, updates, and time.
 |---:|---|---|---|
 | J1 | Add changelog generator from PR titles. | History without manual maintenance. | B |
 | J2 | Add schema version migration guide. | Schema updates don't break old artifacts. | B |
-| J3 | Add docs coverage report. | Shows what is and isn't documented. | B |
-| J4 | Add deprecation policy document. | Makes obsolescence intentional. | A |
-| J5 | Add long-term archival format specification. | Evidence survives software churn. | C |
-| J6 | Add public license and reuse guide. | Community adoption enabled. | A |
-| J7 | Add contributor covenant and attribution policy. | Fair credit for future contributors. | A |
+| J3 | Add docs coverage report (complete). | Shows what is and isn't documented. | B |
+| J4 | Add deprecation policy document (complete). | Makes obsolescence intentional. | A |
+| J5 | Add long-term archival format specification (complete). — docs/ARCHIVAL_FORMAT_SPEC.md: 9 sections, directory layout, VERSION.txt format, checksums.sha256, anti-rot guarantees, agent MUST NOT rules. | Evidence survives software churn. | C |
+| J6 | Add public license and reuse guide (complete). — docs/LICENSE_AND_REUSE_GUIDE.md: Apache 2.0 terms, artifact-specific constraints, dry-lab-only preservation requirement. | Community adoption enabled. | A |
+| J7 | Add contributor covenant and attribution policy (complete). — docs/CONTRIBUTOR_COVENANT.md: overclaiming as explicit violation, AI attribution policy, artifact attribution rules. | Fair credit for future contributors. | A |
 | J8 | Add automated stale-doc detector. | Reduces doc rot over time. | B |
 | J9 | Add cross-reference checker between schemas and tests. | Ensures tests stay coupled to schemas. | B |
 | J10 | Add end-to-end dry-run test for full pipeline from sequences to evidence package. | Smoke test for whole system. | B/C |
