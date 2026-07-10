@@ -43,7 +43,7 @@ Make candidate evidence packages impossible to confuse with biological proof.
 |---:|---|---|---|
 | B1 | Add certificate field for `proof_ladder_level` (complete). | PLC- schema: 14 fields, 14 validation rules, dry_lab_only caps level at multi_signal_candidate_evidence, human_review_required enforced for levels ≥expert_reviewed_assay_proposal, unsupported_claims required as anti-overclaim guard; makes level claim machine-verifiable. | B |
 | B2 | Add `unsupported_claims` field to certificates (complete). | CCB- schema: 10 fields, 13 validation rules, 8 claim class vocabulary, ≥3 classes required, dry_lab_only+all_listed_classes_unsupported enforced, no-duplicate check; negative complement of PLC- closes score-to-proof drift gap. | B |
-| B3 | Add `baseline_caveat` field. | Forces cheap-explanation visibility. | B |
+| B3 | Add `baseline_caveat` field (complete). | Added to build_certificate(): auto-computes charge/length/hydrophobicity flags and warns when all three cheap baselines pass; forces cheap-explanation visibility at certificate issue time. 63 tests in tests/test_certificate_baseline_caveat.py. | B |
 | B4 | Add `release_status` field. | Supports staged release. | C/D |
 | B5 | Add certificate quality-tier validator. | External-review readiness becomes measurable. | B |
 | B6 | Add human-readable certificate report. | Domain experts can inspect faster. | B |

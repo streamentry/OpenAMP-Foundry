@@ -9,6 +9,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.28 — Phase B B3: baseline_caveat field in certificates
+- Added `baseline_caveat` field to `build_certificate()` in `src/openamp_foundry/evidence/certificate.py`
+- Auto-computes three cheap-baseline flags: charge≥4, length 10-40aa, hydrophobic_fraction≥0.30
+- Warns when all three pass: "simple conjunction rule would select this candidate without ML scoring"
+- 63 tests in `tests/test_certificate_baseline_caveat.py` covering presence, charge/length/hydro flags, all-YES/NO paths, claim discipline, integration
+- BASELINE 6331→6394
+- Closes Phase B B3 — cheap-explanation visibility is now mandatory in every certificate
+
 ### v0.10.27 — Phase B B2: CertificateClaimBoundary schema
 - Added `CertificateClaimBoundary` (CCB-) schema
 - 10 fields: ccb_id, pipeline_version, certificate_id, candidate_id, boundary_date, unsupported_claim_classes (8-value vocab), boundary_statement, dry_lab_only, all_listed_classes_unsupported, notes
