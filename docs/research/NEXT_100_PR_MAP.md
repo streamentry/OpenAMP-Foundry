@@ -313,3 +313,4 @@ Make per-family performance gaps visible and machine-checkable, so the pipeline 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | Z1 | Add family blindness challenge harness schema (FBH-). | Per-family AUROC + panel representation check; flags when weak AMP classes (AUROC&lt;0.55) are excluded from selected panel; prevents aggregate-metric hiding of family blind spots. | C |
+| Z2 | Add batch explanation report schema (BXR-). | Per-candidate selection reason tracking (winner_exploit/uncertainty_probe/diversity_anchor/etc.); safety_cleared flag per candidate; verdict (explained/partially_explained/unexplained) based on safety clearance fraction; makes multi-batch selection auditable. | C |
