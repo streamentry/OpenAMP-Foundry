@@ -168,7 +168,7 @@ Make OpenAMP artifacts useful even without OpenAMP scoring.
 | I6 | Add versioned schema export (complete). — versioning/schema_export.py: exports schemas with version metadata for stable partner API; tests/versioning/test_schema_export.py. | Stable API for partners. | B |
 | I7 | Add comparative summary across multiple candidate batches (complete). — BCS- schema: 14 fields, 12 validation rules, VALID_TREND_DIRECTIONS, VALID_QUALITY_TIERS, MIN_BATCHES_FOR_TREND=2; trend consistency enforced; 63 tests. | Shows trajectory, not just snapshots. | C |
 | I8 | Add machine-readable release manifest (complete). — evidence/release_manifest.py: machine-readable manifest of what was released in each pipeline run; tests/evidence/test_release_manifest.py. | Downstream tools can parse what was released. | B |
-| I9 | Add public API stub with rate-limit and privacy policy stubs. | Safety for eventual public access. | D |
+| I9 | Add public API stub with rate-limit and privacy policy stubs. | Safety for eventual public access. | D | DONE |
 | I10 | Add annotation layer for wet-lab-updated evidence. | Closes the wet-lab feedback loop. | D |
 
 ## Phase J — Long-term infrastructure
