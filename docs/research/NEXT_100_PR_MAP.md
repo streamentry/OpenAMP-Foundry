@@ -47,7 +47,7 @@ Make candidate evidence packages impossible to confuse with biological proof.
 | B4 | Add `release_status` field. | Supports staged release. | C/D |
 | B5 | Add certificate quality-tier validator (complete). | assess_certificate_quality() computes draft/internal_review/external_review_ready tier; missing-field detection, forbidden-claim violation check, external-review gate; 63 tests in tests/test_certificate_quality_validator.py. | B |
 | B6 | Add human-readable certificate report (complete). | build_certificate_report() in certificate_report.py converts cert dict to formatted text with sections: identity, proof ladder, scores, cheap-explanation check, selection reason, failure modes, next steps, references, optional quality tier; 63 tests in tests/test_certificate_report.py. | B |
-| B7 | Add candidate rejection certificate support. | Failures become artifacts. | B |
+| B7 | Add candidate rejection certificate support (complete). | CRC- schema: 12 fields, 13 rules, VALID_REJECTION_GATES (10 values), VALID_REJECTION_REASONS (12 values), dry_lab_only enforced, proof-ladder cap at multi_signal; makes pipeline rejections first-class auditable artifacts; 63 tests. | B |
 | B8 | Link certificates to run manifest hashes. | Stronger reproducibility. | B |
 | B9 | Add test that dry-lab certificates cannot include forbidden claims (complete). | CI gate: tests/test_certificate_claim_discipline.py scans all cert text fields against RISKY_PATTERNS and FORBIDDEN_CLAIM_PATTERNS; default cert proven clean; forbidden phrases confirmed detectable. 35 tests total. | B/C |
 | B10 | Add external-review packet generator that bundles certificates. | Better partner review. | C/D |

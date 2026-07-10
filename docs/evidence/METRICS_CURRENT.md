@@ -9,6 +9,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.31 — Phase B B7: Candidate rejection certificate (CRC-)
+- Added `src/openamp_foundry/evidence/candidate_rejection_certificate.py`
+- CRC- schema: 12 fields (crc_id, pipeline_version, candidate_id, sequence, rejection_date, rejection_gate, rejection_reason, evidence_summary, proof_ladder_level_at_rejection, dry_lab_only, scores, notes)
+- 13 validation rules: CRC- prefix, sequence validation, ISO date, gate/reason controlled vocab (10 gates, 12 reasons), evidence_summary non-empty, dry_lab_only=True enforced, proof-ladder cap at multi_signal_candidate_evidence
+- 2 warnings: short evidence_summary, empty notes
+- 63 tests in `tests/evidence/test_candidate_rejection_certificate.py`
+- BASELINE 6520→6583
+- Closes Phase B B7 — pipeline rejections are now first-class auditable artifacts
+
 ### v0.10.30 — Phase B B6: Human-readable certificate report
 - Added `src/openamp_foundry/evidence/certificate_report.py` — build_certificate_report() function
 - Converts cert dict to formatted text with labelled sections: CANDIDATE, PROOF LADDER, SCORES (with not-biological-proof notice), CHEAP-EXPLANATION CHECK, SELECTION REASON, KNOWN FAILURE MODES, RECOMMENDED NEXT STEPS, REFERENCES CHECKED, optional QUALITY TIER
