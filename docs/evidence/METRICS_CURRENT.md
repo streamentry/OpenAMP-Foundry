@@ -9,6 +9,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.25 — Phase B B9: Certificate claim discipline CI gate
+- Added `tests/test_certificate_claim_discipline.py` — 35-test CI gate
+- Scans all certificate text fields against RISKY_PATTERNS (check_claims.py) and FORBIDDEN_CLAIM_PATTERNS (wave0_5_gate_checker.py)
+- Tests: default cert clean, risky phrases detected, forbidden phrases detected, scanner coverage, JSON roundtrip discipline
+- BASELINE 6170→6205
+- Closes Phase B B9 — dry-lab certificate claim discipline is now machine-verifiable in CI
+
 ### v0.10.24 — Phase E E10: ExpertReviewExamplePackage schema
 - Added `ExpertReviewExamplePackage` (ERP-) schema
 - 14 fields: erp_id, pipeline_version, example_version, creation_date, review_domain, mock_candidates (1-10), overall_clarity_rating, synthesis_recommendation, reviewer_comments, dry_lab_only, is_example_data, example_use_case, summary, notes

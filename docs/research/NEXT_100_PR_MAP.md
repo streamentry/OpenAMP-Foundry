@@ -49,7 +49,7 @@ Make candidate evidence packages impossible to confuse with biological proof.
 | B6 | Add human-readable certificate report. | Domain experts can inspect faster. | B |
 | B7 | Add candidate rejection certificate support. | Failures become artifacts. | B |
 | B8 | Link certificates to run manifest hashes. | Stronger reproducibility. | B |
-| B9 | Add test that dry-lab certificates cannot include forbidden claims. | Claim discipline in CI. | B/C |
+| B9 | Add test that dry-lab certificates cannot include forbidden claims (complete). | CI gate: tests/test_certificate_claim_discipline.py scans all cert text fields against RISKY_PATTERNS and FORBIDDEN_CLAIM_PATTERNS; default cert proven clean; forbidden phrases confirmed detectable. 35 tests total. | B/C |
 | B10 | Add external-review packet generator that bundles certificates. | Better partner review. | C/D |
 
 ## Phase C — Benchmark honesty expansion
