@@ -60,7 +60,7 @@ Make OpenAMP the hardest repo to fool in AMP dry-lab selection.
 |---:|---|---|---|
 | C1 | Create machine-readable benchmark cards (complete). | benchmark_registry.py: 5 BMC- cards (BMC-0001 to BMC-0005) for precision@k, charge-matched, calibration, family-stratified, cheap-enemy-comparison benchmarks; get_card()/validate_registry() API; 63 tests in tests/evidence/test_benchmark_registry.py. | B |
 | C2 | Add benchmark-card schema (complete). | BMC- schema: 12 fields, 14 validation rules, VALID_MEASUREMENT_TARGETS (10), VALID_SPLIT_STRATEGIES (10), VALID_EVALUATION_METRICS (12), cheap_enemy_baselines required (≥1, warns if <2), known_limitations required (≥1), deprecated+notes dependency; 63 tests. | B |
-| C3 | Add charge-distribution report for every benchmark. | Shortcut visibility. | B/C |
+| C3 | Add charge-distribution report for every benchmark (complete). | compute_charge_report(sequences, labels) in charge_distribution_report.py: charge stats for pos/neg groups, fraction_positive_high_charge, charge_ratio, charge_shortcut_likely flag and warning; SHORTCUT_WARNING_FRACTION=60%, SHORTCUT_RATIO_THRESHOLD=1.5; 63 tests. | B/C |
 | C4 | Add similarity-neighbor distribution report. | Novelty honesty. | B/C |
 | C5 | Add `bench-length-matched` control. | Tests length shortcut. | C |
 | C6 | Add `bench-charge-length-matched` control. | Stronger nontrivial signal test. | C |

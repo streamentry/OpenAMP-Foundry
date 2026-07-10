@@ -9,6 +9,16 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.36 — Phase C C3: Charge distribution report for benchmark shortcut visibility
+- Added `src/openamp_foundry/evidence/charge_distribution_report.py`
+- compute_charge_report(sequences, labels) → ChargeDistributionReport
+- Stats: n_positive, n_negative, mean/median charge for both groups, fraction_positive_high_charge, fraction_negative_high_charge, charge_ratio (pos/neg mean ratio), charge_shortcut_likely flag, shortcut_warning string
+- Shortcut detection: fires when fraction_positive_high_charge >= 0.60 OR charge_ratio >= 1.5
+- format_charge_report() for human-readable output
+- 63 tests in `tests/evidence/test_charge_distribution_report.py`
+- BASELINE 6835→6898
+- Closes Phase C C3 — every benchmark can now be analyzed for the charge shortcut; shortcut_likely=True is an explicit CI-checkable signal
+
 ### v0.10.35 — Phase C C8: Benchmark deprecation banner system
 - Added `src/openamp_foundry/evidence/benchmark_deprecation.py`
 - Functions: get_deprecated_cards(), get_active_cards(), build_deprecation_banner(), print_all_deprecation_banners(), check_no_deprecated_in_ranking() (raises DeprecatedBenchmarkError), deprecation_status_report()
