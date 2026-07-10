@@ -52,6 +52,7 @@ import argparse
 import json
 from pathlib import Path
 
+from openamp_foundry.evidence.negative_result_entry import validate_dict as validate_negative_result_entry_dict
 from openamp_foundry.evidence.quality import assess_certificate_quality
 from openamp_foundry.evidence.schemas import validate_json_schema
 from openamp_foundry.pipeline import run_ranking_pipeline
@@ -2479,6 +2480,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_pre.add_argument("--format", choices=["text", "json"], default="text")
     p_pre.set_defaults(func=_run_pre_registration_entry_check)
 
+    negative_result_entry_parser = sub.add_parser(
+        "negative-result-entry-check",
+        help="Validate a NegativeResultEntry (NRR-) record",
+    )
+    negative_result_entry_parser.add_argument("json_input", help="JSON string of the NRR- record")
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2892,6 +2899,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "pre-registration-check":
         return _run_pre_registration_entry_check(args)
+
+    if args.command == "negative-result-entry-check":
+        from openamp_foundry.cli.commands.reports import _run_negative_result_entry_check
+        _run_negative_result_entry_check(args)
 
     parser.error("unknown command")
     return 2
