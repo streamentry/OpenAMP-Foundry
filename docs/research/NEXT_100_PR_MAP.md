@@ -118,7 +118,7 @@ Make failure useful.
 | F7 | Add calibration link from negative-result entries to intake reports (complete). — evidence/negative_result_calibration_link.py: links NRR- rejection records to calibration intake reports for closed-loop learning; tests/evidence/test_negative_result_calibration_link.py. | Closes learning loop. | C |
 | F8 | Add benchmark for whether rejected candidates resemble known failure modes (complete). — FMS- schema: 14 fields, 11 validation rules, PATTERN_REPEATED_THRESHOLD=0.80, pattern_repeated_flag enforcement, calibration_action_recommended; 63 tests. | Improves rejection logic. | C |
 | F9 | Add negative-result dashboard schema (complete). | NRD- aggregates NRR- rejection statistics: rejection rate consistency check, all_rejections_have_nrr enforced, top stage/reason controlled vocabulary, 100% rejection warning. | B |
-| F10 | Add policy that public claims must mention relevant negative results. | Prevents cherry-picking. | D |
+| F10 | Add policy that public claims must mention relevant negative results. | Prevents cherry-picking. | D | DONE |
 
 ## Phase G — Calibration and active-learning rigor
 
