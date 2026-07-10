@@ -3048,3 +3048,20 @@ def _run_negative_result_dashboard_check(args):
         for w in result.warnings:
             print(f"WARNING: {w}")
         sys.exit(1)
+
+
+def _run_synthetic_boundary_audit_record_check(args):
+    """CLI handler for synthetic-boundary-audit-record-check."""
+    import json, sys
+    from openamp_foundry.evidence.synthetic_boundary_audit_record import validate_dict
+    data = json.load(open(args.input))
+    issues = validate_dict(data)
+    errors = [i for i in issues if not i.startswith("WARNING:")]
+    warnings = [i for i in issues if i.startswith("WARNING:")]
+    for w in warnings:
+        print(w)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    print("OK: SyntheticBoundaryAuditRecord is valid.")

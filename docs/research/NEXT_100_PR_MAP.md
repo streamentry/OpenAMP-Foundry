@@ -133,7 +133,7 @@ Make learning controlled rather than self-serving.
 | G5 | Add batch-2 rationale report explaining exploit/explore/diversity roles. | Reviewers understand next batch. | C |
 | G6 | Add calibration-overfit warning when cohort is too small. | Prevents false learning. | C |
 | G7 | Add result-quality flag propagation into calibration engine. | Low-quality outcomes cannot drive updates. | C |
-| G8 | Add policy that synthetic results cannot raise proof-ladder level. | Anti-overclaim. | B/C |
+| G8 | Add policy that synthetic results cannot raise proof-ladder level (complete). | SBR- schema: 14 fields, 16 validation rules, synthetic-only evidence cannot propose level ≥4 without violations recorded, policy_enforced=True enforced, violation rate consistency check (tol 0.01); anti-overclaim boundary is now auditable artifact. | B/C |
 | G9 | Add calibration decision review checklist. | Human review stronger. | C/D |
 | G10 | Add recalibration rollback plan. | Safer updates. | C |
 

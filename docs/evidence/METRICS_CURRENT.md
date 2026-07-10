@@ -9,6 +9,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.23 — Phase G G8: SyntheticBoundaryAuditRecord schema
+- Added `SyntheticBoundaryAuditRecord` (SBR-) schema
+- 14 fields: sbr_id, pipeline_version, batch_id, audit_date, evidence_source, total_candidates_checked, total_violations, violation_rate, blocked_upgrades, max_proposed_ladder_level, policy_enforced, enforcement_outcome, summary, notes
+- 16 validation rules; 3 warnings; 63 tests
+- BASELINE 6044→6107
+- CLI: openamp-foundry synthetic-boundary-audit-record-check
+- Closes Phase G G8 — proof-ladder boundary enforcement is now an auditable evidence artifact
+
 ### v0.10.22 — Phase G G2: RecalibrationRejectionSummary schema
 - Added `RecalibrationRejectionSummary` (RRS-) schema
 - 13 fields: rrs_id, pipeline_version, period_start, period_end, total_checkpoints_reviewed, total_refused, total_approved, refusal_rate, top_refusal_reason, gate_status, all_refusals_have_rrf, summary, notes
