@@ -351,3 +351,102 @@ class TestConstants:
 
     def test_min_candidates(self):
         assert MIN_CANDIDATES == 1
+
+
+class TestDryLabOnlyEnforcement:
+    def test_dry_lab_true_by_default(self):
+        entry = _valid_entry()
+        assert entry.dry_lab_only is True
+
+    def test_result_dry_lab_true(self):
+        result = validate_pilot_evidence_package(_valid_entry())
+        assert result.dry_lab_only is True
+
+    def test_dry_lab_warning_included_when_complete(self):
+        result = validate_pilot_evidence_package(_valid_entry(dry_lab_only=True))
+        assert result.passed is True
+        assert any("dry_lab_only" in w or "computational" in w for w in result.warnings)
+
+    def test_pep_prefix_enforced_dry_lab(self):
+        entry = _valid_entry(pep_id="XYZ-001", dry_lab_only=True)
+        result = validate_pilot_evidence_package(entry)
+        assert not result.passed
+        assert any("PEP-" in e for e in result.errors)
+
+    def test_cleared_false_fails_dry_lab(self):
+        entry = _valid_entry(cleared_for_synthesis=False, dry_lab_only=True)
+        result = validate_pilot_evidence_package(entry)
+        assert not result.passed
+        assert any("cleared_for_synthesis" in e for e in result.errors)
+
+    def test_complete_package_dry_lab_passes(self):
+        entry = _valid_entry(dry_lab_only=True, is_complete=True, missing_artifacts=[])
+        result = validate_pilot_evidence_package(entry)
+        assert result.passed
+
+    def test_dict_dry_lab_defaults_true(self):
+        d = {
+            "pep_id": "PEP-001",
+            "pipeline_version": "v1.0.0",
+            "ccs_id": "CCS-001",
+            "bsp_id": "BSP-001",
+            "psc_id": "PSC-001",
+            "pre_registration_id": "PRE-001",
+            "baseline_comparison_id": "BCM-001",
+            "candidate_count": 5,
+            "cleared_for_synthesis": True,
+            "is_complete": True,
+            "missing_artifacts": [],
+            "package_notes": "OK",
+            "reviewer": "test",
+        }
+        result = validate_pilot_evidence_package_dict(d)
+        assert result.dry_lab_only is True
+
+    def test_reviewer_field_accepted(self):
+        entry = _valid_entry(reviewer="Dr. Smith")
+        result = validate_pilot_evidence_package(entry)
+        assert result.passed
+
+    def test_many_candidates_ok(self):
+        entry = _valid_entry(candidate_count=100)
+        result = validate_pilot_evidence_package(entry)
+        assert result.passed
+        assert not any("candidate_count" in e for e in result.errors)
+
+    def test_errors_list_empty_on_pass(self):
+        result = validate_pilot_evidence_package(_valid_entry())
+        assert result.passed
+        assert result.errors == []
+
+
+class TestAdditionalEdgeCases:
+    def test_pep_id_with_suffix_passes(self):
+        entry = _valid_entry(pep_id="PEP-2026-001")
+        result = validate_pilot_evidence_package(entry)
+        assert result.passed
+
+    def test_notes_one_char_under_limit_passes(self):
+        entry = _valid_entry(package_notes="x" * (PACKAGE_NOTES_MAX_LENGTH - 1))
+        result = validate_pilot_evidence_package(entry)
+        assert result.passed
+
+    def test_multiple_missing_artifacts_counted(self):
+        entry = _valid_entry(
+            is_complete=False,
+            missing_artifacts=["CCS-001", "BSP-001"],
+        )
+        result = validate_pilot_evidence_package(entry)
+        assert result.passed
+        assert result.missing_artifact_count == 2
+
+    def test_pipeline_version_accepted(self):
+        entry = _valid_entry(pipeline_version="v0.9.1-rc2")
+        result = validate_pilot_evidence_package(entry)
+        assert result.passed
+
+    def test_two_candidates_no_single_candidate_warning(self):
+        entry = _valid_entry(candidate_count=2)
+        result = validate_pilot_evidence_package(entry)
+        assert result.passed
+        assert not any("single" in w.lower() or "candidate_count is 1" in w for w in result.warnings)
