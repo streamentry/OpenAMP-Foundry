@@ -110,7 +110,7 @@ Make failure useful.
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | F1 | Add negative-result entry schema hardening. | Failure records become useful. | B/C |
-| F2 | Add negative-result archive validator. | Prevents incomplete records. | B |
+| F2 | Add negative-result archive summary schema (complete). | Prevents incomplete archives: indexes NRR- entries, enforces completeness_confirmed and all_results_have_reason before batch is marked archived. | B |
 | F3 | Add rejection reason entry schema (complete). | Enables analysis of failed candidates with controlled vocabulary of stages and reasons; feeds calibration loop with structured failure signal. | B |
 | F4 | Add failed-candidate report generator. | Makes failed batches reviewable. | B/C |
 | F5 | Add safe-publication filter for negative results. | Supports openness without unsafe release. | D |

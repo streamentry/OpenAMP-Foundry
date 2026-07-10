@@ -6,7 +6,7 @@ import sys
 # Note: 3 pre-existing collection errors in test_benchmark_calibration.py,
 # test_benchmark_charge_distribution.py, test_benchmark_cheap_enemies.py.
 # Raise threshold if legitimate tests are removed; lower threshold is okay.
-BASELINE = 5225
+BASELINE = 5288
 TOLERANCE = 0.05  # allow 5% fluctuation
 
 

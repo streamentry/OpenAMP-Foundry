@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase F F3 — rejection reason entry — v0.10.10)
+> **Last updated:** 2026-07-10 (Phase F F2 — negative result archive summary — v0.10.11)
+> **New in v0.10.11 (Phase F F2):** NegativeResultArchiveSummary — validates batch of NRR- entries is complete before archiving (11 fields, 9 validation rules, 3 warnings, 63 tests, BASELINE 5225→5288)
 > **New in v0.10.10 (Phase F F3):** RejectionReasonEntry — controlled vocabulary for pipeline rejections (11 fields, 9 validation rules, 3 warnings, 63 tests, BASELINE 5162→5225)
 > **New in v0.10.9 (Phase Q Q3):** ExternalSharingClearance — auditable release gate before external PEP sharing (12 fields, 9 validation rules, 3 warnings, 63 tests, BASELINE 5099→5162)
 > **New in v0.10.8 (Phase Q Q2):** PreRegistrationEntry — pre-experiment plan lock (14 fields, 9 validation rules, 4 warnings, 63 tests, BASELINE 5036→5099)

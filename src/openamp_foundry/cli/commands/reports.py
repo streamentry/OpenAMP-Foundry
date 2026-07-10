@@ -3869,3 +3869,42 @@ def _run_external_sharing_clearance_check(args):
                 print(f"    - {w}")
 
     sys.exit(0 if result.passed else 1)
+
+
+def _run_negative_result_archive_check(args):
+    from openamp_foundry.evidence.negative_result_archive_summary import (
+        validate_negative_result_archive_summary_dict,
+    )
+    import json
+    import sys
+
+    data = json.loads(args.entry_json)
+    result = validate_negative_result_archive_summary_dict(data)
+
+    if args.format == "json":
+        out = {
+            "nas_id": result.nas_id,
+            "batch_id": result.batch_id,
+            "negative_result_count": result.negative_result_count,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "dry_lab_only": result.dry_lab_only,
+        }
+        print(json.dumps(out, indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Negative Result Archive: {status}")
+        print(f"  NAS ID: {result.nas_id}")
+        print(f"  Batch: {result.batch_id}")
+        print(f"  Records: {result.negative_result_count}")
+        if result.errors:
+            print("  Errors:")
+            for e in result.errors:
+                print(f"    - {e}")
+        if result.warnings:
+            print("  Warnings:")
+            for w in result.warnings:
+                print(f"    - {w}")
+
+    sys.exit(0 if result.passed else 1)

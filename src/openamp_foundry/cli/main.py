@@ -20,6 +20,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_reviewer_briefing_check, _run_audit_chain_check,     _run_pre_registration_check,
     _run_external_sharing_clearance_check,
     _run_rejection_reason_check,
+    _run_negative_result_archive_check,
     _run_hypothesis_outcome_check, _run_baseline_comparison_check, _run_negative_result_check,
     _run_experiment_priority_check, _run_calibration_performance_check, _run_prediction_drift_check,
     _run_calibration_improvement_check,
@@ -2298,6 +2299,15 @@ def build_parser() -> argparse.ArgumentParser:
         "--format", choices=["text", "json"], default="text"
     )
 
+    negative_result_archive_parser = sub.add_parser(
+        "negative-result-archive-check",
+        help="Validate a NegativeResultArchiveSummary (NAS-).",
+    )
+    negative_result_archive_parser.add_argument("--entry-json", required=True)
+    negative_result_archive_parser.add_argument(
+        "--format", choices=["text", "json"], default="text"
+    )
+
     # ── Hypothesis outcome check (Phase N N2) ────────────────────────
     hypothesis_outcome_parser = sub.add_parser(
         "hypothesis-outcome-check",
@@ -2797,6 +2807,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "rejection-reason-check":
         return _run_rejection_reason_check(args)
+
+    if args.command == "negative-result-archive-check":
+        return _run_negative_result_archive_check(args)
 
     if args.command == "hypothesis-outcome-check":
         return _run_hypothesis_outcome_check(args)
