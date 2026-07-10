@@ -1,452 +1,377 @@
-"""Tests for the safe-publication filter (F5)."""
-from __future__ import annotations
-
-import json
-import subprocess
-import sys
-from pathlib import Path
+"""Tests for SPF- safe-publication filter schema."""
 
 import pytest
-
-from scripts.safe_publication_filter import (
-    build_filter_result,
-    build_markdown_result,
-    load_input,
-    run_candidate_checks,
-    run_global_checks,
+from openamp_foundry.evidence.safe_publication_filter import (
+    SafePublicationFilter,
+    VALID_SPF_VERDICTS,
+    VALID_SPF_BLOCK_REASONS,
+    VALID_REDACTION_TYPES,
+    build_safe_publication_filter,
+    format_safe_publication_filter,
+    validate_safe_publication_filter,
 )
 
-PYTHON = sys.executable
-_REPO_DIR = Path(__file__).parents[2]
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 
-def _default_input(overrides: dict | None = None) -> dict:
-    data = {
-        "source": "test-batch",
-        "pipeline_version": "v0.5.75-test",
-        "report_type": "safe_publication_input",
-        "dry_lab_only": True,
-        "proof_ladder_level": 2,
-        "safety_checks": {
-            "toxicity_screened": True,
-            "hemolysis_screened": True,
-            "dual_use_reviewed": True,
-        },
-        "candidates": [
-            {
-                "candidate_id": "CAND-001",
-                "sequence": "ACDEFGHIKLMNPQRSTVWY",
-                "ensemble_score": 0.85,
-                "proof_ladder_level": 2,
-            },
-            {
-                "candidate_id": "CAND-002",
-                "sequence": "KLAKLAKKLAKLAK",
-                "ensemble_score": 0.80,
-                "proof_ladder_level": 1,
-            },
-        ],
-    }
-    if overrides:
-        data.update(overrides)
-    return data
+def _build(**kwargs):
+    defaults = dict(
+        spf_id="SPF-001",
+        nrr_id="NRR-001",
+        pipeline_version="v1.0",
+        dual_use_clear=True,
+        sequence_privacy_clear=True,
+        informative_as_negative=True,
+        blocked_reasons=[],
+        redactions_applied=[],
+        limitations=["dry-lab only"],
+        created_at="2026-07-10",
+    )
+    defaults.update(kwargs)
+    return build_safe_publication_filter(**defaults)
 
 
-class TestSafePublicationFilter:
-    def test_global_checks_all_pass(self):
-        """All global checks pass with valid input."""
-        result = run_global_checks(_default_input())
-        assert result["all_passed"] is True
-        checks = result["checks"]
-        assert checks["dry_lab_only"]["passed"] is True
-        assert checks["global_proof_ladder_level"]["passed"] is True
-        assert checks["safety_checks"]["all_passed"] is True
+# ---------------------------------------------------------------------------
+# 1. Constants
+# ---------------------------------------------------------------------------
 
-    def test_global_dry_lab_only_false_fails(self):
-        """dry_lab_only=false fails global checks."""
-        result = run_global_checks(_default_input({"dry_lab_only": False}))
-        assert result["all_passed"] is False
-        assert result["checks"]["dry_lab_only"]["passed"] is False
 
-    def test_global_dry_lab_only_missing_fails(self):
-        """Missing dry_lab_only defaults to False and fails."""
-        result = run_global_checks(_default_input({"dry_lab_only": False}))
-        assert result["all_passed"] is False
+def test_valid_spf_verdicts_is_frozenset():
+    assert isinstance(VALID_SPF_VERDICTS, frozenset)
 
-    def test_global_proof_ladder_too_high_fails(self):
-        """proof_ladder_level > 4 fails global checks."""
-        result = run_global_checks(_default_input({"proof_ladder_level": 5}))
-        assert result["all_passed"] is False
-        assert result["checks"]["global_proof_ladder_level"]["passed"] is False
-        assert "exceeds" in result["checks"]["global_proof_ladder_level"].get("reason", "")
 
-    def test_global_proof_ladder_missing_fails(self):
-        """Missing proof_ladder_level fails checks."""
-        result = run_global_checks(_default_input({"proof_ladder_level": None}))
-        assert result["all_passed"] is False
-        assert result["checks"]["global_proof_ladder_level"]["passed"] is False
+def test_valid_spf_verdicts_contains_safe_to_publish():
+    assert "safe_to_publish" in VALID_SPF_VERDICTS
 
-    def test_global_toxicity_not_screened_fails(self):
-        """toxicity_screened=false fails safety checks."""
-        result = run_global_checks(_default_input({
-            "safety_checks": {
-                "toxicity_screened": False,
-                "hemolysis_screened": True,
-                "dual_use_reviewed": True,
-            }
-        }))
-        assert result["all_passed"] is False
-        sc = result["checks"]["safety_checks"]
-        assert sc["all_passed"] is False
-        assert sc["checks"]["toxicity_screened"]["passed"] is False
 
-    def test_global_hemolysis_not_screened_fails(self):
-        """hemolysis_screened=false fails safety checks."""
-        result = run_global_checks(_default_input({
-            "safety_checks": {
-                "toxicity_screened": True,
-                "hemolysis_screened": False,
-                "dual_use_reviewed": True,
-            }
-        }))
-        assert result["all_passed"] is False
-        sc = result["checks"]["safety_checks"]
-        assert sc["all_passed"] is False
-        assert sc["checks"]["hemolysis_screened"]["passed"] is False
+def test_valid_spf_verdicts_contains_requires_redaction():
+    assert "requires_redaction" in VALID_SPF_VERDICTS
 
-    def test_global_dual_use_not_reviewed_fails(self):
-        """dual_use_reviewed=false fails safety checks."""
-        result = run_global_checks(_default_input({
-            "safety_checks": {
-                "toxicity_screened": True,
-                "hemolysis_screened": True,
-                "dual_use_reviewed": False,
-            }
-        }))
-        assert result["all_passed"] is False
-        sc = result["checks"]["safety_checks"]
-        assert sc["all_passed"] is False
-        assert sc["checks"]["dual_use_reviewed"]["passed"] is False
 
-    def test_global_safety_missing_all_fails(self):
-        """Missing safety_checks section fails all three."""
-        result = run_global_checks(_default_input({"safety_checks": {}}))
-        assert result["all_passed"] is False
-        sc = result["checks"]["safety_checks"]
-        assert sc["all_passed"] is False
-        for name in ["toxicity_screened", "hemolysis_screened", "dual_use_reviewed"]:
-            assert sc["checks"][name]["passed"] is False
+def test_valid_spf_verdicts_contains_publication_blocked():
+    assert "publication_blocked" in VALID_SPF_VERDICTS
 
-    def test_candidate_pll_too_high_fails(self):
-        """Candidate with proof_ladder_level > 4 fails."""
-        candidates = [{
-            "candidate_id": "CAND-001",
-            "proof_ladder_level": 5,
-        }]
-        results = run_candidate_checks(candidates)
-        assert results[0]["overall"] == "FAIL"
-        assert "PROOF_LADDER_EXCEEDED" in results[0].get("issues", [])
 
-    def test_candidate_pll_missing_fails(self):
-        """Candidate missing proof_ladder_level fails."""
-        candidates = [{"candidate_id": "CAND-001"}]
-        results = run_candidate_checks(candidates)
-        assert results[0]["overall"] == "FAIL"
-        assert "PROOF_LADDER_MISSING" in results[0].get("issues", [])
+def test_valid_spf_block_reasons_is_frozenset():
+    assert isinstance(VALID_SPF_BLOCK_REASONS, frozenset)
 
-    def test_candidate_pll_at_boundary_warns(self):
-        """Candidate with proof_ladder_level == 4 returns WARN."""
-        candidates = [{
-            "candidate_id": "CAND-001",
-            "proof_ladder_level": 4,
-        }]
-        results = run_candidate_checks(candidates)
-        assert results[0]["overall"] == "WARN"
-        assert results[0]["checks"]["proof_ladder_level"]["passed"] is True
 
-    def test_candidate_pll_valid_passes(self):
-        """Candidate with valid proof_ladder_level passes."""
-        candidates = [{
-            "candidate_id": "CAND-001",
-            "proof_ladder_level": 2,
-        }]
-        results = run_candidate_checks(candidates)
-        assert results[0]["overall"] == "PASS"
-        assert results[0]["checks"]["proof_ladder_level"]["passed"] is True
+def test_valid_spf_block_reasons_contains_dual_use_concern():
+    assert "dual_use_concern" in VALID_SPF_BLOCK_REASONS
 
-    def test_candidate_multiple_mixed_results(self):
-        """Multiple candidates with mixed levels produce correct results."""
-        candidates = [
-            {"candidate_id": "C-001", "proof_ladder_level": 2},
-            {"candidate_id": "C-002", "proof_ladder_level": 5},
-            {"candidate_id": "C-003", "proof_ladder_level": 4},
-        ]
-        results = run_candidate_checks(candidates)
-        statuses = {r["candidate_id"]: r["overall"] for r in results}
-        assert statuses["C-001"] == "PASS"
-        assert statuses["C-002"] == "FAIL"
-        assert statuses["C-003"] == "WARN"
 
-    def test_build_filter_result_summary(self):
-        """Filter result summary counts are correct."""
-        input_data = _default_input()
-        global_results = run_global_checks(input_data)
-        candidate_results = run_candidate_checks(input_data["candidates"])
-        result = build_filter_result(input_data, global_results, candidate_results)
-        s = result["summary"]
-        candidates = input_data["candidates"]
-        assert s["total_candidates"] == len(candidates)
-        assert s["passed"] + s["warned"] + s["failed"] == s["total_candidates"]
-        assert s["overall_filter_pass"] is True
+def test_valid_spf_block_reasons_contains_sequence_privacy_violation():
+    assert "sequence_privacy_violation" in VALID_SPF_BLOCK_REASONS
 
-    def test_build_filter_result_summary_with_fails(self):
-        """Overall filter pass is False when candidates fail."""
-        input_data = _default_input({
-            "dry_lab_only": True,
-            "proof_ladder_level": 2,
-            "safety_checks": {"toxicity_screened": True, "hemolysis_screened": True, "dual_use_reviewed": True},
-            "candidates": [
-                {"candidate_id": "C-001", "proof_ladder_level": 2},
-                {"candidate_id": "C-002", "proof_ladder_level": 5},
-            ],
-        })
-        global_results = run_global_checks(input_data)
-        candidate_results = run_candidate_checks(input_data["candidates"])
-        result = build_filter_result(input_data, global_results, candidate_results)
-        assert result["summary"]["overall_filter_pass"] is False
-        assert result["summary"]["failed"] == 1
 
-    def test_global_fail_makes_overall_fail_even_with_pass_candidates(self):
-        """Global check failure makes overall_filter_pass False even with passing candidates."""
-        input_data = _default_input({
-            "dry_lab_only": False,
-            "safety_checks": {"toxicity_screened": True, "hemolysis_screened": True, "dual_use_reviewed": True},
-            "candidates": [
-                {"candidate_id": "C-001", "proof_ladder_level": 2},
-            ],
-        })
-        global_results = run_global_checks(input_data)
-        candidate_results = run_candidate_checks(input_data["candidates"])
-        result = build_filter_result(input_data, global_results, candidate_results)
-        assert result["global_pass"] is False
-        assert result["summary"]["overall_filter_pass"] is False
-        assert result["summary"]["passed"] == 1  # candidates pass but global fails
+def test_valid_spf_block_reasons_contains_proprietary_candidate_id():
+    assert "proprietary_candidate_id_present" in VALID_SPF_BLOCK_REASONS
 
-    def test_markdown_contains_sections(self):
-        """Markdown output contains expected sections."""
-        input_data = _default_input()
-        global_results = run_global_checks(input_data)
-        candidate_results = run_candidate_checks(input_data["candidates"])
-        result = build_filter_result(input_data, global_results, candidate_results)
-        md = build_markdown_result(result)
-        assert "# Safe Publication Filter Result" in md
-        assert "## Filter Metadata" in md
-        assert "## Global Checks" in md
-        assert "## Summary" in md
-        assert "## Per-Candidate Results" in md
-        assert "## Caveats" in md
-        assert "CAND-001" in md
-        assert "CAND-002" in md
 
-    def test_markdown_summary_counts(self):
-        """Markdown contains summary counts."""
-        input_data = _default_input()
-        global_results = run_global_checks(input_data)
-        candidate_results = run_candidate_checks(input_data["candidates"])
-        result = build_filter_result(input_data, global_results, candidate_results)
-        md = build_markdown_result(result)
-        assert "Total candidates" in md
-        assert "Passed" in md
-        assert "Failed" in md
-        assert "overall filter verdict" in md.lower()
+def test_valid_spf_block_reasons_contains_collaborator_identity():
+    assert "collaborator_identity_exposed" in VALID_SPF_BLOCK_REASONS
 
-    def test_load_input_valid(self):
-        """Loading a valid JSON file succeeds."""
-        example = _REPO_DIR / "examples" / "safe_publication_filter_example_input.json"
-        assert example.exists()
-        data = load_input(str(example))
-        assert "candidates" in data
-        assert "dry_lab_only" in data
-        assert data["dry_lab_only"] is True
 
-    def test_load_input_missing_file(self):
-        """Loading a nonexistent file raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_input("/nonexistent/path.json")
+def test_valid_spf_block_reasons_contains_preliminary_wet_lab():
+    assert "preliminary_wet_lab_data_present" in VALID_SPF_BLOCK_REASONS
 
-    def test_load_input_invalid_json(self):
-        """Loading an invalid JSON file raises ValueError."""
-        import tempfile
-        with tempfile.NamedTemporaryFile(suffix=".json", mode="w", delete=False) as f:
-            f.write("not json")
-            p = Path(f.name)
-        try:
-            with pytest.raises(ValueError, match="Invalid JSON"):
-                load_input(p)
-        finally:
-            p.unlink()
 
-    def test_cli_writes_json(self, tmp_path):
-        """CLI produces a valid JSON output file."""
-        example = _REPO_DIR / "examples" / "safe_publication_filter_example_input.json"
-        out_json = tmp_path / "filter_result.json"
-        r = subprocess.run(
-            [PYTHON, "scripts/safe_publication_filter.py",
-             "--input", str(example),
-             "--out-json", str(out_json)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
+def test_valid_spf_block_reasons_contains_regulatory_restriction():
+    assert "regulatory_restriction" in VALID_SPF_BLOCK_REASONS
+
+
+def test_valid_redaction_types_is_frozenset():
+    assert isinstance(VALID_REDACTION_TYPES, frozenset)
+
+
+def test_valid_redaction_types_contains_candidate_id_anonymised():
+    assert "candidate_id_anonymised" in VALID_REDACTION_TYPES
+
+
+def test_valid_redaction_types_contains_sequence_truncated():
+    assert "sequence_truncated" in VALID_REDACTION_TYPES
+
+
+def test_valid_redaction_types_contains_batch_id_removed():
+    assert "batch_id_removed" in VALID_REDACTION_TYPES
+
+
+def test_valid_redaction_types_contains_collaborator_name_removed():
+    assert "collaborator_name_removed" in VALID_REDACTION_TYPES
+
+
+def test_valid_redaction_types_contains_score_precision_reduced():
+    assert "score_precision_reduced" in VALID_REDACTION_TYPES
+
+
+# ---------------------------------------------------------------------------
+# 2. build happy paths
+# ---------------------------------------------------------------------------
+
+
+def test_build_returns_safe_publication_filter():
+    assert isinstance(_build(), SafePublicationFilter)
+
+
+def test_build_spf_id_stored():
+    assert _build().spf_id == "SPF-001"
+
+
+def test_build_nrr_id_stored():
+    assert _build().nrr_id == "NRR-001"
+
+
+def test_build_pipeline_version_stored():
+    assert _build().pipeline_version == "v1.0"
+
+
+def test_build_dry_lab_only_true():
+    assert _build().dry_lab_only is True
+
+
+def test_build_all_clear_gives_safe_to_publish():
+    r = _build(dual_use_clear=True, sequence_privacy_clear=True)
+    assert r.publication_verdict == "safe_to_publish"
+
+
+def test_build_dual_use_false_gives_publication_blocked():
+    r = _build(dual_use_clear=False, sequence_privacy_clear=True,
+               blocked_reasons=["dual_use_concern"])
+    assert r.publication_verdict == "publication_blocked"
+
+
+def test_build_sequence_privacy_false_gives_requires_redaction():
+    r = _build(
+        dual_use_clear=True,
+        sequence_privacy_clear=False,
+        redactions_applied=["sequence_truncated"],
+    )
+    assert r.publication_verdict == "requires_redaction"
+
+
+def test_build_with_block_reason_gives_publication_blocked():
+    r = _build(
+        dual_use_clear=False,
+        sequence_privacy_clear=True,
+        blocked_reasons=["regulatory_restriction"],
+    )
+    assert r.publication_verdict == "publication_blocked"
+
+
+def test_build_with_redaction_gives_requires_redaction():
+    r = _build(
+        dual_use_clear=True,
+        sequence_privacy_clear=True,
+        redactions_applied=["candidate_id_anonymised"],
+    )
+    assert r.publication_verdict == "requires_redaction"
+
+
+def test_build_blocked_reasons_stored():
+    r = _build(
+        dual_use_clear=False,
+        blocked_reasons=["dual_use_concern"],
+    )
+    assert "dual_use_concern" in r.blocked_reasons
+
+
+def test_build_redactions_applied_stored():
+    r = _build(
+        dual_use_clear=True,
+        sequence_privacy_clear=False,
+        redactions_applied=["sequence_truncated"],
+    )
+    assert "sequence_truncated" in r.redactions_applied
+
+
+def test_build_informative_as_negative_true():
+    assert _build(informative_as_negative=True).informative_as_negative is True
+
+
+def test_build_informative_as_negative_false():
+    r = _build(informative_as_negative=False)
+    assert r.informative_as_negative is False
+
+
+def test_build_limitations_stored():
+    assert _build().limitations == ["dry-lab only"]
+
+
+def test_build_created_at_stored():
+    assert _build().created_at == "2026-07-10"
+
+
+def test_build_empty_blocked_reasons_default():
+    assert _build().blocked_reasons == []
+
+
+def test_build_empty_redactions_default():
+    assert _build().redactions_applied == []
+
+
+def test_build_multiple_block_reasons():
+    r = _build(
+        dual_use_clear=False,
+        blocked_reasons=["dual_use_concern", "regulatory_restriction"],
+    )
+    assert len(r.blocked_reasons) == 2
+
+
+def test_build_multiple_redactions():
+    r = _build(
+        dual_use_clear=True,
+        sequence_privacy_clear=False,
+        redactions_applied=["sequence_truncated", "candidate_id_anonymised"],
+    )
+    assert len(r.redactions_applied) == 2
+
+
+# ---------------------------------------------------------------------------
+# 3. validate rejection cases
+# ---------------------------------------------------------------------------
+
+
+def test_validate_rejects_bad_spf_id_prefix():
+    with pytest.raises(ValueError, match="SPF-"):
+        _build(spf_id="BAD-001")
+
+
+def test_validate_rejects_bad_nrr_id_prefix():
+    with pytest.raises(ValueError, match="NRR-"):
+        _build(nrr_id="BAD-001")
+
+
+def test_validate_rejects_empty_pipeline_version():
+    with pytest.raises(ValueError):
+        _build(pipeline_version="")
+
+
+def test_validate_rejects_invalid_publication_verdict():
+    spf = _build()
+    spf.publication_verdict = "UNKNOWN"
+    with pytest.raises(ValueError, match="publication_verdict"):
+        validate_safe_publication_filter(spf)
+
+
+def test_validate_rejects_invalid_block_reason():
+    with pytest.raises(ValueError, match="block reason"):
+        _build(dual_use_clear=False, blocked_reasons=["UNKNOWN_REASON"])
+
+
+def test_validate_rejects_invalid_redaction_type():
+    with pytest.raises(ValueError, match="redaction type"):
+        _build(
+            dual_use_clear=True,
+            sequence_privacy_clear=False,
+            redactions_applied=["UNKNOWN_REDACTION"],
         )
-        assert r.returncode in (0, 1)
-        assert out_json.exists()
-        data = json.loads(out_json.read_text())
-        assert data["filter_metadata"]["filter_type"] == "safe_publication_filter"
-        assert "candidates" in data
-        assert "global_checks" in data
 
-    def test_cli_exit_code_0_all_pass(self, tmp_path):
-        """CLI returns 0 when all checks pass."""
-        input_data = _default_input()
-        input_file = tmp_path / "input.json"
-        input_file.write_text(json.dumps(input_data))
-        r = subprocess.run(
-            [PYTHON, "scripts/safe_publication_filter.py",
-             "--input", str(input_file)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 0
-        result = json.loads(r.stdout)
-        assert result["summary"]["overall_filter_pass"] is True
 
-    def test_cli_exit_code_1_global_fail(self, tmp_path):
-        """CLI returns 1 when global checks fail."""
-        input_data = _default_input({"dry_lab_only": False})
-        input_file = tmp_path / "input.json"
-        input_file.write_text(json.dumps(input_data))
-        r = subprocess.run(
-            [PYTHON, "scripts/safe_publication_filter.py",
-             "--input", str(input_file)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 1
-        result = json.loads(r.stdout)
-        assert result["global_pass"] is False
+def test_validate_rejects_publication_blocked_without_reasons():
+    spf = _build()
+    spf.publication_verdict = "publication_blocked"
+    spf.dual_use_clear = False
+    with pytest.raises(ValueError, match="blocked_reasons"):
+        validate_safe_publication_filter(spf)
 
-    def test_cli_exit_code_1_candidate_fail(self, tmp_path):
-        """CLI returns 1 when a candidate fails checks."""
-        input_data = _default_input({
-            "candidates": [{"candidate_id": "C-001", "proof_ladder_level": 6}],
-        })
-        input_file = tmp_path / "input.json"
-        input_file.write_text(json.dumps(input_data))
-        r = subprocess.run(
-            [PYTHON, "scripts/safe_publication_filter.py",
-             "--input", str(input_file)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 1
-        result = json.loads(r.stdout)
-        assert result["summary"]["overall_filter_pass"] is False
 
-    def test_cli_missing_input_fails(self, tmp_path):
-        """CLI returns 2 for missing input file."""
-        r = subprocess.run(
-            [PYTHON, "scripts/safe_publication_filter.py",
-             "--input", str(tmp_path / "nonexistent.json")],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 2
+def test_validate_rejects_requires_redaction_without_redactions():
+    spf = _build()
+    spf.publication_verdict = "requires_redaction"
+    spf.sequence_privacy_clear = False
+    with pytest.raises(ValueError, match="redactions_applied"):
+        validate_safe_publication_filter(spf)
 
-    def test_cli_empty_candidates_fails(self, tmp_path):
-        """CLI returns 2 for empty candidates list."""
-        input_data = _default_input({"candidates": []})
-        input_file = tmp_path / "empty.json"
-        input_file.write_text(json.dumps(input_data))
-        r = subprocess.run(
-            [PYTHON, "scripts/safe_publication_filter.py",
-             "--input", str(input_file)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 2
 
-    def test_cli_produces_json_and_md(self, tmp_path):
-        """CLI produces both JSON and Markdown output when requested."""
-        example = _REPO_DIR / "examples" / "safe_publication_filter_example_input.json"
-        out_json = tmp_path / "result.json"
-        out_md = tmp_path / "result.md"
-        r = subprocess.run(
-            [PYTHON, "scripts/safe_publication_filter.py",
-             "--input", str(example),
-             "--out-json", str(out_json),
-             "--out-md", str(out_md)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode in (0, 1)
-        assert out_json.exists()
-        assert out_md.exists()
-        md_content = out_md.read_text()
-        assert "# Safe Publication Filter Result" in md_content
+def test_validate_rejects_safe_to_publish_with_dual_use_false():
+    spf = _build()
+    spf.dual_use_clear = False
+    with pytest.raises(ValueError, match="dual_use_clear"):
+        validate_safe_publication_filter(spf)
 
-    def test_filter_result_has_caveats(self):
-        """Filter result always includes caveats."""
-        input_data = _default_input()
-        global_results = run_global_checks(input_data)
-        candidate_results = run_candidate_checks(input_data["candidates"])
-        result = build_filter_result(input_data, global_results, candidate_results)
-        assert len(result["caveats"]) >= 6
-        assert any("not biological proof" in c for c in result["caveats"])
-        assert result["dry_lab_only"] is True
 
-    def test_filter_metadata_structure(self):
-        """Filter metadata has correct structure."""
-        input_data = _default_input()
-        global_results = run_global_checks(input_data)
-        candidate_results = run_candidate_checks(input_data["candidates"])
-        result = build_filter_result(input_data, global_results, candidate_results)
-        meta = result["filter_metadata"]
-        assert meta["filter_type"] == "safe_publication_filter"
-        assert meta["filter_version"] == "1.0.0"
-        assert meta["input_source"] == "test-batch"
-        assert meta["pipeline_version"] == "v0.5.75-test"
-        assert "generated_at" in meta
+def test_validate_rejects_safe_to_publish_with_privacy_false():
+    spf = _build()
+    spf.sequence_privacy_clear = False
+    with pytest.raises(ValueError, match="sequence_privacy_clear"):
+        validate_safe_publication_filter(spf)
 
-    def test_example_input_produces_valid_result(self):
-        """The example input file produces a valid filter result with expected outcomes."""
-        example = _REPO_DIR / "examples" / "safe_publication_filter_example_input.json"
-        data = load_input(str(example))
-        global_results = run_global_checks(data)
-        candidate_results = run_candidate_checks(data["candidates"])
-        result = build_filter_result(data, global_results, candidate_results)
-        assert result["global_pass"] is True
-        s = result["summary"]
-        assert s["total_candidates"] == 4
-        outcomes = {r["overall"] for r in result["candidates"]}
-        # CAND-003 has pll=5 → FAIL
-        # CAND-002 has pll=4 → WARN
-        assert "FAIL" in outcomes
-        assert "WARN" in outcomes
-        assert "PASS" in outcomes
 
-    def test_example_input_cli_round_trip(self, tmp_path):
-        """Running the CLI on the example input produces a parseable result."""
-        example = _REPO_DIR / "examples" / "safe_publication_filter_example_input.json"
-        out_json = tmp_path / "result.json"
-        r = subprocess.run(
-            [PYTHON, "scripts/safe_publication_filter.py",
-             "--input", str(example),
-             "--out-json", str(out_json)],
-            capture_output=True, text=True,
-            env={"PYTHONPATH": "src"},
-        )
-        assert r.returncode == 1  # CAND-003 fails
-        assert out_json.exists()
-        data = json.loads(out_json.read_text())
-        assert data["summary"]["failed"] == 1
-        assert data["summary"]["warned"] == 1
-        assert data["summary"]["passed"] == 2
+def test_validate_rejects_dual_use_false_without_blocked_verdict():
+    spf = _build()
+    spf.dual_use_clear = False
+    spf.publication_verdict = "requires_redaction"
+    spf.redactions_applied = ["sequence_truncated"]
+    spf.sequence_privacy_clear = False
+    with pytest.raises(ValueError, match="publication_blocked"):
+        validate_safe_publication_filter(spf)
+
+
+def test_validate_rejects_dry_lab_only_false():
+    spf = _build()
+    spf.dry_lab_only = False
+    with pytest.raises(ValueError, match="dry_lab_only"):
+        validate_safe_publication_filter(spf)
+
+
+def test_validate_rejects_empty_limitations():
+    with pytest.raises(ValueError, match="limitations"):
+        _build(limitations=[])
+
+
+def test_validate_rejects_empty_created_at():
+    with pytest.raises(ValueError):
+        _build(created_at="")
+
+
+# ---------------------------------------------------------------------------
+# 4. format
+# ---------------------------------------------------------------------------
+
+
+def test_format_contains_spf_id():
+    assert "SPF-001" in format_safe_publication_filter(_build())
+
+
+def test_format_contains_nrr_id():
+    assert "NRR-001" in format_safe_publication_filter(_build())
+
+
+def test_format_contains_pipeline_version():
+    assert "v1.0" in format_safe_publication_filter(_build())
+
+
+def test_format_contains_verdict():
+    assert "safe_to_publish" in format_safe_publication_filter(_build())
+
+
+def test_format_contains_dual_use_clear():
+    assert "True" in format_safe_publication_filter(_build())
+
+
+def test_format_contains_blocked_reason_when_blocked():
+    r = _build(dual_use_clear=False, blocked_reasons=["dual_use_concern"])
+    assert "dual_use_concern" in format_safe_publication_filter(r)
+
+
+def test_format_contains_redaction_when_applied():
+    r = _build(
+        dual_use_clear=True,
+        sequence_privacy_clear=False,
+        redactions_applied=["sequence_truncated"],
+    )
+    assert "sequence_truncated" in format_safe_publication_filter(r)
+
+
+def test_format_contains_limitations():
+    assert "dry-lab only" in format_safe_publication_filter(_build())
+
+
+def test_format_contains_dry_lab_only():
+    assert "dry_lab_only: True" in format_safe_publication_filter(_build())
+
+
+def test_format_is_string():
+    assert isinstance(format_safe_publication_filter(_build()), str)
