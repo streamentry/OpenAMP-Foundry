@@ -3,7 +3,7 @@
 import subprocess
 import math
 
-BASELINE = 9341
+BASELINE = 9404
 
 
 def test_test_count_regression():
