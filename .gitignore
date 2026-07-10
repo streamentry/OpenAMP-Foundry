@@ -79,6 +79,7 @@ logs/
 # Generated pipeline outputs
 outputs/*
 !outputs/.gitkeep
+!outputs/README.md
 reports/*
 !reports/.gitkeep
 runs/*
