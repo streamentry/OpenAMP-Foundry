@@ -1,158 +1,137 @@
-"""Schema-test cross-reference checker — Phase J J9.
+"""Cross-reference checker: ensures schema modules have matching test modules."""
 
-Ensures every schema file in schemas/ has at least one test file that
-references it. Prevents schema drift where schemas are added or modified
-without corresponding tests being updated.
-"""
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+SCHEMA_TEST_COVERAGE_REPORT_ID_PREFIX = "STC-"
+
+SCHEMA_SOURCE_DIRS: frozenset = frozenset(
+    {
+        "src/openamp_foundry/evidence",
+        "src/openamp_foundry/export",
+        "src/openamp_foundry/interop",
+        "src/openamp_foundry/versioning",
+        "src/openamp_foundry/calibration",
+        "src/openamp_foundry/scoring",
+        "src/openamp_foundry/changelog",
+        "src/openamp_foundry/checks",
+        "src/openamp_foundry/simulation",
+    }
+)
+
+TEST_ROOT_DIR: str = "tests"
+
+IGNORED_MODULES: frozenset = frozenset(
+    {
+        "__init__",
+        "conftest",
+    }
+)
+
+VALID_COVERAGE_TIERS: frozenset = frozenset(
+    {"full", "partial", "missing", "excluded"}
+)
+
 
 @dataclass
-class SchemaCoverageEntry:
-    schema_name: str
+class SchemaTestCoverageEntry:
+    schema_module: str
     schema_path: str
-    is_covered: bool
-    referencing_tests: list[str] = field(default_factory=list)
+    expected_test_path: str
+    test_exists: bool
+    coverage_tier: str
 
 
 @dataclass
-class SchemaCoverageReport:
-    total_schemas: int
-    covered_schemas: int
-    uncovered_schemas: int
-    entries: list[SchemaCoverageEntry] = field(default_factory=list)
-    is_complete: bool = False
+class SchemaTestCoverageReport:
+    report_id: str
+    total_schema_modules: int
+    covered_modules: int
+    missing_test_modules: int
+    coverage_fraction: float
+    entries: list = field(default_factory=list)
+    is_fully_covered: bool = False
+    uncovered_modules: list = field(default_factory=list)
     coverage_summary: str = ""
 
 
-def _extract_schema_name(schema_path: Path) -> str:
-    """Extract the base schema name from a .schema.json path."""
-    name = schema_path.name
-    if name.endswith(".schema.json"):
-        return name[: -len(".schema.json")]
-    return schema_path.stem
+def _module_name_from_path(schema_path: Path, source_dir: Path) -> str:
+    rel = schema_path.relative_to(source_dir)
+    parts = list(rel.with_suffix("").parts)
+    return ".".join(parts)
 
 
-def _find_test_references(
-    schema_name: str,
-    tests_dir: Path,
-    pattern: str | None = None,
-) -> list[str]:
-    """Find test files that reference the given schema name.
-
-    A test file 'references' a schema if:
-    - The schema_name appears verbatim in the file content, OR
-    - A test filename contains the schema_name (without separators).
-
-    Returns a sorted list of matching test file paths (relative to tests_dir).
-    """
-    if pattern is None:
-        escaped = re.escape(schema_name)
-        pattern = escaped
-
-    references: list[str] = []
-    for test_file in sorted(tests_dir.rglob("test_*.py")):
-        try:
-            content = test_file.read_text(encoding="utf-8", errors="replace")
-        except Exception:
-            continue
-        if re.search(pattern, content, re.IGNORECASE):
-            references.append(str(test_file.relative_to(tests_dir.parent)))
-            continue
-        # Also match if schema_name (with underscores→hyphens or vice versa) appears
-        alt_name = schema_name.replace("_", "-")
-        if re.search(re.escape(alt_name), content, re.IGNORECASE):
-            references.append(str(test_file.relative_to(tests_dir.parent)))
-    return sorted(set(references))
+def _expected_test_path(schema_path: Path, repo_root: Path) -> Path:
+    rel = schema_path.relative_to(repo_root / "src" / "openamp_foundry")
+    test_path = repo_root / TEST_ROOT_DIR / rel.with_name("test_" + rel.name)
+    return test_path
 
 
 def check_schema_test_coverage(
-    schemas_dir: Path,
-    tests_dir: Path,
-    schema_glob: str = "*.schema.json",
-) -> SchemaCoverageReport:
-    """Check that every schema in schemas_dir is referenced in at least one test.
+    repo_root: Path,
+    source_dirs: frozenset | None = None,
+) -> SchemaTestCoverageReport:
+    if source_dirs is None:
+        source_dirs = SCHEMA_SOURCE_DIRS
 
-    Args:
-        schemas_dir: Directory containing *.schema.json files.
-        tests_dir: Root directory for test files (searched recursively).
-        schema_glob: Glob pattern for schema files. Default: '*.schema.json'.
+    entries: list[SchemaTestCoverageEntry] = []
 
-    Returns:
-        SchemaCoverageReport listing covered and uncovered schemas.
-    """
-    schema_files = sorted(schemas_dir.glob(schema_glob))
-    entries: list[SchemaCoverageEntry] = []
+    for dir_rel in sorted(source_dirs):
+        dir_path = repo_root / dir_rel
+        if not dir_path.exists():
+            continue
+        for schema_path in sorted(dir_path.glob("*.py")):
+            module_stem = schema_path.stem
+            if module_stem in IGNORED_MODULES:
+                continue
+            module_name = _module_name_from_path(schema_path, repo_root / "src" / "openamp_foundry")
+            expected_test = _expected_test_path(schema_path, repo_root)
+            test_exists = expected_test.exists()
+            tier = "full" if test_exists else "missing"
+            entries.append(
+                SchemaTestCoverageEntry(
+                    schema_module=module_name,
+                    schema_path=str(schema_path.relative_to(repo_root)),
+                    expected_test_path=str(expected_test.relative_to(repo_root)),
+                    test_exists=test_exists,
+                    coverage_tier=tier,
+                )
+            )
 
-    for schema_path in schema_files:
-        name = _extract_schema_name(schema_path)
-        refs = _find_test_references(name, tests_dir)
-        entries.append(SchemaCoverageEntry(
-            schema_name=name,
-            schema_path=str(schema_path),
-            is_covered=len(refs) > 0,
-            referencing_tests=refs,
-        ))
+    total = len(entries)
+    covered = sum(1 for e in entries if e.test_exists)
+    missing = total - covered
+    fraction = covered / total if total > 0 else 1.0
+    uncovered = [e.schema_module for e in entries if not e.test_exists]
 
-    covered = sum(1 for e in entries if e.is_covered)
-    uncovered = len(entries) - covered
-    is_complete = uncovered == 0
-
-    if is_complete and entries:
-        summary = (
-            f"All {len(entries)} schema(s) have at least one referencing test."
-        )
-    elif not entries:
-        summary = "No schemas found — check schemas_dir path."
-    else:
-        missing = [e.schema_name for e in entries if not e.is_covered]
-        summary = (
-            f"{uncovered}/{len(entries)} schema(s) have no referencing tests: "
-            f"{missing}. Add tests or update existing ones to reference these schemas."
-        )
-
-    return SchemaCoverageReport(
-        total_schemas=len(entries),
-        covered_schemas=covered,
-        uncovered_schemas=uncovered,
+    return SchemaTestCoverageReport(
+        report_id=f"{SCHEMA_TEST_COVERAGE_REPORT_ID_PREFIX}001",
+        total_schema_modules=total,
+        covered_modules=covered,
+        missing_test_modules=missing,
+        coverage_fraction=fraction,
         entries=entries,
-        is_complete=is_complete,
-        coverage_summary=summary,
+        is_fully_covered=(missing == 0),
+        uncovered_modules=uncovered,
+        coverage_summary=(
+            f"{covered}/{total} schema modules have test files "
+            f"({fraction * 100:.1f}% coverage)"
+        ),
     )
 
 
-def format_schema_coverage_report(report: SchemaCoverageReport) -> str:
-    """Format a SchemaCoverageReport as a human-readable string."""
-    lines = [
-        "=== SCHEMA-TEST COVERAGE REPORT ===",
-        f"Total schemas: {report.total_schemas}",
-        f"Covered: {report.covered_schemas}",
-        f"Uncovered: {report.uncovered_schemas}",
-        "",
-        "-- SCHEMA COVERAGE --",
-    ]
-    for entry in sorted(report.entries, key=lambda e: e.schema_name):
-        status = "OK" if entry.is_covered else "MISSING"
-        lines.append(f"  [{status}] {entry.schema_name}")
-        if entry.referencing_tests:
-            for ref in entry.referencing_tests[:3]:
-                lines.append(f"         ← {ref}")
-            if len(entry.referencing_tests) > 3:
-                lines.append(f"         ← ... and {len(entry.referencing_tests) - 3} more")
-    lines.extend([
-        "",
-        f"COMPLETE: {'YES' if report.is_complete else 'NO'}",
-        "",
-        report.coverage_summary,
-    ])
-    if not report.is_complete:
-        lines.extend([
-            "",
-            "ACTION REQUIRED: Add or update tests to reference uncovered schemas.",
-            "A schema without tests can drift silently — schema changes go undetected.",
-        ])
-    return "\n".join(lines)
+def format_schema_test_coverage_report(report: SchemaTestCoverageReport) -> str:
+    lines: list[str] = []
+    lines.append(f"Schema-Test Coverage Report ({report.report_id})")
+    lines.append(f"  {report.coverage_summary}")
+    lines.append(f"  Total schema modules: {report.total_schema_modules}")
+    lines.append(f"  Covered: {report.covered_modules}")
+    lines.append(f"  Missing test files: {report.missing_test_modules}")
+    lines.append(f"  Fully covered: {report.is_fully_covered}")
+    if report.uncovered_modules:
+        lines.append("  Missing test modules:")
+        for name in sorted(report.uncovered_modules):
+            lines.append(f"    - {name}")
+    return "\n".join(lines) + "\n"
