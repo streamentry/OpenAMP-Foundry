@@ -317,3 +317,11 @@ Make per-family performance gaps visible and machine-checkable, so the pipeline 
 | Z3 | Add adapter registry schema (ARG-) (complete). | Machine-readable registry of all external scoring/simulation adapters; adapter_type/status/evidence_level/can_affect_ranking per entry; only active+baseline_verified adapters may affect ranking; blocks experimental/pending adapters from influencing candidate selection. | C |
 | Z4 | Add cheap baseline flag schema (CBF-) (complete). | Per-scorer gate ensuring every external adapter declares its cheapest meaningful baseline before influencing candidate ranking; blocks_ranking=True when baseline missing or AUROC delta <0.05; creates permanent anti-hype infrastructure. | C |
 | Z5 | Add Phase Z accountability gate (ZAG-). | Top-level gate asserting FBH+BXR+ARG+CBF all present; verdict (accountability_verified/accountability_partial/accountability_not_established); closes Phase Z; no external pilot claim or adapter governance claim is credible without passing this gate. | C |
+
+## Phase AA — Run reproducibility manifests
+
+Machine-verifiable proof that every pipeline run carries the fields needed for external reproduction and audit.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| AA1 | Add run manifest completeness schema (RMC-). | Validates pipeline run output manifests carry all 9 required reproducibility fields (commit_hash/config_hash/input_hash/seed/version/command/timestamp); verdict complete/incomplete/partial; blocks release of runs missing reproducibility metadata. | C |
