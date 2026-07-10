@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 
-BASELINE = 7528
+BASELINE = 7906
 TOLERANCE = 0.05
 
 
