@@ -263,6 +263,17 @@ preventing the pipeline from selecting candidates under poor calibration.
 | P4 | Add pilot batch safety clearance schema (complete). | Safety gate before wet-lab synthesis: all 4 screens required, high-risk batches cannot be cleared. | B/D |
 | P5 | Add calibration cycle summary schema (complete). | Index record for one complete BSP→PSC→BOS→CPS→CBA→CRG cycle; crg_id_previous must differ from crg_id_next. | B/D |
 
+## Phase Q — External Pilot Package Readiness
+
+Package and validate the evidence chain for external lab partners. A complete
+pilot package references pre-registration, baseline comparisons, calibration
+cycles, safety clearance, and candidate batch proposal — in one verifiable
+bundle.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| Q1 | Add pilot evidence package schema (complete). | External export artifact: bundles CCS+BSP+PSC+PRE+BCM references, enforces completeness and safety clearance before external sharing. | B/D |
+
 ## Prioritization rule
 
 When choosing between tasks, prefer the one that:

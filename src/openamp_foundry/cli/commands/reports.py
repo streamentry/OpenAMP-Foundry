@@ -3717,9 +3717,40 @@ def _run_calibration_cycle_summary_check(args) -> int:
         print(json.dumps(dataclasses.asdict(result), indent=2))
     else:
         status = "PASS" if result.passed else "FAIL"
-        print(f"[{status}] Calibration Cycle Summary: {result.ccs_id}")
-        print(f"  Outcome: {result.cycle_outcome}")
-        print(f"  CRG: {result.crg_id_previous} → {result.crg_id_next}")
+        complete = "COMPLETE" if result.is_complete else f"INCOMPLETE ({result.missing_artifact_count} missing)"
+        print(f"[{status}] Calibration Cycle Summary: {result.ccs_id} [{complete}]")
+        print(f"  BSP: {result.bsp_id}, candidates: {result.candidate_count}")
+        print(f"  Cycle outcome: {result.cycle_outcome}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+
+def _run_pilot_evidence_package_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.pilot_evidence_package import (
+        validate_pilot_evidence_package_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_pilot_evidence_package_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        complete = "COMPLETE" if result.is_complete else f"INCOMPLETE ({result.missing_artifact_count} missing)"
+        print(f"[{status}] Pilot Evidence Package: {result.pep_id} [{complete}]")
+        print(f"  CCS: {result.ccs_id}, candidates: {result.candidate_count}")
+        print(f"  Cleared: {result.cleared_for_synthesis}")
         for err in result.errors:
             print(f"  ERROR: {err}")
         for warn in result.warnings:
