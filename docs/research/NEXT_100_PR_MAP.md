@@ -59,7 +59,7 @@ Make OpenAMP the hardest repo to fool in AMP dry-lab selection.
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | C1 | Create machine-readable benchmark cards. | Governance becomes enforceable. | B |
-| C2 | Add benchmark-card schema. | Prevents incomplete benchmark docs. | B |
+| C2 | Add benchmark-card schema (complete). | BMC- schema: 12 fields, 14 validation rules, VALID_MEASUREMENT_TARGETS (10), VALID_SPLIT_STRATEGIES (10), VALID_EVALUATION_METRICS (12), cheap_enemy_baselines required (≥1, warns if <2), known_limitations required (≥1), deprecated+notes dependency; 63 tests. | B |
 | C3 | Add charge-distribution report for every benchmark. | Shortcut visibility. | B/C |
 | C4 | Add similarity-neighbor distribution report. | Novelty honesty. | B/C |
 | C5 | Add `bench-length-matched` control. | Tests length shortcut. | C |

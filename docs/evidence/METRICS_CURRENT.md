@@ -9,6 +9,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.33 — Phase C C2: Benchmark card schema (BMC-)
+- Added `src/openamp_foundry/evidence/benchmark_card.py` — BenchmarkCard schema
+- BMC- schema: 12 fields (bmc_id, pipeline_version, benchmark_name, measurement_target, split_strategy, cheap_enemy_baselines, evaluation_metrics, known_limitations, deprecated, created_date, last_updated_date, notes)
+- 14 validation rules: BMC- prefix, controlled vocabs for measurement_target (10 values)/split_strategy (10 values)/evaluation_metrics (12 values), cheap_enemy_baselines ≥1 required, known_limitations ≥1 required, deprecated+notes dependency, notes ≤500 chars
+- 2 warnings: <2 cheap enemies, <2 known limitations
+- 63 tests in `tests/evidence/test_benchmark_card.py`
+- BASELINE 6646→6709
+- Closes Phase C C2 — benchmark documentation is now machine-checkable; incomplete benchmark docs are blocked at schema level
+
 ### v0.10.32 — Phase B B8: Certificates linked to run manifest hashes
 - Added `run_id` and `run_manifest_hash` optional parameters to `build_certificate()` in `src/openamp_foundry/evidence/certificate.py`
 - Every certificate now carries the pipeline run_id and the SHA256 hash of the run manifest that produced it
