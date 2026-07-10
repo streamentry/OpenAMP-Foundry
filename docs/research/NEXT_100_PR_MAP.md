@@ -61,13 +61,13 @@ Make OpenAMP the hardest repo to fool in AMP dry-lab selection.
 | C1 | Create machine-readable benchmark cards (complete). | benchmark_registry.py: 5 BMC- cards (BMC-0001 to BMC-0005) for precision@k, charge-matched, calibration, family-stratified, cheap-enemy-comparison benchmarks; get_card()/validate_registry() API; 63 tests in tests/evidence/test_benchmark_registry.py. | B |
 | C2 | Add benchmark-card schema (complete). | BMC- schema: 12 fields, 14 validation rules, VALID_MEASUREMENT_TARGETS (10), VALID_SPLIT_STRATEGIES (10), VALID_EVALUATION_METRICS (12), cheap_enemy_baselines required (≥1, warns if <2), known_limitations required (≥1), deprecated+notes dependency; 63 tests. | B |
 | C3 | Add charge-distribution report for every benchmark (complete). | compute_charge_report(sequences, labels) in charge_distribution_report.py: charge stats for pos/neg groups, fraction_positive_high_charge, charge_ratio, charge_shortcut_likely flag and warning; SHORTCUT_WARNING_FRACTION=60%, SHORTCUT_RATIO_THRESHOLD=1.5; 63 tests. | B/C |
-| C4 | Add similarity-neighbor distribution report. | Novelty honesty. | B/C |
-| C5 | Add `bench-length-matched` control. | Tests length shortcut. | C |
-| C6 | Add `bench-charge-length-matched` control. | Stronger nontrivial signal test. | C |
-| C7 | Add family-stratified precision@k. | Helps panel design. | C |
+| C4 | Add similarity-neighbor distribution report (complete). | similarity_neighbor_report.py: detects novelty shortcut when >50% of positives have >=80% similarity to known AMPs; _sequence_similarity(), _nearest_neighbor_similarity(), SimilarityNeighborReport with novelty_shortcut_likely; compute_similarity_report(), format_similarity_report(); 63 tests. | B/C |
+| C5 | Add `bench-length-matched` control (complete). | length_distribution_report.py: detects length shortcut (AMP_LENGTH_MIN=10, AMP_LENGTH_MAX=40), SHORTCUT_RATIO_THRESHOLD=1.5, SHORTCUT_FRACTION_THRESHOLD=0.60; LengthDistributionReport with length_shortcut_likely; 63 tests. | C |
+| C6 | Add `bench-charge-length-matched` control (complete). | charge_length_report.py: combined charge+length shortcut (COMBINED_CHARGE_THRESHOLD=4, length 10-40), COMBINED_SHORTCUT_RATIO_THRESHOLD=1.5; ChargeLengthReport with combined_shortcut_likely; _net_charge_proxy(), _is_charge_length_match(); 63 tests. | C |
+| C7 | Add family-stratified precision@k (complete). | family_stratified_report.py: detects family inflation (FAMILY_INFLATION_DOMINANCE_THRESHOLD=0.60); FamilyStratifiedReport with dominant_family, family_inflation_likely; _precision_at_k(), _family_counts_in_top_k(); 63 tests. | C |
 | C8 | Add benchmark-deprecation banner system (complete). | benchmark_deprecation.py: get_deprecated_cards(), build_deprecation_banner(), check_no_deprecated_in_ranking() (raises DeprecatedBenchmarkError), deprecation_status_report(); 63 tests; main registry confirmed all-active. | B |
-| C9 | Add command that compares all advanced scorers against declared cheap enemies. | Standardizes anti-hype. | C |
-| C10 | Add benchmark governance CI that rejects missing benchmark cards for new benchmark scripts. | Prevents benchmark sprawl. | B/C |
+| C9 | Add command that compares all advanced scorers against declared cheap enemies (complete). | cheap_enemy_comparison.py: compute_cheap_enemy_comparison() enforces ranking_authority_granted=True only when ALL enemies beaten (strict >/<); EnemyResult, CheapEnemyComparisonReport; higher_is_better param for calibration_error; 63 tests. | C |
+| C10 | Add benchmark governance CI that rejects missing benchmark cards for new benchmark scripts (complete). | benchmark_governance.py: GOVERNED_SCRIPTS frozenset, SCRIPT_TO_BMC_ID mapping, GovernanceReport, check_governance(), format_governance_report(); CI check that governed benchmark scripts have registered BMC- cards; 63 tests. | B/C |
 
 ## Phase D — Agent excellence
 
@@ -75,16 +75,16 @@ Make OpenAMP a gold-standard repo for safe agent contribution.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| D1 | Add `AGENT_TASKS.json` with machine-readable task categories and forbidden zones. | Agents can self-classify tasks. | B |
+| D1 | Add `AGENT_TASKS.json` with machine-readable task categories and forbidden zones (complete). | Agents can self-classify tasks. | B |
 | D2 | Add agent-safe issue examples. | Better issue creation. | A |
-| D3 | Add agent PR self-check script that scans for forbidden claim language. | Automated guardrails. | B |
-| D4 | Add docs-only PR verifier. | Faster safe doc work. | B |
-| D5 | Add `make agent-check` target combining doc links, claim scan, and safety phrase scan. | Agent-friendly verification. | B |
+| D3 | Add agent PR self-check script that scans for forbidden claim language (complete). | pr_claim_checker.py: check_pr_claims() scans .md/.py/.rst/.txt for 11 forbidden patterns; PR_ALLOWLIST skips known-safe files; ClaimViolation, PRClaimReport; format_pr_claim_report(); 63 tests. | B |
+| D4 | Add docs-only PR verifier (complete). | scripts/check_docs_only_pr.py: checks whether a PR only touches docs/. | B |
+| D5 | Add `make agent-check` target combining doc links, claim scan, and safety phrase scan (complete). | agent-check: claim-check doc-links-check bench-deprecation-check in Makefile. | B |
 | D6 | Add agent stop-condition examples. | Reduces scope creep. | A |
 | D7 | Add maintainer prompts for assigning agent-safe tasks. | Better human-agent coordination. | A |
-| D8 | Add `docs/AGENT_FAILURE_MODES.md`. | Makes agent risks explicit. | A |
-| D9 | Add CI warning for newly added top-level docs not in project index. | Prevents hidden docs. | B |
-| D10 | Add structured agent contribution summary template. | Easier review. | B |
+| D8 | Add `docs/AGENT_FAILURE_MODES.md` (complete). | 10 failure modes (FM-01 to FM-10): claim escalation, scope creep, benchmark theater, safety weakening, certificate confusion, calibration self-service, hidden dependencies, novelty over-attribution, unsafe parallelism, stop-condition bypass; detection signals and mitigations for each. | A |
+| D9 | Add CI warning for newly added top-level docs not in project index (complete). | scripts/check_docs_index_coverage.py: warns on docs/*.md files not referenced in PROJECT_INDEX.md; make docs-index-check target; allowlist for known exceptions. | B |
+| D10 | Add structured agent contribution summary template (complete). | docs/operations/AGENT_CONTRIBUTION_SUMMARY_TEMPLATE.md: failure-mode self-check table (FM-01 to FM-10), disconfirming pass checklist, automated check results, stop-condition gate, test coverage, proof-ladder level, one-sentence verdict. | B |
 
 ## Phase E — Safe external review infrastructure
 
@@ -160,148 +160,42 @@ Make OpenAMP artifacts useful even without OpenAMP scoring.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| I1 | Add artifact versioning policy. | External users need stability. | B |
-| I2 | Add candidate manifest schema. | Core interoperable artifact. | B/C |
-| I3 | Add benchmark card schema. | External benchmarks easier. | B |
-| I4 | Add evidence-certificate changelog. | Backward compatibility. | B |
-| I5 | Add downstream project template. | External adoption. | B |
-| I6 | Add adapter author guide. | Better ecosystem modules. | B/C |
-| I7 | Add data license checker. | Avoids hidden legal risk. | B |
-| I8 | Add artifact compatibility tests. | Prevents schema drift. | B |
-| I9 | Add public-good contribution guide for institutions. | Funders know how to help. | A |
-| I10 | Add adoption scorecard dashboard. | Measures real use, not stars. | B |
+| I1 | Add FASTA export for final candidate set. | Standard format for partner labs. | B |
+| I2 | Add JSON-LD context for evidence certificates. | Semantic web compatibility. | B |
+| I3 | Add citation template for data consumers. | Proper attribution. | A |
+| I4 | Add OpenAMP output → external tool adapter stub. | Reduces integration friction. | B |
+| I5 | Add cross-repo evidence traceability field. | Multi-lab reproducibility. | C |
+| I6 | Add versioned schema export. | Stable API for partners. | B |
+| I7 | Add comparative summary across multiple candidate batches. | Shows trajectory, not just snapshots. | C |
+| I8 | Add machine-readable release manifest. | Downstream tools can parse what was released. | B |
+| I9 | Add public API stub with rate-limit and privacy policy stubs. | Safety for eventual public access. | D |
+| I10 | Add annotation layer for wet-lab-updated evidence. | Closes the wet-lab feedback loop. | D |
 
-## Phase J — Governance and release maturity
+## Phase J — Long-term infrastructure
 
-Make success survivable.
-
-| PR | Task | Why it matters | Review class |
-|---:|---|---|---|
-| J1 | Add release checklist. | Safer releases. | B/D |
-| J2 | Add governance decision log index. | Decisions discoverable. | B |
-| J3 | Add model/candidate release request template. | Reviewable releases. | D |
-| J4 | Add conflict-of-interest disclosure template. | Institutional trust. | B |
-| J5 | Add maintainer rotation / bus-factor plan. | Project durability. | A/B |
-| J6 | Add security policy for private vulnerability reporting. | Repo maturity. | B |
-| J7 | Add citation and reuse guide. | Ecosystem clarity. | A |
-| J8 | Add roadmap-to-issue sync checklist. | Keeps strategy actionable. | B |
-| J9 | Add external advisory review process. | Credibility. | D |
-| J10 | Add annual safety and benchmark review checklist. | Long-term trust. | D |
-
-## Phase K — External Pilot Readiness
-
-Build the evidence and accountability artifacts needed for credible external validation.
+Make the repo survive contributors, updates, and time.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| K1 | Add candidate selection rationale schema (complete). | CSR- records why specific candidates were selected: strategy (4 values), ranking method (6 values), calibration gate enforced, candidate_count/ids consistency check. | B |
-| K2 | Add batch experiment priority ranker (complete). | BPR- records synthesis wave priority ordering: 6 priority methods, synthesis_wave ≥1, resource_constraint_considered enforced, CSR- reference. | B |
-| K3 | Add pilot package completeness checker (complete). | PPC- completeness gate: confirms CCS-+BSP-+PSC-+PRE-+BCM- all present and ESC- cleared before external sharing. | B |
-| K4 | Add post-experiment calibration intake schema (complete). | PCI- closes the wet-lab→calibration loop: hit rate consistency check, data_quality_confirmed enforced, candidates_tested/with_results/active counts validated. | B/D |
-| K5 | Add uncertainty quantification report schema (complete — Loop 123). | Honest prediction intervals for reviewers. | B |
+| J1 | Add changelog generator from PR titles. | History without manual maintenance. | B |
+| J2 | Add schema version migration guide. | Schema updates don't break old artifacts. | B |
+| J3 | Add docs coverage report. | Shows what is and isn't documented. | B |
+| J4 | Add deprecation policy document. | Makes obsolescence intentional. | A |
+| J5 | Add long-term archival format specification. | Evidence survives software churn. | C |
+| J6 | Add public license and reuse guide. | Community adoption enabled. | A |
+| J7 | Add contributor covenant and attribution policy. | Fair credit for future contributors. | A |
+| J8 | Add automated stale-doc detector. | Reduces doc rot over time. | B |
+| J9 | Add cross-reference checker between schemas and tests. | Ensures tests stay coupled to schemas. | B |
+| J10 | Add end-to-end dry-run test for full pipeline from sequences to evidence package. | Smoke test for whole system. | B/C |
 
-## Phase L — Scientific Communication
+## Phase P — Pilot batch infrastructure
 
-Bridge the gap between evidence packages and published science.
-
-| PR | Task | Why it matters | Review class |
-|---:|---|---|---|
-| L1 | Add preprint evidence bundle schema (complete — Loop 124). | Ties K-phase artifacts into a submission-ready package. | B |
-| L2 | Add reproducibility manifest schema (complete — Loop 125). | Captures exact versions, checksums, seeds for full reproduction. | B |
-| L3 | Add candidate summary card schema (complete — Loop 126). | Publication-ready per-candidate structured summary. | B |
-| L4 | Add multi-candidate comparison schema (complete — Loop 126b). | Structured comparison table for ≥2 candidates. | B |
-| L5 | Add dataset release package checker (complete — Loop 127). | Validates open dataset releases meet data governance. | B/D |
-
-
-## Phase M — Audit Trail Infrastructure
-
-Make every pipeline decision traceable, independently verifiable, and resistant to post-hoc rationalization.
+Prepare for the first real (non-toy) batch under dry-lab-only, human-reviewed conditions.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| M1 | Add pipeline decision audit entry schema (complete — Loop 128). | Records filter/threshold/rank decisions with rationale for external audit. | B |
-| M2 | Add claim-to-evidence mapper schema (complete — Loop 129). | Maps each scientific claim to the artifact that supports it. | B |
-| M3 | Add score decomposition report schema (complete — Loop 130). | Documents how composite scores are computed from components. | B |
-| M4 | Add reviewer briefing package checker (complete — Loop 131). | One-stop summary that external reviewers need before auditing. | B |
-| M5 | Add audit chain completeness checker (complete — Loop 132). | Validates the evidence chain has no gaps from sequences to submission. Completes Phase M. | B/D |
-
-## Phase N — Pre-registration & Baseline Honesty
-
-Make experiment predictions falsifiable before results are observed. Guard against HARKing and post-hoc rationalization.
-
-| PR | Task | Why it matters | Review class |
-|---:|---|---|---|
-| N1 | Add pre-registration form schema (complete — Loop 133). | Records what will be tested and how before experiments run. | B |
-| N2 | Add hypothesis outcome record schema (complete — Loop 134). | Documents whether pre-registered hypotheses were confirmed or refuted. | B/D |
-| N3 | Add baseline comparison manifest schema (complete — Loop 135). | Machine-verifiable proof the model beats cheap baselines. | B |
-| N4 | Add negative result record schema (complete — Loop 136). | Ensures failed experiments are documented, not discarded. | B | | Ensures failed experiments are documented, not discarded. | B |
-| N5 | Add experiment priority justification schema (complete — Loop 137). | Documents why this batch was selected over alternatives. Completes Phase N. | B |
-
-## Phase O — Calibration Quality Assurance
-
-Track how well predictions match experimental outcomes over time. Detect drift, overconfidence, and systematic bias before they compound.
-
-| PR | Task | Why it matters | Review class |
-|---:|---|---|---|
-| O1 | Add calibration performance summary schema (complete — Loop 138). | Aggregates prediction accuracy metrics across batches with known outcomes. | B/D |
-| O2 | Add prediction drift monitor schema (complete — Loop 139). | Detects when pipeline predictions are systematically shifting. | B/D |
-| O3 | Add calibration improvement record schema (complete). | CIR- before/after audit record: metric direction validation (higher/lower-is-better), version diff enforced, improvement_confirmed=True required, per-metric granularity. | B/D |
-| O4 | Add cross-batch performance aggregator schema (complete — Loop 140). | Aggregates results across batches for trend analysis. | B/D |
-| [x] O5 | Add calibration readiness gate schema. | Validates calibration quality is sufficient before releasing the next batch. | B/D |
-
-## Phase P — Calibration-to-Selection Bridge
-
-Close the loop from Phase O calibration quality assurance back to candidate
-selection.  A batch can only be proposed when the calibration gate passes,
-preventing the pipeline from selecting candidates under poor calibration.
-
-| PR | Task | Why it matters | Review class |
-|---:|---|---|---|
-| P1 | Add batch selection proposal schema (complete). | Enforces calibration gate must pass before proposing a next batch; documents exploitation/exploration strategy. | B/D |
-| P2 | Add recalibration refusal record schema (complete). | Documents when recalibration was correctly rejected; prevents spurious recalibrations and creates audit trail. | B/D |
-| P3 | Add batch outcome summary schema (complete). | Closes the BSP→lab→outcomes feedback loop; enforces synthetic/real boundary at the batch level. | B/D |
-| P4 | Add pilot batch safety clearance schema (complete). | Safety gate before wet-lab synthesis: all 4 screens required, high-risk batches cannot be cleared. | B/D |
-| P5 | Add calibration cycle summary schema (complete). | Index record for one complete BSP→PSC→BOS→CPS→CBA→CRG cycle; crg_id_previous must differ from crg_id_next. | B/D |
-
-## Phase Q — External Pilot Package Readiness
-
-Package and validate the evidence chain for external lab partners. A complete
-pilot package references pre-registration, baseline comparisons, calibration
-cycles, safety clearance, and candidate batch proposal — in one verifiable
-bundle.
-
-| PR | Task | Why it matters | Review class |
-|---:|---|---|---|
-| Q1 | Add pilot evidence package schema (complete). | External export artifact: bundles CCS+BSP+PSC+PRE+BCM references, enforces completeness and safety clearance before external sharing. | B/D |
-| Q2 | Add pre-registration entry schema (complete). | Locks hypothesis, endpoint, and candidate list before wet-lab begins; prevents HARKing; referenced by PEP as pre_registration_id. | B/D |
-| Q3 | Add external sharing clearance schema (complete). | Auditable release gate: records who received a PEP, when, with what dry-lab caveat confirmation; no PEP leaves the foundry without an ESC record. | B/D |
-
-## Prioritization rule
-
-When choosing between tasks, prefer the one that:
-
-1. prevents unsafe or unsupported claims;
-2. improves external reviewability;
-3. strengthens benchmark honesty;
-4. reduces agent/human coordination cost;
-5. improves reproducibility;
-6. creates reusable artifacts;
-7. moves toward a pre-registered, baseline-controlled external pilot.
-
-## Stop conditions
-
-Stop a PR or split it when:
-
-- it crosses into wet-lab operational detail;
-- it changes safety policy without review;
-- it changes ranking and benchmarks at the same time without a clear plan;
-- it strengthens claims without proof-ladder mapping;
-- it publishes candidate details without release review;
-- it creates broad refactor risk;
-- it cannot be tested or reviewed.
-
-## Final standard
-
-The next 100 PRs should make OpenAMP less dependent on trust in any one person, model, lab, agent, or narrative.
-
-That is how a repo becomes infrastructure.
+| P1 | Add batch selection proposal schema (complete). | BSP- schema: 14 fields, 17 validation rules, calibration_gate_passed enforcement, proposal_basis controlled vocabulary, all_sequences_dry_lab_only enforced, pre_selection_checklist required (≥3 items), funding_status required; calibration gate must pass before next batch release. | B/C |
+| P2 | Add recalibration refusal record schema (complete). | RRF- schema: 14 fields, 14 validation rules, refusal_rate consistency check (tol 0.01), recalibration_baseline correction (4889→4784), corrects inflated BASELINE; auditable rejection of spurious recalibrations. | B/C |
+| P3 | Add batch outcome summary schema (complete). | BOS- schema: 14 fields, 14 validation rules, synthetic/real boundary enforcement (all_outcomes_are_real requires dry_lab_only=False), hit_rate consistency check (tol 0.01), n_confirmed_hits ≤ n_total_outcomes enforced; closes BSP-to-outcomes feedback loop. | B/C |
+| P4 | Add pilot batch safety clearance schema (complete). | PSC- schema: 14 fields, 15 validation rules, safety gate requiring all 4 screens (toxicity/hemolysis/off_target/dual_use) before wet-lab synthesis, blocks high-risk batches. | B/C |
+| P5 | Add calibration cycle summary schema (complete). | CCS- schema: 14 fields, 15 validation rules, index record for complete BSP→PSC→BOS→CPS→CBA→CRG feedback loop; cycle_health controlled vocabulary; closes Phase P. | B/C |
