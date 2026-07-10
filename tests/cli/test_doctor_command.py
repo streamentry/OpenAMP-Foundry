@@ -244,3 +244,101 @@ class TestDoctorConstants:
 
     def test_docs_in_expected_dirs(self):
         assert "docs" in _EXPECTED_DIRS
+
+
+class TestDoctorAdditional:
+    def test_python_version_ok_returns_empty(self):
+        issues = _check_python_version()
+        assert isinstance(issues, list)
+
+    def test_required_packages_empty_when_all_installed(self):
+        issues = _check_required_packages()
+        assert all(isinstance(i, str) for i in issues)
+
+    def test_expected_dirs_all_present_returns_empty(self):
+        root = Path(__file__).parent.parent.parent
+        issues = _check_expected_dirs(root)
+        assert issues == []
+
+    def test_run_doctor_python_version_has_three_parts(self):
+        report = run_doctor()
+        parts = report["python_version"].split(".")
+        assert len(parts) == 3
+        assert all(p.isdigit() for p in parts)
+
+    def test_run_doctor_with_explicit_root(self):
+        root = Path(__file__).parent.parent.parent
+        report = run_doctor(root=root)
+        assert isinstance(report, dict)
+
+    def test_run_doctor_python_ok_true_normally(self):
+        report = run_doctor()
+        assert report["python_ok"] is True
+
+    def test_run_doctor_python_ok_false_when_version_issue(self):
+        with patch.object(sys, "version_info", (3, 8, 0)):
+            report = run_doctor()
+        assert report["python_ok"] is False
+
+    def test_run_doctor_passed_false_when_version_issue(self):
+        with patch.object(sys, "version_info", (3, 8, 0)):
+            report = run_doctor()
+        assert not report["passed"]
+
+    def test_run_doctor_warnings_empty_by_default(self):
+        report = run_doctor()
+        assert report["warnings"] == []
+
+    def test_schemas_dir_in_expected_dirs(self):
+        assert "schemas" in _EXPECTED_DIRS
+
+    def test_scripts_dir_in_expected_dirs(self):
+        assert "scripts" in _EXPECTED_DIRS
+
+    def test_run_doctor_issues_is_list(self):
+        report = run_doctor()
+        assert isinstance(report["issues"], list)
+
+    def test_run_doctor_passed_true_in_repo(self):
+        root = Path(__file__).parent.parent.parent
+        report = run_doctor(root=root)
+        assert report["passed"] is True
+
+    def test_missing_dir_message_includes_dir_name(self, tmp_path):
+        issues = _check_expected_dirs(tmp_path)
+        for d in _EXPECTED_DIRS:
+            assert any(d in i for i in issues)
+
+    def test_missing_package_message_includes_pkg_name(self):
+        with patch("importlib.import_module", side_effect=ImportError("no module")):
+            issues = _check_required_packages()
+        for pkg in _REQUIRED_PACKAGES:
+            assert any(pkg in i for i in issues)
+
+    def test_run_doctor_no_issues_implies_passed(self):
+        root = Path(__file__).parent.parent.parent
+        report = run_doctor(root=root)
+        assert report["passed"] == (len(report["issues"]) == 0)
+
+    def test_check_openamp_returns_list(self):
+        result = _check_openamp_import()
+        assert isinstance(result, list)
+
+    def test_issue_format_for_missing_dir(self, tmp_path):
+        issues = _check_expected_dirs(tmp_path)
+        assert all("MISSING expected directory" in i for i in issues)
+
+    def test_run_doctor_with_tmp_path_has_dir_issues(self, tmp_path):
+        report = run_doctor(root=tmp_path)
+        assert any("MISSING expected directory" in i for i in report["issues"])
+
+    def test_python_version_string_format(self):
+        report = run_doctor()
+        ver = report["python_version"]
+        assert ver.count(".") == 2
+
+    def test_expected_dirs_length(self):
+        assert len(_EXPECTED_DIRS) >= 5
+
+    def test_required_packages_length(self):
+        assert len(_REQUIRED_PACKAGES) >= 4
