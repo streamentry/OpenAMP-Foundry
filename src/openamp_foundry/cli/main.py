@@ -52,6 +52,7 @@ import argparse
 import json
 from pathlib import Path
 
+from openamp_foundry.evidence.batch_experiment_priority_ranker import validate_dict as validate_batch_experiment_priority_ranker_dict
 from openamp_foundry.evidence.candidate_selection_rationale import validate_dict as validate_candidate_selection_rationale_dict
 from openamp_foundry.evidence.negative_result_entry import validate_dict as validate_negative_result_entry_dict
 from openamp_foundry.evidence.pilot_package_completeness_report import validate_dict as validate_pilot_package_completeness_dict
@@ -2500,6 +2501,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     csr_parser.add_argument("json_input", help="JSON string of the CSR- record")
 
+    bpr_parser = sub.add_parser(
+        "batch-experiment-priority-ranker-check",
+        help="Validate a BatchExperimentPriorityRanker (BPR-) record",
+    )
+    bpr_parser.add_argument("json_input", help="JSON string of the BPR- record")
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2925,6 +2932,10 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "candidate-selection-rationale-check":
         from openamp_foundry.cli.commands.reports import _run_candidate_selection_rationale_check
         _run_candidate_selection_rationale_check(args)
+
+    elif args.command == "batch-experiment-priority-ranker-check":
+        from openamp_foundry.cli.commands.reports import _run_batch_experiment_priority_ranker_check
+        _run_batch_experiment_priority_ranker_check(args)
 
     else:
         parser.error("unknown command")
