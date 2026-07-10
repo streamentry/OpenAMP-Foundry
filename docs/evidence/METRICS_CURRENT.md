@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase Q Q2 — pre-registration entry — v0.10.8)
+> **Last updated:** 2026-07-10 (Phase Q Q3 — external sharing clearance — v0.10.9)
+> **New in v0.10.9 (Phase Q Q3):** ExternalSharingClearance — auditable release gate before external PEP sharing (12 fields, 9 validation rules, 3 warnings, 63 tests, BASELINE 5099→5162)
 > **New in v0.10.8 (Phase Q Q2):** PreRegistrationEntry — pre-experiment plan lock (14 fields, 9 validation rules, 4 warnings, 63 tests, BASELINE 5036→5099)
 > **New in v0.10.7 (Phase Q Q1):** PilotEvidencePackageEntry — external export bundle (14 fields, CCS+BSP+PSC+PRE+BCM refs, completeness+safety enforcement, 63 tests, BASELINE 4973→5036).
 > **New in v0.10.5 (Phase P P2):** RecalibrationRefusalEntry schema (10 fields: rrf_id, pipeline_version, trigger_id, recalibration_refused, refusal_reason, minimum_batches_required, batches_evaluated, refusal_notes, reviewer, dry_lab_only). recalibration_refused must be True — this schema only records valid refusals. 7 validation rules (RRF- prefix, CPS-/DRM- trigger prefix, recalibration_refused=True enforced, reason in 5 valid values, minimum_batches>=1, batches_evaluated>=0, notes<=400 chars). 2 warnings (insufficient_data but meets minimum; reviewer_override without documentation). Complements CalibrationImprovementRecord (O3). Added validate_recalibration_refusal() and validate_recalibration_refusal_dict(). Added 63 tests. CLI: openamp-foundry recalibration-refusal-check with --entry-json and --format text|json. Corrected inflated BASELINE from 4889 to 4784 (actual count 4721 + 63 = 4784).
