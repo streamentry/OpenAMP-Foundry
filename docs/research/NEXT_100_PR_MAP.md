@@ -245,3 +245,15 @@ Make it possible for an external reviewer to understand, in one artifact, why sp
 | T3 | [x] Add batch evidence gap report schema (BEG-) (#983). | Per-batch listing of which artifact types are missing across all families; prioritized gap list; enables targeted evidence collection. | C |
 | T4 | [x] Add selection audit trail schema (SAT-). (#985) | Immutable ordered log of every selection/rejection decision with evidence_artifact_ids and rationale; enables full auditability from nomination to wet-lab shortlist. | C |
 | T5 | [x] Add pipeline completeness certificate schema (PCC-). (#987) | Top-level certificate asserting that all required evidence schemas are present for a given pipeline run; completeness_grade (A–D); closes Phase T. | C |
+
+## Phase U — Evidence trail integration and family-level views (U1–U5)
+
+Connect the evidence schemas from Phases S and T into coherent family-level and batch-level summary views that scientists can read in one artifact.
+
+| ID | Task | Why it matters | Priority |
+|----|------|----------------|----------|
+| U1 | Add family evidence trail view schema (FET-). | Per-family aggregation of all evidence schema references (BTI/BEG/SAT/PCC/BSP/SEG/ECC/RSR/PQT) into a single timeline; shows which schemas are present, missing, and when each was produced; gives a scientist ONE document to trace the full evidence history of a candidate family. | C |
+| U2 | Add batch release checklist schema (BRC-). | Machine-verifiable checklist that must pass before a batch is released for wet-lab synthesis; gates on PCC grade ≥ B, no critical BEG gaps, at least one SAT entry, all required artifacts present; prevents incomplete batches from advancing. | C |
+| U3 | Add cross-schema linkage validator schema (CSV-). | Validates that artifact IDs referenced in SAT evidence_artifact_ids, BEG missing lists, and BTI entries are internally consistent; catches orphaned references before external sharing. | C |
+| U4 | Add pipeline phase timeline report schema (PTR-). | Ordered sequence of all schema events for a pipeline run, sorted by created_at; shows progression from nomination to shortlisting with schema type, artifact ID, and timestamp per event; enables audit of sequence and timing. | C |
+| U5 | Add evidence completeness index schema (ECI-). | Top-level index of which schemas exist for each batch and family across all phases; aggregates PCC + CBA2 + BEG + SAT into a single completeness snapshot; completeness_grade (A–D); closes Phase U. | C |
