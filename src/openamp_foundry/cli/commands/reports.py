@@ -1330,6 +1330,28 @@ def _run_domain_review_outcome_check(args):
     sys.exit(0 if result.passed else 1)
 
 
+def _run_pilot_package_completeness_check(args):
+    import json, sys
+    from openamp_foundry.evidence.pilot_package_completeness_report import validate_dict
+    try:
+        data = json.loads(args.json_input)
+    except json.JSONDecodeError as exc:
+        print(f"INVALID: JSON parse error: {exc}", file=sys.stderr)
+        sys.exit(1)
+    result = validate_dict(data)
+    if result.valid:
+        print("VALID")
+        for w in result.warnings:
+            print(f"WARNING: {w}")
+    else:
+        print("INVALID")
+        for e in result.errors:
+            print(f"ERROR: {e}")
+        for w in result.warnings:
+            print(f"WARNING: {w}")
+        sys.exit(1)
+
+
 def _run_simulation_registry(args: argparse.Namespace) -> int:
     """Display simulation module registry information."""
     from openamp_foundry.simulation.module_registry import (

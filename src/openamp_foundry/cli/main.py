@@ -53,6 +53,7 @@ import json
 from pathlib import Path
 
 from openamp_foundry.evidence.negative_result_entry import validate_dict as validate_negative_result_entry_dict
+from openamp_foundry.evidence.pilot_package_completeness_report import validate_dict as validate_pilot_package_completeness_dict
 from openamp_foundry.evidence.quality import assess_certificate_quality
 from openamp_foundry.evidence.schemas import validate_json_schema
 from openamp_foundry.pipeline import run_ranking_pipeline
@@ -2486,6 +2487,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     negative_result_entry_parser.add_argument("json_input", help="JSON string of the NRR- record")
 
+    ppc_parser = sub.add_parser(
+        "pilot-package-completeness-check",
+        help="Validate a PilotPackageCompletenessReport (PPC-) record",
+    )
+    ppc_parser.add_argument("json_input", help="JSON string of the PPC- record")
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2904,7 +2911,12 @@ def main(argv: list[str] | None = None) -> int:
         from openamp_foundry.cli.commands.reports import _run_negative_result_entry_check
         _run_negative_result_entry_check(args)
 
-    parser.error("unknown command")
+    elif args.command == "pilot-package-completeness-check":
+        from openamp_foundry.cli.commands.reports import _run_pilot_package_completeness_check
+        _run_pilot_package_completeness_check(args)
+
+    else:
+        parser.error("unknown command")
     return 2
 
 

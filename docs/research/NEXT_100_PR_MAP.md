@@ -196,7 +196,7 @@ Build the evidence and accountability artifacts needed for credible external val
 |---:|---|---|---|
 | K1 | Add candidate selection rationale schema. | Auditable selection decisions. | B |
 | K2 | Add batch experiment priority ranker. | Rank candidates for next synthesis wave. | B |
-| K3 | Add pilot package completeness checker. | All components present before submission. | B |
+| K3 | Add pilot package completeness checker (complete). | PPC- completeness gate: confirms CCS-+BSP-+PSC-+PRE-+BCM- all present and ESC- cleared before external sharing. | B |
 | K4 | Add post-experiment calibration intake schema. | Structured result-to-prediction comparison. | B/D |
 | K5 | Add uncertainty quantification report schema (complete — Loop 123). | Honest prediction intervals for reviewers. | B |
 

@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase F F1 — negative result entry — v0.10.14)
+> **Last updated:** 2026-07-10 (Phase K K3 — pilot package completeness report — v0.10.15)
+> **New in v0.10.15 (Phase K K3):** PilotPackageCompletenessReport — PPC- completeness gate: confirms CCS-+BSP-+PSC-+PRE-+BCM- all present and ESC- cleared before external sharing (12 fields, 12 validation rules, 3 warnings, 63 tests, BASELINE 5540→5603)
 > **New in v0.10.14 (Phase F F1):** NegativeResultEntry — atomic NRR- failure record with stage/reason/confidence vocabulary, foundation for NAS- and FCR- chain (12 fields, 10 validation rules, 4 warnings, 63 tests, BASELINE 5477→5540)
 > **New in v0.10.14 (Phase E E9):** DomainReviewOutcome — controlled taxonomy expert verdict on a PEP (11 fields, 9 validation rules, 3 warnings, 63 tests, BASELINE 5414→5477); closes ESC→RVQ→DRO review chain
 > **New in v0.10.13 (Phase E E3):** ReviewerQuestionnaire — structured external review feedback with Likert clarity ratings, synthesis recommendation, and comments (13 fields, 10 validation rules, 4 warnings, 63 tests, BASELINE 5351→5414)
