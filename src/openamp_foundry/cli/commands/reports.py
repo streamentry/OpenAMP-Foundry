@@ -1302,6 +1302,23 @@ def _run_recalibration_decision_log_check(args):
     print("OK: RecalibrationDecisionLog is valid.")
 
 
+def _run_recalibration_rejection_summary_check(args):
+    """CLI handler for recalibration-rejection-summary-check."""
+    import json, sys
+    from openamp_foundry.evidence.recalibration_rejection_summary import validate_dict
+    data = json.load(open(args.input))
+    issues = validate_dict(data)
+    errors = [i for i in issues if not i.startswith("WARNING:")]
+    warnings = [i for i in issues if i.startswith("WARNING:")]
+    for w in warnings:
+        print(w)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    print("OK: RecalibrationRejectionSummary is valid.")
+
+
 def _run_domain_review_outcome_check(args):
     from openamp_foundry.evidence.domain_review_outcome import (
         validate_domain_review_outcome_dict,

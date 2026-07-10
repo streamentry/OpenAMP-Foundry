@@ -37,6 +37,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_pilot_evidence_package_check,
     _run_pre_registration_entry_check,
     _run_recalibration_decision_log_check,
+    _run_recalibration_rejection_summary_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2532,6 +2533,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_rdl = subparsers.add_parser("recalibration-decision-log-check", help="Validate a RecalibrationDecisionLog JSON")
     p_rdl.add_argument("input", help="Path to JSON file")
     p_rdl.set_defaults(func=_run_recalibration_decision_log_check)
+
+    p_rrs = subparsers.add_parser("recalibration-rejection-summary-check", help="Validate a RecalibrationRejectionSummary JSON")
+    p_rrs.add_argument("input", help="Path to JSON file")
+    p_rrs.set_defaults(func=_run_recalibration_rejection_summary_check)
 
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(

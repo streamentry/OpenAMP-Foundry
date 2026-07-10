@@ -5,7 +5,17 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase G G1 — recalibration decision log — v0.10.21)
+> **Last updated:** 2026-07-10 (Phase G G2 — recalibration rejection summary — v0.10.22)
+
+## Changelog
+
+### v0.10.22 — Phase G G2: RecalibrationRejectionSummary schema
+- Added `RecalibrationRejectionSummary` (RRS-) schema
+- 13 fields: rrs_id, pipeline_version, period_start, period_end, total_checkpoints_reviewed, total_refused, total_approved, refusal_rate, top_refusal_reason, gate_status, all_refusals_have_rrf, summary, notes
+- 15 validation rules; 3 warnings; 63 tests
+- BASELINE 5981→6044
+- CLI: openamp-foundry recalibration-rejection-summary-check
+- Closes Phase G G2 — aggregate refusal audit trail showing gate effectiveness
 
 ## v0.10.20 — Phase F F9 — Negative Result Dashboard (NRD-)
 
