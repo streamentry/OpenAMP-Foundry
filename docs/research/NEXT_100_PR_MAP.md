@@ -111,7 +111,7 @@ Make failure useful.
 |---:|---|---|---|
 | F1 | Add negative-result entry schema hardening. | Failure records become useful. | B/C |
 | F2 | Add negative-result archive validator. | Prevents incomplete records. | B |
-| F3 | Add rejection reason taxonomy. | Enables analysis of failed candidates. | B |
+| F3 | Add rejection reason entry schema (complete). | Enables analysis of failed candidates with controlled vocabulary of stages and reasons; feeds calibration loop with structured failure signal. | B |
 | F4 | Add failed-candidate report generator. | Makes failed batches reviewable. | B/C |
 | F5 | Add safe-publication filter for negative results. | Supports openness without unsafe release. | D |
 | F6 | Add examples of non-informative vs informative negative results. | Better interpretation. | A |

@@ -2717,6 +2717,49 @@ def _run_citation_check(args: argparse.Namespace) -> int:
     return 0 if result.passed else 3
 
 
+def _run_rejection_reason_check(args):
+    from openamp_foundry.evidence.rejection_reason_entry import (
+        validate_rejection_reason_dict,
+    )
+    import json
+    import sys
+
+    data = json.loads(args.entry_json)
+    result = validate_rejection_reason_dict(data)
+
+    if args.format == "json":
+        out = {
+            "rjr_id": result.rjr_id,
+            "candidate_id": result.candidate_id,
+            "rejection_stage": result.rejection_stage,
+            "rejection_reason": result.rejection_reason,
+            "rejection_confidence": result.rejection_confidence,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "dry_lab_only": result.dry_lab_only,
+        }
+        print(json.dumps(out, indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Rejection Reason: {status}")
+        print(f"  RJR ID: {result.rjr_id}")
+        print(f"  Candidate: {result.candidate_id}")
+        print(f"  Stage: {result.rejection_stage}")
+        print(f"  Reason: {result.rejection_reason}")
+        print(f"  Confidence: {result.rejection_confidence}")
+        if result.errors:
+            print("  Errors:")
+            for e in result.errors:
+                print(f"    - {e}")
+        if result.warnings:
+            print("  Warnings:")
+            for w in result.warnings:
+                print(f"    - {w}")
+
+    sys.exit(0 if result.passed else 1)
+
+
 def _run_advisory_review_check(args: argparse.Namespace) -> int:
     """Validate an advisory review entry."""
     import json as _json

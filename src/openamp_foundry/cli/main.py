@@ -19,6 +19,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_adapter_check, _run_license_check, _run_artifact_compat_check, _run_adoption_scorecard,
     _run_reviewer_briefing_check, _run_audit_chain_check,     _run_pre_registration_check,
     _run_external_sharing_clearance_check,
+    _run_rejection_reason_check,
     _run_hypothesis_outcome_check, _run_baseline_comparison_check, _run_negative_result_check,
     _run_experiment_priority_check, _run_calibration_performance_check, _run_prediction_drift_check,
     _run_calibration_improvement_check,
@@ -2288,6 +2289,15 @@ def build_parser() -> argparse.ArgumentParser:
         "--format", choices=["text", "json"], default="text"
     )
 
+    rejection_reason_parser = sub.add_parser(
+        "rejection-reason-check",
+        help="Validate a RejectionReasonEntry (RJR-).",
+    )
+    rejection_reason_parser.add_argument("--entry-json", required=True)
+    rejection_reason_parser.add_argument(
+        "--format", choices=["text", "json"], default="text"
+    )
+
     # ── Hypothesis outcome check (Phase N N2) ────────────────────────
     hypothesis_outcome_parser = sub.add_parser(
         "hypothesis-outcome-check",
@@ -2784,6 +2794,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "external-sharing-clearance-check":
         return _run_external_sharing_clearance_check(args)
+
+    if args.command == "rejection-reason-check":
+        return _run_rejection_reason_check(args)
 
     if args.command == "hypothesis-outcome-check":
         return _run_hypothesis_outcome_check(args)
