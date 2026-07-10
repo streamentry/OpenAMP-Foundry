@@ -126,7 +126,7 @@ Make learning controlled rather than self-serving.
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| G1 | Add machine-readable recalibration decision log examples. | Improves governance memory. | B |
+| G1 | Add machine-readable recalibration decision log examples (complete). | RDL- schema: 13 fields, 13 validation rules, 4 outcomes, 5 trigger types, deferred-requires-conditions enforced; closes governance audit trail for calibration decisions. | B |
 | G2 | Add recalibration rejection examples. | Shows gate success by refusal. | B |
 | G3 | Add `make calibration-audit`. | Checks intake/gate/engine/report consistency. | C |
 | G4 | Add active-learning strategy comparison report. | Prevents one-selector bias. | C |

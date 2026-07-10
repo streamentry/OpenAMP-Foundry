@@ -36,6 +36,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_calibration_cycle_summary_check,
     _run_pilot_evidence_package_check,
     _run_pre_registration_entry_check,
+    _run_recalibration_decision_log_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2528,6 +2529,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     nrd_parser.add_argument("json_input", help="JSON string of the NRD- record")
 
+    p_rdl = subparsers.add_parser("recalibration-decision-log-check", help="Validate a RecalibrationDecisionLog JSON")
+    p_rdl.add_argument("input", help="Path to JSON file")
+    p_rdl.set_defaults(func=_run_recalibration_decision_log_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2969,6 +2974,9 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "negative-result-dashboard-check":
         from openamp_foundry.cli.commands.reports import _run_negative_result_dashboard_check
         _run_negative_result_dashboard_check(args)
+
+    elif args.command == "recalibration-decision-log-check":
+        _run_recalibration_decision_log_check(args)
 
     else:
         parser.error("unknown command")

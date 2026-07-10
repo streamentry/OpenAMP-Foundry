@@ -1285,6 +1285,23 @@ def _run_validate_simulation_result(args: argparse.Namespace) -> int:
     return 3 if batch_result["any_invalid"] else 0
 
 
+def _run_recalibration_decision_log_check(args):
+    """CLI handler for recalibration-decision-log-check."""
+    import json, sys
+    from openamp_foundry.evidence.recalibration_decision_log import validate_dict
+    data = json.load(open(args.input))
+    issues = validate_dict(data)
+    errors = [i for i in issues if not i.startswith("WARNING:")]
+    warnings = [i for i in issues if i.startswith("WARNING:")]
+    for w in warnings:
+        print(w)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    print("OK: RecalibrationDecisionLog is valid.")
+
+
 def _run_domain_review_outcome_check(args):
     from openamp_foundry.evidence.domain_review_outcome import (
         validate_domain_review_outcome_dict,

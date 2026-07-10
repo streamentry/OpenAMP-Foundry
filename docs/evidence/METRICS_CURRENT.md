@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase F F9 — negative result dashboard — v0.10.20)
+> **Last updated:** 2026-07-10 (Phase G G1 — recalibration decision log — v0.10.21)
 
 ## v0.10.20 — Phase F F9 — Negative Result Dashboard (NRD-)
 
@@ -1260,6 +1260,14 @@ Decoys score low on activity. Selective AMPs score moderately on both.
 ---
 
 ## Change Log
+
+### v0.10.21 — Phase G G1: RecalibrationDecisionLog schema
+- Added `RecalibrationDecisionLog` (RDL-) schema
+- 13 fields: rdl_id, pipeline_version, calibration_checkpoint, decision_date, trigger_type, trigger_artifact_id, decision_outcome, decision_authority, evidence_summary, rationale, next_review_date, conditions_if_deferred, notes
+- 13 validation rules; 3 warnings; 63 tests
+- BASELINE 5918→5981
+- CLI: openamp-foundry recalibration-decision-log-check
+- Closes Phase G G1 — governance audit trail for calibration decisions
 
 | Date | Change | Author |
 |------|--------|--------|
