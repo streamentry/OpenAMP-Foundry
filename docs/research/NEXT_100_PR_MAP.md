@@ -31,7 +31,7 @@ Make the repo easier to run, understand, and verify.
 | A5 | Add test that README quickstart commands stay valid (complete). — tests/test_quickstart.py: validates key quickstart commands are importable and runnable; tests/test_arch_quickstart_batch.py covers batch entrypoints. | Prevents entrypoint drift. | B |
 | A6 | Add link-check CI for internal docs (complete). — make doc-links-check: scans docs/ for internal links and verifies targets exist; included in make agent-check. | Prevents doc graph rot. | B |
 | A7 | Add a `make docs-check` target (complete). — make docs-check: combined target running doc-links-check and docs-index-check; one-command docs validation for agents and maintainers. | Agents can verify doc-only PRs. | B |
-| A8 | Add generated artifact examples with safe toy data. | Reviewers see what good output looks like. | B |
+| A8 | Add generated artifact examples with safe toy data (complete). — examples/toy_pipeline_output/: toy_ranked_example.jsonl (3 candidates, TOY- IDs, dry_lab_only=true), toy_certificate_example.json (TOY-CERT-0001, unsupported_claims enforced), README.md; 49 tests in tests/test_toy_examples.py. | Reviewers see what good output looks like. | B |
 | A9 | Add `outputs/README.md` explaining generated outputs and ignored files (complete). — outputs/README.md: file pattern table, dry-lab-only notice, what is gitignored, how to regenerate examples; .gitignore updated with !outputs/README.md exception. | Reduces confusion. | A |
 | A10 | Add troubleshooting table for install/test failures (complete). — docs/getting-started/TROUBLESHOOTING.md: 10 common failures with root causes and fixes; covers ModuleNotFoundError, BASELINE mismatch, claim violations, broken doc links, benchmark threshold freeze rule. | Faster onboarding. | A |
 
@@ -50,7 +50,7 @@ Make candidate evidence packages impossible to confuse with biological proof.
 | B7 | Add candidate rejection certificate support (complete). | CRC- schema: 12 fields, 13 rules, VALID_REJECTION_GATES (10 values), VALID_REJECTION_REASONS (12 values), dry_lab_only enforced, proof-ladder cap at multi_signal; makes pipeline rejections first-class auditable artifacts; 63 tests. | B |
 | B8 | Link certificates to run manifest hashes (complete). | Added run_id and run_manifest_hash optional params to build_certificate(); every certificate is now traceable to the exact pipeline run and manifest that produced it; backward-compatible (defaults to empty string); 63 tests in tests/test_certificate_run_link.py. | B |
 | B9 | Add test that dry-lab certificates cannot include forbidden claims (complete). | CI gate: tests/test_certificate_claim_discipline.py scans all cert text fields against RISKY_PATTERNS and FORBIDDEN_CLAIM_PATTERNS; default cert proven clean; forbidden phrases confirmed detectable. 35 tests total. | B/C |
-| B10 | Add external-review packet generator that bundles certificates. | Better partner review. | C/D |
+| B10 | Add external-review packet generator that bundles certificates (complete). — src/openamp_foundry/evidence/external_review_packet.py: ExternalReviewPacket dataclass, validate_external_review_packet(), format_external_review_packet(); scripts/generate_review_packet.py; 140+ tests across test_external_review_packet.py, test_external_review_packet_schema.py, test_example_external_review_packet.py. | Better partner review. | C/D |
 
 ## Phase C — Benchmark honesty expansion
 
