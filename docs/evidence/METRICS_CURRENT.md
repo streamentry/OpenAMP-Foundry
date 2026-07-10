@@ -9,6 +9,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.29 — Phase B B5: Certificate quality-tier validator
+- Added `src/openamp_foundry/evidence/certificate_quality.py` — assess_certificate_quality() function
+- Three tiers: draft (candidate_id+sequence+scores) → internal_review (+selection_reason+known_failure_modes+proof_ladder_level+baseline_caveat+pipeline_version, no forbidden claims) → external_review_ready (+recommended_next_steps+references_checked+config_hash, no warnings)
+- Returns: quality_tier, missing_fields, claim_violations, warnings, is_external_review_ready
+- 63 tests in `tests/test_certificate_quality_validator.py`
+- BASELINE 6394→6457
+- Closes Phase B B5 — external-review readiness is now machine-verifiable, not reviewer-dependent
+
 ### v0.10.28 — Phase B B3: baseline_caveat field in certificates
 - Added `baseline_caveat` field to `build_certificate()` in `src/openamp_foundry/evidence/certificate.py`
 - Auto-computes three cheap-baseline flags: charge≥4, length 10-40aa, hydrophobic_fraction≥0.30

@@ -45,7 +45,7 @@ Make candidate evidence packages impossible to confuse with biological proof.
 | B2 | Add `unsupported_claims` field to certificates (complete). | CCB- schema: 10 fields, 13 validation rules, 8 claim class vocabulary, ≥3 classes required, dry_lab_only+all_listed_classes_unsupported enforced, no-duplicate check; negative complement of PLC- closes score-to-proof drift gap. | B |
 | B3 | Add `baseline_caveat` field (complete). | Added to build_certificate(): auto-computes charge/length/hydrophobicity flags and warns when all three cheap baselines pass; forces cheap-explanation visibility at certificate issue time. 63 tests in tests/test_certificate_baseline_caveat.py. | B |
 | B4 | Add `release_status` field. | Supports staged release. | C/D |
-| B5 | Add certificate quality-tier validator. | External-review readiness becomes measurable. | B |
+| B5 | Add certificate quality-tier validator (complete). | assess_certificate_quality() computes draft/internal_review/external_review_ready tier; missing-field detection, forbidden-claim violation check, external-review gate; 63 tests in tests/test_certificate_quality_validator.py. | B |
 | B6 | Add human-readable certificate report. | Domain experts can inspect faster. | B |
 | B7 | Add candidate rejection certificate support. | Failures become artifacts. | B |
 | B8 | Link certificates to run manifest hashes. | Stronger reproducibility. | B |
