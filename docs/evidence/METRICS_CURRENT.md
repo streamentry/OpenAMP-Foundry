@@ -9,6 +9,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.34 — Phase C C1: Machine-readable benchmark registry
+- Added `src/openamp_foundry/evidence/benchmark_registry.py` — benchmark card registry
+- 5 BMC- cards: BMC-0001 (precision@k, leakage_aware_split), BMC-0002 (charge-matched, charge_stratified), BMC-0003 (calibration, random_70_30), BMC-0004 (family-stratified, family_stratified), BMC-0005 (cheap enemy comparison, leakage_aware_split)
+- API: get_card(bmc_id) → BenchmarkCard | None, validate_registry() → list[str]
+- All 5 cards have ≥2 cheap enemy baselines and ≥2 known limitations
+- 63 tests in `tests/evidence/test_benchmark_registry.py`
+- BASELINE 6709→6772
+- Closes Phase C C1 — governance is now enforceable: validate_registry() fails CI if any card is invalid
+
 ### v0.10.33 — Phase C C2: Benchmark card schema (BMC-)
 - Added `src/openamp_foundry/evidence/benchmark_card.py` — BenchmarkCard schema
 - BMC- schema: 12 fields (bmc_id, pipeline_version, benchmark_name, measurement_target, split_strategy, cheap_enemy_baselines, evaluation_metrics, known_limitations, deprecated, created_date, last_updated_date, notes)
