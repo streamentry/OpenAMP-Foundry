@@ -230,7 +230,7 @@ Make it possible for an external reviewer to understand, in one artifact, why sp
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| S1 | Add score vs cheap-enemy gap report schema (SEG-). | Flags when pipeline score margin over best cheap baseline is below a meaningful threshold; prevents advancing candidates that cheap baselines explain equally well. | C |
+| S1 | Add score vs cheap-enemy gap report schema (SEG-) (complete). — src/openamp_foundry/evidence/score_enemy_gap_report.py: SEG- 16-field schema + CheapEnemyResult helper; VALID_GAP_VERDICTS (4: gap_meaningful/gap_marginal/gap_absent/comparison_not_run), VALID_CHEAP_ENEMY_TYPES (8), VALID_GAP_ASSESSMENT_METHODS (5); MINIMUM_MEANINGFUL_GAP=0.05; build() auto-computes verdict+best_enemy+gap; dry_lab_only=True enforced; 53 tests. BASELINE: 9215→9278. PR #966. | Flags when pipeline score margin over best cheap baseline is below a meaningful threshold; prevents advancing candidates that cheap baselines explain equally well. | C |
 | S2 | Add selection transparency ledger schema (STL-). | Per-candidate-family ledger of every evidence artifact that influenced selection; makes selection_basis auditable and traceable. | C |
 | S3 | Add evidence completeness checker schema (ECC-). | Lists all expected artifact types (BSP/WHR/PCU/HCR/PQG/CFC/FNR/ATR/SRG/PEB) and which are present/absent for a candidate family; completeness_grade (A–D); closes "what's still needed for review?" question. | C |
 | S4 | Add pipeline run stability report schema (RSR-). | Compares outputs across N pipeline runs; flags candidate families whose ranking is unstable across runs; prevents overconfident selection of borderline candidates. | C |
