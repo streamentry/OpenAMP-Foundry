@@ -25,7 +25,7 @@ Make the repo easier to run, understand, and verify.
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | A1 | Add a `make doctor` command that checks Python version, package install, expected folders, and key optional tools (complete). — scripts/doctor.py: checks Python ≥3.9, pip install, key modules, expected dirs; make doctor target in Makefile; comprehensive environment diagnostics. | New users fail less. | B |
-| A2 | Add `openamp-foundry doctor` CLI equivalent. | Agents can self-diagnose environment issues. | B |
+| A2 | Add `openamp-foundry doctor` CLI equivalent (complete). — src/openamp_foundry/cli/commands/doctor.py: _run_doctor() CLI entry point, run_doctor() structured report dict, checks Python ≥3.9, required packages (numpy/scipy/pandas/pytest), openamp_foundry importable, expected dirs (src/tests/docs/schemas/scripts); 63 tests in tests/cli/test_doctor_command.py. | Agents can self-diagnose environment issues. | B |
 | A3 | Generate a first-run report after `make demo`. | New users understand outputs faster. | B |
 | A4 | Add a `docs/getting-started/FIRST_RUN_WALKTHROUGH.md` with expected outputs and claim boundaries (complete). — docs/getting-started/FIRST_RUN_WALKTHROUGH.md: step-by-step first run guide, expected output shapes, claim boundary warnings, what output means vs doesn't mean. | Converts demo into onboarding. | A |
 | A5 | Add test that README quickstart commands stay valid (complete). — tests/test_quickstart.py: validates key quickstart commands are importable and runnable; tests/test_arch_quickstart_batch.py covers batch entrypoints. | Prevents entrypoint drift. | B |
