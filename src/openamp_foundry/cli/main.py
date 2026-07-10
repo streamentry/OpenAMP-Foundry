@@ -29,6 +29,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_pilot_batch_safety_clearance_check,
     _run_calibration_cycle_summary_check,
     _run_pilot_evidence_package_check,
+    _run_pre_registration_entry_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2410,6 +2411,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_pep.add_argument("--format", choices=["text", "json"], default="text")
     p_pep.set_defaults(func=_run_pilot_evidence_package_check)
 
+    p_pre = sub.add_parser(
+        "pre-registration-check",
+        help="Validate pre-registration entry",
+    )
+    p_pre.add_argument("--entry-json", default=None)
+    p_pre.add_argument("--format", choices=["text", "json"], default="text")
+    p_pre.set_defaults(func=_run_pre_registration_entry_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2802,6 +2811,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "pilot-evidence-package-check":
         return _run_pilot_evidence_package_check(args)
+
+    if args.command == "pre-registration-check":
+        return _run_pre_registration_entry_check(args)
 
     parser.error("unknown command")
     return 2

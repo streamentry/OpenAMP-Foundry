@@ -273,6 +273,7 @@ bundle.
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | Q1 | Add pilot evidence package schema (complete). | External export artifact: bundles CCS+BSP+PSC+PRE+BCM references, enforces completeness and safety clearance before external sharing. | B/D |
+| Q2 | Add pre-registration entry schema (complete). | Locks hypothesis, endpoint, and candidate list before wet-lab begins; prevents HARKing; referenced by PEP as pre_registration_id. | B/D |
 
 ## Prioritization rule
 
