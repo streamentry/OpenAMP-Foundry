@@ -52,6 +52,7 @@ import argparse
 import json
 from pathlib import Path
 
+from openamp_foundry.evidence.candidate_selection_rationale import validate_dict as validate_candidate_selection_rationale_dict
 from openamp_foundry.evidence.negative_result_entry import validate_dict as validate_negative_result_entry_dict
 from openamp_foundry.evidence.pilot_package_completeness_report import validate_dict as validate_pilot_package_completeness_dict
 from openamp_foundry.evidence.quality import assess_certificate_quality
@@ -2493,6 +2494,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     ppc_parser.add_argument("json_input", help="JSON string of the PPC- record")
 
+    csr_parser = sub.add_parser(
+        "candidate-selection-rationale-check",
+        help="Validate a CandidateSelectionRationale (CSR-) record",
+    )
+    csr_parser.add_argument("json_input", help="JSON string of the CSR- record")
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2914,6 +2921,10 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "pilot-package-completeness-check":
         from openamp_foundry.cli.commands.reports import _run_pilot_package_completeness_check
         _run_pilot_package_completeness_check(args)
+
+    elif args.command == "candidate-selection-rationale-check":
+        from openamp_foundry.cli.commands.reports import _run_candidate_selection_rationale_check
+        _run_candidate_selection_rationale_check(args)
 
     else:
         parser.error("unknown command")

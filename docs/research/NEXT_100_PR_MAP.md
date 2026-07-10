@@ -194,7 +194,7 @@ Build the evidence and accountability artifacts needed for credible external val
 
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
-| K1 | Add candidate selection rationale schema. | Auditable selection decisions. | B |
+| K1 | Add candidate selection rationale schema (complete). | CSR- records why specific candidates were selected: strategy (4 values), ranking method (6 values), calibration gate enforced, candidate_count/ids consistency check. | B |
 | K2 | Add batch experiment priority ranker. | Rank candidates for next synthesis wave. | B |
 | K3 | Add pilot package completeness checker (complete). | PPC- completeness gate: confirms CCS-+BSP-+PSC-+PRE-+BCM- all present and ESC- cleared before external sharing. | B |
 | K4 | Add post-experiment calibration intake schema. | Structured result-to-prediction comparison. | B/D |
