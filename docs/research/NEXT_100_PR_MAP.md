@@ -325,3 +325,4 @@ Machine-verifiable proof that every pipeline run carries the fields needed for e
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | AA1 | Add run manifest completeness schema (RMC-). | Validates pipeline run output manifests carry all 9 required reproducibility fields (commit_hash/config_hash/input_hash/seed/version/command/timestamp); verdict complete/incomplete/partial; blocks release of runs missing reproducibility metadata. | C |
+| AA2 | Add determinism check record schema (DCR-). | Records result of running same pipeline step twice; verdict deterministic/nondeterministic/single_run_only/seed_dependent; run1/run2 output hash comparison; blocks releasing nondeterministic steps for external review. | C |
