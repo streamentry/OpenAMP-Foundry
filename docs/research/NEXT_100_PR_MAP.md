@@ -98,7 +98,7 @@ Make qualified external review easier and safer.
 | E4 | Add safety-release decision schema. | Release review becomes auditable. | D |
 | E5 | Add non-protocol pilot pre-registration schema (complete). — evidence/pilot_preregistration.py: non-protocol pilot pre-registration schema (PPR-) freezing selection logic before batch release; tests/evidence/test_pilot_preregistration.py + test_pilot_preregistration_schema.py. | Freezes selection logic. | C/D |
 | E6 | Add packet generator CLI (complete). — scripts/generate_review_packet.py: generates skeleton external review packet JSON; make generate-review-packet target; validates against schemas/external_review_packet.schema.json; dry_lab_only_attestation=True enforced. | Reduces manual packaging errors. | C/D |
-| E7 | Add packet validator CLI. | Review readiness becomes testable. | C/D |
+| E7 | Add packet validator CLI (complete). — src/openamp_foundry/cli/commands/validate_packet.py: load_packet_from_json() reads ERP- JSON from disk; validate_packet_file() returns {valid, violations, packet_id, error}; _run_validate_packet() prints PASS/FAIL with violations; 45 tests in tests/cli/test_validate_packet.py. | Review readiness becomes testable. | C/D |
 | E8 | Add release-summary generator that strips restricted fields. | Safer public summaries. | D |
 | E9 | Add domain review outcome schema (complete). | Structured expert verdict on a PEP with controlled taxonomy of domains and outcomes; closes ESC→RVQ→DRO review chain. | B/C |
 | E10 | Add expert-review example with mock/toy candidates only (complete). | ERP- schema: 14 fields, 16 validation rules, mock candidate ID prefix enforcement (MOCK-/TOY-/EXAMPLE-/DEMO-/TEST-), is_example_data=True and dry_lab_only=True enforced; CI-checkable template cannot accidentally leak real candidates. | B/C |
@@ -199,3 +199,15 @@ Prepare for the first real (non-toy) batch under dry-lab-only, human-reviewed co
 | P3 | Add batch outcome summary schema (complete). | BOS- schema: 14 fields, 14 validation rules, synthetic/real boundary enforcement (all_outcomes_are_real requires dry_lab_only=False), hit_rate consistency check (tol 0.01), n_confirmed_hits ≤ n_total_outcomes enforced; closes BSP-to-outcomes feedback loop. | B/C |
 | P4 | Add pilot batch safety clearance schema (complete). | PSC- schema: 14 fields, 15 validation rules, safety gate requiring all 4 screens (toxicity/hemolysis/off_target/dual_use) before wet-lab synthesis, blocks high-risk batches. | B/C |
 | P5 | Add calibration cycle summary schema (complete). | CCS- schema: 14 fields, 15 validation rules, index record for complete BSP→PSC→BOS→CPS→CBA→CRG feedback loop; cycle_health controlled vocabulary; closes Phase P. | B/C |
+
+## Phase Q — Wet-lab result intake and feedback loop
+
+Close the loop between dry-lab nominations and actual experimental outcomes. First phase where real (non-synthetic) results enter the evidence trail.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| Q1 | Add pilot evidence package schema (complete). — src/openamp_foundry/evidence/pilot_evidence_package.py: PEP- schema linking CCS+BSP+PSC+PRE+BCM artifacts; completeness gate, safety enforcement, reference chain validation; docs/evidence/PILOT_EVIDENCE_PACKAGE_GUIDE.md; 63 tests. | External export bundle with full provenance. | B/C |
+| Q2 | Add wet-lab hit record schema (WHR-). | First machine-readable record of actual experimental outcome; dry_lab_only must be False; closes nomination→experiment loop. | B/C |
+| Q3 | Add post-experiment calibration update schema. | Records how wet-lab results change score calibration; evidence trail for model improvement decisions. | B/C |
+| Q4 | Add hit confirmation report generator. | Bundles WHR- records with pre-registration for reproducibility check; flags prediction vs actual divergence. | B/C |
+| Q5 | Add Phase Q completeness gate (closes Phase Q). | Machine-verifiable that the full dry-lab→wet-lab→calibration loop has run for at least one candidate family. | C |
