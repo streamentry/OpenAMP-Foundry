@@ -341,3 +341,11 @@ Machine-verifiable audit trail for claim downgrades, expert decisions, and exter
 | AB3 | Add evidence gap notification schema (EGN-). | Structured record of what evidence is missing and how to close the gap; gap_type (9 types: missing_wet_lab/baseline/novelty/safety/reproducibility/reviewer/claim_mismatch/family_benchmark/adapter_baseline); closure_artifact_type (14 types); effort_estimate/priority/verdict; is_blocking flag; makes "needs more work" actionable. | C |
 | AB4 | Add external handoff packet record schema (EHP-). | Auditable checklist of what was included in an external handoff; auto-computes has_safety_clearance from PSC/FNR presence; safety invariant blocks wet_lab_synthesis transfers without clearance; verdict complete/partial/incomplete based on artifact count (threshold 4); 56 tests. BASELINE: 11965→12021. | C |
 | AB5 | Add Phase AB claim integrity gate schema (ABAG-). | Top-level gate asserting CSD+RDR+EGN+EHP all present; verdict claim_integrity_verified/partial/not_established; closes Phase AB claim integrity and external handoff; 50 tests. BASELINE: 12021→12071. | C |
+
+## Phase AC — Disconfirming evidence artifacts
+
+Machine-readable records of explicit attempts to prove claims wrong. Makes the CLAUDE.md "disconfirming pass" requirement auditable and enforceable. Every claim has a paper trail of what was tried to break it.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| AC1 | Add disconfirming test record schema (DTR-). | Machine-readable record of one disconfirming test; 7 test_type categories (cheapest_explanation/leakage/scope_creep/hidden_certainty/uninformative_uncertainty/charge_matched_enemy/train_test_split); is_claim_affected and required_action auto-computed from outcome; makes CLAUDE.md disconfirming pass auditable; 54 tests. BASELINE: 12071→12125. | C |
