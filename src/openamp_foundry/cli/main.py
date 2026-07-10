@@ -40,6 +40,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_recalibration_rejection_summary_check,
     _run_synthetic_boundary_audit_record_check,
     _run_expert_review_example_package_check,
+    _run_proof_ladder_level_certificate_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2548,6 +2549,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_erp.add_argument("input", help="Path to JSON file")
     p_erp.set_defaults(func=_run_expert_review_example_package_check)
 
+    p_plc = subparsers.add_parser("proof-ladder-level-certificate-check", help="Validate a ProofLadderLevelCertificate JSON")
+    p_plc.add_argument("input", help="Path to JSON file")
+    p_plc.set_defaults(func=_run_proof_ladder_level_certificate_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2995,6 +3000,12 @@ def main(argv: list[str] | None = None) -> int:
 
     elif args.command == "expert-review-example-package-check":
         _run_expert_review_example_package_check(args)
+
+    elif args.command == "recalibration-rejection-summary-check":
+        _run_recalibration_rejection_summary_check(args)
+
+    elif args.command == "proof-ladder-level-certificate-check":
+        _run_proof_ladder_level_certificate_check(args)
 
     else:
         parser.error("unknown command")

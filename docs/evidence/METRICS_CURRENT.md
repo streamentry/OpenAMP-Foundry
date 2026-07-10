@@ -9,6 +9,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.26 — Phase B B1: ProofLadderLevelCertificate schema
+- Added `ProofLadderLevelCertificate` (PLC-) schema
+- 14 fields: plc_id, pipeline_version, candidate_id, certificate_id, claimed_level, evidence_type, verifier_type, verification_date, supporting_artifact_ids, unsupported_claims, human_review_required, human_review_completed, dry_lab_only, notes
+- 14 validation rules; 3 warnings; 63 tests
+- BASELINE 6205→6268
+- CLI: openamp-foundry proof-ladder-level-certificate-check
+- Closes Phase B B1 — proof-ladder level claim is now a machine-checkable structured assertion
+
 ### v0.10.25 — Phase B B9: Certificate claim discipline CI gate
 - Added `tests/test_certificate_claim_discipline.py` — 35-test CI gate
 - Scans all certificate text fields against RISKY_PATTERNS (check_claims.py) and FORBIDDEN_CLAIM_PATTERNS (wave0_5_gate_checker.py)

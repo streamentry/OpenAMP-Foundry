@@ -1319,6 +1319,23 @@ def _run_recalibration_rejection_summary_check(args):
     print("OK: RecalibrationRejectionSummary is valid.")
 
 
+def _run_proof_ladder_level_certificate_check(args):
+    """CLI handler for proof-ladder-level-certificate-check."""
+    import json, sys
+    from openamp_foundry.evidence.proof_ladder_level_certificate import validate_dict
+    data = json.load(open(args.input))
+    issues = validate_dict(data)
+    errors = [i for i in issues if not i.startswith("WARNING:")]
+    warnings = [i for i in issues if i.startswith("WARNING:")]
+    for w in warnings:
+        print(w)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    print("OK: ProofLadderLevelCertificate is valid.")
+
+
 def _run_domain_review_outcome_check(args):
     from openamp_foundry.evidence.domain_review_outcome import (
         validate_domain_review_outcome_dict,
