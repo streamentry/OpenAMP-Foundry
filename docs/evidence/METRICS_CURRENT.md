@@ -5,7 +5,8 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase E E3 — reviewer questionnaire — v0.10.13)
+> **Last updated:** 2026-07-10 (Phase E E9 — domain review outcome — v0.10.14)
+> **New in v0.10.14 (Phase E E9):** DomainReviewOutcome — controlled taxonomy expert verdict on a PEP (11 fields, 9 validation rules, 3 warnings, 63 tests, BASELINE 5414→5477); closes ESC→RVQ→DRO review chain
 > **New in v0.10.13 (Phase E E3):** ReviewerQuestionnaire — structured external review feedback with Likert clarity ratings, synthesis recommendation, and comments (13 fields, 10 validation rules, 4 warnings, 63 tests, BASELINE 5351→5414)
 > **New in v0.10.12 (Phase F F4):** FailedCandidateBatchReport — batch-level failure summary linking RJR- and NAS- with failure rate consistency check (13 fields, 11 validation rules, 4 warnings, 63 tests, BASELINE 5288→5351)
 > **New in v0.10.11 (Phase F F2):** NegativeResultArchiveSummary — validates batch of NRR- entries is complete before archiving (11 fields, 9 validation rules, 3 warnings, 63 tests, BASELINE 5225→5288)

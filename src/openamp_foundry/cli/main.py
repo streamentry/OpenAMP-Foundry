@@ -23,6 +23,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_negative_result_archive_check,
     _run_failed_candidate_batch_report_check,
     _run_reviewer_questionnaire_check,
+    _run_domain_review_outcome_check,
     _run_hypothesis_outcome_check, _run_baseline_comparison_check, _run_negative_result_check,
     _run_experiment_priority_check, _run_calibration_performance_check, _run_prediction_drift_check,
     _run_calibration_improvement_check,
@@ -2328,6 +2329,15 @@ def build_parser() -> argparse.ArgumentParser:
         "--format", choices=["text", "json"], default="text"
     )
 
+    domain_review_outcome_parser = sub.add_parser(
+        "domain-review-outcome-check",
+        help="Validate a DomainReviewOutcome (DRO-).",
+    )
+    domain_review_outcome_parser.add_argument("--entry-json", required=True)
+    domain_review_outcome_parser.add_argument(
+        "--format", choices=["text", "json"], default="text"
+    )
+
     # ── Hypothesis outcome check (Phase N N2) ────────────────────────
     hypothesis_outcome_parser = sub.add_parser(
         "hypothesis-outcome-check",
@@ -2836,6 +2846,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "reviewer-questionnaire-check":
         _run_reviewer_questionnaire_check(args)
+
+    if args.command == "domain-review-outcome-check":
+        _run_domain_review_outcome_check(args)
 
     if args.command == "hypothesis-outcome-check":
         return _run_hypothesis_outcome_check(args)

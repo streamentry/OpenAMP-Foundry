@@ -100,7 +100,7 @@ Make qualified external review easier and safer.
 | E6 | Add packet generator CLI. | Reduces manual packaging errors. | C/D |
 | E7 | Add packet validator CLI. | Review readiness becomes testable. | C/D |
 | E8 | Add release-summary generator that strips restricted fields. | Safer public summaries. | D |
-| E9 | Add domain-review outcome taxonomy. | Rejection becomes structured. | B/C |
+| E9 | Add domain review outcome schema (complete). | Structured expert verdict on a PEP with controlled taxonomy of domains and outcomes; closes ESC→RVQ→DRO review chain. | B/C |
 | E10 | Add expert-review example with mock/toy candidates only. | Safe demonstration. | B/C |
 
 ## Phase F — Negative-result infrastructure
