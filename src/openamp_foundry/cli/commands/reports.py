@@ -2729,3 +2729,44 @@ def _run_advisory_review_check(args: argparse.Namespace) -> int:
 
 def _run_roadmap_sync_check(args: argparse.Namespace) -> int:
     """Validate a roadmap sync entry."""
+
+
+def _run_reviewer_questionnaire_check(args):
+    from openamp_foundry.evidence.reviewer_questionnaire import (
+        validate_reviewer_questionnaire_dict,
+    )
+    import json
+    import sys
+
+    data = json.loads(args.entry_json)
+    result = validate_reviewer_questionnaire_dict(data)
+
+    if args.format == "json":
+        out = {
+            "rvq_id": result.rvq_id,
+            "pep_id": result.pep_id,
+            "overall_package_quality": result.overall_package_quality,
+            "would_recommend_for_synthesis": result.would_recommend_for_synthesis,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "dry_lab_only": result.dry_lab_only,
+        }
+        print(json.dumps(out, indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Reviewer Questionnaire: {status}")
+        print(f"  RVQ ID: {result.rvq_id}")
+        print(f"  PEP ID: {result.pep_id}")
+        print(f"  Overall Quality: {result.overall_package_quality}/5")
+        print(f"  Recommendation: {result.would_recommend_for_synthesis}")
+        if result.errors:
+            print("  Errors:")
+            for e in result.errors:
+                print(f"    - {e}")
+        if result.warnings:
+            print("  Warnings:")
+            for w in result.warnings:
+                print(f"    - {w}")
+
+    sys.exit(0 if result.passed else 1)

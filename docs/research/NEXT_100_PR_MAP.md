@@ -94,7 +94,7 @@ Make qualified external review easier and safer.
 |---:|---|---|---|
 | E1 | Add external review packet schema. | Packets become machine-checkable. | C/D |
 | E2 | Add example external review packet using toy data. | Partners know what to expect. | C/D |
-| E3 | Add reviewer questionnaire JSON schema. | Review feedback becomes structured. | B/C |
+| E3 | Add reviewer questionnaire schema (complete). | Makes external review feedback machine-readable: Likert clarity ratings for activity/safety/novelty claims, synthesis recommendation, structured comments. | B/C |
 | E4 | Add safety-release decision schema. | Release review becomes auditable. | D |
 | E5 | Add non-protocol pilot pre-registration schema. | Freezes selection logic. | C/D |
 | E6 | Add packet generator CLI. | Reduces manual packaging errors. | C/D |
