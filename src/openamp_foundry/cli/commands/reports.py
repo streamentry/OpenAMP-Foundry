@@ -2815,3 +2815,48 @@ def _run_reviewer_questionnaire_check(args):
                 print(f"    - {w}")
 
     sys.exit(0 if result.passed else 1)
+
+
+def _run_domain_review_outcome_check(args):
+    from openamp_foundry.evidence.domain_review_outcome import (
+        validate_domain_review_outcome_dict,
+    )
+    import json
+    import sys
+
+    data = json.loads(args.entry_json)
+    result = validate_domain_review_outcome_dict(data)
+
+    if args.format == "json":
+        out = {
+            "dro_id": result.dro_id,
+            "pep_id": result.pep_id,
+            "rvq_id": result.rvq_id,
+            "review_domain": result.review_domain,
+            "outcome_verdict": result.outcome_verdict,
+            "outcome_confidence": result.outcome_confidence,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "dry_lab_only": result.dry_lab_only,
+        }
+        print(json.dumps(out, indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Domain Review Outcome: {status}")
+        print(f"  DRO ID: {result.dro_id}")
+        print(f"  PEP ID: {result.pep_id}")
+        print(f"  RVQ ID: {result.rvq_id}")
+        print(f"  Domain: {result.review_domain}")
+        print(f"  Verdict: {result.outcome_verdict}")
+        print(f"  Confidence: {result.outcome_confidence}")
+        if result.errors:
+            print("  Errors:")
+            for e in result.errors:
+                print(f"    - {e}")
+        if result.warnings:
+            print("  Warnings:")
+            for w in result.warnings:
+                print(f"    - {w}")
+
+    sys.exit(0 if result.passed else 1)
