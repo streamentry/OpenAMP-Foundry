@@ -39,6 +39,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_recalibration_decision_log_check,
     _run_recalibration_rejection_summary_check,
     _run_synthetic_boundary_audit_record_check,
+    _run_expert_review_example_package_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2543,6 +2544,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_sbr.add_argument("input", help="Path to JSON file")
     p_sbr.set_defaults(func=_run_synthetic_boundary_audit_record_check)
 
+    p_erp = subparsers.add_parser("expert-review-example-package-check", help="Validate an ExpertReviewExamplePackage JSON")
+    p_erp.add_argument("input", help="Path to JSON file")
+    p_erp.set_defaults(func=_run_expert_review_example_package_check)
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2987,6 +2992,9 @@ def main(argv: list[str] | None = None) -> int:
 
     elif args.command == "recalibration-decision-log-check":
         _run_recalibration_decision_log_check(args)
+
+    elif args.command == "expert-review-example-package-check":
+        _run_expert_review_example_package_check(args)
 
     else:
         parser.error("unknown command")

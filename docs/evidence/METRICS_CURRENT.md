@@ -9,6 +9,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.24 — Phase E E10: ExpertReviewExamplePackage schema
+- Added `ExpertReviewExamplePackage` (ERP-) schema
+- 14 fields: erp_id, pipeline_version, example_version, creation_date, review_domain, mock_candidates (1-10), overall_clarity_rating, synthesis_recommendation, reviewer_comments, dry_lab_only, is_example_data, example_use_case, summary, notes
+- 16 validation rules; 3 warnings; 63 tests
+- BASELINE 6107→6170
+- CLI: openamp-foundry expert-review-example-package-check
+- Closes Phase E E10 — CI-checkable example package that cannot leak real candidates
+
 ### v0.10.23 — Phase G G8: SyntheticBoundaryAuditRecord schema
 - Added `SyntheticBoundaryAuditRecord` (SBR-) schema
 - 14 fields: sbr_id, pipeline_version, batch_id, audit_date, evidence_source, total_candidates_checked, total_violations, violation_rate, blocked_upgrades, max_proposed_ladder_level, policy_enforced, enforcement_outcome, summary, notes

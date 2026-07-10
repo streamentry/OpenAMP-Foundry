@@ -3065,3 +3065,20 @@ def _run_synthetic_boundary_audit_record_check(args):
             print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
     print("OK: SyntheticBoundaryAuditRecord is valid.")
+
+
+def _run_expert_review_example_package_check(args):
+    """CLI handler for expert-review-example-package-check."""
+    import json, sys
+    from openamp_foundry.evidence.expert_review_example_package import validate_dict
+    data = json.load(open(args.input))
+    issues = validate_dict(data)
+    errors = [i for i in issues if not i.startswith("WARNING:")]
+    warnings = [i for i in issues if i.startswith("WARNING:")]
+    for w in warnings:
+        print(w)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    print("OK: ExpertReviewExamplePackage is valid.")
