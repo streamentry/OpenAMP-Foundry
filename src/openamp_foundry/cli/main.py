@@ -41,6 +41,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_synthetic_boundary_audit_record_check,
     _run_expert_review_example_package_check,
     _run_proof_ladder_level_certificate_check,
+    _run_certificate_claim_boundary_check,
 )
 from openamp_foundry.cli.commands.gates import _run_gate_check, _run_release_gate_check
 from openamp_foundry.cli.commands.reports import _run_contribution_check
@@ -2552,6 +2553,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_plc = subparsers.add_parser("proof-ladder-level-certificate-check", help="Validate a ProofLadderLevelCertificate JSON")
     p_plc.add_argument("input", help="Path to JSON file")
     p_plc.set_defaults(func=_run_proof_ladder_level_certificate_check)
+
+    p_ccb = subparsers.add_parser("certificate-claim-boundary-check", help="Validate a CertificateClaimBoundary JSON")
+    p_ccb.add_argument("input", help="Path to JSON file")
+    p_ccb.set_defaults(func=_run_certificate_claim_boundary_check)
 
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(

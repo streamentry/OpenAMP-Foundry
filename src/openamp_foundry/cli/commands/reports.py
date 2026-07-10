@@ -2614,6 +2614,23 @@ def _run_rotation_plan_check(args: argparse.Namespace) -> int:
     return 0 if result.passed else 3
 
 
+def _run_certificate_claim_boundary_check(args):
+    """CLI handler for certificate-claim-boundary-check."""
+    import json, sys
+    from openamp_foundry.evidence.certificate_claim_boundary import validate_dict
+    data = json.load(open(args.input))
+    issues = validate_dict(data)
+    errors = [i for i in issues if not i.startswith("WARNING:")]
+    warnings = [i for i in issues if i.startswith("WARNING:")]
+    for w in warnings:
+        print(w)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    print("OK: CertificateClaimBoundary is valid.")
+
+
 def _run_security_report_check(args: argparse.Namespace) -> int:
     """Validate a security vulnerability report."""
     import json as _json

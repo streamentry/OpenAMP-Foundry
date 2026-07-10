@@ -42,7 +42,7 @@ Make candidate evidence packages impossible to confuse with biological proof.
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | B1 | Add certificate field for `proof_ladder_level` (complete). | PLC- schema: 14 fields, 14 validation rules, dry_lab_only caps level at multi_signal_candidate_evidence, human_review_required enforced for levels ≥expert_reviewed_assay_proposal, unsupported_claims required as anti-overclaim guard; makes level claim machine-verifiable. | B |
-| B2 | Add `unsupported_claims` field to certificates. | Prevents score-to-proof drift. | B |
+| B2 | Add `unsupported_claims` field to certificates (complete). | CCB- schema: 10 fields, 13 validation rules, 8 claim class vocabulary, ≥3 classes required, dry_lab_only+all_listed_classes_unsupported enforced, no-duplicate check; negative complement of PLC- closes score-to-proof drift gap. | B |
 | B3 | Add `baseline_caveat` field. | Forces cheap-explanation visibility. | B |
 | B4 | Add `release_status` field. | Supports staged release. | C/D |
 | B5 | Add certificate quality-tier validator. | External-review readiness becomes measurable. | B |

@@ -9,6 +9,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 ## Changelog
 
+### v0.10.27 — Phase B B2: CertificateClaimBoundary schema
+- Added `CertificateClaimBoundary` (CCB-) schema
+- 10 fields: ccb_id, pipeline_version, certificate_id, candidate_id, boundary_date, unsupported_claim_classes (8-value vocab), boundary_statement, dry_lab_only, all_listed_classes_unsupported, notes
+- 13 validation rules; 2 warnings; 63 tests
+- BASELINE 6268→6331
+- CLI: openamp-foundry certificate-claim-boundary-check
+- Closes Phase B B2 — negative complement of PLC-; prevents score-to-proof drift by requiring explicit enumeration of unsupported claims
+
 ### v0.10.26 — Phase B B1: ProofLadderLevelCertificate schema
 - Added `ProofLadderLevelCertificate` (PLC-) schema
 - 14 fields: plc_id, pipeline_version, candidate_id, certificate_id, claimed_level, evidence_type, verifier_type, verification_date, supporting_artifact_ids, unsupported_claims, human_review_required, human_review_completed, dry_lab_only, notes
