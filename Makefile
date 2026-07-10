@@ -10,6 +10,7 @@ help:
 	@echo "Quick verification:"
 	@echo "  make pr-ready           Pre-PR check (agent-check + doctor)"
 	@echo "  make agent-check        Claim scan + doc links + benchmark deprecation"
+	@echo "  make docs-check         Doc links + doc index coverage (subset of agent-check)"
 	@echo "  make doctor             Environment diagnostic"
 	@echo ""
 	@echo "Pipeline:"
@@ -95,6 +96,10 @@ docs-index-check:
 	PYTHONPATH=src $(PYTHON) scripts/check_docs_index_coverage.py --warn-only 2>/dev/null || \
 	PYTHONPATH=src $(PYTHON) scripts/check_docs_index_coverage.py
 	@echo "OK (advisory — index coverage expected to improve over time)"
+
+.PHONY: docs-check
+docs-check: doc-links-check docs-index-check
+	@echo "--- All docs checks passed ---"
 
 docs-only-check:
 	@echo "--- Docs-only PR check ---"
