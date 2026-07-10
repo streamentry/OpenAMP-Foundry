@@ -30,7 +30,7 @@ Make the repo easier to run, understand, and verify.
 | A4 | Add a `docs/getting-started/FIRST_RUN_WALKTHROUGH.md` with expected outputs and claim boundaries (complete). — docs/getting-started/FIRST_RUN_WALKTHROUGH.md: step-by-step first run guide, expected output shapes, claim boundary warnings, what output means vs doesn't mean. | Converts demo into onboarding. | A |
 | A5 | Add test that README quickstart commands stay valid (complete). — tests/test_quickstart.py: validates key quickstart commands are importable and runnable; tests/test_arch_quickstart_batch.py covers batch entrypoints. | Prevents entrypoint drift. | B |
 | A6 | Add link-check CI for internal docs (complete). — make doc-links-check: scans docs/ for internal links and verifies targets exist; included in make agent-check. | Prevents doc graph rot. | B |
-| A7 | Add a `make docs-check` target. | Agents can verify doc-only PRs. | B |
+| A7 | Add a `make docs-check` target (complete). — make docs-check: combined target running doc-links-check and docs-index-check; one-command docs validation for agents and maintainers. | Agents can verify doc-only PRs. | B |
 | A8 | Add generated artifact examples with safe toy data. | Reviewers see what good output looks like. | B |
 | A9 | Add `outputs/README.md` explaining generated outputs and ignored files (complete). — outputs/README.md: file pattern table, dry-lab-only notice, what is gitignored, how to regenerate examples; .gitignore updated with !outputs/README.md exception. | Reduces confusion. | A |
 | A10 | Add troubleshooting table for install/test failures (complete). — docs/getting-started/TROUBLESHOOTING.md: 10 common failures with root causes and fixes; covers ModuleNotFoundError, BASELINE mismatch, claim violations, broken doc links, benchmark threshold freeze rule. | Faster onboarding. | A |
@@ -114,8 +114,8 @@ Make failure useful.
 | F3 | Add rejection reason entry schema (complete). | Enables analysis of failed candidates with controlled vocabulary of stages and reasons; feeds calibration loop with structured failure signal. | B |
 | F4 | Add failed candidate batch report schema (complete). | Makes failed batches reviewable: links RJR- rejection reasons and NAS- archive into a validated batch-level report with failure rate consistency check. | B/C |
 | F5 | Add safe-publication filter for negative results. | Supports openness without unsafe release. | D |
-| F6 | Add examples of non-informative vs informative negative results. | Better interpretation. | A |
-| F7 | Add calibration link from negative-result entries to intake reports. | Closes learning loop. | C |
+| F6 | Add examples of non-informative vs informative negative results (complete). — docs/evidence/NEGATIVE_RESULT_EXAMPLES.md: 5 worked examples (hemolysis rejection, module timeout, dual-use flag, ad-hoc removal, low-confidence borderline); summary table; agent MUST rules. | Better interpretation. | A |
+| F7 | Add calibration link from negative-result entries to intake reports (complete). — evidence/negative_result_calibration_link.py: links NRR- rejection records to calibration intake reports for closed-loop learning; tests/evidence/test_negative_result_calibration_link.py. | Closes learning loop. | C |
 | F8 | Add benchmark for whether rejected candidates resemble known failure modes (complete). — FMS- schema: 14 fields, 11 validation rules, PATTERN_REPEATED_THRESHOLD=0.80, pattern_repeated_flag enforcement, calibration_action_recommended; 63 tests. | Improves rejection logic. | C |
 | F9 | Add negative-result dashboard schema (complete). | NRD- aggregates NRR- rejection statistics: rejection rate consistency check, all_rejections_have_nrr enforced, top stage/reason controlled vocabulary, 100% rejection warning. | B |
 | F10 | Add policy that public claims must mention relevant negative results. | Prevents cherry-picking. | D |
@@ -135,7 +135,7 @@ Make learning controlled rather than self-serving.
 | G7 | Add result-quality flag propagation into calibration engine (complete). — calibration/result_quality.py: flags low-quality outcomes before they enter calibration; make result-quality-filter target; tests/calibration/test_result_quality.py (27 tests). | Low-quality outcomes cannot drive updates. | C |
 | G8 | Add policy that synthetic results cannot raise proof-ladder level (complete). | SBR- schema: 14 fields, 16 validation rules, synthetic-only evidence cannot propose level ≥4 without violations recorded, policy_enforced=True enforced, violation rate consistency check (tol 0.01); anti-overclaim boundary is now auditable artifact. | B/C |
 | G9 | Add calibration decision review checklist. | Human review stronger. | C/D |
-| G10 | Add recalibration rollback plan. | Safer updates. | C |
+| G10 | Add recalibration rollback plan (complete). — calibration/rollback_plan.py: structured plan for rolling back a calibration update if quality degrades; make calibration-rollback-plan target; tests/calibration/test_rollback_plan.py. | Safer updates. | C |
 
 ## Phase H — Virtual assay discipline
 
@@ -186,7 +186,7 @@ Make the repo survive contributors, updates, and time.
 | J7 | Add contributor covenant and attribution policy (complete). — docs/CONTRIBUTOR_COVENANT.md: overclaiming as explicit violation, AI attribution policy, artifact attribution rules. | Fair credit for future contributors. | A |
 | J8 | Add automated stale-doc detector (complete). — checks/stale_doc_detector.py: detects docs that reference non-existent files, outdated schema names, or broken anchor links; tests/checks/test_stale_doc_detector.py. | Reduces doc rot over time. | B |
 | J9 | Add cross-reference checker between schemas and tests (complete). — checks/schema_test_coverage.py: verifies each schema module has a corresponding test file; SchemaCoverageReport; tests/checks/test_schema_test_coverage.py. | Ensures tests stay coupled to schemas. | B |
-| J10 | Add end-to-end dry-run test for full pipeline from sequences to evidence package. | Smoke test for whole system. | B/C |
+| J10 | Add end-to-end dry-run test for full pipeline from sequences to evidence package (complete). — tests/test_pipeline_dry_run_e2e.py: 20 tests chaining fasta_export, scoring, evidence certificates, and pilot evidence package using TOY- sequences only; no external calls or disk I/O. | Smoke test for whole system. | B/C |
 
 ## Phase P — Pilot batch infrastructure
 
