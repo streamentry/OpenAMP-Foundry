@@ -329,3 +329,11 @@ Machine-verifiable proof that every pipeline run carries the fields needed for e
 | AA3 | Add configuration fingerprint schema (CFP-) (complete). | Structured record of all config file paths and their SHA256/etc. hashes for a pipeline run; verdict all_configs_hashed/some_configs_unhashed/no_configs_recorded; complements RMC- config_hash field with full per-file audit trail. | C |
 | AA4 | Add synthetic boundary warning record schema (SBW-) (complete). | Machine-checkable label enforcement for synthetic lab results (mic_simulation/structure_prediction/docking/etc.); verdict labelled/partially_labelled/unlabelled; cannot_support_biological_claim=True invariant enforced; prevents synthetic data from being treated as experimental validation. | C |
 | AA5 | Add Phase AA reproducibility gate (AARG-). | Top-level gate asserting RMC+DCR+CFP+SBW all present; verdict reproducibility_verified/partial/not_established; closes Phase AA; no run is reproducibility-certified until this gate passes. | C |
+
+## Phase AB — Claim integrity and external handoff
+
+Machine-verifiable audit trail for claim downgrades, expert decisions, and external collaboration handoffs.
+
+| PR | Task | Why it matters | Review class |
+|---:|---|---|---|
+| AB1 | Add claim strength downgrade record schema (CSD-). | Auditable trail for every claim downgrade; proof_ladder_steps_dropped auto-computed; is_retracted invariant; trigger_type controlled vocabulary (benchmark/reviewer/cheap_enemy/etc.); prevents silent claim drift upward after challenges. | B/C |
