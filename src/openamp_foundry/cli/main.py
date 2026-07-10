@@ -57,6 +57,7 @@ from openamp_foundry.evidence.calibration_improvement_record import validate_dic
 from openamp_foundry.evidence.candidate_selection_rationale import validate_dict as validate_candidate_selection_rationale_dict
 from openamp_foundry.evidence.negative_result_entry import validate_dict as validate_negative_result_entry_dict
 from openamp_foundry.evidence.pilot_package_completeness_report import validate_dict as validate_pilot_package_completeness_dict
+from openamp_foundry.evidence.post_experiment_calibration_intake import validate_dict as validate_post_experiment_calibration_intake_dict
 from openamp_foundry.evidence.quality import assess_certificate_quality
 from openamp_foundry.evidence.schemas import validate_json_schema
 from openamp_foundry.pipeline import run_ranking_pipeline
@@ -2514,6 +2515,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     cir_parser.add_argument("json_input", help="JSON string of the CIR- record")
 
+    pci_parser = subparsers.add_parser(
+        "post-experiment-calibration-intake-check",
+        help="Validate a PostExperimentCalibrationIntake (PCI-) record",
+    )
+    pci_parser.add_argument("json_input", help="JSON string of the PCI- record")
+
     # ── Selection rationale check (Phase K K1) ───────────────────────
     src2 = sub.add_parser(
         "selection-rationale-check",
@@ -2947,6 +2954,10 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "calibration-improvement-record-check":
         from openamp_foundry.cli.commands.reports import _run_calibration_improvement_record_check
         _run_calibration_improvement_record_check(args)
+
+    elif args.command == "post-experiment-calibration-intake-check":
+        from openamp_foundry.cli.commands.reports import _run_post_experiment_calibration_intake_check
+        _run_post_experiment_calibration_intake_check(args)
 
     else:
         parser.error("unknown command")

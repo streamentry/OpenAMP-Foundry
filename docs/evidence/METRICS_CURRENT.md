@@ -5,7 +5,16 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase O O3 — calibration improvement record — v0.10.18)
+> **Last updated:** 2026-07-10 (Phase K K4 — post-experiment calibration intake — v0.10.19)
+> **New in v0.10.19 — Phase K K4 — Post-Experiment Calibration Intake (PCI-)**
+
+> - **Schema**: `PostExperimentCalibrationIntake` — 13 fields, structured result-to-prediction comparison
+> - **Validation**: 12 rules — PCI- prefix, pipeline_version+batch_id non-empty, ISO date, candidates_tested ≥1, candidates_with_results in [1,tested], observed_active in [0,with_results], hit rate in [0,1], hit rate consistency (tol 0.01), rationale non-empty and ≤400 chars, data_quality_confirmed=True enforced, notes ≤300 chars
+> - **Warnings**: 3 — incomplete results (some candidates without results), observed_active=0, low hit rate without calibration update
+> - **Tests**: 63 tests across 9 test classes; BASELINE 5792→5855
+> - **CLI**: `openamp-foundry post-experiment-calibration-intake-check`
+> - **Closes wet-lab loop**: PCI- feeds CIR- (calibration improvement) and P3/P5 (cycle summary)
+
 > **New in v0.10.18 (Phase O O3 — Calibration Improvement Record (CIR-)):** CalibrationImprovementRecord — 12 fields, before/after audit record for calibration updates. 11 validation rules — CIR- prefix, pipeline_version non-empty, calibration_version_before/after non-empty and must differ, ISO date, metric_name controlled vocab (8 values), improvement_confirmed=True enforced, improvement_rationale non-empty and ≤400 chars, data_source_id non-empty, notes ≤300 chars. 3 warnings — wrong direction for higher-is-better/lower-is-better metrics, very small improvement (<0.005), notes empty. 63 tests across 9 test classes; BASELINE 5729→5792. CLI: openamp-foundry calibration-improvement-record-check. Completes Phase O: joins O1/O2/O4/O5 with the missing before/after change record.
 > **New in v0.10.17 (Phase K K2 — Batch Experiment Priority Ranker):** BatchExperimentPriorityRanker — 11 fields, synthesis wave priority ordering. 10 validation rules — BPR- prefix, pipeline_version+batch_id non-empty, CSR- prefix, ISO date, priority_method controlled vocab (6 values), top_priority_candidates non-empty, priority_rationale non-empty and ≤400 chars, synthesis_wave ≥1, notes ≤300 chars. 3 warnings — resource_constraint_considered=False, expert_ranked without notes, synthesis_wave >5. 63 tests across 9 test classes; BASELINE 5666→5729. CLI: openamp-foundry batch-experiment-priority-ranker-check. BPR- records which candidates to synthesize first; CSR- records why candidates were selected.
 > **New in v0.10.16 (Phase K K1 — Candidate Selection Rationale):** CandidateSelectionRationale — 12 fields, auditable candidate selection decisions. 12 validation rules: CSR- prefix, pipeline_version+batch_id non-empty, BSP- prefix, ISO date, strategy controlled vocab (4 values), candidate_count ≥1, count/ids consistency, ranking_method controlled vocab (6 values), calibration_gate_passed=True enforced, rationale non-empty and ≤400 chars, notes ≤300 chars. 3 warnings: large batch (>20), random_balanced without notes, expert_review without notes. 63 tests; BASELINE 5603→5666. CLI: openamp-foundry candidate-selection-rationale-check.
