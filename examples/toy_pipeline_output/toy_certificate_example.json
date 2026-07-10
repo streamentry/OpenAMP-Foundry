@@ -1,0 +1,27 @@
+{
+  "cert_id": "TOY-CERT-0001",
+  "candidate_id": "TOY-0001",
+  "sequence": "KWKLFKKIEK",
+  "dry_lab_only": true,
+  "claim_class": "computational_nomination",
+  "proof_ladder_level": "multi_signal_candidate_evidence",
+  "unsupported_claims": ["in_vitro_activity", "in_vivo_efficacy", "toxicity_cleared", "clinical_relevance"],
+  "scores": {
+    "activity": 0.82,
+    "safety": 0.91,
+    "novelty": 0.75,
+    "hemolysis_risk": 0.12,
+    "ensemble": 0.85
+  },
+  "baseline_caveat": "Charge, length, and hydrophobicity baselines all pass. Method advantage over cheap heuristics is not yet demonstrated.",
+  "selection_reason": ["High activity-likeness score", "Low predicted safety risk"],
+  "known_failure_modes": [
+    "No wet-lab antimicrobial activity assay has been run.",
+    "Scores are heuristics, not validated biological predictors.",
+    "Cheap baselines (charge, length, hydrophobicity) are not excluded as explanations."
+  ],
+  "run_id": "TOY-RUN-0001",
+  "run_manifest_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "human_review_required": false,
+  "issued_by": "openamp_foundry_toy_example"
+}
