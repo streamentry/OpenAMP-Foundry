@@ -1,14 +1,15 @@
 """Regression test: total test count must stay within 5% of BASELINE."""
 
 import subprocess
+import sys
 import math
 
-BASELINE = 9828
+BASELINE = 9891
 
 
 def test_test_count_regression():
     result = subprocess.run(
-        ["python", "-m", "pytest", "--collect-only", "-q", "--no-header"],
+        [sys.executable, "-m", "pytest", "--collect-only", "-q", "--no-header"],
         capture_output=True,
         text=True,
     )
