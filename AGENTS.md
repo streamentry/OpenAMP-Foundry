@@ -43,6 +43,14 @@ Then route the task with [`AGENT_TASKS.json`](AGENT_TASKS.json) — the machine-
 
 If these docs conflict, safety and claim discipline win.
 
+## Current execution state
+
+- Phase AC AC2 adds `src/openamp_foundry/evidence/phase_ac_disconfirming_gate.py`.
+- Use `python3 -m pytest --collect-only -q --no-header` to verify the full test
+  graph before relying on targeted evidence.
+- The Phase E ERP example and validator retain an explicitly legacy compatibility
+  bridge; new packet work must use the component-based V4 ERP API.
+
 ## The agent role
 
 Agents may:

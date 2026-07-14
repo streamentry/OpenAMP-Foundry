@@ -40,10 +40,12 @@ def _parse_benchmark_summaries(raw: list) -> list:
 def _parse_calibration_summary(raw: dict):
     """Parse raw calibration summary dict into CalibrationSummary object."""
     from openamp_foundry.evidence.external_review_packet import CalibrationSummary
+    assessment = raw.get("assessment", "uninformative")
     return CalibrationSummary(
+        calibration_assessment=assessment,
         calibration_error=float(raw.get("calibration_error", 0.0)),
         n_bins=int(raw.get("n_bins", 10)),
-        assessment=raw.get("assessment", "uninformative"),
+        assessment=assessment,
     )
 
 
@@ -62,7 +64,9 @@ def load_packet_from_json(path: Path):
 
     Raises FileNotFoundError if missing, ValueError if invalid JSON or schema.
     """
-    from openamp_foundry.evidence.external_review_packet import ExternalReviewPacket
+    from openamp_foundry.evidence.external_review_packet import (
+        build_legacy_external_review_packet,
+    )
 
     if not path.exists():
         raise FileNotFoundError(f"Packet file not found: {path}")
@@ -89,17 +93,22 @@ def load_packet_from_json(path: Path):
     safety_raw = data.get("safety_attestations", {})
     safety_attestations = _parse_safety_attestations(safety_raw)
 
-    return ExternalReviewPacket(
+    return build_legacy_external_review_packet(
         packet_id=data.get("packet_id", ""),
-        candidate_entries=candidate_entries,
-        benchmark_summaries=benchmark_summaries,
+        version="0.1.0",
+        generated_at="1970-01-01T00:00:00Z",
+        candidates=candidate_entries,
+        candidate_count=len(candidate_entries),
+        benchmark_summary=benchmark_summaries[0] if benchmark_summaries else None,
         calibration_summary=calibration_summary,
         safety_attestations=safety_attestations,
         limitations=data.get("limitations", []),
         pipeline_version=data.get("pipeline_version", ""),
         git_sha=data.get("git_sha", ""),
         dry_lab_only_attestation=bool(data.get("dry_lab_only_attestation", False)),
-        calibration_assessment=data.get("calibration_assessment", "uninformative"),
+        proof_ladder_level=1,
+        contact="",
+        notes="Legacy ERP JSON compatibility packet.",
     )
 
 
@@ -126,7 +135,7 @@ def validate_packet_file(path: Path) -> dict:
     result = validate_external_review_packet(packet)
     return {
         "path": str(path),
-        "valid": result.valid,
+        "valid": result.is_valid,
         "violations": list(result.violations),
         "packet_id": result.packet_id,
         "error": None,

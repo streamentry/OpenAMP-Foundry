@@ -7,7 +7,23 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 >
 > **Last updated:** 2026-07-10 (Phase G G2 — recalibration rejection summary — v0.10.22)
 
+> **Current verification note (2026-07-14):** Phase AC AC2 adds the ACDG-
+> aggregate disconfirming-evidence gate. It has 18 focused tests. Full pytest
+> collection succeeds at 12,302 tests; this artifact does not establish
+> biological validation or benchmark improvement.
+
 ## Changelog
+
+### Phase AC AC2 — Aggregate disconfirming-evidence gate
+- Added `src/openamp_foundry/evidence/phase_ac_disconfirming_gate.py`.
+- Aggregates validated DTR- records and exposes unresolved claim-affecting actions.
+- Verdicts are `disconfirming_evidence_verified`, `disconfirming_evidence_partial`,
+  or `disconfirming_evidence_not_established`.
+- Refuted findings require `downgrade_claim`; inconclusive findings require
+  `investigate`; neither can silently pass as verified.
+- 18 focused tests in `tests/evidence/test_phase_ac_disconfirming_gate.py`.
+- This gate is a review-control artifact, not evidence of biological activity,
+  safety, novelty, or wet-lab performance.
 
 ### v0.10.36 — Phase C C3: Charge distribution report for benchmark shortcut visibility
 - Added `src/openamp_foundry/evidence/charge_distribution_report.py`

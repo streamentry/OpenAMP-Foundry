@@ -1460,6 +1460,108 @@ def _run_simulation_registry(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_simulation_baseline_check(args: argparse.Namespace) -> int:
+    """Check whether a simulation module beats its cheapest declared baseline."""
+    from openamp_foundry.simulation.baseline_registry import (
+        check_baseline_requirement,
+        get_baseline_declaration,
+    )
+
+    module_id = args.module_id
+    claimed_level = args.claimed_level
+    baseline_beaten = args.baseline_beaten.lower() == "true"
+    output_format = getattr(args, "format", "text")
+
+    entry = get_baseline_declaration(module_id)
+    if entry is None:
+        print(json.dumps({
+            "status": "error",
+            "error": f"Unknown module_id '{module_id}'. Use --list to see available modules.",
+        }))
+        return 3
+
+    result = check_baseline_requirement(module_id, claimed_level, baseline_beaten)
+
+    if output_format == "json":
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"Baseline Check: {module_id}")
+        print(f"  Module:                 {entry.module_name}")
+        print(f"  Baseline:               {entry.baseline_description}")
+        print(f"  Baseline type:          {entry.baseline_type}")
+        print(f"  Evidence level ceiling: {entry.evidence_level_ceiling}")
+        print(f"  Baseline beaten:        {baseline_beaten}")
+        print(f"  Claimed evidence level: {claimed_level}")
+        print(f"  Effective evidence:     {result['effective_evidence_level']}")
+        print(f"  Capped:                 {result['capped']}")
+        print(f"  Message:                {result['message']}")
+        print()
+        print("Dry-lab only. Baseline comparisons are computational benchmarks,")
+        print("not biological proof.")
+
+    return 3 if result["capped"] else 0
+
+
+def _run_adapter_gate_check(args: argparse.Namespace) -> int:
+    """Fail-closed adapter gate check for simulation adapters."""
+    from openamp_foundry.simulation.adapter_gate import evaluate_adapter_gate
+
+    module_id = args.module_id
+    timeout_occurred = args.timeout.lower() == "true"
+    connection_refused = args.connection_refused.lower() == "true"
+    module_unavailable = args.module_unavailable.lower() == "true"
+    output_format = getattr(args, "format", "text")
+
+    schema_errors_raw = args.schema_errors
+    try:
+        schema_errors = json.loads(schema_errors_raw) if schema_errors_raw else []
+    except (json.JSONDecodeError, TypeError):
+        print(json.dumps({
+            "status": "error",
+            "error": f"Invalid JSON for --schema-errors: {schema_errors_raw!r}",
+        }))
+        return 2
+
+    if not isinstance(schema_errors, list):
+        print(json.dumps({
+            "status": "error",
+            "error": "--schema-errors must be a JSON array of strings",
+        }))
+        return 2
+
+    baseline_beaten_raw = args.baseline_beaten
+    baseline_beaten = None
+    if baseline_beaten_raw is not None:
+        baseline_beaten = baseline_beaten_raw.lower() == "true"
+
+    gate_result = evaluate_adapter_gate(
+        module_id=module_id,
+        result=None,
+        timeout_occurred=timeout_occurred,
+        connection_refused=connection_refused,
+        schema_errors=schema_errors,
+        module_unavailable=module_unavailable,
+        baseline_beaten=baseline_beaten,
+    )
+
+    if output_format == "json":
+        print(json.dumps(gate_result.to_dict(), indent=2))
+    else:
+        status = "PASS" if gate_result.passed else "FAIL"
+        print(f"Adapter Gate Check: {module_id}")
+        print(f"  Status:  {status}")
+        if gate_result.failure_reason:
+            print(
+                f"  Reason: {gate_result.failure_reason} — "
+                f"{gate_result.failure_detail}"
+            )
+        print()
+        print("Dry-lab only. Adapter gate checks are computational safeguards,")
+        print("not biological proof.")
+
+    return 0 if gate_result.passed else 3
+
+
 def _run_simulation_ensemble_check(args: argparse.Namespace) -> int:
     """Check agreement across multiple simulation results for a sequence."""
     import json
@@ -1531,6 +1633,99 @@ def _run_simulation_ensemble_check(args: argparse.Namespace) -> int:
             print("Results disagree. Investigate module discrepancies before use.")
 
     return 0 if agreement["within_agreement"] else 3
+
+
+def _run_reviewer_briefing_check(args: argparse.Namespace) -> int:
+    """Validate a reviewer briefing package passed as JSON."""
+    try:
+        entry_dict = json.loads(args.entry_json)
+    except json.JSONDecodeError as exc:
+        print(json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(entry_dict, dict):
+        print(json.dumps({
+            "status": "error",
+            "error": "--entry-json must be a JSON object",
+        }))
+        return 2
+
+    from openamp_foundry.evidence.reviewer_briefing_package import (
+        validate_reviewer_briefing_dict,
+    )
+
+    result = validate_reviewer_briefing_dict(entry_dict)
+    if args.format == "json":
+        import dataclasses
+
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(
+            f"[{status}] Reviewer Briefing Check: {result.briefing_id} "
+            f"(reviewer: {result.reviewer_name})"
+        )
+        for error in result.errors:
+            print(f"  ERROR: {error}")
+        for warning in result.warnings:
+            print(f"  WARN:  {warning}")
+        if result.passed:
+            print("  Reviewer briefing package validated.")
+
+    return 0 if result.passed else 3
+
+
+def _run_audit_chain_check(args: argparse.Namespace) -> int:
+    """Validate the nine-link evidence audit chain."""
+    entry_dict = json.loads(args.entry_json)
+    from openamp_foundry.evidence.audit_chain_completeness import (
+        validate_audit_chain_dict,
+    )
+
+    result = validate_audit_chain_dict(entry_dict)
+    if args.format == "json":
+        import dataclasses
+
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(
+            f"[{status}] Audit Chain Check: {result.chain_id} "
+            f"({result.missing_link_count} gaps)"
+        )
+        for error in result.errors:
+            print(f"  ERROR: {error}")
+        for warning in result.warnings:
+            print(f"  WARN:  {warning}")
+
+    return 0 if result.passed else 3
+
+
+def _run_pre_registration_check(args: argparse.Namespace) -> int:
+    """Validate a pre-registration form passed as JSON."""
+    entry_dict = json.loads(args.entry_json)
+    from openamp_foundry.evidence.pre_registration_form import (
+        validate_pre_registration_dict,
+    )
+
+    result = validate_pre_registration_dict(entry_dict)
+    if args.format == "json":
+        import dataclasses
+
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(
+            f"[{status}] Pre-Registration Check: {result.registration_id} "
+            f"({result.candidate_count} candidates, "
+            f"metric: {result.primary_outcome_metric})"
+        )
+        for error in result.errors:
+            print(f"  ERROR: {error}")
+        for warning in result.warnings:
+            print(f"  WARN:  {warning}")
+
+    return 0 if result.passed else 3
 
 
 def _run_simulation_ci_report(args: argparse.Namespace) -> int:
@@ -3116,3 +3311,945 @@ def _run_expert_review_example_package_check(args):
             print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
     print("OK: ExpertReviewExamplePackage is valid.")
+
+def _run_annual_review_check(args: argparse.Namespace) -> int:
+    """Validate an annual review checklist entry."""
+    import json as _json
+    from openamp_foundry.governance.annual_review import validate_annual_review_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_annual_review_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Annual review {result.review_id} ({result.section} / {result.year}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Annual review entry validated. Long-term trust maintained.")
+
+    return 0 if result.passed else 3
+
+def _run_baseline_comparison_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.baseline_comparison_manifest import validate_baseline_comparison_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_baseline_comparison_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        beats = "beats all" if result.pipeline_beats_all_baselines else "loses to some"
+        print(f"[{status}] Baseline Comparison: {result.manifest_id} ({result.metric_name}, pipeline {beats} {result.baseline_count} baseline(s))")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+
+def _run_batch_outcome_summary_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.batch_outcome_summary import (
+        validate_batch_outcome_summary_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_batch_outcome_summary_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        synth = "SYNTHETIC" if result.is_synthetic else "REAL"
+        print(f"[{status}] Batch Outcome Summary: {result.bos_id} ({synth})")
+        print(f"  BSP: {result.bsp_id}")
+        print(f"  Tested: {result.candidates_tested}/{result.candidates_proposed} "
+              f"(active={result.candidates_active}, inactive={result.candidates_inactive}, "
+              f"untested={result.candidates_untested})")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+def _run_batch_priority_check(args: argparse.Namespace) -> int:
+    """Validate a batch experiment priority entry."""
+    import json as _json
+    from openamp_foundry.evidence.batch_priority import validate_batch_priority_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_batch_priority_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Batch priority {result.priority_id} (candidate {result.candidate_id}, rank {result.priority_rank}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Batch priority validated. Synthesis wave ranking is auditable.")
+
+    return 0 if result.passed else 3
+
+def _run_batch_selection_proposal_check(args: argparse.Namespace) -> int:
+    from openamp_foundry.evidence.batch_selection_proposal import (
+        validate_batch_selection_proposal_dict,
+    )
+
+    if args.entry_json:
+        import json
+
+        try:
+            d = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 2
+        result = validate_batch_selection_proposal_dict(d)
+    else:
+        result = validate_batch_selection_proposal_dict(
+            {
+                "bsp_id": "BSP-DEMO",
+                "pipeline_version": "v1.0.0",
+                "gate_id": "CRG-DEMO",
+                "gate_passed": True,
+                "candidate_ids": ["CAND-001", "CAND-002"],
+                "selection_strategy": "hybrid",
+                "exploitation_fraction": 0.6,
+                "exploration_fraction": 0.4,
+                "max_brier_score_allowed": 0.20,
+                "proposal_notes": "Demo proposal.",
+                "reviewer": "demo@example.com",
+                "dry_lab_only": True,
+            }
+        )
+
+    if args.format == "json":
+        import json
+
+        print(
+            json.dumps(
+                {
+                    "bsp_id": result.bsp_id,
+                    "gate_id": result.gate_id,
+                    "gate_passed": result.gate_passed,
+                    "candidate_count": result.candidate_count,
+                    "selection_strategy": result.selection_strategy,
+                    "passed": result.passed,
+                    "errors": result.errors,
+                    "warnings": result.warnings,
+                },
+                indent=2,
+            )
+        )
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Batch Selection Proposal: {result.bsp_id}")
+        print(f"  Gate: {result.gate_id} (passed={result.gate_passed})")
+        print(f"  Strategy: {result.selection_strategy}")
+        print(f"  Candidates: {result.candidate_count}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN: {w}")
+
+    return 0 if result.passed else 1
+
+def _run_calibration_cycle_summary_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.calibration_cycle_summary import (
+        validate_calibration_cycle_summary_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_calibration_cycle_summary_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        complete = "COMPLETE" if result.is_complete else f"INCOMPLETE ({result.missing_artifact_count} missing)"
+        print(f"[{status}] Calibration Cycle Summary: {result.ccs_id} [{complete}]")
+        print(f"  BSP: {result.bsp_id}, candidates: {result.candidate_count}")
+        print(f"  Cycle outcome: {result.cycle_outcome}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+def _run_calibration_improvement_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.calibration_improvement_record import (
+        validate_calibration_improvement_dict,
+    )
+
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+
+    result = validate_calibration_improvement_dict(data)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Calibration Improvement: {result.improvement_id}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+
+    return 0 if result.passed else 1
+
+def _run_calibration_intake_check(args: argparse.Namespace) -> int:
+    """Validate a post-experiment calibration intake entry."""
+    import json as _json
+    from openamp_foundry.evidence.calibration_intake import validate_calibration_intake_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_calibration_intake_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        correct = "correct" if result.prediction_correct else "incorrect"
+        print(f"Calibration intake {result.intake_id} (candidate {result.candidate_id}, prediction {correct}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Calibration intake validated. Prediction-vs-outcome comparison is recorded.")
+
+    return 0 if result.passed else 3
+
+def _run_calibration_performance_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.calibration_performance_summary import validate_calibration_performance_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_calibration_performance_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Calibration Performance: {result.summary_id} (v{result.pipeline_version}, n={result.total_candidates_evaluated}, Brier={result.brier_score:.3f})")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+
+def _run_calibration_readiness_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.calibration_readiness_gate import (
+        validate_calibration_readiness_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_calibration_readiness_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        gate = "GATE-PASS" if result.gate_passed else "GATE-FAIL"
+        print(f"[{status}] Calibration Readiness Gate: {result.gate_id} [{gate}]")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+def _run_candidate_summary_card_check(args: argparse.Namespace) -> int:
+    """Validate a candidate summary card entry."""
+    import json as _json
+    from openamp_foundry.evidence.candidate_summary_card import validate_candidate_summary_card_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_candidate_summary_card_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Candidate summary card {result.card_id} (candidate {result.candidate_id}, length {result.sequence_length}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Candidate summary card validated. Ready for reviewer packet.")
+
+    return 0 if result.passed else 3
+
+def _run_claim_to_evidence_check(args: argparse.Namespace) -> int:
+    import json as _json
+    from openamp_foundry.evidence.claim_to_evidence_mapper import validate_claim_to_evidence_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_claim_to_evidence_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Claim-to-Evidence Check: {result.mapping_id}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Claim-to-evidence mapping validated. Claim is traceable to supporting artifacts.")
+
+    return 0 if result.passed else 3
+
+def _run_cross_batch_aggregator_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.cross_batch_aggregator import (
+        validate_cross_batch_aggregator_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_cross_batch_aggregator_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Cross-Batch Aggregator: {result.aggregator_id}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+def _run_dataset_release_check(args: argparse.Namespace) -> int:
+    """Validate a dataset release package entry."""
+    import json as _json
+    from openamp_foundry.evidence.dataset_release import validate_dataset_release_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_dataset_release_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Dataset release {result.release_id} ({result.dataset_name}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Dataset release validated. Package meets data governance requirements.")
+
+    return 0 if result.passed else 3
+
+def _run_experiment_priority_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.experiment_priority_justification import validate_experiment_priority_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_experiment_priority_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Experiment Priority: {result.justification_id} ({result.criteria_count} criteria, {result.rejected_alternative_count} alternatives rejected)")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+
+def _run_external_sharing_clearance_check(args):
+    from openamp_foundry.evidence.external_sharing_clearance import (
+        validate_external_sharing_clearance_dict,
+    )
+    import json
+    import sys
+
+    data = json.loads(args.entry_json)
+    result = validate_external_sharing_clearance_dict(data)
+
+    if args.format == "json":
+        out = {
+            "esc_id": result.esc_id,
+            "pep_id": result.pep_id,
+            "pre_id": result.pre_id,
+            "sharing_purpose": result.sharing_purpose,
+            "passed": result.passed,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "dry_lab_only": result.dry_lab_only,
+        }
+        print(json.dumps(out, indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"External Sharing Clearance: {status}")
+        print(f"  ESC ID: {result.esc_id}")
+        print(f"  PEP ID: {result.pep_id}")
+        print(f"  PRE ID: {result.pre_id}")
+        print(f"  Purpose: {result.sharing_purpose}")
+        if result.errors:
+            print("  Errors:")
+            for e in result.errors:
+                print(f"    - {e}")
+        if result.warnings:
+            print("  Warnings:")
+            for w in result.warnings:
+                print(f"    - {w}")
+
+    sys.exit(0 if result.passed else 1)
+
+def _run_hypothesis_outcome_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.hypothesis_outcome_record import validate_hypothesis_outcome_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_hypothesis_outcome_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        threshold_status = "MET" if result.success_threshold_met else "NOT MET"
+        print(f"[{status}] Hypothesis Outcome: {result.outcome_id} -> {result.outcome_verdict} (threshold {threshold_status})")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+
+def _run_multi_candidate_comparison_check(args: argparse.Namespace) -> int:
+    """Validate a multi-candidate comparison entry."""
+    import json as _json
+    from openamp_foundry.evidence.multi_candidate_comparison import validate_multi_candidate_comparison_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_multi_candidate_comparison_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Multi-candidate comparison {result.comparison_id} (batch {result.batch_id}, {result.candidate_count} candidates): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Multi-candidate comparison validated. Ready for supplementary table.")
+
+    return 0 if result.passed else 3
+
+def _run_negative_result_check(args: argparse.Namespace) -> None:
+    import json
+    from openamp_foundry.evidence.negative_result_record import validate_negative_result_dict
+
+    entry_dict = json.loads(args.entry_json)
+    result = validate_negative_result_dict(entry_dict)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        reported = "will be reported" if result.will_be_reported else "NOT REPORTED"
+        print(f"[{status}] Negative Result: {result.record_id} ({result.failure_category}, {result.candidate_count} candidates, {reported})")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+
+def _run_pilot_batch_safety_clearance_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.pilot_batch_safety_clearance import (
+        validate_pilot_batch_safety_clearance_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_pilot_batch_safety_clearance_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        cleared = "CLEARED" if result.cleared_for_synthesis else "NOT-CLEARED"
+        print(f"[{status}] Pilot Batch Safety Clearance: {result.psc_id} [{cleared}]")
+        print(f"  BSP: {result.bsp_id}, risk tier: {result.max_safety_risk_tier}")
+        print(f"  Rejections: {result.rejection_count}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+def _run_pilot_evidence_package_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.pilot_evidence_package import (
+        validate_pilot_evidence_package_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_pilot_evidence_package_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        complete = "COMPLETE" if result.is_complete else f"INCOMPLETE ({result.missing_artifact_count} missing)"
+        print(f"[{status}] Pilot Evidence Package: {result.pep_id} [{complete}]")
+        print(f"  CCS: {result.ccs_id}, candidates: {result.candidate_count}")
+        print(f"  Cleared: {result.cleared_for_synthesis}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+def _run_pilot_package_check(args: argparse.Namespace) -> int:
+    """Validate a pilot package completeness entry."""
+    import json as _json
+    from openamp_foundry.evidence.pilot_package import validate_pilot_package_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_pilot_package_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Pilot package {result.package_id} (batch {result.batch_id}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Pilot package validated. All required artifacts present.")
+
+    return 0 if result.passed else 3
+
+def _run_pipeline_decision_audit_check(args: argparse.Namespace) -> int:
+    """Validate a pipeline decision audit entry."""
+    import json as _json
+    from openamp_foundry.evidence.pipeline_decision_audit import validate_pipeline_decision_audit_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_pipeline_decision_audit_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Pipeline decision audit {result.audit_id} (batch {result.batch_id}, type {result.decision_type}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Pipeline decision audit validated. Decision is traceable and reviewable.")
+
+    return 0 if result.passed else 3
+
+def _run_pre_registration_entry_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.pre_registration_entry import (
+        validate_pre_registration_entry_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_pre_registration_entry_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Pre-Registration: {result.pre_id} [{result.registration_status}]")
+        print(f"  Title: {result.experiment_title}")
+        print(f"  Candidates: {result.candidate_count}, Controls: +{result.has_positive_control}/-{result.has_negative_control}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+def _run_prediction_drift_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.prediction_drift_monitor import (
+        validate_prediction_drift_dict,
+    )
+
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+
+    result = validate_prediction_drift_dict(data)
+
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Prediction Drift Monitor: {result.monitor_id}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+
+    return 0 if result.passed else 1
+
+def _run_preprint_bundle_check(args: argparse.Namespace) -> int:
+    """Validate a preprint evidence bundle entry."""
+    import json as _json
+    from openamp_foundry.evidence.preprint_bundle import validate_preprint_bundle_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_preprint_bundle_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Preprint bundle {result.bundle_id} (batch {result.batch_id}, {result.artifact_count} artifacts): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Preprint bundle validated. Evidence package is ready for submission review.")
+
+    return 0 if result.passed else 3
+
+def _run_recalibration_refusal_check(args) -> int:
+    import json
+    from openamp_foundry.evidence.recalibration_refusal_record import (
+        validate_recalibration_refusal_dict,
+    )
+    if args.entry_json:
+        try:
+            data = json.loads(args.entry_json)
+        except json.JSONDecodeError as exc:
+            print(f"Error: invalid JSON: {exc}", file=__import__("sys").stderr)
+            return 1
+    else:
+        data = json.load(__import__("sys").stdin)
+    result = validate_recalibration_refusal_dict(data)
+    if args.format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Recalibration Refusal: {result.rrf_id}")
+        for err in result.errors:
+            print(f"  ERROR: {err}")
+        for warn in result.warnings:
+            print(f"  WARN:  {warn}")
+    return 0 if result.passed else 1
+
+def _run_reproducibility_manifest_check(args: argparse.Namespace) -> int:
+    """Validate a reproducibility manifest entry."""
+    import json as _json
+    from openamp_foundry.evidence.reproducibility_manifest import validate_reproducibility_manifest_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_reproducibility_manifest_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Reproducibility manifest {result.manifest_id} (batch {result.batch_id}, {result.package_count} packages, {result.data_file_count} data files): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Reproducibility manifest validated. Run is fully documented for third-party reproduction.")
+
+    return 0 if result.passed else 3
+
+def _run_score_decomposition_check(args: argparse.Namespace) -> int:
+    import json
+    from openamp_foundry.evidence.score_decomposition_report import validate_score_decomposition_dict
+
+    try:
+        entry_dict = json.loads(args.entry_json)
+    except json.JSONDecodeError as exc:
+        print(json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(entry_dict, dict):
+        print(json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_score_decomposition_dict(entry_dict)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"[{status}] Score Decomposition Check: {result.report_id} ({result.candidate_id})")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Score decomposition validated. Composite score is auditable.")
+
+    return 0 if result.passed else 3
+
+def _run_selection_rationale_check(args: argparse.Namespace) -> int:
+    """Validate a candidate selection rationale entry."""
+    import json as _json
+    from openamp_foundry.evidence.selection_rationale import validate_selection_rationale_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_selection_rationale_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Selection rationale {result.selection_id} (candidate {result.candidate_id}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Selection rationale validated. Decision is auditable.")
+
+    return 0 if result.passed else 3
+
+def _run_uncertainty_report_check(args: argparse.Namespace) -> int:
+    """Validate an uncertainty quantification report entry."""
+    import json as _json
+    from openamp_foundry.evidence.uncertainty_report import validate_uncertainty_report_dict
+
+    try:
+        d = _json.loads(args.entry_json)
+    except _json.JSONDecodeError as exc:
+        print(_json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+
+    if not isinstance(d, dict):
+        print(_json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    result = validate_uncertainty_report_dict(d)
+    output_format = getattr(args, "format", "text")
+
+    if output_format == "json":
+        import dataclasses
+        print(_json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.passed else "FAIL"
+        print(f"Uncertainty report {result.report_id} (candidate {result.candidate_id}, width {result.interval_width:.2f}): {status}")
+        for e in result.errors:
+            print(f"  ERROR: {e}")
+        for w in result.warnings:
+            print(f"  WARN:  {w}")
+        if result.passed:
+            print("  Uncertainty report validated. Prediction intervals are documented.")
+
+    return 0 if result.passed else 3

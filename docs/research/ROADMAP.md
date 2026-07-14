@@ -1,5 +1,13 @@
 # Roadmap
 
+## Current state — 2026-07-14
+
+Phase AC is active. AC1 records one explicit disconfirming test as a DTR-
+artifact. AC2 now aggregates those records into an ACDG- gate that remains
+partial until claim-affecting follow-up actions are explicitly resolved.
+This is an auditability improvement only. It does not validate biology,
+improve benchmark performance, or authorize release.
+
 ### v0.10.3 - Phase O O5: Calibration Readiness Gate (COMPLETES PHASE O)
 - CalibrationReadinessEntry: binary gate consuming CBA- aggregators
 - gate_passed consistent with failure_reasons; degrading-trend and marginal-Brier warnings

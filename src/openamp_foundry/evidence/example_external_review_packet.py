@@ -9,7 +9,7 @@ This module is CI-checkable: build_example_packet() must pass all validation rul
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from openamp_foundry.evidence.external_review_packet import (
     BenchmarkSummary,
@@ -18,6 +18,7 @@ from openamp_foundry.evidence.external_review_packet import (
     ExternalReviewPacket,
     PacketValidationResult,
     SafetyAttestations,
+    build_legacy_external_review_packet,
     validate_external_review_packet,
 )
 
@@ -132,7 +133,7 @@ def build_example_packet(
     prefix; the packet is marked dry_lab_only_attestation=True.
     """
     candidates = [build_toy_candidate_entry(toy) for toy in TOY_CANDIDATES]
-    return ExternalReviewPacket(
+    return build_legacy_external_review_packet(
         packet_id=packet_id,
         version=version,
         generated_at=generated_at,

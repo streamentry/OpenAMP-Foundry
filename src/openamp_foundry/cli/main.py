@@ -35,7 +35,6 @@ from openamp_foundry.cli.commands.reports import (
     _run_pilot_batch_safety_clearance_check,
     _run_calibration_cycle_summary_check,
     _run_pilot_evidence_package_check,
-    _run_pre_registration_entry_check,
     _run_recalibration_decision_log_check,
     _run_recalibration_rejection_summary_check,
     _run_synthetic_boundary_audit_record_check,
@@ -2484,14 +2483,6 @@ def build_parser() -> argparse.ArgumentParser:
     p_pep.add_argument("--format", choices=["text", "json"], default="text")
     p_pep.set_defaults(func=_run_pilot_evidence_package_check)
 
-    p_pre = sub.add_parser(
-        "pre-registration-check",
-        help="Validate pre-registration entry",
-    )
-    p_pre.add_argument("--entry-json", default=None)
-    p_pre.add_argument("--format", choices=["text", "json"], default="text")
-    p_pre.set_defaults(func=_run_pre_registration_entry_check)
-
     negative_result_entry_parser = sub.add_parser(
         "negative-result-entry-check",
         help="Validate a NegativeResultEntry (NRR-) record",
@@ -2516,45 +2507,45 @@ def build_parser() -> argparse.ArgumentParser:
     )
     bpr_parser.add_argument("json_input", help="JSON string of the BPR- record")
 
-    cir_parser = subparsers.add_parser(
+    cir_parser = sub.add_parser(
         "calibration-improvement-record-check",
         help="Validate a CalibrationImprovementRecord (CIR-) record",
     )
     cir_parser.add_argument("json_input", help="JSON string of the CIR- record")
 
-    pci_parser = subparsers.add_parser(
+    pci_parser = sub.add_parser(
         "post-experiment-calibration-intake-check",
         help="Validate a PostExperimentCalibrationIntake (PCI-) record",
     )
     pci_parser.add_argument("json_input", help="JSON string of the PCI- record")
 
-    nrd_parser = subparsers.add_parser(
+    nrd_parser = sub.add_parser(
         "negative-result-dashboard-check",
         help="Validate a NegativeResultDashboard (NRD-) record",
     )
     nrd_parser.add_argument("json_input", help="JSON string of the NRD- record")
 
-    p_rdl = subparsers.add_parser("recalibration-decision-log-check", help="Validate a RecalibrationDecisionLog JSON")
+    p_rdl = sub.add_parser("recalibration-decision-log-check", help="Validate a RecalibrationDecisionLog JSON")
     p_rdl.add_argument("input", help="Path to JSON file")
     p_rdl.set_defaults(func=_run_recalibration_decision_log_check)
 
-    p_rrs = subparsers.add_parser("recalibration-rejection-summary-check", help="Validate a RecalibrationRejectionSummary JSON")
+    p_rrs = sub.add_parser("recalibration-rejection-summary-check", help="Validate a RecalibrationRejectionSummary JSON")
     p_rrs.add_argument("input", help="Path to JSON file")
     p_rrs.set_defaults(func=_run_recalibration_rejection_summary_check)
 
-    p_sbr = subparsers.add_parser("synthetic-boundary-audit-record-check", help="Validate a SyntheticBoundaryAuditRecord JSON")
+    p_sbr = sub.add_parser("synthetic-boundary-audit-record-check", help="Validate a SyntheticBoundaryAuditRecord JSON")
     p_sbr.add_argument("input", help="Path to JSON file")
     p_sbr.set_defaults(func=_run_synthetic_boundary_audit_record_check)
 
-    p_erp = subparsers.add_parser("expert-review-example-package-check", help="Validate an ExpertReviewExamplePackage JSON")
+    p_erp = sub.add_parser("expert-review-example-package-check", help="Validate an ExpertReviewExamplePackage JSON")
     p_erp.add_argument("input", help="Path to JSON file")
     p_erp.set_defaults(func=_run_expert_review_example_package_check)
 
-    p_plc = subparsers.add_parser("proof-ladder-level-certificate-check", help="Validate a ProofLadderLevelCertificate JSON")
+    p_plc = sub.add_parser("proof-ladder-level-certificate-check", help="Validate a ProofLadderLevelCertificate JSON")
     p_plc.add_argument("input", help="Path to JSON file")
     p_plc.set_defaults(func=_run_proof_ladder_level_certificate_check)
 
-    p_ccb = subparsers.add_parser("certificate-claim-boundary-check", help="Validate a CertificateClaimBoundary JSON")
+    p_ccb = sub.add_parser("certificate-claim-boundary-check", help="Validate a CertificateClaimBoundary JSON")
     p_ccb.add_argument("input", help="Path to JSON file")
     p_ccb.set_defaults(func=_run_certificate_claim_boundary_check)
 
@@ -2968,9 +2959,6 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "pilot-evidence-package-check":
         return _run_pilot_evidence_package_check(args)
-
-    if args.command == "pre-registration-check":
-        return _run_pre_registration_entry_check(args)
 
     if args.command == "negative-result-entry-check":
         from openamp_foundry.cli.commands.reports import _run_negative_result_entry_check

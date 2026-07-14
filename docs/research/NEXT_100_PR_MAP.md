@@ -349,3 +349,4 @@ Machine-readable records of explicit attempts to prove claims wrong. Makes the C
 | PR | Task | Why it matters | Review class |
 |---:|---|---|---|
 | AC1 | Add disconfirming test record schema (DTR-). | Machine-readable record of one disconfirming test; 7 test_type categories (cheapest_explanation/leakage/scope_creep/hidden_certainty/uninformative_uncertainty/charge_matched_enemy/train_test_split); is_claim_affected and required_action auto-computed from outcome; makes CLAUDE.md disconfirming pass auditable; 54 tests. BASELINE: 12071→12125. | C |
+| AC2 | Add aggregate disconfirming evidence gate (ACDG-). | Aggregates validated DTR- records by pipeline version, counts claim-affecting findings and required actions, and stays partial until every required follow-up is explicitly resolved; empty evidence remains not established. Includes 18 focused tests and preserves dry-lab-only limitations. | C |
