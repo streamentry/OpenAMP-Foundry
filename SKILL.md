@@ -71,7 +71,9 @@ sequenceDiagram
 1. Read `AGENTS.md`, `CLAUDE.md`, `MISSION.md`, and `docs/evidence/METRICS_CURRENT.md`.
 2. Treat `docs/evidence/METRICS_CURRENT.md` plus `outputs/metrics_snapshot.json` as the
    current benchmark truth when docs disagree.
-3. Preserve the safety boundary: dry-lab scoring and evidence only. No wet-lab
+3. For the required disconfirming pass, use
+   `docs/evidence/DISCONFIRMING_TEST_RECORD_GUIDE.md` when recording a challenge.
+4. Preserve the safety boundary: dry-lab scoring and evidence only. No wet-lab
    protocols, pathogen enablement, toxicity-maximizing objectives, or biological
    proof claims.
 

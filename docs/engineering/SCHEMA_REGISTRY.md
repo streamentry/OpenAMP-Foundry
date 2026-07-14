@@ -30,6 +30,7 @@ Future work should add machine-readable schema metadata and automated schema che
 | Result summary | Captures qualified outcome summaries at a safe abstraction level. | High. | [`CALIBRATION_POLICY.md`](../evidence/CALIBRATION_POLICY.md) |
 | Calibration intake report | Joins predictions with structured result summaries. | High. | [`CALIBRATION_POLICY.md`](../evidence/CALIBRATION_POLICY.md) |
 | Recalibration gate verdict | Records whether recalibration may be considered. | High. | [`CALIBRATION_POLICY.md`](../evidence/CALIBRATION_POLICY.md) |
+| Disconfirming test record (`DTR-`) | Records one explicit attempt to falsify a computational claim and the resulting follow-up action. | Experimental. | [`DISCONFIRMING_TEST_RECORD_GUIDE.md`](../evidence/DISCONFIRMING_TEST_RECORD_GUIDE.md) |
 | Decision record | Records important project decisions. | Medium-high. | [`DECISION_RECORD_TEMPLATE.md`](../operations/DECISION_RECORD_TEMPLATE.md) |
 
 ## Required schema metadata

@@ -125,6 +125,11 @@ Before opening a PR, spend real effort trying to prove your own change wrong. Th
 
 State the result of this pass in the PR's Evidence section. "I tried to break it as follows and could not" is a stronger claim than any green checkmark.
 
+When a challenge is recorded as an artifact, use
+[`docs/evidence/DISCONFIRMING_TEST_RECORD_GUIDE.md`](docs/evidence/DISCONFIRMING_TEST_RECORD_GUIDE.md)
+and preserve the derived follow-up action. A `not_refuted` record is not proof,
+and a `skipped` record is not a passed challenge.
+
 Structural note:
 
 - `docs/README.md` is the documentation front door.

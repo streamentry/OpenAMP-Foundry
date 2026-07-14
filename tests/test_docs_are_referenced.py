@@ -59,3 +59,15 @@ def test_key_docs_are_referenced():
     # These may be referenced by relative paths not captured by simple scan
     if missing:
         print(f"Warning: following docs not found by reference scan: {missing}")
+
+
+def test_disconfirming_record_guide_is_indexed():
+    """The DTR contract must be reachable from both documentation hubs."""
+    guide = DOCS_DIR / "evidence" / "DISCONFIRMING_TEST_RECORD_GUIDE.md"
+    assert guide.exists()
+
+    evidence_readme = (DOCS_DIR / "evidence" / "README.md").read_text()
+    project_index = (DOCS_DIR / "PROJECT_INDEX.md").read_text()
+
+    assert "DISCONFIRMING_TEST_RECORD_GUIDE.md" in evidence_readme
+    assert "DISCONFIRMING_TEST_RECORD_GUIDE.md" in project_index

@@ -208,6 +208,7 @@ First useful contribution: make the repo easier to maintain without lowering saf
 | [`docs/evidence/BENCHMARK_GOVERNANCE.md`](evidence/../evidence/BENCHMARK_GOVERNANCE.md) | Benchmark lifecycle and anti-cheating rules. |
 | [`docs/evidence/METRICS_CURRENT.md`](evidence/../evidence/METRICS_CURRENT.md) | Current benchmark state and single source of truth for metrics. |
 | [`docs/evidence/EVIDENCE_CERTIFICATE.md`](evidence/../evidence/EVIDENCE_CERTIFICATE.md) | Candidate certificate spec. |
+| [`docs/evidence/DISCONFIRMING_TEST_RECORD_GUIDE.md`](evidence/DISCONFIRMING_TEST_RECORD_GUIDE.md) | Operational guide for recording explicit attempts to falsify computational claims. |
 | [`docs/evidence/CALIBRATION_POLICY.md`](evidence/CALIBRATION_POLICY.md) | Recalibration gate and policy. |
 | [`docs/evidence/VIRTUAL_ASSAY_SCOPE.md`](evidence/VIRTUAL_ASSAY_SCOPE.md) | What virtual assay modules may and may not claim. |
 

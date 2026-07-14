@@ -4,6 +4,7 @@
 
 - [Proof ladder](PROOF_LADDER.md)
 - [Claim review checklist](CLAIM_REVIEW_CHECKLIST.md)
+- [Disconfirming test record](DISCONFIRMING_TEST_RECORD_GUIDE.md)
 - [Current metrics](METRICS_CURRENT.md)
 
 ## Benchmark system
