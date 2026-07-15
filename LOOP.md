@@ -2,7 +2,18 @@
 
 You are inside the OpenAMP Foundry repo.
 
-First pull. Read AGENTS.md, CLAUDE.md, MISSION.md, README.md, docs/ARCHITECTURE.md, docs/PLAN.md, docs/ROADMAP.md, docs/METRICS_CURRENT.md, docs/SAFE_SCOPE.md. Run one focused loop. When done: create PR, review, merge.
+First pull. Read AGENTS.md, CLAUDE.md, MISSION.md, README.md, and the canonical docs below before choosing work:
+
+- `docs/README.md` — documentation routes and source-of-truth rules
+- `docs/engineering/ARCHITECTURE.md` — system architecture and extension points
+- `docs/research/PLAN.md` — current execution plan
+- `docs/research/ROADMAP.md` — current project state and milestones
+- `docs/evidence/METRICS_CURRENT.md` — measured evidence and known weaknesses
+- `docs/trust/SAFE_SCOPE.md` — safe-scope boundary
+
+These files replace the retired flat paths `docs/ARCHITECTURE.md`,
+`docs/PLAN.md`, `docs/ROADMAP.md`, `docs/METRICS_CURRENT.md`, and
+`docs/SAFE_SCOPE.md`. Run one focused loop. When done: create PR, review, merge.
 
 Mission:
 Move OpenAMP one real step closer to:
