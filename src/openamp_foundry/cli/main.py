@@ -17,7 +17,8 @@ from openamp_foundry.cli.commands.reports import (
     _run_simulation_scope_check, _run_simulation_evidence_packet, _run_artifact_version,
     _run_candidate_manifest, _run_benchmark_card, _run_artifact_changelog, _run_integration_check,
     _run_adapter_check, _run_license_check, _run_artifact_compat_check, _run_adoption_scorecard,
-    _run_reviewer_briefing_check, _run_audit_chain_check,     _run_pre_registration_check,
+    _run_reviewer_briefing_check, _run_audit_chain_check,
+    _run_phase_ac_disconfirming_gate_check, _run_pre_registration_check,
     _run_external_sharing_clearance_check,
     _run_rejection_reason_check,
     _run_negative_result_archive_check,
@@ -2285,6 +2286,20 @@ def build_parser() -> argparse.ArgumentParser:
         "--format", choices=["text", "json"], default="text"
     )
 
+    # ── Aggregate disconfirming-evidence gate (Phase AC AC3) ─────────
+    phase_ac_gate_parser = sub.add_parser(
+        "phase-ac-disconfirming-gate-check",
+        help="Build the Phase AC aggregate disconfirming-evidence gate",
+    )
+    phase_ac_gate_parser.add_argument(
+        "--entry-json",
+        required=True,
+        help="JSON object containing gate metadata and DTR records",
+    )
+    phase_ac_gate_parser.add_argument(
+        "--format", choices=["text", "json"], default="text"
+    )
+
     # ── Pre-registration form check (Phase N N1) ─────────────────────
     pre_registration_parser = sub.add_parser(
         "pre-registration-check",
@@ -2898,6 +2913,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "audit-chain-check":
         return _run_audit_chain_check(args)
+
+    if args.command == "phase-ac-disconfirming-gate-check":
+        return _run_phase_ac_disconfirming_gate_check(args)
 
     if args.command == "pre-registration-check":
         return _run_pre_registration_check(args)

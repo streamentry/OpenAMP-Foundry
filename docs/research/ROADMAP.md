@@ -1,10 +1,11 @@
 # Roadmap
 
-## Current state — 2026-07-14
+## Current state — 2026-07-15
 
 Phase AC is active. AC1 records one explicit disconfirming test as a DTR-
-artifact. AC2 now aggregates those records into an ACDG- gate that remains
-partial until claim-affecting follow-up actions are explicitly resolved.
+artifact. AC2 aggregates those records into an ACDG- gate. AC3 exposes that
+gate through a CLI and make target, with nonzero status for partial or
+not-established results so the review control is usable in repeatable loops.
 This is an auditability improvement only. It does not validate biology,
 improve benchmark performance, or authorize release.
 

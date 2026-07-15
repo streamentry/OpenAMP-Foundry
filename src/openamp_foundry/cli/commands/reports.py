@@ -1701,6 +1701,51 @@ def _run_audit_chain_check(args: argparse.Namespace) -> int:
     return 0 if result.passed else 3
 
 
+def _run_phase_ac_disconfirming_gate_check(args: argparse.Namespace) -> int:
+    """Build and report the Phase AC aggregate disconfirming-evidence gate."""
+    import dataclasses
+
+    from openamp_foundry.evidence.disconfirming_test_record import (
+        build_disconfirming_test_record,
+    )
+    from openamp_foundry.evidence.phase_ac_disconfirming_gate import (
+        build_phase_ac_disconfirming_gate,
+        format_phase_ac_disconfirming_gate,
+    )
+
+    payload = json.loads(args.entry_json)
+    records = [
+        build_disconfirming_test_record(
+            dtr_id=record["dtr_id"],
+            pipeline_version=record["pipeline_version"],
+            claim_tested=record["claim_tested"],
+            test_type=record["test_type"],
+            test_description=record["test_description"],
+            test_outcome=record["test_outcome"],
+            evidence_summary=record["evidence_summary"],
+            limitations=record["limitations"],
+            created_at=record["created_at"],
+        )
+        for record in payload["records"]
+    ]
+    gate = build_phase_ac_disconfirming_gate(
+        acdg_id=payload["acdg_id"],
+        pipeline_version=payload["pipeline_version"],
+        records=records,
+        resolved_dtr_ids=payload.get("resolved_dtr_ids", []),
+        limitations=payload["limitations"],
+        created_at=payload["created_at"],
+    )
+
+    if args.format == "json":
+        print(json.dumps(dataclasses.asdict(gate), indent=2))
+    else:
+        status = "PASS" if gate.verdict == "disconfirming_evidence_verified" else "FAIL"
+        print(f"[{status}] {format_phase_ac_disconfirming_gate(gate)}")
+
+    return 0 if gate.verdict == "disconfirming_evidence_verified" else 3
+
+
 def _run_pre_registration_check(args: argparse.Namespace) -> int:
     """Validate a pre-registration form passed as JSON."""
     entry_dict = json.loads(args.entry_json)

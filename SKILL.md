@@ -87,7 +87,11 @@ Phase AC records are two-layered: `disconfirming_test_record.py` stores one
 attempt to break a claim, while `phase_ac_disconfirming_gate.py` aggregates
 those records. A refuted record requires an explicit claim downgrade and an
 inconclusive record requires investigation. An empty aggregate is
-`not_established`, not a pass. Neither artifact is biological validation.
+`not_established`, not a pass. Run
+`openamp-foundry phase-ac-disconfirming-gate-check --entry-json ...` or
+`make phase-ac-disconfirming-gate-check` to exercise the aggregate workflow;
+the command exits nonzero until the aggregate is verified. Neither artifact is
+biological validation.
 - `make bench-easy-baseline`: trivial length/charge baselines.
 - `make bench-charge-matched`: adversarial check that removes charge-density
   separation before comparing ensemble vs charge alone.

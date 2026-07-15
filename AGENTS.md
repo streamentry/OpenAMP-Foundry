@@ -45,7 +45,10 @@ If these docs conflict, safety and claim discipline win.
 
 ## Current execution state
 
-- Phase AC AC2 adds `src/openamp_foundry/evidence/phase_ac_disconfirming_gate.py`.
+- Phase AC AC3 exposes the ACDG- aggregate through
+  `phase-ac-disconfirming-gate-check` and
+  `make phase-ac-disconfirming-gate-check`; partial or not-established
+  verdicts exit nonzero.
 - Use `python3 -m pytest --collect-only -q --no-header` to verify the full test
   graph before relying on targeted evidence.
 - The Phase E ERP example and validator retain an explicitly legacy compatibility

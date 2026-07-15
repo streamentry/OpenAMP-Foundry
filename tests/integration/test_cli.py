@@ -126,6 +126,61 @@ def test_report_contains_disclaimer(tmp_path):
     assert "no antimicrobial activity has been demonstrated" in text.lower() or "No antimicrobial activity" in text
 
 
+def test_phase_ac_disconfirming_gate_check_reports_verified(capsys):
+    ret = main([
+        "phase-ac-disconfirming-gate-check",
+        "--entry-json",
+        json.dumps({
+            "acdg_id": "ACDG-CLI-001",
+            "pipeline_version": "v1.0",
+            "records": [{
+                "dtr_id": "DTR-CLI-001",
+                "pipeline_version": "v1.0",
+                "claim_tested": "The pipeline adds signal beyond a cheap enemy.",
+                "test_type": "cheapest_explanation_check",
+                "test_description": "Compared the pipeline with a charge-only baseline.",
+                "test_outcome": "not_refuted",
+                "evidence_summary": "The recorded challenge did not refute the claim.",
+                "limitations": ["Toy benchmark only."],
+                "created_at": "2026-07-15",
+            }],
+            "resolved_dtr_ids": [],
+            "limitations": ["Dry-lab review control, not biological proof."],
+            "created_at": "2026-07-15",
+        }),
+        "--format", "json",
+    ])
+    assert ret == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["verdict"] == "disconfirming_evidence_verified"
+    assert result["dry_lab_only"] is True
+
+
+def test_phase_ac_disconfirming_gate_check_fails_when_follow_up_is_unresolved():
+    payload = {
+        "acdg_id": "ACDG-CLI-002",
+        "pipeline_version": "v1.0",
+        "records": [{
+            "dtr_id": "DTR-CLI-002",
+            "pipeline_version": "v1.0",
+            "claim_tested": "The pipeline adds signal beyond a cheap enemy.",
+            "test_type": "cheapest_explanation_check",
+            "test_description": "Compared the pipeline with a charge-only baseline.",
+            "test_outcome": "refuted",
+            "evidence_summary": "The cheap baseline matched or exceeded the pipeline.",
+            "limitations": ["Toy benchmark only."],
+            "created_at": "2026-07-15",
+        }],
+        "resolved_dtr_ids": [],
+        "limitations": ["Dry-lab review control, not biological proof."],
+        "created_at": "2026-07-15",
+    }
+    assert main([
+        "phase-ac-disconfirming-gate-check",
+        "--entry-json", json.dumps(payload),
+    ]) == 3
+
+
 def test_presynth_qc_command_returns_zero(tmp_path):
     panel = tmp_path / "panel.csv"
     panel.write_text(

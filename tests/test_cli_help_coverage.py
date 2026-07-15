@@ -13,6 +13,7 @@ COMMANDS = [
     "synthesis-order", "batch-pack", "lab-result-report",
     "calibration-intake", "recalibration-gate", "recalibration-engine",
     "novelty-check-broad", "validate-policy-version", "select-batch",
+    "phase-ac-disconfirming-gate-check",
 ]
 
 

@@ -14,8 +14,14 @@ biological evidence or authorize candidate release.
 
 - **Artifact:** `DTR-` disconfirming test record.
 - **Implementation:** `src/openamp_foundry/evidence/disconfirming_test_record.py`.
-- **Stability:** Experimental. The record is available for internal review and
-  future gate integration; it is not yet a standalone release gate.
+- **Aggregate gate:** `ACDG-` aggregates DTR- records for one pipeline version
+  and blocks a verified verdict while claim-affecting follow-up remains
+  unresolved.
+- **CLI:** `openamp-foundry phase-ac-disconfirming-gate-check --entry-json ...`
+  returns JSON or text and exits nonzero for partial or not-established
+  verdicts. `make phase-ac-disconfirming-gate-check` runs a safe toy example.
+- **Stability:** Experimental. The record and aggregate are internal review
+  controls, not release gates or biological validation.
 - **Safe boundary:** `dry_lab_only` is always `True`.
 
 The record can show that a claim survived one stated challenge. It cannot show
@@ -65,6 +71,9 @@ requires `downgrade_claim`. An `inconclusive` result requires `investigate`.
 6. Keep the record attached to the relevant review artifact. A DTR- record is
    evidence about the challenge, not a substitute for benchmark, safety,
    novelty, reproducibility, or human-review evidence.
+7. Aggregate the records with the Phase AC CLI before treating the disconfirming
+   pass as complete. A zero-record, partial, or unresolved aggregate must stay
+   visible to reviewers through its nonzero exit status.
 
 ## Example shape
 
@@ -95,8 +104,9 @@ does not support a biological or ranking claim.
 - `not_refuted` means this recorded test did not refute the claim; it does not
   establish the claim.
 - `skipped` preserves the missing check but provides no positive evidence.
-- The current record does not aggregate coverage across claims or enforce a
-  complete pre-PR challenge set. That is a future gate concern.
+- The aggregate gate does not define which challenges are sufficient for every
+  claim; it only checks the records supplied for one pipeline version and their
+  explicit follow-up state.
 - No DTR- record changes ranking authority, release status, safety status, or
   proof-ladder level.
 

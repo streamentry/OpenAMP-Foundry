@@ -5,14 +5,24 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-10 (Phase G G2 — recalibration rejection summary — v0.10.22)
+> **Last updated:** 2026-07-15 (Phase AC AC3 — disconfirming gate workflow integration)
 
-> **Current verification note (2026-07-14):** Phase AC AC2 adds the ACDG-
-> aggregate disconfirming-evidence gate. It has 18 focused tests. Full pytest
+> **Current verification note (2026-07-15):** Phase AC AC3 exposes the ACDG-
+> aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
+> has 18 focused gate tests plus 2 CLI integration tests. Full pytest
 > collection succeeds at 12,302 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 ## Changelog
+
+### Phase AC AC3 — Aggregate disconfirming-evidence gate workflow integration
+- Added `phase-ac-disconfirming-gate-check` CLI command and
+  `make phase-ac-disconfirming-gate-check` demo target.
+- CLI rebuilds DTR- records from their derived fields, reports the ACDG- verdict
+  as text or JSON, and exits nonzero unless the verdict is verified.
+- Added CLI help and integration coverage for verified and unresolved cases.
+- This workflow check remains a dry-lab review control; it does not establish
+  biological activity, safety, novelty, or benchmark improvement.
 
 ### Phase AC AC2 — Aggregate disconfirming-evidence gate
 - Added `src/openamp_foundry/evidence/phase_ac_disconfirming_gate.py`.
