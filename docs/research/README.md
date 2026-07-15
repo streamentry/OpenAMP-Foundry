@@ -21,6 +21,7 @@ Wave plans, audits, recommendations, and postmortems preserve decisions under
 the assumptions and data available at the time. Treat them as historical
 evidence, not current policy or current metrics.
 
+- [Historical 50-loop execution record](50_LOOP_PLAN.md)
 - [Wave 0.5 baseline](WAVE_0_5_BASELINE.md)
 - [Wave 0.5 novelty audit](WAVE_0_5_NOVELTY_AUDIT.md)
 - [Wave 1 analysis plan](WAVE1_ANALYSIS_PLAN.md)

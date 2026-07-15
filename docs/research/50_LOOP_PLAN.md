@@ -1,9 +1,14 @@
-# 50-Loop Execution Plan
+# 50-Loop Execution Plan (Historical Record)
 
-> **Status:** ✅ All 50 loops complete. v0.5.70.
-> **Current state:** 2021 passing tests, pipeline AUROC 0.7792,
-> all 5 phases complete, Wave 0.5 panel ready (24 candidates, 15 families),
-> simulation modules experimental, no wet-lab data yet.
+> **Status:** Historical execution record for Loops 1–50. The terminal state
+> recorded here was v0.5.70; these version numbers, test counts, metrics, and
+> phase labels are not current project status.
+>
+> **Current authority:** use [`ROADMAP.md`](ROADMAP.md) for shipped state,
+> [`METRICS_CURRENT.md`](../evidence/METRICS_CURRENT.md) for measured evidence,
+> and [`NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md) for the next PR-sized work.
+> As of 2026-07-15, Phase AC AC3 is complete and the repository remains a
+> dry-lab system with no wet-lab validation established.
 > Reproducibility: `make full-reproducibility-report`
 >
 > Each loop = one focused PR: bottleneck identified → implemented → verified → merged.
@@ -242,7 +247,9 @@ Phase 4: ✅ Complete (Loops 40–49)
 | 28 ✅ | Policy version bump workflow for when real data arrives | `scripts/bump_recalibration_policy.py`: standalone script with `--dry-run`, decision-log guard, auto-increment + write. CI guard in `ci.yml` validates policy version changes against base branch. v0.5.49. 9 tests. | CI rejects policy PRs without valid decision log; `make bump-policy-version` and `make bump-policy-version-dry-run` available |
 | 29 ✅ | No public negative-result archive format. If Wave 1 yields all negatives, where do they go? | `docs/evidence/NEGATIVE_RESULT_ARCHIVE.md`: full template with entry schema, procedures, automation notes, and limitations. Covers pre-selection rejects, selected-untested, lab inactives, lab toxic, control failures. v0.5.50. | Template complete enough for a lab partner to fill; schema defines 18 fields with required/conditional markers |
 
-**Next loop:** None. All 50 loops complete. See Loop 50 below.
+**Historical endpoint:** At the time of this record, no further loop was
+listed. This file is not a live queue; choose current work from the canonical
+roadmap and PR map linked above.
 
 | Loop | Bottleneck | Deliverable | Verification |
 |------|-----------|-------------|-------------|

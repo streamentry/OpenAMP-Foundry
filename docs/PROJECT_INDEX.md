@@ -293,12 +293,17 @@ Do not change a success definition after seeing results.
 
 Do not hide negative results merely because they weaken the story.
 
-## Current status — 60-loop milestone
+## Current status — Phase AC (2026-07-15)
 
-**Dry-lab infrastructure complete** as of Loop 60 (2026-07-08). All internal
-quality gates, benchmarks, evidence chain, agent workflow, and documentation
-are in place and tested. Key metrics: 2427+ test baseline, `make pr-ready`
-passes on clean checkout, all 10 JSON schemas validated, 16 packages documented.
+Phase AC AC3 is complete: the disconfirming-evidence aggregate is available
+through a fail-closed CLI and make target. This strengthens auditability only;
+it does not establish biological activity, safety, novelty, wet-lab
+validation, or release readiness. The repository remains a dry-lab system.
+
+For current milestones, measured evidence, and the next bounded work items,
+use [`docs/research/ROADMAP.md`](research/ROADMAP.md),
+[`docs/evidence/METRICS_CURRENT.md`](evidence/../evidence/METRICS_CURRENT.md),
+and [`docs/research/NEXT_100_PR_MAP.md`](research/NEXT_100_PR_MAP.md).
 
 ## Current strategic bottleneck
 

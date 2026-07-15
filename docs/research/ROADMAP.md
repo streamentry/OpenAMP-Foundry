@@ -2,12 +2,21 @@
 
 ## Current state — 2026-07-15
 
-Phase AC is active. AC1 records one explicit disconfirming test as a DTR-
-artifact. AC2 aggregates those records into an ACDG- gate. AC3 exposes that
-gate through a CLI and make target, with nonzero status for partial or
-not-established results so the review control is usable in repeatable loops.
-This is an auditability improvement only. It does not validate biology,
-improve benchmark performance, or authorize release.
+Phase AC is complete as of 2026-07-15. AC1 records one explicit disconfirming
+test as a DTR- artifact. AC2 aggregates those records into an ACDG- gate. AC3
+exposes that gate through a CLI and make target, with nonzero status for
+partial or not-established results so the review control is usable in
+repeatable loops. This is an auditability improvement only. It does not
+validate biology, improve benchmark performance, or authorize release.
+
+This file is the current milestone authority. The older
+[`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
+live status page. Select the next bottleneck from
+[`HIGH_LEVERAGE_TASKS.md`](../operations/HIGH_LEVERAGE_TASKS.md) and
+[`NEXT_100_PR_MAP.md`](NEXT_100_PR_MAP.md); do not infer a new scientific phase
+from the completion of Phase AC alone. The strategic bottleneck remains
+external truth: qualified review, fair baseline-controlled pilots, and real
+result intake.
 
 ### v0.10.3 - Phase O O5: Calibration Readiness Gate (COMPLETES PHASE O)
 - CalibrationReadinessEntry: binary gate consuming CBA- aggregators
