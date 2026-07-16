@@ -5,15 +5,28 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-15 (Phase AC AC3 — disconfirming gate workflow integration)
+> **Last updated:** 2026-07-16 (Phase AA AA6 — reproducibility gate workflow integration; benchmark values unchanged)
 
-> **Current verification note (2026-07-15):** Phase AC AC3 exposes the ACDG-
+> **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
+> reproducibility aggregate through a repeatable CLI/make workflow, while Phase
+> AC AC3 exposes the ACDG- aggregate through the same surface. Both are dry-lab
+> review controls; neither establishes biological validation or benchmark
+> improvement.
+>
+> Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,302 tests; this artifact does not establish
+> collection succeeds at 12,312 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 ## Changelog
+
+### Phase AA AA6 — Reproducibility gate workflow integration
+- Added `phase-aa-reproducibility-gate-check` CLI command and
+  `make phase-aa-reproducibility-gate-check` demo target.
+- The workflow fails closed when any RMC-, DCR-, CFP-, or SBW- artifact ID is
+  missing. It checks artifact presence only; it does not validate referenced
+  artifact contents or establish biological validation.
 
 ### Phase AC AC3 — Aggregate disconfirming-evidence gate workflow integration
 - Added `phase-ac-disconfirming-gate-check` CLI command and

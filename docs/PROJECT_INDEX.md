@@ -293,12 +293,13 @@ Do not change a success definition after seeing results.
 
 Do not hide negative results merely because they weaken the story.
 
-## Current status — Phase AC (2026-07-15)
+## Current status — Phase AA6 / AC3 (2026-07-16)
 
-Phase AC AC3 is complete: the disconfirming-evidence aggregate is available
-through a fail-closed CLI and make target. This strengthens auditability only;
-it does not establish biological activity, safety, novelty, wet-lab
-validation, or release readiness. The repository remains a dry-lab system.
+Phase AA AA6 and Phase AC AC3 are complete: the reproducibility and
+disconfirming-evidence aggregates are available through fail-closed CLI and
+make targets. These strengthen auditability only; they do not establish
+biological activity, safety, novelty, wet-lab validation, or release readiness.
+The repository remains a dry-lab system.
 
 For current milestones, measured evidence, and the next bounded work items,
 use [`docs/research/ROADMAP.md`](research/ROADMAP.md),

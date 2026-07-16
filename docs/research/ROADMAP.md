@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-07-15
+## Current state — 2026-07-16
 
 Phase AC is complete as of 2026-07-15. AC1 records one explicit disconfirming
 test as a DTR- artifact. AC2 aggregates those records into an ACDG- gate. AC3
@@ -9,7 +9,7 @@ partial or not-established results so the review control is usable in
 repeatable loops. This is an auditability improvement only. It does not
 validate biology, improve benchmark performance, or authorize release.
 
-On 2026-07-16, the Phase AA reproducibility gate became runnable through the
+On 2026-07-16, Phase AA AA6 made the reproducibility gate runnable through the
 CLI and Make surface. It fails closed unless RMC, DCR, CFP, and SBW artifact
 IDs are present. This makes the provenance gate easier to execute; it does not
 certify that the referenced artifacts are accurate or that any biology is
