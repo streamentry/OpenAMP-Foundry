@@ -328,7 +328,8 @@ Machine-verifiable proof that every pipeline run carries the fields needed for e
 | AA2 | Add determinism check record schema (DCR-) (complete). | Records result of running same pipeline step twice; verdict deterministic/nondeterministic/single_run_only/seed_dependent; run1/run2 output hash comparison; blocks releasing nondeterministic steps for external review. | C |
 | AA3 | Add configuration fingerprint schema (CFP-) (complete). | Structured record of all config file paths and their SHA256/etc. hashes for a pipeline run; verdict all_configs_hashed/some_configs_unhashed/no_configs_recorded; complements RMC- config_hash field with full per-file audit trail. | C |
 | AA4 | Add synthetic boundary warning record schema (SBW-) (complete). | Machine-checkable label enforcement for synthetic lab results (mic_simulation/structure_prediction/docking/etc.); verdict labelled/partially_labelled/unlabelled; cannot_support_biological_claim=True invariant enforced; prevents synthetic data from being treated as experimental validation. | C |
-| AA5 | Add Phase AA reproducibility gate (AARG-). | Top-level gate asserting RMC+DCR+CFP+SBW all present; verdict reproducibility_verified/partial/not_established; closes Phase AA; no run is reproducibility-certified until this gate passes. | C |
+| AA5 | Add Phase AA reproducibility gate (AARG-) (complete). | Top-level gate asserting RMC+DCR+CFP+SBW all present; verdict reproducibility_verified/partial/not_established; closes Phase AA; no run is reproducibility-certified until this gate passes. | C |
+| AA6 | Expose the AARG- gate as a CLI and Make target (complete). | Makes the reproducibility gate runnable in the normal review loop; verified is the only zero-exit verdict and missing components fail closed. This checks artifact presence only and does not validate the underlying run. | C |
 
 ## Phase AB — Claim integrity and external handoff
 

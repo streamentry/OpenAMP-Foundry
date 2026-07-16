@@ -1746,6 +1746,35 @@ def _run_phase_ac_disconfirming_gate_check(args: argparse.Namespace) -> int:
     return 0 if gate.verdict == "disconfirming_evidence_verified" else 3
 
 
+def _run_phase_aa_reproducibility_gate_check(args: argparse.Namespace) -> int:
+    """Build and report the Phase AA reproducibility gate."""
+    import dataclasses
+
+    from openamp_foundry.evidence.phase_aa_reproducibility_gate import (
+        build_phase_aa_reproducibility_gate,
+        format_phase_aa_reproducibility_gate,
+    )
+
+    payload = json.loads(args.entry_json)
+    gate = build_phase_aa_reproducibility_gate(
+        aarg_id=payload["aarg_id"],
+        pipeline_version=payload["pipeline_version"],
+        rmc_id=payload.get("rmc_id", ""),
+        dcr_id=payload.get("dcr_id", ""),
+        cfp_id=payload.get("cfp_id", ""),
+        sbw_id=payload.get("sbw_id", ""),
+        created_at=payload["created_at"],
+    )
+
+    if args.format == "json":
+        print(json.dumps(dataclasses.asdict(gate), indent=2))
+    else:
+        status = "PASS" if gate.verdict == "reproducibility_verified" else "FAIL"
+        print(f"[{status}] {format_phase_aa_reproducibility_gate(gate)}")
+
+    return 0 if gate.verdict == "reproducibility_verified" else 3
+
+
 def _run_pre_registration_check(args: argparse.Namespace) -> int:
     """Validate a pre-registration form passed as JSON."""
     entry_dict = json.loads(args.entry_json)

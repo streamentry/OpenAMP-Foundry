@@ -92,6 +92,14 @@ inconclusive record requires investigation. An empty aggregate is
 `make phase-ac-disconfirming-gate-check` to exercise the aggregate workflow;
 the command exits nonzero until the aggregate is verified. Neither artifact is
 biological validation.
+
+The Phase AA reproducibility gate is also available as a normal review-loop
+command: `openamp-foundry phase-aa-reproducibility-gate-check --entry-json ...`
+or `make phase-aa-reproducibility-gate-check`. It returns success only when
+RMC, DCR, CFP, and SBW artifact IDs are all present. This is a structural
+provenance check, not proof that the underlying run is scientifically correct
+or biologically valid.
+
 - `make bench-easy-baseline`: trivial length/charge baselines.
 - `make bench-charge-matched`: adversarial check that removes charge-density
   separation before comparing ensemble vs charge alone.

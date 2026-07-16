@@ -181,6 +181,42 @@ def test_phase_ac_disconfirming_gate_check_fails_when_follow_up_is_unresolved():
     ]) == 3
 
 
+def test_phase_aa_reproducibility_gate_check_reports_verified(capsys):
+    ret = main([
+        "phase-aa-reproducibility-gate-check",
+        "--entry-json",
+        json.dumps({
+            "aarg_id": "AARG-CLI-001",
+            "pipeline_version": "v1.0",
+            "rmc_id": "RMC-CLI-001",
+            "dcr_id": "DCR-CLI-001",
+            "cfp_id": "CFP-CLI-001",
+            "sbw_id": "SBW-CLI-001",
+            "created_at": "2026-07-16",
+        }),
+        "--format", "json",
+    ])
+    assert ret == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["verdict"] == "reproducibility_verified"
+    assert result["n_components_present"] == 4
+    assert result["dry_lab_only"] is True
+
+
+def test_phase_aa_reproducibility_gate_check_fails_when_components_are_missing():
+    payload = {
+        "aarg_id": "AARG-CLI-002",
+        "pipeline_version": "v1.0",
+        "rmc_id": "RMC-CLI-002",
+        "dcr_id": "DCR-CLI-002",
+        "created_at": "2026-07-16",
+    }
+    assert main([
+        "phase-aa-reproducibility-gate-check",
+        "--entry-json", json.dumps(payload),
+    ]) == 3
+
+
 def test_presynth_qc_command_returns_zero(tmp_path):
     panel = tmp_path / "panel.csv"
     panel.write_text(

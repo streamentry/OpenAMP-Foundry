@@ -9,6 +9,12 @@ partial or not-established results so the review control is usable in
 repeatable loops. This is an auditability improvement only. It does not
 validate biology, improve benchmark performance, or authorize release.
 
+On 2026-07-16, the Phase AA reproducibility gate became runnable through the
+CLI and Make surface. It fails closed unless RMC, DCR, CFP, and SBW artifact
+IDs are present. This makes the provenance gate easier to execute; it does not
+certify that the referenced artifacts are accurate or that any biology is
+validated.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

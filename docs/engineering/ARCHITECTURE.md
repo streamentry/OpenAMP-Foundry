@@ -54,6 +54,12 @@ safe scope
 
 The trust layer is as important as the scoring layer.
 
+Top-level evidence gates are review controls, not scientific verdicts. The
+Phase AA AARG- gate is available through the CLI and Make surface so a normal
+loop can fail closed when RMC, DCR, CFP, or SBW provenance artifacts are
+missing. Presence of those artifacts does not validate their contents or any
+biological claim.
+
 ## Longer-range architecture
 
 The mature system should become a wet-lab compression engine:

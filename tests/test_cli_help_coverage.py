@@ -14,6 +14,7 @@ COMMANDS = [
     "calibration-intake", "recalibration-gate", "recalibration-engine",
     "novelty-check-broad", "validate-policy-version", "select-batch",
     "phase-ac-disconfirming-gate-check",
+    "phase-aa-reproducibility-gate-check",
 ]
 
 
