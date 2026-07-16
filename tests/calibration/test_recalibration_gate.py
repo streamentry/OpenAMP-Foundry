@@ -633,6 +633,29 @@ def test_gate_verdict_to_dict_is_serialisable():
     json.dumps(d)  # must not raise
 
 
+def test_gate_blocks_when_intake_excluded_invalid_results():
+    p = load_recalibration_policy(POLICY_PATH)
+    report = _passing_intake_report()
+    report["n_invalid_lab_result_files"] = 1
+
+    v = evaluate_recalibration_gate(report, p)
+
+    assert v.may_recalibrate is False
+    assert v.n_invalid_lab_result_files == 1
+    assert any(reason.startswith("INPUT_VALIDATION:") for reason in v.reasons)
+
+
+def test_gate_blocks_when_invalid_file_list_lacks_declared_count():
+    p = load_recalibration_policy(POLICY_PATH)
+    report = _passing_intake_report()
+    report["invalid_lab_result_files"] = [{"file": "bad.json", "error": "invalid"}]
+
+    v = evaluate_recalibration_gate(report, p)
+
+    assert v.may_recalibrate is False
+    assert v.n_invalid_lab_result_files == 1
+
+
 def test_gate_verdict_writers_produce_files(tmp_path):
     p = load_recalibration_policy(POLICY_PATH)
     v = evaluate_recalibration_gate(_passing_intake_report(), p)

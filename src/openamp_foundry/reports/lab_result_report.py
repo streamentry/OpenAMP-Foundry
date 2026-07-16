@@ -14,7 +14,7 @@ from typing import Any
 
 from openamp_foundry.data.lab_results import (
     candidate_result_map,
-    load_lab_results_dir,
+    load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
 )
@@ -22,7 +22,7 @@ from openamp_foundry.data.lab_results import (
 
 def build_lab_result_report(results_dir: str | Path) -> dict[str, Any]:
     """Build a machine-readable wet-lab result report from a directory of JSON files."""
-    results = load_lab_results_dir(results_dir)
+    results, invalid_lab_result_files = load_lab_results_dir_with_errors(results_dir)
     summary = summarise_lab_results(results)
     by_candidate = summarise_candidate_outcomes(results)
     controls_failed = [
@@ -43,6 +43,13 @@ def build_lab_result_report(results_dir: str | Path) -> dict[str, Any]:
 
     return {
         "summary": summary,
+        "n_invalid_lab_result_files": len(invalid_lab_result_files),
+        "invalid_lab_result_files": invalid_lab_result_files,
+        "input_validation_status": (
+            "blocked_on_invalid_results"
+            if invalid_lab_result_files
+            else "input_validated"
+        ),
         "by_candidate": by_candidate,
         "control_failures": controls_failed,
         "by_lab": dict(sorted(by_lab.items())),
@@ -71,6 +78,7 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
         f"- Results loaded: {s.get('n_results', 0)}",
         f"- Candidates covered: {report.get('n_candidates', 0)}",
         f"- Results with both controls passing: {s.get('n_valid_controls', 0)}",
+        f"- Invalid result files: {report.get('n_invalid_lab_result_files', 0)}",
         "",
         "## Assay Type Counts",
         "",
@@ -118,6 +126,19 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
             )
     else:
         lines.append("No control failures recorded.")
+
+    invalid_files = report.get("invalid_lab_result_files", [])
+    if invalid_files:
+        lines += [
+            "",
+            "## Input Validation Blockers",
+            "",
+            "> Invalid result files were excluded from this report.",
+            "",
+            "| File | Error |",
+            "|---|---|",
+        ]
+        lines.extend(f"| {item['file']} | {item['error']} |" for item in invalid_files)
 
     lines += [
         "",

@@ -10,6 +10,8 @@ Gate workflows are structural review controls, never biological proof.
 - `METRICS_CURRENT.md`: current measured evidence and limitations.
 - `PROOF_LADDER.md`: maximum claim strength by evidence level.
 - AARG-: checks presence of reproducibility artifacts before certification.
+- Lab-result intake blockers are evidence-completeness signals, not assay
+  validation; invalid files must remain visible in reports and gates.
 
 ## Diagrams (Mermaid)
 

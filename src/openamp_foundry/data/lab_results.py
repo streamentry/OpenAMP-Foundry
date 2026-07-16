@@ -37,21 +37,42 @@ def load_lab_results_dir(directory: str | Path) -> list[dict[str, Any]]:
     Returns a list of validated result dicts, sorted by assay_date then result_id.
     Skips files that fail schema validation with a warning.
     """
+    results, errors = load_lab_results_dir_with_errors(directory)
+    if errors:
+        import warnings
+
+        warnings.warn(
+            f"Skipped {len(errors)} invalid lab result files:\n"
+            + "\n".join(f"{e['file']}: {e['error']}" for e in errors),
+            stacklevel=2,
+        )
+    return results
+
+
+def load_lab_results_dir_with_errors(
+    directory: str | Path,
+) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
+    """Load lab results and retain structured validation failures.
+
+    The legacy :func:`load_lab_results_dir` API intentionally remains warning-
+    based for compatibility. New review and calibration workflows should use
+    this helper so invalid files cannot disappear from the evidence trail.
+    """
     d = Path(directory)
     results: list[dict[str, Any]] = []
-    errors: list[str] = []
+    errors: list[dict[str, str]] = []
     for p in sorted(d.glob("*.json")):
         try:
             results.append(load_lab_result(p))
         except Exception as exc:
-            errors.append(f"{p.name}: {exc}")
-    if errors:
-        import warnings
-        warnings.warn(
-            f"Skipped {len(errors)} invalid lab result files:\n" + "\n".join(errors),
-            stacklevel=2,
-        )
-    return sorted(results, key=lambda r: (r.get("assay_date", ""), r.get("result_id", "")))
+            errors.append({
+                "file": p.name,
+                "error": str(exc) or exc.__class__.__name__,
+            })
+    return (
+        sorted(results, key=lambda r: (r.get("assay_date", ""), r.get("result_id", ""))),
+        errors,
+    )
 
 
 def summarise_lab_results(results: list[dict[str, Any]]) -> dict[str, Any]:

@@ -57,6 +57,9 @@ If these docs conflict, safety and claim discipline win.
   graph before relying on targeted evidence.
 - The Phase E ERP example and validator retain an explicitly legacy compatibility
   bridge; new packet work must use the component-based V4 ERP API.
+- Lab-result directory loading remains warning-compatible for legacy callers, but
+  calibration and reporting workflows retain schema-invalid files as structured
+  input errors; invalid intake input blocks the CLI and recalibration gate.
 
 ## The agent role
 

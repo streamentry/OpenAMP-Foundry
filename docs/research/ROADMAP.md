@@ -15,6 +15,12 @@ IDs are present. This makes the provenance gate easier to execute; it does not
 certify that the referenced artifacts are accurate or that any biology is
 validated.
 
+On 2026-07-16, the external-result intake path was tightened: schema-invalid
+lab-result files are now preserved as structured input errors, written into
+the intake report, and block both the intake CLI and recalibration gate. This
+prevents a partial result directory from masquerading as a clean cohort. It
+does not validate the underlying assay data or establish biological claims.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

@@ -18,6 +18,7 @@ from openamp_foundry.data.lab_results import (
     candidate_result_map,
     load_lab_result,
     load_lab_results_dir,
+    load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
 )
@@ -209,6 +210,17 @@ class TestLoadLabResultsDir:
     def test_loads_all_valid_files(self, results_dir):
         results = load_lab_results_dir(results_dir)
         assert len(results) == 3
+
+    def test_structured_loader_retains_invalid_file_provenance(self, tmp_path):
+        good = _valid_result(result_id="GOOD-001")
+        (tmp_path / "good.json").write_text(json.dumps(good))
+        (tmp_path / "bad.json").write_text(json.dumps({"result_id": "BAD-001"}))
+
+        results, errors = load_lab_results_dir_with_errors(tmp_path)
+
+        assert [r["result_id"] for r in results] == ["GOOD-001"]
+        assert errors[0]["file"] == "bad.json"
+        assert errors[0]["error"]
 
     def test_sorted_by_assay_date(self, tmp_path):
         date_map = {0: "2026-07-03", 1: "2026-07-01", 2: "2026-07-02"}

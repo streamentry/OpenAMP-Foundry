@@ -100,6 +100,13 @@ RMC, DCR, CFP, and SBW artifact IDs are all present. This is a structural
 provenance check, not proof that the underlying run is scientifically correct
 or biologically valid.
 
+External-result intake is also fail-closed at the review boundary. Use the
+structured loader/report fields `invalid_lab_result_files` and
+`input_validation_status` to preserve schema-invalid returns; the
+`calibration-intake` command exits nonzero and the recalibration gate refuses
+to proceed while any invalid file is excluded. This catches incomplete input,
+not assay-quality or biological-validity problems.
+
 - `make bench-easy-baseline`: trivial length/charge baselines.
 - `make bench-charge-matched`: adversarial check that removes charge-density
   separation before comparing ensemble vs charge alone.

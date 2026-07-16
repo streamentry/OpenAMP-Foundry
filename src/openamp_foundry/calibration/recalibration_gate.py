@@ -104,6 +104,7 @@ class GateVerdict:
     reviewer_artefact_status: tuple[ReviewerArtefactStatus, ...]
     reasons: tuple[str, ...]
     summary: str
+    n_invalid_lab_result_files: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serialisable dict representation."""
@@ -116,6 +117,7 @@ class GateVerdict:
             "n_panel_candidates": self.n_panel_candidates,
             "n_matched_candidates": self.n_matched_candidates,
             "n_lab_results": self.n_lab_results,
+            "n_invalid_lab_result_files": self.n_invalid_lab_result_files,
             "rule_results": [asdict(r) for r in self.rule_results],
             "prohibited_action_audit": [asdict(a) for a in self.prohibited_action_audit],
             "rate_limit_status": [asdict(s) for s in self.rate_limit_status],
@@ -527,11 +529,28 @@ def evaluate_recalibration_gate(
     )
 
     failed_rules = [r for r in rule_results if not r.passed]
-    may_recalibrate = len(failed_rules) == 0
+    invalid_file_entries = intake_report.get("invalid_lab_result_files", []) or []
+    try:
+        declared_invalid_files = int(
+            intake_report.get("n_invalid_lab_result_files", 0) or 0
+        )
+    except (TypeError, ValueError):
+        declared_invalid_files = 1
+    n_invalid_lab_result_files = max(
+        declared_invalid_files,
+        len(invalid_file_entries) if isinstance(invalid_file_entries, list) else 1,
+    )
+    may_recalibrate = len(failed_rules) == 0 and n_invalid_lab_result_files == 0
 
     reasons: list[str] = []
     for r in failed_rules:
         reasons.append(f"{r.rule_id}: {r.reason}")
+    if n_invalid_lab_result_files:
+        reasons.append(
+            "INPUT_VALIDATION: "
+            f"{n_invalid_lab_result_files} invalid lab result file(s) were "
+            "excluded; recalibration is forbidden until the input set is clean"
+        )
     for s in rate_status:
         if s.status == "exceeded":
             reasons.append(f"{s.rule_id}: {s.note}")
@@ -547,8 +566,9 @@ def evaluate_recalibration_gate(
         if may_recalibrate
         else (
             "FAIL: "
-            f"{len(failed_rules)} minimum condition(s) failed; recalibration "
-            "forbidden until each is resolved."
+            f"{len(failed_rules)} minimum condition(s) failed and/or input "
+            "validation is blocked; recalibration is forbidden until each "
+            "issue is resolved."
         )
     )
 
@@ -566,6 +586,7 @@ def evaluate_recalibration_gate(
         reviewer_artefact_status=artefact_status,
         reasons=tuple(reasons),
         summary=summary,
+        n_invalid_lab_result_files=n_invalid_lab_result_files,
     )
 
 
@@ -620,6 +641,9 @@ def write_gate_verdict_markdown(
     lines.append("")
     lines.append(f"- Panel candidates: {verdict.n_panel_candidates}")
     lines.append(f"- Lab results: {verdict.n_lab_results}")
+    lines.append(
+        f"- Invalid lab result files: {verdict.n_invalid_lab_result_files}"
+    )
     lines.append(f"- Matched candidates: {verdict.n_matched_candidates}")
     lines.append("")
     lines.append("## Minimum conditions")

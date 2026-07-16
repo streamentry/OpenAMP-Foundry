@@ -9,6 +9,8 @@ They verify exit codes and serialized output, not biological validity.
 
 - `test_cli.py`: command behavior and gate status coverage.
 - `test_cli_help_coverage.py`: parser discoverability and `--help` coverage.
+- Lab-result report tests must assert invalid-file blockers are visible and
+  return exit code `3` rather than appearing successful.
 
 ## Diagrams (Mermaid)
 

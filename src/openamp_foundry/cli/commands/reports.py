@@ -21,9 +21,16 @@ def _run_lab_result_report(args: argparse.Namespace) -> int:
     print(
         json.dumps(
             {
-                "status": "ok",
+                "status": (
+                    "blocked"
+                    if report.get("n_invalid_lab_result_files", 0)
+                    else "ok"
+                ),
                 "n_results": report["summary"].get("n_results", 0),
                 "n_candidates": report.get("n_candidates", 0),
+                "n_invalid_lab_result_files": report.get(
+                    "n_invalid_lab_result_files", 0
+                ),
                 "n_control_failures": len(report.get("control_failures", [])),
                 "out_json": args.out_json,
                 "out_md": args.out_md,
@@ -31,7 +38,7 @@ def _run_lab_result_report(args: argparse.Namespace) -> int:
             indent=2,
         )
     )
-    return 0
+    return 3 if report.get("n_invalid_lab_result_files", 0) else 0
 
 def _run_reviewer_questionnaire(args: argparse.Namespace) -> int:
     import csv as _csv
@@ -650,6 +657,12 @@ def _run_calibration_intake(args: argparse.Namespace) -> int:
                 "n_lab_results": report["n_lab_results"],
                 "n_matched_candidates": report["n_matched_candidates"],
                 "n_orphan_lab_results": report["n_orphan_lab_results"],
+                "n_invalid_lab_result_files": report.get(
+                    "n_invalid_lab_result_files", 0
+                ),
+                "input_validation_status": report.get(
+                    "input_validation_status", "input_validated"
+                ),
                 "cohort_metrics": cohort_summary,
                 "out_json": args.out_json,
                 "out_md": args.out_md,
@@ -658,7 +671,7 @@ def _run_calibration_intake(args: argparse.Namespace) -> int:
             indent=2,
         )
     )
-    return 0
+    return 3 if report.get("n_invalid_lab_result_files", 0) else 0
 
 
 def _run_recalibration_gate(args: argparse.Namespace) -> int:
@@ -754,6 +767,7 @@ def _run_recalibration_gate(args: argparse.Namespace) -> int:
         "policy": str(args.policy),
         "n_panel_candidates": verdict.n_panel_candidates,
         "n_lab_results": verdict.n_lab_results,
+        "n_invalid_lab_result_files": verdict.n_invalid_lab_result_files,
         "n_matched_candidates": verdict.n_matched_candidates,
         "rule_results": [
             {"rule_id": r.rule_id, "passed": r.passed, "observed": r.observed,

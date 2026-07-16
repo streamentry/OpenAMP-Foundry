@@ -10,6 +10,8 @@ work and preserve the external-truth bottleneck.
 - `ROADMAP.md`: current milestone authority.
 - `NEXT_100_PR_MAP.md`: bounded, reviewable work items.
 - `50_LOOP_PLAN.md`: historical execution record only.
+- The current external-truth bottleneck includes fail-closed result-input
+  completeness before any recalibration decision.
 
 ## Diagrams (Mermaid)
 

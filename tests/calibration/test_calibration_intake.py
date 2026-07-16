@@ -189,7 +189,34 @@ class TestLoadLabResults:
             warnings.simplefilter("always")
             report = build_calibration_intake_report(panel, results)
         assert report["n_lab_results"] == 1
+        assert report["n_invalid_lab_result_files"] == 1
+        assert report["input_validation_status"] == "blocked_on_invalid_results"
+        assert report["invalid_lab_result_files"][0]["file"] == "bad.json"
         assert any("Skipped" in str(w.message) for w in caught)
+
+    def test_invalid_result_blocks_cli_intake(self, tmp_path):
+        from argparse import Namespace
+
+        from openamp_foundry.cli.commands.reports import _run_calibration_intake
+
+        results = tmp_path / "results"
+        results.mkdir()
+        (results / "bad.json").write_text(json.dumps({"result_id": "BAD-001"}))
+        panel = tmp_path / "panel.csv"
+        _write_panel_csv(panel, [])
+
+        exit_code = _run_calibration_intake(
+            Namespace(
+                panel=str(panel),
+                results_dir=str(results),
+                out_json=str(tmp_path / "intake.json"),
+                out_md=str(tmp_path / "intake.md"),
+            )
+        )
+
+        assert exit_code == 3
+        report = json.loads((tmp_path / "intake.json").read_text())
+        assert report["input_validation_status"] == "blocked_on_invalid_results"
 
 
 class TestPerCandidateJoin:

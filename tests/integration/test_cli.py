@@ -746,6 +746,28 @@ def test_lab_result_report_creates_outputs(tmp_path, capsys):
     assert "RES-002" in text
 
 
+def test_lab_result_report_blocks_invalid_files(tmp_path, capsys):
+    results_dir = tmp_path / "lab_results"
+    results_dir.mkdir()
+    (results_dir / "invalid.json").write_text(
+        json.dumps({"result_id": "BAD-001"}), encoding="utf-8"
+    )
+
+    out_json = tmp_path / "lab_report.json"
+    rc = main([
+        "lab-result-report",
+        "--results-dir", str(results_dir),
+        "--out-json", str(out_json),
+    ])
+
+    assert rc == 3
+    captured = json.loads(capsys.readouterr().out)
+    assert captured["status"] == "blocked"
+    assert captured["n_invalid_lab_result_files"] == 1
+    report = json.loads(out_json.read_text(encoding="utf-8"))
+    assert report["input_validation_status"] == "blocked_on_invalid_results"
+
+
 class TestNoveltyCheckBroad:
     def test_novelty_check_broad_returns_zero(self, tmp_path, capsys):
         panel_csv = _write_panel(tmp_path)

@@ -5,21 +5,37 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-16 (Phase AA AA6 — reproducibility gate workflow integration; benchmark values unchanged)
+> **Last updated:** 2026-07-16 (external-result intake fail-closed path; benchmark values unchanged)
 
 > **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
 > AC AC3 exposes the ACDG- aggregate through the same surface. Both are dry-lab
 > review controls; neither establishes biological validation or benchmark
 > improvement.
+
+> **External-result integrity note (2026-07-16):** Calibration and lab-result
+> reports now retain schema-invalid JSON files as structured input errors. The
+> calibration-intake CLI exits nonzero and the recalibration gate refuses to
+> proceed while any invalid result file is excluded. This is provenance and
+> completeness control, not assay validation.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,312 tests; this artifact does not establish
+> collection succeeds at 12,318 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 ## Changelog
+
+### External-result intake integrity — fail closed on invalid files
+- Added structured invalid-file provenance to lab-result directory loading.
+- Calibration intake and lab-result reports expose the excluded files and
+  `input_validation_status` instead of hiding them behind a warning only.
+- `calibration-intake` exits `3` when invalid result files are present.
+- The recalibration gate refuses to proceed when any invalid result file was
+  excluded from the intake report, including when only the structured error
+  list is present in a hand-built report.
+- This change does not establish assay quality, efficacy, safety, or novelty.
 
 ### Phase AA AA6 — Reproducibility gate workflow integration
 - Added `phase-aa-reproducibility-gate-check` CLI command and

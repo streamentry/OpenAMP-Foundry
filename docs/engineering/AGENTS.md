@@ -10,6 +10,8 @@ turning artifact presence into scientific validation.
 - `ARCHITECTURE.md`: system, trust architecture, data flow, and gates.
 - `RUN_MANIFEST_STANDARD.md`: provenance fields for reproducible runs.
 - `SCHEMA_REGISTRY.md`: artifact prefixes and compatibility references.
+- Result ingestion retains schema-invalid files as structured provenance;
+  calibration and reporting paths fail closed on those files.
 
 ## Diagrams (Mermaid)
 

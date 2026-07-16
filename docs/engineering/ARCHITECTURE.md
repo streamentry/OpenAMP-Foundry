@@ -71,6 +71,7 @@ candidate generation or import
   -> uncertainty-aware panel construction
   -> qualified external review
   -> structured result summaries
+  -> result-input validation with retained file-level errors
   -> calibration intake
   -> recalibration gate
   -> human decision record
@@ -80,6 +81,13 @@ candidate generation or import
 The purpose of added layers is not simulation theater.
 
 The purpose is to improve which questions qualified humans choose to test next.
+
+Result ingestion is fail-closed at the review boundary. Legacy directory
+loading remains warning-compatible for callers that only need valid records,
+but calibration and reporting workflows retain every schema-invalid file as
+structured provenance. A partial directory therefore cannot silently become a
+recalibration cohort; this catches input completeness problems, not bad assay
+science.
 
 ## Package map
 

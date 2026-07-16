@@ -37,10 +37,11 @@ from __future__ import annotations
 
 import csv
 import json
+import warnings
 from pathlib import Path
 
 from openamp_foundry.data.lab_results import (
-    load_lab_results_dir,
+    load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
 )
@@ -337,7 +338,16 @@ def build_calibration_intake_report(panel_csv, results_dir):
     flagged ``insufficient_data: True`` to prevent small-sample theater.
     """
     panel_rows = _load_panel_csv(panel_csv)
-    results = load_lab_results_dir(results_dir)
+    results, invalid_lab_result_files = load_lab_results_dir_with_errors(results_dir)
+    if invalid_lab_result_files:
+        warnings.warn(
+            f"Skipped {len(invalid_lab_result_files)} invalid lab result files:\n"
+            + "\n".join(
+                f"{item['file']}: {item['error']}"
+                for item in invalid_lab_result_files
+            ),
+            stacklevel=2,
+        )
 
     per_candidate_actuals = _aggregate_per_candidate(results)
     per_candidate = _per_candidate_rows(panel_rows, per_candidate_actuals)
@@ -384,6 +394,13 @@ def build_calibration_intake_report(panel_csv, results_dir):
         "results_dir": str(results_dir),
         "n_panel_candidates": len(panel_rows),
         "n_lab_results": len(results),
+        "n_invalid_lab_result_files": len(invalid_lab_result_files),
+        "invalid_lab_result_files": invalid_lab_result_files,
+        "input_validation_status": (
+            "blocked_on_invalid_results"
+            if invalid_lab_result_files
+            else "input_validated"
+        ),
         "n_matched_candidates": len(matched),
         "n_orphan_lab_results": len(orphan_ids),
         "orphan_candidate_ids": orphan_ids,
@@ -428,11 +445,24 @@ def write_calibration_intake_markdown(report, out_path):
         f"- Lab results loaded: **{report['n_lab_results']}**",
         f"- Matched candidates: **{report['n_matched_candidates']}**",
         f"- Orphan lab results (no panel match): **{report['n_orphan_lab_results']}**",
+        f"- Invalid lab result files: **{report.get('n_invalid_lab_result_files', 0)}**",
         f"- Minimum cohort size for aggregate metrics: **{report['min_cohort_size']}**",
         "",
         "## Aggregate Cohort Metrics (gated by minimum sample size)",
         "",
     ]
+    invalid_files = report.get("invalid_lab_result_files", [])
+    if invalid_files:
+        lines += [
+            "## Input Validation Blockers",
+            "",
+            "> The intake is blocked. Invalid result files were excluded from all metrics.",
+            "",
+            "| File | Error |",
+            "|---|---|",
+        ]
+        lines.extend(f"| {item['file']} | {item['error']} |" for item in invalid_files)
+        lines.append("")
     for key, metric in report["cohort_metrics"].items():
         lines.append(f"### {key}")
         lines.append("")
