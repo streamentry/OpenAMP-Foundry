@@ -15,6 +15,7 @@ codes. They do not authorize release or apply recalibration.
 ```mermaid
 flowchart TD
   Args["CLI arguments"] --> Intake["Build intake report"]
+  Intake --> PathError["Missing/non-directory path: error, exit 2"]
   Intake --> Clean["Input validated"]
   Intake --> Blocked["Invalid files: status blocked, exit 3"]
   Clean --> Output["Write report"]
@@ -29,5 +30,5 @@ sequenceDiagram
   User->>CLI: calibration-intake
   CLI->>Loader: load with errors
   Loader-->>CLI: records + file errors
-  CLI-->>User: report and explicit exit status
+  CLI-->>User: report or input-path error with explicit exit status
 ```

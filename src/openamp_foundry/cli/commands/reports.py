@@ -14,7 +14,12 @@ def _run_lab_result_report(args: argparse.Namespace) -> int:
         write_lab_result_markdown,
     )
 
-    report = build_lab_result_report(args.results_dir)
+    try:
+        report = build_lab_result_report(args.results_dir)
+    except (FileNotFoundError, NotADirectoryError) as exc:
+        print(json.dumps({"status": "error", "error": str(exc)}, indent=2))
+        return 2
+
     write_lab_result_json(report, args.out_json)
     if args.out_md:
         write_lab_result_markdown(report, args.out_md)
@@ -637,7 +642,12 @@ def _run_calibration_intake(args: argparse.Namespace) -> int:
         write_calibration_intake_markdown,
     )
 
-    report = build_calibration_intake_report(args.panel, args.results_dir)
+    try:
+        report = build_calibration_intake_report(args.panel, args.results_dir)
+    except (FileNotFoundError, NotADirectoryError) as exc:
+        print(json.dumps({"status": "error", "error": str(exc)}, indent=2))
+        return 2
+
     write_calibration_intake_json(report, args.out_json)
     if args.out_md:
         write_calibration_intake_markdown(report, args.out_md)

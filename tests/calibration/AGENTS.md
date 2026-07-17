@@ -14,6 +14,8 @@ gate behavior, and the synthetic end-to-end calibration loop.
 - `test_recalibration_gate.py`
 - Invalid result files are retained as intake provenance and must block both
   the intake CLI and recalibration gate.
+- Missing or non-directory result paths must return an input error before a
+  report is written; an existing empty directory remains valid.
 
 ## Diagrams (Mermaid)
 
@@ -57,6 +59,8 @@ stateDiagram-v2
   [*] --> LoadResults
   LoadResults --> InputValidated: all JSON files valid
   LoadResults --> InputBlocked: one or more invalid files
+  LoadResults --> PathError: missing or non-directory path
+  PathError --> [*]: error exit 2, no report
   InputBlocked --> [*]: report written, exit 3, no recalibration
   InputValidated --> Gate: evaluate policy
   Gate --> [*]: human-reviewed verdict

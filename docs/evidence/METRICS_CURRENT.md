@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-16 (external-result intake fail-closed path; benchmark values unchanged)
+> **Last updated:** 2026-07-17 (result-path validation; benchmark values unchanged)
 
 > **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -18,14 +18,30 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > calibration-intake CLI exits nonzero and the recalibration gate refuses to
 > proceed while any invalid result file is excluded. This is provenance and
 > completeness control, not assay validation.
+
+> **Result-path integrity note (2026-07-17):** The lab-result report and
+> calibration-intake commands now reject missing or non-directory result paths
+> before writing reports. An existing empty directory remains a valid explicit
+> no-results state. This prevents path mistakes from looking like a clean empty
+> cohort; it does not establish assay quality or biological validity.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,318 tests; this artifact does not establish
+> collection succeeds at 12,324 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 ## Changelog
+
+### External-result intake integrity — reject invalid result paths
+- Lab-result directory loading now fails closed when the input path is missing
+  or is a file rather than a directory.
+- The lab-result report and calibration-intake CLIs return exit code `2` and do
+  not write a report for this input-path error.
+- Existing empty directories remain valid and continue to produce explicit
+  zero-result reports.
+- This is an input-completeness control, not assay validation, recalibration,
+  or biological proof.
 
 ### External-result intake integrity — fail closed on invalid files
 - Added structured invalid-file provenance to lab-result directory loading.

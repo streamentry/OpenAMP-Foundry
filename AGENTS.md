@@ -60,6 +60,8 @@ If these docs conflict, safety and claim discipline win.
 - Lab-result directory loading remains warning-compatible for legacy callers, but
   calibration and reporting workflows retain schema-invalid files as structured
   input errors; invalid intake input blocks the CLI and recalibration gate.
+  Missing or non-directory result paths fail closed with an input error; only an
+  existing empty directory is treated as an explicit no-results state.
 
 ## The agent role
 

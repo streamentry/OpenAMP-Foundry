@@ -35,7 +35,8 @@ def load_lab_results_dir(directory: str | Path) -> list[dict[str, Any]]:
     """Load all lab result JSON files from a directory.
 
     Returns a list of validated result dicts, sorted by assay_date then result_id.
-    Skips files that fail schema validation with a warning.
+    Skips files that fail schema validation with a warning. Raises when the
+    input path is missing or is not a directory.
     """
     results, errors = load_lab_results_dir_with_errors(directory)
     if errors:
@@ -58,7 +59,7 @@ def load_lab_results_dir_with_errors(
     based for compatibility. New review and calibration workflows should use
     this helper so invalid files cannot disappear from the evidence trail.
     """
-    d = Path(directory)
+    d = validate_lab_results_directory(directory)
     results: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
     for p in sorted(d.glob("*.json")):
@@ -73,6 +74,21 @@ def load_lab_results_dir_with_errors(
         sorted(results, key=lambda r: (r.get("assay_date", ""), r.get("result_id", ""))),
         errors,
     )
+
+
+def validate_lab_results_directory(directory: str | Path) -> Path:
+    """Validate that a lab-result input path exists and is a directory.
+
+    An absent or mistyped result path must not be interpreted as an empty
+    experimental cohort. Callers may still use an existing empty directory to
+    represent a known, not-yet-populated result set.
+    """
+    d = Path(directory)
+    if not d.exists():
+        raise FileNotFoundError(f"lab results directory not found: {d}")
+    if not d.is_dir():
+        raise NotADirectoryError(f"lab results path is not a directory: {d}")
+    return d
 
 
 def summarise_lab_results(results: list[dict[str, Any]]) -> dict[str, Any]:

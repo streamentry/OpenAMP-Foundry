@@ -21,6 +21,7 @@ from openamp_foundry.data.lab_results import (
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
+    validate_lab_results_directory,
 )
 
 
@@ -206,6 +207,19 @@ class TestLoadLabResultsDir:
     def test_empty_directory_returns_empty_list(self, tmp_path):
         results = load_lab_results_dir(tmp_path)
         assert results == []
+
+    @pytest.mark.parametrize("path_kind", ["missing", "file"])
+    def test_result_input_must_be_existing_directory(self, tmp_path, path_kind):
+        path = tmp_path / "results.json"
+        if path_kind == "file":
+            path.write_text("{}")
+
+        expected = "not found" if path_kind == "missing" else "not a directory"
+        with pytest.raises((FileNotFoundError, NotADirectoryError), match=expected):
+            validate_lab_results_directory(path)
+
+        with pytest.raises((FileNotFoundError, NotADirectoryError), match=expected):
+            load_lab_results_dir_with_errors(path)
 
     def test_loads_all_valid_files(self, results_dir):
         results = load_lab_results_dir(results_dir)

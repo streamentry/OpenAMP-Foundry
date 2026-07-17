@@ -16,7 +16,8 @@ recalibration policy.
 ```mermaid
 flowchart TD
   Panel["Pilot panel"] --> Intake["Calibration intake"]
-  Results["Result JSON directory"] --> Intake
+  Results["Validated result JSON directory"] --> Intake
+  Missing["Missing/non-directory path"] --> PathBlock["Input path error"]
   Intake -->|invalid files| Block["Blocked input report"]
   Intake -->|clean input| Gate["Recalibration gate"]
   Gate --> Human["Human decision record"]
@@ -35,4 +36,5 @@ sequenceDiagram
 
 Invalid result files are excluded from metrics but remain in the report and
 force the recalibration verdict to false. No result is treated as biological
-proof.
+proof. Missing or non-directory result paths fail before report generation;
+only an existing empty directory represents a known no-results state.

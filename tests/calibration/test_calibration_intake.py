@@ -218,6 +218,33 @@ class TestLoadLabResults:
         report = json.loads((tmp_path / "intake.json").read_text())
         assert report["input_validation_status"] == "blocked_on_invalid_results"
 
+    @pytest.mark.parametrize("path_kind", ["missing", "file"])
+    def test_invalid_results_path_blocks_cli_intake(self, tmp_path, path_kind, capsys):
+        from argparse import Namespace
+
+        results = tmp_path / "results"
+        if path_kind == "file":
+            results.write_text("not a directory")
+        panel = tmp_path / "panel.csv"
+        _write_panel_csv(panel, [])
+
+        from openamp_foundry.cli.commands.reports import _run_calibration_intake
+
+        exit_code = _run_calibration_intake(
+            Namespace(
+                panel=str(panel),
+                results_dir=str(results),
+                out_json=str(tmp_path / "intake.json"),
+                out_md=str(tmp_path / "intake.md"),
+            )
+        )
+
+        assert exit_code == 2
+        payload = json.loads(capsys.readouterr().out)
+        assert payload["status"] == "error"
+        assert "lab results" in payload["error"]
+        assert not (tmp_path / "intake.json").exists()
+
 
 class TestPerCandidateJoin:
     def test_match_by_candidate_id(self, tmp_path):

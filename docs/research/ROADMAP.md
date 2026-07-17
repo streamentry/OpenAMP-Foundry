@@ -21,6 +21,11 @@ the intake report, and block both the intake CLI and recalibration gate. This
 prevents a partial result directory from masquerading as a clean cohort. It
 does not validate the underlying assay data or establish biological claims.
 
+On 2026-07-17, the same boundary now rejects missing or non-directory result
+paths before report generation. An existing empty directory remains a valid,
+explicit no-results state. This prevents an operator typo from masquerading as
+an empty experimental cohort; it does not create wet-lab evidence.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

@@ -44,6 +44,7 @@ from openamp_foundry.data.lab_results import (
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
+    validate_lab_results_directory,
 )
 
 # Minimum sample size required before any aggregate cohort metric is reported.
@@ -337,6 +338,7 @@ def build_calibration_intake_report(panel_csv, results_dir):
     ``len(matched) < MIN_COHORT_SIZE``. Below that threshold the cohort is
     flagged ``insufficient_data: True`` to prevent small-sample theater.
     """
+    validate_lab_results_directory(results_dir)
     panel_rows = _load_panel_csv(panel_csv)
     results, invalid_lab_result_files = load_lab_results_dir_with_errors(results_dir)
     if invalid_lab_result_files:

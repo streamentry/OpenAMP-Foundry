@@ -7,7 +7,8 @@ provenance for result ingestion.
 
 ## Key Components
 
-- `test_lab_results.py`: loader and summary behavior.
+- `test_lab_results.py`: loader, summary, and missing/non-directory path
+  behavior.
 
 ## Diagrams (Mermaid)
 
@@ -15,6 +16,7 @@ provenance for result ingestion.
 flowchart LR
   Fixture["Valid + invalid fixtures"] --> Loader["Data loader"]
   Loader --> Assertions["Records, errors, ordering"]
+  Loader --> PathAssertions["Path errors fail closed"]
 ```
 
 ```mermaid

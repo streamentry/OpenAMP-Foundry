@@ -7,8 +7,8 @@ descriptive evidence plumbing, not biological validation.
 
 ## Key Components
 
-- `lab_results.py`: schema validation, structured invalid-file provenance, and
-  candidate-level summaries.
+- `lab_results.py`: input-path validation, schema validation, structured
+  invalid-file provenance, and candidate-level summaries.
 - `__init__.py`: stable public loader exports.
 
 ## Diagrams (Mermaid)
@@ -18,6 +18,7 @@ flowchart LR
   Files["Lab result JSON files"] --> Validate["Schema validation"]
   Validate --> Valid["Validated results"]
   Validate --> Errors["Structured file errors"]
+  Validate --> PathError["Missing/non-directory path: fail closed"]
   Valid --> Summary["Descriptive summaries"]
 ```
 
@@ -33,4 +34,6 @@ sequenceDiagram
 ```
 
 Legacy `load_lab_results_dir` keeps warning-compatible behavior. Review and
-calibration workflows must use the structured loader.
+calibration workflows must use the structured loader. All directory loaders
+reject missing or non-directory paths; an existing empty directory remains a
+valid, explicit no-results state.

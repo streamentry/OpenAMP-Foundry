@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 
+import pytest
 
 from openamp_foundry.cli import main
 
@@ -766,6 +767,25 @@ def test_lab_result_report_blocks_invalid_files(tmp_path, capsys):
     assert captured["n_invalid_lab_result_files"] == 1
     report = json.loads(out_json.read_text(encoding="utf-8"))
     assert report["input_validation_status"] == "blocked_on_invalid_results"
+
+
+@pytest.mark.parametrize("path_kind", ["missing", "file"])
+def test_lab_result_report_rejects_invalid_results_path(tmp_path, capsys, path_kind):
+    results_dir = tmp_path / "lab_results"
+    if path_kind == "file":
+        results_dir.write_text("not a directory", encoding="utf-8")
+
+    rc = main([
+        "lab-result-report",
+        "--results-dir", str(results_dir),
+        "--out-json", str(tmp_path / "lab_report.json"),
+    ])
+
+    assert rc == 2
+    captured = json.loads(capsys.readouterr().out)
+    assert captured["status"] == "error"
+    assert "lab results" in captured["error"]
+    assert not (tmp_path / "lab_report.json").exists()
 
 
 class TestNoveltyCheckBroad:

@@ -9,6 +9,7 @@ from openamp_foundry.data.lab_results import (
     load_lab_result,
     load_lab_results_dir,
     load_lab_results_dir_with_errors,
+    validate_lab_results_directory,
     summarise_candidate_outcomes,
     summarise_lab_results,
 )
@@ -25,6 +26,7 @@ __all__ = [
     "load_lab_result",
     "load_lab_results_dir",
     "load_lab_results_dir_with_errors",
+    "validate_lab_results_directory",
     "normalize_sequence",
     "summarise_candidate_outcomes",
     "summarise_lab_results",
