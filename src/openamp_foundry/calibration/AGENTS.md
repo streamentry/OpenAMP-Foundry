@@ -19,6 +19,7 @@ flowchart TD
   Results["Validated result JSON directory"] --> Intake
   Missing["Missing/non-directory path"] --> PathBlock["Input path error"]
   Intake -->|invalid files| Block["Blocked input report"]
+  Intake -->|duplicate identities| IdentityBlock["Blocked input-integrity report"]
   Intake -->|clean input| Gate["Recalibration gate"]
   Gate --> Human["Human decision record"]
 ```
@@ -29,7 +30,7 @@ sequenceDiagram
   participant Intake
   participant Gate
   CLI->>Intake: build report
-  Intake-->>CLI: valid rows + invalid file provenance
+  Intake-->>CLI: valid rows + invalid/duplicate identity provenance
   CLI->>Gate: evaluate only after input check
   Gate-->>CLI: may_recalibrate or fail-closed verdict
 ```
@@ -37,4 +38,6 @@ sequenceDiagram
 Invalid result files are excluded from metrics but remain in the report and
 force the recalibration verdict to false. No result is treated as biological
 proof. Missing or non-directory result paths fail before report generation;
-only an existing empty directory represents a known no-results state.
+only an existing empty directory represents a known no-results state. Duplicate
+result IDs and duplicate panel candidate IDs likewise block clean intake because
+they make the evidence identity ambiguous.

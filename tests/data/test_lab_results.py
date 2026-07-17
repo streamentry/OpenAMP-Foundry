@@ -16,6 +16,7 @@ import pytest
 
 from openamp_foundry.data.lab_results import (
     candidate_result_map,
+    duplicate_result_ids,
     load_lab_result,
     load_lab_results_dir,
     load_lab_results_dir_with_errors,
@@ -178,6 +179,16 @@ class TestCandidateResultMap:
 
     def test_empty_results_gives_empty_map(self):
         assert candidate_result_map([]) == {}
+
+
+def test_duplicate_result_ids_are_reported_once():
+    results = [
+        _valid_result(result_id="R-1"),
+        _valid_result(result_id="R-1", candidate_id="CAND-2"),
+        _valid_result(result_id="R-2"),
+    ]
+
+    assert duplicate_result_ids(results) == ["R-1"]
 
 
 class TestSummariseCandidateOutcomes:

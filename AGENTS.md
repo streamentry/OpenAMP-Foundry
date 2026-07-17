@@ -62,6 +62,9 @@ If these docs conflict, safety and claim discipline win.
   input errors; invalid intake input blocks the CLI and recalibration gate.
   Missing or non-directory result paths fail closed with an input error; only an
   existing empty directory is treated as an explicit no-results state.
+- Calibration and reporting workflows also retain duplicate result IDs and
+  duplicate panel candidate IDs as structured input-integrity issues; those
+  inputs are not clean evidence and block the recalibration gate.
 
 ## The agent role
 

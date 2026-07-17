@@ -59,9 +59,11 @@ stateDiagram-v2
   [*] --> LoadResults
   LoadResults --> InputValidated: all JSON files valid
   LoadResults --> InputBlocked: one or more invalid files
+  LoadResults --> IdentityBlocked: duplicate result/panel identity
   LoadResults --> PathError: missing or non-directory path
   PathError --> [*]: error exit 2, no report
   InputBlocked --> [*]: report written, exit 3, no recalibration
+  IdentityBlocked --> [*]: report written, exit 3, no recalibration
   InputValidated --> Gate: evaluate policy
   Gate --> [*]: human-reviewed verdict
 ```

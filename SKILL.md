@@ -106,8 +106,10 @@ structured loader/report fields `invalid_lab_result_files` and
 `calibration-intake` command exits nonzero and the recalibration gate refuses
 to proceed while any invalid file is excluded. Missing or non-directory result
 paths return an input error before a report is written. An existing empty
-directory is the only valid zero-result state. These controls catch incomplete
-input, not assay-quality or biological-validity problems.
+directory is the only valid zero-result state. Duplicate result IDs and
+duplicate panel candidate IDs are also preserved as `input_integrity_issues` and
+block clean intake. These controls catch incomplete or ambiguous input, not
+assay-quality or biological-validity problems.
 
 - `make bench-easy-baseline`: trivial length/charge baselines.
 - `make bench-charge-matched`: adversarial check that removes charge-density

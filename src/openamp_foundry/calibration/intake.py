@@ -41,6 +41,7 @@ import warnings
 from pathlib import Path
 
 from openamp_foundry.data.lab_results import (
+    duplicate_result_ids,
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
@@ -85,6 +86,16 @@ def _load_panel_csv(panel_csv):
     p = Path(panel_csv)
     with p.open("r", newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
+
+
+def _duplicate_ids(values):
+    """Return sorted non-empty identifiers that occur more than once."""
+    counts = {}
+    for value in values:
+        identifier = (value or "").strip()
+        if identifier:
+            counts[identifier] = counts.get(identifier, 0) + 1
+    return sorted(identifier for identifier, count in counts.items() if count > 1)
 
 
 def _to_float(value):
@@ -356,6 +367,33 @@ def build_calibration_intake_report(panel_csv, results_dir):
 
     matched = [r for r in per_candidate if r["has_lab"] is not None]
     orphan_ids = sorted(set(per_candidate_actuals) - {r["candidate_id"] for r in panel_rows})
+    duplicate_panel_candidate_ids = _duplicate_ids(
+        [row.get("candidate_id", "") for row in panel_rows]
+    )
+    duplicate_lab_result_ids = duplicate_result_ids(results)
+    input_integrity_issues = []
+    if duplicate_panel_candidate_ids:
+        input_integrity_issues.append(
+            {
+                "kind": "duplicate_panel_candidate_ids",
+                "ids": duplicate_panel_candidate_ids,
+                "message": (
+                    "Panel candidate IDs must be unique; duplicate rows can "
+                    "overstate matched cohort coverage."
+                ),
+            }
+        )
+    if duplicate_lab_result_ids:
+        input_integrity_issues.append(
+            {
+                "kind": "duplicate_lab_result_ids",
+                "ids": duplicate_lab_result_ids,
+                "message": (
+                    "Lab result IDs must be unique; duplicate observations "
+                    "cannot be treated as independent evidence."
+                ),
+            }
+        )
 
     control_failures = [
         {
@@ -401,8 +439,13 @@ def build_calibration_intake_report(panel_csv, results_dir):
         "input_validation_status": (
             "blocked_on_invalid_results"
             if invalid_lab_result_files
+            else "blocked_on_duplicate_ids"
+            if input_integrity_issues
             else "input_validated"
         ),
+        "input_integrity_issues": input_integrity_issues,
+        "n_duplicate_panel_candidate_ids": len(duplicate_panel_candidate_ids),
+        "n_duplicate_lab_result_ids": len(duplicate_lab_result_ids),
         "n_matched_candidates": len(matched),
         "n_orphan_lab_results": len(orphan_ids),
         "orphan_candidate_ids": orphan_ids,
@@ -448,6 +491,7 @@ def write_calibration_intake_markdown(report, out_path):
         f"- Matched candidates: **{report['n_matched_candidates']}**",
         f"- Orphan lab results (no panel match): **{report['n_orphan_lab_results']}**",
         f"- Invalid lab result files: **{report.get('n_invalid_lab_result_files', 0)}**",
+        f"- Input integrity issues: **{len(report.get('input_integrity_issues', []))}**",
         f"- Minimum cohort size for aggregate metrics: **{report['min_cohort_size']}**",
         "",
         "## Aggregate Cohort Metrics (gated by minimum sample size)",
@@ -464,6 +508,21 @@ def write_calibration_intake_markdown(report, out_path):
             "|---|---|",
         ]
         lines.extend(f"| {item['file']} | {item['error']} |" for item in invalid_files)
+        lines.append("")
+    integrity_issues = report.get("input_integrity_issues", [])
+    if integrity_issues:
+        lines += [
+            "## Input Integrity Blockers",
+            "",
+            "> Duplicate identities are excluded from clean evidence; recalibration is blocked.",
+            "",
+            "| Kind | IDs | Message |",
+            "|---|---|---|",
+        ]
+        lines.extend(
+            f"| {item['kind']} | {', '.join(item['ids'])} | {item['message']} |"
+            for item in integrity_issues
+        )
         lines.append("")
     for key, metric in report["cohort_metrics"].items():
         lines.append(f"### {key}")

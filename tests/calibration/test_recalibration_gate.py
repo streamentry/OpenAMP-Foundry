@@ -656,6 +656,20 @@ def test_gate_blocks_when_invalid_file_list_lacks_declared_count():
     assert v.n_invalid_lab_result_files == 1
 
 
+def test_gate_blocks_when_input_identity_is_duplicated():
+    p = load_recalibration_policy(POLICY_PATH)
+    report = _passing_intake_report()
+    report["input_integrity_issues"] = [
+        {"kind": "duplicate_lab_result_ids", "ids": ["RES-1"], "message": "duplicate"}
+    ]
+
+    v = evaluate_recalibration_gate(report, p)
+
+    assert v.may_recalibrate is False
+    assert v.n_input_integrity_issues == 1
+    assert any(reason.startswith("INPUT_INTEGRITY:") for reason in v.reasons)
+
+
 def test_gate_verdict_writers_produce_files(tmp_path):
     p = load_recalibration_policy(POLICY_PATH)
     v = evaluate_recalibration_gate(_passing_intake_report(), p)

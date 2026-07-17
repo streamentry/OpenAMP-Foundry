@@ -142,6 +142,20 @@ def candidate_result_map(results: list[dict[str, Any]]) -> dict[str, list[dict[s
         mapping.setdefault(cid, []).append(r)
     return mapping
 
+
+def duplicate_result_ids(results: list[dict[str, Any]]) -> list[str]:
+    """Return sorted result IDs that occur more than once.
+
+    ``result_id`` is the identity key for an experimental observation. Duplicate
+    IDs can represent a copied file or two conflicting observations and must be
+    surfaced before a report is treated as a clean cohort.
+    """
+    counts: dict[str, int] = {}
+    for result in results:
+        result_id = result.get("result_id", "")
+        counts[result_id] = counts.get(result_id, 0) + 1
+    return sorted(result_id for result_id, count in counts.items() if count > 1)
+
 def summarise_candidate_outcomes(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Build one row per candidate for decision-grade wet-lab review.
 

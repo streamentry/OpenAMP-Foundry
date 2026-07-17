@@ -14,6 +14,7 @@ from typing import Any
 
 from openamp_foundry.data.lab_results import (
     candidate_result_map,
+    duplicate_result_ids,
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
@@ -25,6 +26,7 @@ def build_lab_result_report(results_dir: str | Path) -> dict[str, Any]:
     results, invalid_lab_result_files = load_lab_results_dir_with_errors(results_dir)
     summary = summarise_lab_results(results)
     by_candidate = summarise_candidate_outcomes(results)
+    duplicate_ids = duplicate_result_ids(results)
     controls_failed = [
         {
             "result_id": r["result_id"],
@@ -48,8 +50,12 @@ def build_lab_result_report(results_dir: str | Path) -> dict[str, Any]:
         "input_validation_status": (
             "blocked_on_invalid_results"
             if invalid_lab_result_files
+            else "blocked_on_duplicate_ids"
+            if duplicate_ids
             else "input_validated"
         ),
+        "duplicate_lab_result_ids": duplicate_ids,
+        "n_duplicate_lab_result_ids": len(duplicate_ids),
         "by_candidate": by_candidate,
         "control_failures": controls_failed,
         "by_lab": dict(sorted(by_lab.items())),
@@ -79,6 +85,7 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
         f"- Candidates covered: {report.get('n_candidates', 0)}",
         f"- Results with both controls passing: {s.get('n_valid_controls', 0)}",
         f"- Invalid result files: {report.get('n_invalid_lab_result_files', 0)}",
+        f"- Duplicate result IDs: {report.get('n_duplicate_lab_result_ids', 0)}",
         "",
         "## Assay Type Counts",
         "",
@@ -139,6 +146,17 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
             "|---|---|",
         ]
         lines.extend(f"| {item['file']} | {item['error']} |" for item in invalid_files)
+
+    duplicate_ids = report.get("duplicate_lab_result_ids", [])
+    if duplicate_ids:
+        lines += [
+            "",
+            "## Input Integrity Blockers",
+            "",
+            "> Duplicate result IDs were retained but this report is not a clean cohort.",
+            "",
+            "- Duplicate result IDs: " + ", ".join(duplicate_ids),
+        ]
 
     lines += [
         "",

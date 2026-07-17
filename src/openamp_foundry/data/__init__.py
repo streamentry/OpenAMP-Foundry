@@ -6,6 +6,7 @@ intake helpers used by the calibration pipeline.
 
 from openamp_foundry.data.lab_results import (
     candidate_result_map,
+    duplicate_result_ids,
     load_lab_result,
     load_lab_results_dir,
     load_lab_results_dir_with_errors,
@@ -21,6 +22,7 @@ from openamp_foundry.data.loaders import (
 
 __all__ = [
     "candidate_result_map",
+    "duplicate_result_ids",
     "is_valid_sequence",
     "load_candidates_csv",
     "load_lab_result",

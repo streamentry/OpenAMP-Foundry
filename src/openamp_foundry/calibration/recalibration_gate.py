@@ -105,6 +105,7 @@ class GateVerdict:
     reasons: tuple[str, ...]
     summary: str
     n_invalid_lab_result_files: int = 0
+    n_input_integrity_issues: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serialisable dict representation."""
@@ -118,6 +119,7 @@ class GateVerdict:
             "n_matched_candidates": self.n_matched_candidates,
             "n_lab_results": self.n_lab_results,
             "n_invalid_lab_result_files": self.n_invalid_lab_result_files,
+            "n_input_integrity_issues": self.n_input_integrity_issues,
             "rule_results": [asdict(r) for r in self.rule_results],
             "prohibited_action_audit": [asdict(a) for a in self.prohibited_action_audit],
             "rate_limit_status": [asdict(s) for s in self.rate_limit_status],
@@ -540,7 +542,15 @@ def evaluate_recalibration_gate(
         declared_invalid_files,
         len(invalid_file_entries) if isinstance(invalid_file_entries, list) else 1,
     )
-    may_recalibrate = len(failed_rules) == 0 and n_invalid_lab_result_files == 0
+    input_integrity_entries = intake_report.get("input_integrity_issues", []) or []
+    n_input_integrity_issues = (
+        len(input_integrity_entries) if isinstance(input_integrity_entries, list) else 1
+    )
+    may_recalibrate = (
+        len(failed_rules) == 0
+        and n_invalid_lab_result_files == 0
+        and n_input_integrity_issues == 0
+    )
 
     reasons: list[str] = []
     for r in failed_rules:
@@ -550,6 +560,12 @@ def evaluate_recalibration_gate(
             "INPUT_VALIDATION: "
             f"{n_invalid_lab_result_files} invalid lab result file(s) were "
             "excluded; recalibration is forbidden until the input set is clean"
+        )
+    if n_input_integrity_issues:
+        reasons.append(
+            "INPUT_INTEGRITY: "
+            f"{n_input_integrity_issues} duplicate-identity issue(s) were "
+            "detected; recalibration is forbidden until the input set is clean"
         )
     for s in rate_status:
         if s.status == "exceeded":
@@ -587,6 +603,7 @@ def evaluate_recalibration_gate(
         reasons=tuple(reasons),
         summary=summary,
         n_invalid_lab_result_files=n_invalid_lab_result_files,
+        n_input_integrity_issues=n_input_integrity_issues,
     )
 
 
@@ -644,6 +661,7 @@ def write_gate_verdict_markdown(
     lines.append(
         f"- Invalid lab result files: {verdict.n_invalid_lab_result_files}"
     )
+    lines.append(f"- Input integrity issues: {verdict.n_input_integrity_issues}")
     lines.append(f"- Matched candidates: {verdict.n_matched_candidates}")
     lines.append("")
     lines.append("## Minimum conditions")

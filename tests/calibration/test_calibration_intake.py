@@ -8,6 +8,7 @@ Verifies:
   - Cohort metrics at/above MIN_COHORT_SIZE produce TP/FP/FN/TN
   - Control failures are surfaced
   - Orphan lab results are detected
+  - Duplicate panel and result identities block clean intake
   - JSON and Markdown output writers are non-empty and validate
   - Synthetic example data exists and validates
 
@@ -295,6 +296,79 @@ class TestPerCandidateJoin:
         report = build_calibration_intake_report(panel, results)
         assert report["n_orphan_lab_results"] == 1
         assert "CAND-NOT-IN-PANEL" in report["orphan_candidate_ids"]
+
+    def test_duplicate_panel_candidate_ids_block_intake(self, tmp_path):
+        results = tmp_path / "results"
+        results.mkdir()
+        panel = tmp_path / "panel.csv"
+        row = {"pilot_rank": "1", "candidate_id": "DUP-CAND", "sequence": "AAA"}
+        _write_panel_csv(panel, [row, {**row, "pilot_rank": "2"}])
+
+        report = build_calibration_intake_report(panel, results)
+
+        assert report["input_validation_status"] == "blocked_on_duplicate_ids"
+        assert report["n_duplicate_panel_candidate_ids"] == 1
+        assert report["input_integrity_issues"][0]["kind"] == (
+            "duplicate_panel_candidate_ids"
+        )
+
+    def test_duplicate_result_ids_block_intake(self, tmp_path):
+        results = tmp_path / "results"
+        results.mkdir()
+        first = _lab_result(result_id="DUP-RESULT", candidate_id="CAND-A")
+        second = _lab_result(result_id="DUP-RESULT", candidate_id="CAND-B")
+        _write_lab_result_file(results, first)
+        (results / "copy.json").write_text(json.dumps(second))
+        panel = tmp_path / "panel.csv"
+        _write_panel_csv(panel, [])
+
+        report = build_calibration_intake_report(panel, results)
+
+        assert report["input_validation_status"] == "blocked_on_duplicate_ids"
+        assert report["n_duplicate_lab_result_ids"] == 1
+        assert report["input_integrity_issues"][0]["kind"] == (
+            "duplicate_lab_result_ids"
+        )
+
+    def test_duplicate_ids_block_cli_intake(self, tmp_path):
+        from argparse import Namespace
+
+        results = tmp_path / "results"
+        results.mkdir()
+        result = _lab_result(result_id="DUP-RESULT")
+        _write_lab_result_file(results, result)
+        (results / "copy.json").write_text(json.dumps(result))
+        panel = tmp_path / "panel.csv"
+        _write_panel_csv(panel, [])
+
+        from openamp_foundry.cli.commands.reports import _run_calibration_intake
+
+        exit_code = _run_calibration_intake(
+            Namespace(
+                panel=str(panel),
+                results_dir=str(results),
+                out_json=str(tmp_path / "intake.json"),
+                out_md=str(tmp_path / "intake.md"),
+            )
+        )
+
+        assert exit_code == 3
+        report = json.loads((tmp_path / "intake.json").read_text())
+        assert report["input_validation_status"] == "blocked_on_duplicate_ids"
+
+    def test_lab_result_report_marks_duplicate_ids_blocked(self, tmp_path):
+        from openamp_foundry.reports.lab_result_report import build_lab_result_report
+
+        results = tmp_path / "results"
+        results.mkdir()
+        result = _lab_result(result_id="DUP-RESULT")
+        _write_lab_result_file(results, result)
+        (results / "copy.json").write_text(json.dumps(result))
+
+        report = build_lab_result_report(results)
+
+        assert report["input_validation_status"] == "blocked_on_duplicate_ids"
+        assert report["duplicate_lab_result_ids"] == ["DUP-RESULT"]
 
 
 class TestPerCandidateActuals:

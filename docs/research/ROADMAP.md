@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-07-16
+## Current state — 2026-07-17
 
 Phase AC is complete as of 2026-07-15. AC1 records one explicit disconfirming
 test as a DTR- artifact. AC2 aggregates those records into an ACDG- gate. AC3
@@ -25,6 +25,13 @@ On 2026-07-17, the same boundary now rejects missing or non-directory result
 paths before report generation. An existing empty directory remains a valid,
 explicit no-results state. This prevents an operator typo from masquerading as
 an empty experimental cohort; it does not create wet-lab evidence.
+
+On 2026-07-17, result identity checks now retain duplicate lab-result IDs and
+duplicate panel candidate IDs as structured input-integrity issues. Reporting
+and calibration-intake commands exit nonzero for these ambiguous inputs, and
+the recalibration gate refuses to proceed. This prevents copied or duplicated
+observations from being treated as independent evidence; it does not validate
+assay quality or establish biological claims.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

@@ -293,13 +293,17 @@ Do not change a success definition after seeing results.
 
 Do not hide negative results merely because they weaken the story.
 
-## Current status — Phase AA6 / AC3 (2026-07-16)
+## Current status — Phase AA6 / AC3 (2026-07-17)
 
 Phase AA AA6 and Phase AC AC3 are complete: the reproducibility and
 disconfirming-evidence aggregates are available through fail-closed CLI and
 make targets. These strengthen auditability only; they do not establish
 biological activity, safety, novelty, wet-lab validation, or release readiness.
 The repository remains a dry-lab system.
+
+External-result intake also fails closed on missing/non-directory paths,
+schema-invalid files, duplicate lab-result IDs, and duplicate panel candidate
+IDs. These are evidence-integrity controls, not assay validation.
 
 For current milestones, measured evidence, and the next bounded work items,
 use [`docs/research/ROADMAP.md`](research/ROADMAP.md),

@@ -71,7 +71,7 @@ candidate generation or import
   -> uncertainty-aware panel construction
   -> qualified external review
   -> structured result summaries
-  -> result-input validation with retained file-level errors
+  -> result-input validation with retained file-level errors and identity checks
   -> calibration intake
   -> recalibration gate
   -> human decision record
@@ -87,8 +87,10 @@ loading remains warning-compatible for callers that only need valid records,
 but calibration and reporting workflows retain every schema-invalid file as
 structured provenance. A partial directory therefore cannot silently become a
 recalibration cohort; this catches input completeness problems, not bad assay
-science. Missing or non-directory result paths fail before report generation;
-an existing empty directory is the explicit no-results state.
+science. Duplicate result IDs and duplicate panel candidate IDs also block clean
+intake because they make evidence identity ambiguous. Missing or non-directory
+result paths fail before report generation; an existing empty directory is the
+explicit no-results state.
 
 ## Package map
 
