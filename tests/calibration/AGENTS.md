@@ -16,6 +16,8 @@ gate behavior, and the synthetic end-to-end calibration loop.
   the intake CLI and recalibration gate.
 - Missing or non-directory result paths must return an input error before a
   report is written; an existing empty directory remains valid.
+- Control-failed assay observations remain visible but cannot contribute to
+  per-assay cohort metrics; tests must preserve this fail-closed boundary.
 
 ## Diagrams (Mermaid)
 

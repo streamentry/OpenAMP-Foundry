@@ -90,7 +90,9 @@ recalibration cohort; this catches input completeness problems, not bad assay
 science. Duplicate result IDs and duplicate panel candidate IDs also block clean
 intake because they make evidence identity ambiguous. Missing or non-directory
 result paths fail before report generation; an existing empty directory is the
-explicit no-results state.
+explicit no-results state. Control-failed observations remain in the audit
+report but are excluded from per-assay actual predicates and cohort metrics;
+failed controls still block recalibration.
 
 ## Package map
 

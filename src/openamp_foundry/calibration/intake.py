@@ -159,6 +159,14 @@ def _is_high_hemolysis(result):
         return None
 
 
+def _controls_passed(result):
+    """Return whether an assay result has interpretable control status."""
+    return bool(
+        result.get("positive_control_passed")
+        and result.get("negative_control_passed")
+    )
+
+
 def _aggregate_per_candidate(results):
     """Build per-candidate rollup of actual experimental outcomes.
 
@@ -177,48 +185,59 @@ def _aggregate_per_candidate(results):
             {
                 "n_results": 0,
                 "n_mic": 0,
+                "n_usable_mic": 0,
                 "n_hemolysis": 0,
+                "n_usable_hemolysis": 0,
                 "n_cytotoxicity": 0,
                 "active_mic": None,
                 "high_hemolysis": None,
                 "any_active_qualitative": False,
                 "any_toxic_qualitative": False,
                 "all_controls_passed": True,
+                "control_failed_result_ids": [],
                 "assay_types": set(),
             },
         )
         slot["n_results"] += 1
         slot["assay_types"].add(r.get("assay_type", "other"))
 
+        controls_passed = _controls_passed(r)
+        if not controls_passed:
+            slot["all_controls_passed"] = False
+            slot["control_failed_result_ids"].append(r.get("result_id", ""))
+
         active = _is_active_mic(r)
         if active is not None:
             slot["n_mic"] += 1
-            if slot["active_mic"] is None:
-                slot["active_mic"] = active
-            else:
-                slot["active_mic"] = slot["active_mic"] or active
+            if controls_passed:
+                slot["n_usable_mic"] += 1
+                if slot["active_mic"] is None:
+                    slot["active_mic"] = active
+                else:
+                    slot["active_mic"] = slot["active_mic"] or active
 
         high_hemo = _is_high_hemolysis(r)
         if high_hemo is not None:
             slot["n_hemolysis"] += 1
-            if slot["high_hemolysis"] is None:
-                slot["high_hemolysis"] = high_hemo
-            else:
-                slot["high_hemolysis"] = slot["high_hemolysis"] or high_hemo
+            if controls_passed:
+                slot["n_usable_hemolysis"] += 1
+                if slot["high_hemolysis"] is None:
+                    slot["high_hemolysis"] = high_hemo
+                else:
+                    slot["high_hemolysis"] = slot["high_hemolysis"] or high_hemo
 
-        if r.get("assay_type") == "cytotoxicity_mammalian":
+        if r.get("assay_type") == "cytotoxicity_mammalian" and controls_passed:
             slot["n_cytotoxicity"] += 1
 
         qual = r.get("result_qualitative")
-        if qual == "active":
+        if controls_passed and qual == "active":
             slot["any_active_qualitative"] = True
-        if qual == "toxic":
+        if controls_passed and qual == "toxic":
             slot["any_toxic_qualitative"] = True
-        if not (r.get("positive_control_passed") and r.get("negative_control_passed")):
-            slot["all_controls_passed"] = False
 
     for v in out.values():
         v["assay_types"] = sorted(v["assay_types"])
+        v["control_failed_result_ids"] = sorted(v["control_failed_result_ids"])
     return out
 
 
@@ -348,6 +367,9 @@ def build_calibration_intake_report(panel_csv, results_dir):
     Aggregate triage metrics are intentionally NOT computed when
     ``len(matched) < MIN_COHORT_SIZE``. Below that threshold the cohort is
     flagged ``insufficient_data: True`` to prevent small-sample theater.
+    Assay observations with failed positive or negative controls remain visible
+    in the report but do not contribute to per-assay actual predicates or
+    cohort metrics.
     """
     validate_lab_results_directory(results_dir)
     panel_rows = _load_panel_csv(panel_csv)

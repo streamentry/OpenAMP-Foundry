@@ -33,6 +33,13 @@ the recalibration gate refuses to proceed. This prevents copied or duplicated
 observations from being treated as independent evidence; it does not validate
 assay quality or establish biological claims.
 
+On 2026-07-19, calibration intake tightened the adjacent control-quality
+boundary: observations with failed positive or negative controls remain visible
+in the audit report but no longer contribute to per-assay actual predicates or
+retrospective cohort metrics. The recalibration gate continues to reject any
+control failure. This prevents a failed assay from influencing descriptive
+triage while preserving the negative evidence; it does not validate the assay.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

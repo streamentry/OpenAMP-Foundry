@@ -12,6 +12,9 @@ Gate workflows are structural review controls, never biological proof.
 - AARG-: checks presence of reproducibility artifacts before certification.
 - Lab-result intake blockers are evidence-completeness signals, not assay
   validation; invalid files must remain visible in reports and gates.
+- Control-failed assay observations remain visible for audit but are excluded
+  from per-assay calibration predicates and cohort metrics; they cannot support
+  recalibration.
 
 ## Diagrams (Mermaid)
 

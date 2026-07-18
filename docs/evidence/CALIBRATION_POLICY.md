@@ -59,6 +59,12 @@ The gate protects against:
 - too-frequent recalibration;
 - undocumented reviewer decisions.
 
+Calibration intake keeps control-failed observations in the report so the
+failure cannot be hidden, but excludes them from the per-assay actual
+predicates and retrospective cohort metrics. The recalibration gate still
+rejects any intake containing a control failure. This is an input-integrity
+boundary, not a claim that the underlying assay is valid.
+
 ## Current recalibration architecture
 
 ```text

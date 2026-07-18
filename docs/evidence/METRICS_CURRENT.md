@@ -24,14 +24,30 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > before writing reports. An existing empty directory remains a valid explicit
 > no-results state. This prevents path mistakes from looking like a clean empty
 > cohort; it does not establish assay quality or biological validity.
+
+> **Control-quality integrity note (2026-07-19):** Calibration intake retains
+> observations with failed positive or negative controls for audit, but excludes
+> them from per-assay actual predicates and retrospective cohort metrics. The
+> recalibration gate still rejects any control failure. This prevents failed
+> assays from influencing descriptive triage; it does not validate assay quality
+> or establish biological claims.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,324 tests; this artifact does not establish
+> collection succeeds at 12,331 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 ## Changelog
+
+### External-result intake integrity — exclude control-failed observations from metrics
+- Calibration intake still reports every control failure and keeps the
+  observation in the joined audit trail.
+- Per-assay actual predicates and cohort metrics use only observations whose
+  positive and negative controls both passed.
+- The recalibration gate remains fail-closed on any control failure.
+- This is an evidence-integrity control, not assay validation or biological proof.
+
 
 ### External-result intake integrity — reject invalid result paths
 - Lab-result directory loading now fails closed when the input path is missing

@@ -109,7 +109,9 @@ paths return an input error before a report is written. An existing empty
 directory is the only valid zero-result state. Duplicate result IDs and
 duplicate panel candidate IDs are also preserved as `input_integrity_issues` and
 block clean intake. These controls catch incomplete or ambiguous input, not
-assay-quality or biological-validity problems.
+assay-quality or biological-validity problems. Control-failed assay observations
+remain visible for audit but are excluded from per-assay actual predicates and
+cohort metrics; failed controls still block recalibration.
 
 - `make bench-easy-baseline`: trivial length/charge baselines.
 - `make bench-charge-matched`: adversarial check that removes charge-density

@@ -6,7 +6,7 @@ Verifies:
   - Per-candidate join correctly attaches lab results to predictions
   - Cohort metrics below MIN_COHORT_SIZE are flagged insufficient_data
   - Cohort metrics at/above MIN_COHORT_SIZE produce TP/FP/FN/TN
-  - Control failures are surfaced
+  - Control failures are surfaced and excluded from cohort metrics
   - Orphan lab results are detected
   - Duplicate panel and result identities block clean intake
   - JSON and Markdown output writers are non-empty and validate
@@ -464,6 +464,9 @@ class TestPerCandidateActuals:
             ]
         )
         assert out["C1"]["all_controls_passed"] is False
+        assert out["C1"]["active_mic"] is None
+        assert out["C1"]["n_usable_mic"] == 0
+        assert out["C1"]["control_failed_result_ids"] == ["RES-TEST-001"]
 
 
 class TestCohortMetricsGating:
@@ -536,6 +539,22 @@ class TestCohortMetricsGating:
         assert metric["insufficient_data"] is False
         assert metric["n"] == 10
         assert metric["tp"] + metric["tn"] + metric["fp"] + metric["fn"] == 10
+
+    def test_control_failed_assay_is_excluded_from_metric_cohort(self, tmp_path):
+        """A failed control cannot count as an interpretable actual outcome."""
+        panel, results = self._make_setup(tmp_path, n_mic=MIN_COHORT_SIZE + 1)
+        failed_path = results / f"RES-{MIN_COHORT_SIZE:03d}.json"
+        failed = json.loads(failed_path.read_text())
+        failed["positive_control_passed"] = False
+        failed_path.write_text(json.dumps(failed))
+
+        report = build_calibration_intake_report(panel, results)
+        metric = report["cohort_metrics"]["activity_vs_active_mic"]
+
+        assert report["n_lab_results"] == MIN_COHORT_SIZE + 1
+        assert len(report["control_failures"]) == 1
+        assert metric["n"] == MIN_COHORT_SIZE
+        assert metric["tp"] + metric["tn"] + metric["fp"] + metric["fn"] == MIN_COHORT_SIZE
 
     def test_hemolysis_cohort_uses_below_threshold_direction(self, tmp_path):
         """rich_selectivity above 0.5 = predicted NEGATIVE for high_hemolysis.
