@@ -41,6 +41,12 @@ recalibration gate continues to reject any control failure. This prevents a
 failed assay from influencing descriptive triage while preserving the negative
 evidence; it does not validate the assay.
 
+On 2026-07-20, calibration intake also tightened join completeness: results for
+candidate IDs absent from the submitted panel are retained as orphan provenance,
+but become structured input-integrity issues that block clean intake and
+recalibration. This prevents a result directory from silently broadening the
+panel-specific cohort; it does not validate the underlying assay.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

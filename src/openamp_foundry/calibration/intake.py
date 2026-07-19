@@ -393,6 +393,7 @@ def build_calibration_intake_report(panel_csv, results_dir):
         [row.get("candidate_id", "") for row in panel_rows]
     )
     duplicate_lab_result_ids = duplicate_result_ids(results)
+    orphan_lab_result_candidate_ids = orphan_ids
     input_integrity_issues = []
     if duplicate_panel_candidate_ids:
         input_integrity_issues.append(
@@ -413,6 +414,18 @@ def build_calibration_intake_report(panel_csv, results_dir):
                 "message": (
                     "Lab result IDs must be unique; duplicate observations "
                     "cannot be treated as independent evidence."
+                ),
+            }
+        )
+    if orphan_lab_result_candidate_ids:
+        input_integrity_issues.append(
+            {
+                "kind": "orphan_lab_result_candidate_ids",
+                "ids": orphan_lab_result_candidate_ids,
+                "message": (
+                    "Lab results reference candidates absent from the submitted "
+                    "panel; they cannot be joined to prior predictions and must "
+                    "not enter a clean calibration cohort."
                 ),
             }
         )
@@ -462,12 +475,15 @@ def build_calibration_intake_report(panel_csv, results_dir):
             "blocked_on_invalid_results"
             if invalid_lab_result_files
             else "blocked_on_duplicate_ids"
-            if input_integrity_issues
+            if duplicate_panel_candidate_ids or duplicate_lab_result_ids
+            else "blocked_on_orphan_results"
+            if orphan_lab_result_candidate_ids
             else "input_validated"
         ),
         "input_integrity_issues": input_integrity_issues,
         "n_duplicate_panel_candidate_ids": len(duplicate_panel_candidate_ids),
         "n_duplicate_lab_result_ids": len(duplicate_lab_result_ids),
+        "orphan_lab_result_candidate_ids": orphan_lab_result_candidate_ids,
         "n_matched_candidates": len(matched),
         "n_orphan_lab_results": len(orphan_ids),
         "orphan_candidate_ids": orphan_ids,

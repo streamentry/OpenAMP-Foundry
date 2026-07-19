@@ -564,7 +564,7 @@ def evaluate_recalibration_gate(
     if n_input_integrity_issues:
         reasons.append(
             "INPUT_INTEGRITY: "
-            f"{n_input_integrity_issues} duplicate-identity issue(s) were "
+            f"{n_input_integrity_issues} input-integrity issue(s) were "
             "detected; recalibration is forbidden until the input set is clean"
         )
     for s in rate_status:

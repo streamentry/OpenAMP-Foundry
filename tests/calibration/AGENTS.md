@@ -16,6 +16,8 @@ gate behavior, and the synthetic end-to-end calibration loop.
   the intake CLI and recalibration gate.
 - Missing or non-directory result paths must return an input error before a
   report is written; an existing empty directory remains valid.
+- Result candidate IDs absent from the submitted panel must remain visible as
+  orphan provenance and block clean intake/recalibration.
 - Control-failed assay observations remain visible but cannot contribute to
   per-assay cohort metrics; tests must preserve this fail-closed boundary.
 
@@ -62,10 +64,12 @@ stateDiagram-v2
   LoadResults --> InputValidated: all JSON files valid
   LoadResults --> InputBlocked: one or more invalid files
   LoadResults --> IdentityBlocked: duplicate result/panel identity
+  LoadResults --> OrphanBlocked: result candidate absent from panel
   LoadResults --> PathError: missing or non-directory path
   PathError --> [*]: error exit 2, no report
   InputBlocked --> [*]: report written, exit 3, no recalibration
   IdentityBlocked --> [*]: report written, exit 3, no recalibration
+  OrphanBlocked --> [*]: report written, exit 3, no recalibration
   InputValidated --> Gate: evaluate policy
   Gate --> [*]: human-reviewed verdict
 ```

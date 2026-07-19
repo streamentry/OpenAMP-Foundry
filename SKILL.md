@@ -108,7 +108,9 @@ to proceed while any invalid file is excluded. Missing or non-directory result
 paths return an input error before a report is written. An existing empty
 directory is the only valid zero-result state. Duplicate result IDs and
 duplicate panel candidate IDs are also preserved as `input_integrity_issues` and
-block clean intake. These controls catch incomplete or ambiguous input, not
+block clean intake. Result candidate IDs absent from the submitted panel are
+preserved as orphan-result integrity issues and also block clean intake, because
+they cannot be joined to prior predictions. These controls catch incomplete or ambiguous input, not
 assay-quality or biological-validity problems. Control-failed assay observations
 remain visible for audit but are excluded from per-assay actual predicates,
 cohort metrics, and interpretable per-candidate outcome flags. Raw outcome fields
