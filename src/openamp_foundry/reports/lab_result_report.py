@@ -109,12 +109,12 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
         "",
         "## Per-Candidate Rollup",
         "",
-        "| Candidate | Results | Assays | Any active | Any toxic | Controls ok | Window |",
-        "|---|---:|---|---|---|---|---|",
+        "| Candidate | Results | Usable | Assays | Usable active | Usable toxic | Controls ok | Window |",
+        "|---|---:|---:|---|---|---|---|---|",
     ]
     for row in report.get("by_candidate", []):
         lines.append(
-            f"| {row['candidate_id']} | {row['n_results']} | {', '.join(row['assay_types'])} | "
+            f"| {row['candidate_id']} | {row['n_results']} | {row['n_usable_results']} | {', '.join(row['assay_types'])} | "
             f"{_yes_no(row['has_any_active'])} | {_yes_no(row['has_any_toxic'])} | "
             f"{_yes_no(row['all_controls_passed'])} | {row['first_assay_date']} to {row['last_assay_date']} |"
         )

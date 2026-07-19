@@ -11,7 +11,8 @@ work and preserve the external-truth bottleneck.
 - `NEXT_100_PR_MAP.md`: bounded, reviewable work items.
 - `50_LOOP_PLAN.md`: historical execution record only.
 - The current external-truth bottleneck includes fail-closed result-input
-  completeness before any recalibration decision.
+  completeness before any recalibration decision and explicit separation of
+  raw versus control-passing candidate outcomes.
 
 ## Diagrams (Mermaid)
 

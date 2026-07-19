@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-17 (result-path validation; benchmark values unchanged)
+> **Last updated:** 2026-07-19 (control-failed outcome rollup boundary; benchmark values unchanged)
 
 > **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -27,15 +27,16 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 
 > **Control-quality integrity note (2026-07-19):** Calibration intake retains
 > observations with failed positive or negative controls for audit, but excludes
-> them from per-assay actual predicates and retrospective cohort metrics. The
-> recalibration gate still rejects any control failure. This prevents failed
-> assays from influencing descriptive triage; it does not validate assay quality
-> or establish biological claims.
+> them from per-assay actual predicates, retrospective cohort metrics, and
+> interpretable per-candidate outcome flags. Raw outcome fields and failed-result
+> IDs remain visible. The recalibration gate still rejects any control failure.
+> This prevents failed assays from influencing descriptive triage; it does not
+> validate assay quality or establish biological claims.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,331 tests; this artifact does not establish
+> collection succeeds at 12,332 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 ## Changelog

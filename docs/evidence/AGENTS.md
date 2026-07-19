@@ -13,8 +13,9 @@ Gate workflows are structural review controls, never biological proof.
 - Lab-result intake blockers are evidence-completeness signals, not assay
   validation; invalid files must remain visible in reports and gates.
 - Control-failed assay observations remain visible for audit but are excluded
-  from per-assay calibration predicates and cohort metrics; they cannot support
-  recalibration.
+  from per-assay calibration predicates, cohort metrics, and interpretable
+  candidate outcome flags; raw fields remain available for audit and they cannot
+  support recalibration.
 
 ## Diagrams (Mermaid)
 

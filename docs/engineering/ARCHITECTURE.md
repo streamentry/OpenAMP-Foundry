@@ -91,8 +91,9 @@ science. Duplicate result IDs and duplicate panel candidate IDs also block clean
 intake because they make evidence identity ambiguous. Missing or non-directory
 result paths fail before report generation; an existing empty directory is the
 explicit no-results state. Control-failed observations remain in the audit
-report but are excluded from per-assay actual predicates and cohort metrics;
-failed controls still block recalibration.
+report but are excluded from per-assay actual predicates, cohort metrics, and
+interpretable per-candidate outcome flags. Raw outcome fields and failed-result
+IDs remain available for audit; failed controls still block recalibration.
 
 ## Package map
 

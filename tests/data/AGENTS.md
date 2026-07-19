@@ -8,7 +8,7 @@ provenance for result ingestion.
 ## Key Components
 
 - `test_lab_results.py`: loader, summary, and missing/non-directory path
-  behavior.
+  behavior, including the boundary between raw and control-passing outcomes.
 
 ## Diagrams (Mermaid)
 

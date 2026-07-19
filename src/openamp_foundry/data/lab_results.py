@@ -160,37 +160,59 @@ def summarise_candidate_outcomes(results: list[dict[str, Any]]) -> list[dict[str
     """Build one row per candidate for decision-grade wet-lab review.
 
     The output stays descriptive. It does not convert assay readouts into
-    claims of efficacy or safety.
+    claims of efficacy or safety. Raw observations remain available for audit,
+    while outcome flags and numeric counts use only observations whose positive
+    and negative controls both passed. This prevents a failed-control assay
+    from looking like an interpretable candidate outcome.
     """
     rows: list[dict[str, Any]] = []
     for candidate_id, candidate_results in sorted(candidate_result_map(results).items()):
         assay_types = sorted({r.get("assay_type", "other") for r in candidate_results})
         organisms = sorted({r.get("organism_or_cell_line", "unknown") for r in candidate_results})
-        qualitative = [r.get("result_qualitative") or "unclassified" for r in candidate_results]
+        usable_results = [
+            r
+            for r in candidate_results
+            if r.get("positive_control_passed") and r.get("negative_control_passed")
+        ]
+        raw_qualitative = [
+            r.get("result_qualitative") or "unclassified" for r in candidate_results
+        ]
+        qualitative = [
+            r.get("result_qualitative") or "unclassified" for r in usable_results
+        ]
         controls_failed = [
             r["result_id"]
             for r in candidate_results
             if not (r.get("positive_control_passed") and r.get("negative_control_passed"))
         ]
-        numeric_results = [r for r in candidate_results if r.get("result_value") is not None]
+        raw_numeric_results = [
+            r for r in candidate_results if r.get("result_value") is not None
+        ]
+        numeric_results = [r for r in usable_results if r.get("result_value") is not None]
         dates = sorted(r.get("assay_date", "") for r in candidate_results)
 
         rows.append(
             {
                 "candidate_id": candidate_id,
                 "n_results": len(candidate_results),
+                "n_usable_results": len(usable_results),
                 "assay_types": assay_types,
                 "organisms_or_cells": organisms,
                 "qualitative_results": qualitative,
+                "raw_qualitative_results": raw_qualitative,
                 "has_any_active": "active" in qualitative,
                 "has_any_toxic": "toxic" in qualitative,
                 "has_any_inconclusive": "inconclusive" in qualitative,
+                "raw_has_any_active": "active" in raw_qualitative,
+                "raw_has_any_toxic": "toxic" in raw_qualitative,
+                "raw_has_any_inconclusive": "inconclusive" in raw_qualitative,
                 "all_controls_passed": len(controls_failed) == 0,
                 "control_fail_result_ids": controls_failed,
                 "max_replicate_count": max(r.get("replicate_count", 0) for r in candidate_results),
                 "first_assay_date": dates[0] if dates else None,
                 "last_assay_date": dates[-1] if dates else None,
                 "n_numeric_results": len(numeric_results),
+                "n_raw_numeric_results": len(raw_numeric_results),
             }
         )
     return rows

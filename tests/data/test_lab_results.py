@@ -207,11 +207,29 @@ class TestSummariseCandidateOutcomes:
         rows = summarise_candidate_outcomes(results)
         by_id = {row["candidate_id"]: row for row in rows}
         assert by_id["CAND-001"]["n_results"] == 2
+        assert by_id["CAND-001"]["n_usable_results"] == 1
         assert by_id["CAND-001"]["has_any_active"] is True
-        assert by_id["CAND-001"]["has_any_toxic"] is True
+        assert by_id["CAND-001"]["has_any_toxic"] is False
+        assert by_id["CAND-001"]["raw_has_any_toxic"] is True
+        assert by_id["CAND-001"]["qualitative_results"] == ["active"]
+        assert by_id["CAND-001"]["raw_qualitative_results"] == ["active", "toxic"]
         assert by_id["CAND-001"]["all_controls_passed"] is False
         assert by_id["CAND-001"]["control_fail_result_ids"] == ["R2"]
         assert by_id["CAND-002"]["all_controls_passed"] is True
+
+    def test_failed_control_only_result_has_no_usable_outcome(self):
+        result = _valid_result(
+            result_id="R4",
+            candidate_id="CAND-004",
+            result_qualitative="active",
+            positive_control_passed=False,
+        )
+        row = summarise_candidate_outcomes([result])[0]
+        assert row["n_results"] == 1
+        assert row["n_usable_results"] == 0
+        assert row["has_any_active"] is False
+        assert row["raw_has_any_active"] is True
+        assert row["control_fail_result_ids"] == ["R4"]
 
 
 class TestLoadLabResultsDir:

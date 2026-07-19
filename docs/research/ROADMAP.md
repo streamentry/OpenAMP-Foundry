@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-07-17
+## Current state — 2026-07-19
 
 Phase AC is complete as of 2026-07-15. AC1 records one explicit disconfirming
 test as a DTR- artifact. AC2 aggregates those records into an ACDG- gate. AC3
@@ -35,10 +35,11 @@ assay quality or establish biological claims.
 
 On 2026-07-19, calibration intake tightened the adjacent control-quality
 boundary: observations with failed positive or negative controls remain visible
-in the audit report but no longer contribute to per-assay actual predicates or
-retrospective cohort metrics. The recalibration gate continues to reject any
-control failure. This prevents a failed assay from influencing descriptive
-triage while preserving the negative evidence; it does not validate the assay.
+in raw audit fields but no longer contribute to per-assay actual predicates,
+retrospective cohort metrics, or interpretable per-candidate outcome flags. The
+recalibration gate continues to reject any control failure. This prevents a
+failed assay from influencing descriptive triage while preserving the negative
+evidence; it does not validate the assay.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

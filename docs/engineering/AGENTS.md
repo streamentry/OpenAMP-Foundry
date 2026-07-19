@@ -12,6 +12,8 @@ turning artifact presence into scientific validation.
 - `SCHEMA_REGISTRY.md`: artifact prefixes and compatibility references.
 - Result ingestion retains schema-invalid files as structured provenance;
   calibration and reporting paths fail closed on those files.
+- Candidate rollups keep failed-control observations auditable without exposing
+  them as interpretable outcome flags or counts.
 
 ## Diagrams (Mermaid)
 
