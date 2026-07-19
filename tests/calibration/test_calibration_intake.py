@@ -296,6 +296,48 @@ class TestPerCandidateJoin:
         report = build_calibration_intake_report(panel, results)
         assert report["n_orphan_lab_results"] == 1
         assert "CAND-NOT-IN-PANEL" in report["orphan_candidate_ids"]
+        assert report["orphan_lab_result_candidate_ids"] == ["CAND-NOT-IN-PANEL"]
+        assert report["input_validation_status"] == "blocked_on_orphan_results"
+        assert report["input_integrity_issues"] == [
+            {
+                "kind": "orphan_lab_result_candidate_ids",
+                "ids": ["CAND-NOT-IN-PANEL"],
+                "message": (
+                    "Lab results reference candidates absent from the submitted "
+                    "panel; they cannot be joined to prior predictions and must "
+                    "not enter a clean calibration cohort."
+                ),
+            }
+        ]
+
+    def test_orphan_lab_results_block_cli_intake(self, tmp_path):
+        from argparse import Namespace
+
+        results = tmp_path / "results"
+        results.mkdir()
+        panel = tmp_path / "panel.csv"
+        _write_panel_csv(panel, [])
+        _write_lab_result_file(
+            results, _lab_result(result_id="RES-A", candidate_id="CAND-NOT-IN-PANEL")
+        )
+
+        from openamp_foundry.cli.commands.reports import _run_calibration_intake
+
+        exit_code = _run_calibration_intake(
+            Namespace(
+                panel=str(panel),
+                results_dir=str(results),
+                out_json=str(tmp_path / "intake.json"),
+                out_md=None,
+            )
+        )
+
+        assert exit_code == 3
+        report = json.loads((tmp_path / "intake.json").read_text())
+        assert report["input_validation_status"] == "blocked_on_orphan_results"
+        assert report["input_integrity_issues"][0]["kind"] == (
+            "orphan_lab_result_candidate_ids"
+        )
 
     def test_duplicate_panel_candidate_ids_block_intake(self, tmp_path):
         results = tmp_path / "results"

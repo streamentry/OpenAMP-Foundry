@@ -65,6 +65,9 @@ If these docs conflict, safety and claim discipline win.
 - Calibration and reporting workflows also retain duplicate result IDs and
   duplicate panel candidate IDs as structured input-integrity issues; those
   inputs are not clean evidence and block the recalibration gate.
+- Calibration intake also retains orphan result candidate IDs when a result
+  references a candidate absent from the submitted panel; orphan results are
+  not joined to predictions and block clean intake/recalibration.
 - Candidate outcome rollups retain raw failed-control observations and IDs for
   audit, but interpretable outcome flags and numeric counts use only
   control-passing observations; failed controls still block recalibration.

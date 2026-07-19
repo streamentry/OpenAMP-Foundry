@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-19 (control-failed outcome rollup boundary; benchmark values unchanged)
+> **Last updated:** 2026-07-20 (orphan result join boundary; benchmark values unchanged)
 
 > **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -32,6 +32,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > IDs remain visible. The recalibration gate still rejects any control failure.
 > This prevents failed assays from influencing descriptive triage; it does not
 > validate assay quality or establish biological claims.
+
+> **Join-integrity note (2026-07-20):** Calibration intake retains result
+> candidate IDs that are absent from the submitted panel as orphan provenance,
+> but marks them as structured input-integrity issues and blocks clean intake
+> and recalibration. This prevents a broader result directory from silently
+> inflating a panel-specific cohort; it does not validate assay quality or
+> establish biological claims.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
@@ -40,6 +47,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > biological validation or benchmark improvement.
 
 ## Changelog
+
+### External-result intake integrity — block orphan panel joins
+- Result candidate IDs absent from the submitted panel are retained in
+  `orphan_lab_result_candidate_ids` and `input_integrity_issues`.
+- Calibration intake reports the join as `blocked_on_orphan_results`; its CLI
+  exits `3`, and the recalibration gate refuses to proceed through the existing
+  input-integrity fail-closed path.
+- This is a join-completeness control, not assay validation or biological proof.
 
 ### External-result intake integrity — exclude control-failed observations from metrics
 - Calibration intake still reports every control failure and keeps the

@@ -20,6 +20,7 @@ flowchart TD
   Missing["Missing/non-directory path"] --> PathBlock["Input path error"]
   Intake -->|invalid files| Block["Blocked input report"]
   Intake -->|duplicate identities| IdentityBlock["Blocked input-integrity report"]
+  Intake -->|orphan result candidates| OrphanBlock["Blocked join-integrity report"]
   Intake -->|clean input| Gate["Recalibration gate"]
   Gate --> Human["Human decision record"]
 ```
@@ -30,7 +31,7 @@ sequenceDiagram
   participant Intake
   participant Gate
   CLI->>Intake: build report
-  Intake-->>CLI: valid rows + invalid/duplicate identity provenance
+  Intake-->>CLI: valid rows + invalid/duplicate/orphan provenance
   CLI->>Gate: evaluate only after input check
   Gate-->>CLI: may_recalibrate or fail-closed verdict
 ```
@@ -43,3 +44,6 @@ result IDs and duplicate panel candidate IDs likewise block clean intake because
 they make the evidence identity ambiguous. Control-failed assay observations
 remain in the audit report but are excluded from per-assay actual predicates and
 cohort metrics, while still blocking recalibration.
+Lab results whose candidate IDs are absent from the submitted panel are retained
+as orphan provenance but block clean intake because they cannot be joined to a
+prior prediction; they must not silently inflate the result directory's evidence.

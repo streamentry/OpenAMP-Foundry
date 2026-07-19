@@ -94,6 +94,10 @@ explicit no-results state. Control-failed observations remain in the audit
 report but are excluded from per-assay actual predicates, cohort metrics, and
 interpretable per-candidate outcome flags. Raw outcome fields and failed-result
 IDs remain available for audit; failed controls still block recalibration.
+Results whose candidate IDs are absent from the submitted calibration panel are
+retained as orphan provenance but block clean intake because they cannot be
+joined to prior predictions. This prevents a broader result directory from
+silently inflating a panel-specific cohort.
 
 ## Package map
 

@@ -12,7 +12,8 @@ work and preserve the external-truth bottleneck.
 - `50_LOOP_PLAN.md`: historical execution record only.
 - The current external-truth bottleneck includes fail-closed result-input
   completeness before any recalibration decision and explicit separation of
-  raw versus control-passing candidate outcomes.
+  raw versus control-passing candidate outcomes. Orphan result candidates that
+  are absent from the submitted panel are also retained and block clean intake.
 
 ## Diagrams (Mermaid)
 
