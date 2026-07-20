@@ -18,6 +18,9 @@ gate behavior, and the synthetic end-to-end calibration loop.
   report is written; an existing empty directory remains valid.
 - Result candidate IDs absent from the submitted panel must remain visible as
   orphan provenance and block clean intake/recalibration.
+- When a panel supplies optional certificate hashes, result hashes must match
+  for every tested candidate; mismatches and partial coverage block intake.
+  Legacy panels without that column remain explicitly unverified.
 - Control-failed assay observations remain visible but cannot contribute to
   per-assay cohort metrics; tests must preserve this fail-closed boundary.
 
@@ -65,11 +68,13 @@ stateDiagram-v2
   LoadResults --> InputBlocked: one or more invalid files
   LoadResults --> IdentityBlocked: duplicate result/panel identity
   LoadResults --> OrphanBlocked: result candidate absent from panel
+  LoadResults --> CertificateBlocked: opted-in certificate hash mismatch/partial coverage
   LoadResults --> PathError: missing or non-directory path
   PathError --> [*]: error exit 2, no report
   InputBlocked --> [*]: report written, exit 3, no recalibration
   IdentityBlocked --> [*]: report written, exit 3, no recalibration
   OrphanBlocked --> [*]: report written, exit 3, no recalibration
+  CertificateBlocked --> [*]: report written, exit 3, no recalibration
   InputValidated --> Gate: evaluate policy
   Gate --> [*]: human-reviewed verdict
 ```

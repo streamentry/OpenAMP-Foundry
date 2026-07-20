@@ -122,6 +122,75 @@ def _candidate_predictions(row):
     }
 
 
+_CERTIFICATE_HASH_FIELD = "computational_candidate_certificate_hash"
+
+
+def _certificate_hash_integrity(panel_rows, results, matched_candidate_ids):
+    """Check optional panel/result certificate identity alignment.
+
+    Candidate IDs are necessary for joining a result to a panel, but they are
+    not sufficient to prove that the tested candidate is the frozen artifact
+    that was selected.  New panels may carry the certificate hash already
+    required by each lab result.  Legacy panels without that column remain
+    supported, but their certificate identity status is explicitly reported as
+    unavailable rather than silently treated as verified.
+    """
+    panel_has_hash_column = any(
+        _CERTIFICATE_HASH_FIELD in row for row in panel_rows
+    )
+    expected_by_candidate = {
+        row.get("candidate_id", ""): (
+            row.get(_CERTIFICATE_HASH_FIELD) or ""
+        ).strip()
+        for row in panel_rows
+    }
+    observed_by_candidate = {}
+    for result in results:
+        candidate_id = result.get("candidate_id", "")
+        observed_by_candidate.setdefault(candidate_id, set()).add(
+            (result.get(_CERTIFICATE_HASH_FIELD) or "").strip()
+        )
+
+    if not panel_has_hash_column or not any(expected_by_candidate.values()):
+        return {
+            "status": "not_available",
+            "mismatches": [],
+            "unverified_candidate_ids": [],
+        }
+
+    mismatches = []
+    unverified_candidate_ids = []
+    for candidate_id in sorted(matched_candidate_ids):
+        expected_hash = expected_by_candidate.get(candidate_id, "")
+        observed_hashes = sorted(observed_by_candidate.get(candidate_id, set()))
+        if not expected_hash or not observed_hashes or "" in observed_hashes:
+            unverified_candidate_ids.append(candidate_id)
+            continue
+        different_hashes = [
+            value for value in observed_hashes if value != expected_hash
+        ]
+        if different_hashes:
+            mismatches.append(
+                {
+                    "candidate_id": candidate_id,
+                    "panel_certificate_hash": expected_hash,
+                    "result_certificate_hashes": observed_hashes,
+                }
+            )
+
+    if mismatches:
+        status = "blocked_on_certificate_hash_mismatch"
+    elif unverified_candidate_ids:
+        status = "blocked_on_partial_certificate_hash_coverage"
+    else:
+        status = "verified"
+    return {
+        "status": status,
+        "mismatches": mismatches,
+        "unverified_candidate_ids": unverified_candidate_ids,
+    }
+
+
 def _is_active_mic(result):
     """Heuristic: classify a MIC result as active / inactive.
 
@@ -394,6 +463,11 @@ def build_calibration_intake_report(panel_csv, results_dir):
     )
     duplicate_lab_result_ids = duplicate_result_ids(results)
     orphan_lab_result_candidate_ids = orphan_ids
+    certificate_hash_integrity = _certificate_hash_integrity(
+        panel_rows,
+        results,
+        {row["candidate_id"] for row in matched},
+    )
     input_integrity_issues = []
     if duplicate_panel_candidate_ids:
         input_integrity_issues.append(
@@ -426,6 +500,33 @@ def build_calibration_intake_report(panel_csv, results_dir):
                     "Lab results reference candidates absent from the submitted "
                     "panel; they cannot be joined to prior predictions and must "
                     "not enter a clean calibration cohort."
+                ),
+            }
+        )
+    if certificate_hash_integrity["mismatches"]:
+        input_integrity_issues.append(
+            {
+                "kind": "certificate_hash_mismatch",
+                "ids": [
+                    item["candidate_id"]
+                    for item in certificate_hash_integrity["mismatches"]
+                ],
+                "message": (
+                    "Lab results carry certificate hashes that do not match the "
+                    "selected panel; the result cannot be joined as evidence for "
+                    "that frozen candidate artifact."
+                ),
+            }
+        )
+    if certificate_hash_integrity["unverified_candidate_ids"]:
+        input_integrity_issues.append(
+            {
+                "kind": "partial_certificate_hash_coverage",
+                "ids": certificate_hash_integrity["unverified_candidate_ids"],
+                "message": (
+                    "Certificate identity could not be checked for every matched "
+                    "candidate; clean calibration requires hashes on both panel "
+                    "and result records."
                 ),
             }
         )
@@ -478,6 +579,10 @@ def build_calibration_intake_report(panel_csv, results_dir):
             if duplicate_panel_candidate_ids or duplicate_lab_result_ids
             else "blocked_on_orphan_results"
             if orphan_lab_result_candidate_ids
+            else "blocked_on_certificate_hash_mismatch"
+            if certificate_hash_integrity["mismatches"]
+            else "blocked_on_partial_certificate_hash_coverage"
+            if certificate_hash_integrity["unverified_candidate_ids"]
             else "input_validated"
         ),
         "input_integrity_issues": input_integrity_issues,
@@ -487,6 +592,7 @@ def build_calibration_intake_report(panel_csv, results_dir):
         "n_matched_candidates": len(matched),
         "n_orphan_lab_results": len(orphan_ids),
         "orphan_candidate_ids": orphan_ids,
+        "certificate_hash_integrity": certificate_hash_integrity,
         "summary": summarise_lab_results(results),
         "per_candidate_outcomes": summarise_candidate_outcomes(results),
         "per_candidate_joined": per_candidate,
@@ -517,6 +623,9 @@ def write_calibration_intake_markdown(report, out_path):
     """
     p = Path(out_path)
     p.parent.mkdir(parents=True, exist_ok=True)
+    certificate_status = report.get("certificate_hash_integrity", {}).get(
+        "status", "not_available"
+    )
     lines = [
         "# Calibration Intake Report",
         "",
@@ -530,6 +639,7 @@ def write_calibration_intake_markdown(report, out_path):
         f"- Orphan lab results (no panel match): **{report['n_orphan_lab_results']}**",
         f"- Invalid lab result files: **{report.get('n_invalid_lab_result_files', 0)}**",
         f"- Input integrity issues: **{len(report.get('input_integrity_issues', []))}**",
+        f"- Certificate identity check: **{certificate_status}**",
         f"- Minimum cohort size for aggregate metrics: **{report['min_cohort_size']}**",
         "",
         "## Aggregate Cohort Metrics (gated by minimum sample size)",
@@ -552,7 +662,8 @@ def write_calibration_intake_markdown(report, out_path):
         lines += [
             "## Input Integrity Blockers",
             "",
-            "> Duplicate identities are excluded from clean evidence; recalibration is blocked.",
+            "> Identity mismatches and incomplete identity coverage are excluded "
+            "from clean evidence; recalibration is blocked.",
             "",
             "| Kind | IDs | Message |",
             "|---|---|---|",

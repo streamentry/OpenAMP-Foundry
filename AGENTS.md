@@ -74,6 +74,10 @@ If these docs conflict, safety and claim discipline win.
 - Calibration intake retains control-failed assay observations for audit, but
   excludes them from per-assay actual predicates and cohort metrics; failed
   controls remain a recalibration-gate blocker.
+- Calibration intake can verify each result's required computational-certificate
+  hash against an optional panel column; mismatches or partial opted-in coverage
+  are structured input-integrity blockers. Legacy panels without that column are
+  reported as certificate identity not available, not silently verified.
 - The Phase R scientific-review readiness gate is available through
   `scientific-review-readiness-check` and
   `make scientific-review-readiness-check`; only a
