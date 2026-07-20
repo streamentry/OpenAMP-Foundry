@@ -16,6 +16,8 @@ under test. Benchmark-specific checks live in `tests/benchmarks/`.
 - `waves/`: wave-program gate and panel-contract tests.
 - remaining top-level tests: package, CLI, scoring, selection, calibration, and
   evidence coverage awaiting further taxonomy work.
+- CLI gate tests must assert both the successful verdict and the fail-closed
+  result for an incomplete or unsafe record.
 
 ## Diagrams (Mermaid)
 

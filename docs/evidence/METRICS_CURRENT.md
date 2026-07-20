@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-20 (orphan result join boundary; benchmark values unchanged)
+> **Last updated:** 2026-07-20 (scientific-review readiness workflow; benchmark values unchanged)
 
 > **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -39,14 +39,29 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > and recalibration. This prevents a broader result directory from silently
 > inflating a panel-specific cohort; it does not validate assay quality or
 > establish biological claims.
+
+> **Scientific-review readiness note (2026-07-20):** The Phase R SRG- gate is
+> now exposed through `scientific-review-readiness-check` and
+> `make scientific-review-readiness-check`. Only `ready_for_external_review`
+> exits successfully; the checked-in example is intentionally blocked because
+> no qualified wet-lab evidence exists. This is a documentation and review
+> control, not biological validation or release authorization.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,332 tests; this artifact does not establish
+> collection succeeds at 12,336 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 ## Changelog
+
+### Phase R R4 — scientific-review readiness workflow integration
+- Added `scientific-review-readiness-check` CLI and Make target for the existing
+  SRG- validator.
+- The command exits `0` only for `ready_for_external_review`; conditional,
+  incomplete, safety-blocked, and malformed inputs exit `3`.
+- The checked-in Make example is intentionally blocked until qualified evidence
+  exists. This is a dry-lab review control, not biological proof.
 
 ### External-result intake integrity — block orphan panel joins
 - Result candidate IDs absent from the submitted panel are retained in

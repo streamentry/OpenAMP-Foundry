@@ -66,3 +66,7 @@ def test_phase_gate_make_targets_use_the_repository_python_fallback():
         "PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli "
         "phase-ac-disconfirming-gate-check"
     ) in makefile
+    assert (
+        "PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli "
+        "scientific-review-readiness-check"
+    ) in makefile

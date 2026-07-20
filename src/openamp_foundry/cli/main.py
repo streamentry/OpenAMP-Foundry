@@ -19,6 +19,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_adapter_check, _run_license_check, _run_artifact_compat_check, _run_adoption_scorecard,
     _run_reviewer_briefing_check, _run_audit_chain_check,
     _run_phase_ac_disconfirming_gate_check, _run_phase_aa_reproducibility_gate_check,
+    _run_scientific_review_readiness_check,
     _run_pre_registration_check,
     _run_external_sharing_clearance_check,
     _run_rejection_reason_check,
@@ -2315,6 +2316,24 @@ def build_parser() -> argparse.ArgumentParser:
         "--format", choices=["text", "json"], default="text"
     )
 
+    # ── Scientific review readiness gate (Phase R R4) ────────────────
+    scientific_review_readiness_parser = sub.add_parser(
+        "scientific-review-readiness-check",
+        help=(
+            "Build the Phase R scientific-review readiness gate. "
+            "Only a fully ready gate exits successfully; this is a dry-lab "
+            "review control, not biological validation."
+        ),
+    )
+    scientific_review_readiness_parser.add_argument(
+        "--entry-json",
+        required=True,
+        help="JSON object containing the SRG gate fields",
+    )
+    scientific_review_readiness_parser.add_argument(
+        "--format", choices=["text", "json"], default="text"
+    )
+
     # ── Pre-registration form check (Phase N N1) ─────────────────────
     pre_registration_parser = sub.add_parser(
         "pre-registration-check",
@@ -2934,6 +2953,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "phase-aa-reproducibility-gate-check":
         return _run_phase_aa_reproducibility_gate_check(args)
+
+    if args.command == "scientific-review-readiness-check":
+        return _run_scientific_review_readiness_check(args)
 
     if args.command == "pre-registration-check":
         return _run_pre_registration_check(args)

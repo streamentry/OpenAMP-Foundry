@@ -100,6 +100,14 @@ RMC, DCR, CFP, and SBW artifact IDs are all present. This is a structural
 provenance check, not proof that the underlying run is scientifically correct
 or biologically valid.
 
+The Phase R scientific-review readiness gate is available as
+`openamp-foundry scientific-review-readiness-check --entry-json ...` or
+`make scientific-review-readiness-check`. It returns success only for
+`ready_for_external_review`; conditional, incomplete, safety-blocked, and
+malformed inputs fail closed. The Make example is intentionally blocked until
+qualified evidence exists. This is a dry-lab documentation control, not
+biological validation or release authorization.
+
 External-result intake is also fail-closed at the review boundary. Use the
 structured loader/report fields `invalid_lab_result_files` and
 `input_validation_status` to preserve schema-invalid returns; the

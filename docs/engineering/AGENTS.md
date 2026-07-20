@@ -14,6 +14,8 @@ turning artifact presence into scientific validation.
   calibration and reporting paths fail closed on those files.
 - Candidate rollups keep failed-control observations auditable without exposing
   them as interpretable outcome flags or counts.
+- `ARCHITECTURE.md` records the Phase R SRG- CLI/Make surface; only a fully
+  ready verdict passes and the checked-in example remains blocked.
 
 ## Diagrams (Mermaid)
 

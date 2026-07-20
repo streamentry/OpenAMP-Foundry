@@ -2,7 +2,7 @@
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
-.PHONY: phase-aa-reproducibility-gate-check
+.PHONY: phase-aa-reproducibility-gate-check scientific-review-readiness-check
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
 RUFF    := $(shell [ -f .venv/bin/ruff ] && echo .venv/bin/ruff || echo ruff)
 
@@ -962,6 +962,10 @@ phase-ac-disconfirming-gate-check:
 phase-aa-reproducibility-gate-check:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-aa-reproducibility-gate-check --entry-json '{"aarg_id":"AARG-001","pipeline_version":"demo","rmc_id":"RMC-001","dcr_id":"DCR-001","cfp_id":"CFP-001","sbw_id":"SBW-001","created_at":"2026-07-16"}' --format text
 	@echo "Phase AA reproducibility gate check complete."
+
+scientific-review-readiness-check:
+	@set +e; PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli scientific-review-readiness-check --entry-json '{"srg_id":"SRG-DEMO-001","candidate_family_id":"FAMILY-DEMO-001","cfc_id":"CFC-DEMO-001","fnr_id":"FNR-DEMO-001","atr_id":"ATR-DEMO-001","pqg_id":"PQG-DEMO-001","readiness_verdict":"not_ready","safety_flags":["no_flags"],"failed_gates":["No qualified wet-lab result is available"],"review_scope":"internal_only","n_confirmed_hits":0,"n_total_candidates":1,"limitations":"Dry-lab readiness example; not biological proof."}' --format text; status=$$?; test $$status -eq 3
+	@echo "Scientific review readiness is blocked as expected until qualified evidence exists."
 
 pre-registration-check:
 	openamp-foundry pre-registration-check --entry-json '{"registration_id":"PRE-001","batch_id":"BATCH-001","pipeline_version":"0.9.4","registration_date":"2026-07-10","primary_hypothesis":"Candidates selected by OpenAMP will show MIC values at least 2-fold lower than random length/charge-matched peptides in broth microdilution against E. coli ATCC 25922.","primary_outcome_metric":"mic_value","success_threshold":4.0,"baseline_comparators":["random_selection","charge_matched_random"],"candidate_ids":["AMP-001","AMP-002","AMP-003"],"assay_type":"mic_assay","statistical_test":"Mann-Whitney U test, two-sided, alpha=0.05","registered_by":"test@example.com","dry_lab_only":true}' --format text

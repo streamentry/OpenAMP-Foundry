@@ -1820,6 +1820,62 @@ def _run_phase_aa_reproducibility_gate_check(args: argparse.Namespace) -> int:
     return 0 if gate.verdict == "reproducibility_verified" else 3
 
 
+def _run_scientific_review_readiness_check(args: argparse.Namespace) -> int:
+    """Build and report the Phase R scientific-review readiness gate."""
+    import dataclasses
+
+    from openamp_foundry.evidence.scientific_review_readiness_gate import (
+        build_scientific_review_readiness_gate,
+        format_scientific_review_readiness_gate,
+    )
+
+    try:
+        payload = json.loads(args.entry_json)
+    except json.JSONDecodeError as exc:
+        error = {"passed": False, "violations": [f"invalid JSON input: {exc}"]}
+        if args.format == "json":
+            print(json.dumps(error, indent=2))
+        else:
+            print("[FAIL] Scientific Review Readiness Check")
+            print(f"  ERROR: {error['violations'][0]}")
+        return 3
+
+    try:
+        gate = build_scientific_review_readiness_gate(
+            srg_id=payload["srg_id"],
+            candidate_family_id=payload["candidate_family_id"],
+            cfc_id=payload["cfc_id"],
+            fnr_id=payload["fnr_id"],
+            atr_id=payload["atr_id"],
+            pqg_id=payload["pqg_id"],
+            readiness_verdict=payload["readiness_verdict"],
+            safety_flags=payload.get("safety_flags", []),
+            failed_gates=payload.get("failed_gates", []),
+            review_scope=payload["review_scope"],
+            n_confirmed_hits=payload["n_confirmed_hits"],
+            n_total_candidates=payload["n_total_candidates"],
+            limitations=payload["limitations"],
+            notes=payload.get("notes", ""),
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        error = {"passed": False, "violations": [f"invalid SRG input: {exc}"]}
+        if args.format == "json":
+            print(json.dumps(error, indent=2))
+        else:
+            print("[FAIL] Scientific Review Readiness Check")
+            print(f"  ERROR: {error['violations'][0]}")
+        return 3
+
+    is_ready = gate.readiness_verdict == "ready_for_external_review"
+    if args.format == "json":
+        print(json.dumps({**dataclasses.asdict(gate), "passed": is_ready}, indent=2))
+    else:
+        status = "PASS" if is_ready else "FAIL"
+        print(f"[{status}] {format_scientific_review_readiness_gate(gate)}")
+
+    return 0 if is_ready else 3
+
+
 def _run_pre_registration_check(args: argparse.Namespace) -> int:
     """Validate a pre-registration form passed as JSON."""
     entry_dict = json.loads(args.entry_json)

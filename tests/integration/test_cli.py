@@ -218,6 +218,67 @@ def test_phase_aa_reproducibility_gate_check_fails_when_components_are_missing()
     ]) == 3
 
 
+def test_scientific_review_readiness_check_reports_ready(capsys):
+    ret = main([
+        "scientific-review-readiness-check",
+        "--entry-json",
+        json.dumps({
+            "srg_id": "SRG-CLI-001",
+            "candidate_family_id": "FAMILY-CLI-001",
+            "cfc_id": "CFC-CLI-001",
+            "fnr_id": "FNR-CLI-001",
+            "atr_id": "ATR-CLI-001",
+            "pqg_id": "PQG-CLI-001",
+            "readiness_verdict": "ready_for_external_review",
+            "safety_flags": ["no_flags"],
+            "failed_gates": [],
+            "review_scope": "trusted_partner",
+            "n_confirmed_hits": 1,
+            "n_total_candidates": 2,
+            "limitations": "Structural readiness record; not biological proof.",
+        }),
+        "--format", "json",
+    ])
+    assert ret == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["readiness_verdict"] == "ready_for_external_review"
+    assert result["passed"] is True
+    assert result["dry_lab_only"] is True
+
+
+def test_scientific_review_readiness_check_fails_closed_without_confirmed_hit():
+    payload = {
+        "srg_id": "SRG-CLI-002",
+        "candidate_family_id": "FAMILY-CLI-002",
+        "cfc_id": "CFC-CLI-002",
+        "fnr_id": "FNR-CLI-002",
+        "atr_id": "ATR-CLI-002",
+        "pqg_id": "PQG-CLI-002",
+        "readiness_verdict": "not_ready",
+        "safety_flags": ["no_flags"],
+        "failed_gates": ["PQG incomplete"],
+        "review_scope": "internal_only",
+        "n_confirmed_hits": 0,
+        "n_total_candidates": 2,
+        "limitations": "No qualified wet-lab result is available.",
+    }
+    assert main([
+        "scientific-review-readiness-check",
+        "--entry-json", json.dumps(payload),
+    ]) == 3
+
+
+def test_scientific_review_readiness_check_fails_closed_on_invalid_json(capsys):
+    assert main([
+        "scientific-review-readiness-check",
+        "--entry-json", "{not-json",
+        "--format", "json",
+    ]) == 3
+    result = json.loads(capsys.readouterr().out)
+    assert result["passed"] is False
+    assert "invalid JSON input" in result["violations"][0]
+
+
 def test_presynth_qc_command_returns_zero(tmp_path):
     panel = tmp_path / "panel.csv"
     panel.write_text(

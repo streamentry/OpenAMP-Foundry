@@ -74,6 +74,11 @@ If these docs conflict, safety and claim discipline win.
 - Calibration intake retains control-failed assay observations for audit, but
   excludes them from per-assay actual predicates and cohort metrics; failed
   controls remain a recalibration-gate blocker.
+- The Phase R scientific-review readiness gate is available through
+  `scientific-review-readiness-check` and
+  `make scientific-review-readiness-check`; only a
+  `ready_for_external_review` verdict exits successfully. This is a dry-lab
+  documentation gate, not biological validation or release authorization.
 
 ## The agent role
 
