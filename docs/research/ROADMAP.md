@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-07-19
+## Current state — 2026-07-20
 
 Phase AC is complete as of 2026-07-15. AC1 records one explicit disconfirming
 test as a DTR- artifact. AC2 aggregates those records into an ACDG- gate. AC3
@@ -46,6 +46,13 @@ candidate IDs absent from the submitted panel are retained as orphan provenance,
 but become structured input-integrity issues that block clean intake and
 recalibration. This prevents a result directory from silently broadening the
 panel-specific cohort; it does not validate the underlying assay.
+
+On 2026-07-20, the Phase R scientific-review readiness gate became executable
+through the CLI and Make review loop. Only `ready_for_external_review` returns
+success; conditional, incomplete, safety-blocked, and malformed inputs fail
+closed. The default Make example remains intentionally blocked because the
+repository has no qualified wet-lab evidence. This improves review discipline,
+but does not establish biological validation or authorize release.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
