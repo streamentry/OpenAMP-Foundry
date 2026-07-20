@@ -54,6 +54,14 @@ closed. The default Make example remains intentionally blocked because the
 repository has no qualified wet-lab evidence. This improves review discipline,
 but does not establish biological validation or authorize release.
 
+On 2026-07-21, calibration intake gained an optional certificate-identity
+check: when a panel supplies `computational_candidate_certificate_hash`, every
+matched result hash must agree. Mismatches and partial opted-in coverage now
+block clean intake and recalibration, while legacy panels explicitly report
+identity as unavailable. This prevents a result with a reused or relabeled
+candidate ID from being treated as evidence for the wrong frozen artifact; it
+does not validate assay quality or establish biological claims.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

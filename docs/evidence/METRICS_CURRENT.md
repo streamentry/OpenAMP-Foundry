@@ -46,6 +46,12 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > exits successfully; the checked-in example is intentionally blocked because
 > no qualified wet-lab evidence exists. This is a documentation and review
 > control, not biological validation or release authorization.
+
+> **Certificate-identity note (2026-07-21):** Panels may now carry the
+> `computational_candidate_certificate_hash` already required by each lab
+> result. Calibration intake blocks mismatches and partial opted-in coverage;
+> legacy panels report identity as not available. This is an evidence-join
+> integrity control, not assay validation or biological proof.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It

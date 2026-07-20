@@ -5,6 +5,7 @@
   "type": "object",
   "required": ["candidate_id", "sequence"],
   "optional": ["source", "ensemble", "activity", "safety", "synthesis", "novelty",
+               "computational_candidate_certificate_hash",
                "charge_bias", "rich_selectivity", "selectivity_proxy", "hemolysis_risk",
                "selected", "selection_reason", "family", "mechanism", "batch"],
   "properties": {

@@ -10,6 +10,10 @@ recalibration policy.
 
 - `intake.py`: result join and input-validation status.
 - `recalibration_gate.py`: fail-closed policy verdict; never applies weights.
+- Optional `computational_candidate_certificate_hash` values in the panel are
+  checked against each result's required certificate hash. Mismatches and
+  incomplete opted-in coverage block clean intake; legacy panels report the
+  identity check as unavailable.
 
 ## Diagrams (Mermaid)
 
@@ -21,6 +25,7 @@ flowchart TD
   Intake -->|invalid files| Block["Blocked input report"]
   Intake -->|duplicate identities| IdentityBlock["Blocked input-integrity report"]
   Intake -->|orphan result candidates| OrphanBlock["Blocked join-integrity report"]
+  Intake -->|certificate hash mismatch/partial coverage| CertBlock["Blocked certificate-identity report"]
   Intake -->|clean input| Gate["Recalibration gate"]
   Gate --> Human["Human decision record"]
 ```

@@ -35,6 +35,13 @@ Replace this directory with the real validated lab result JSON files,
 where each file matches `schemas/lab_result.schema.json`. The pipeline
 itself does not need to change — only the input data does.
 
+For stronger join integrity, include the same
+`computational_candidate_certificate_hash` column in the submitted panel CSV.
+When that optional column is present, every tested candidate must have a
+matching hash in its result record; mismatches or incomplete opted-in coverage
+block clean calibration intake. Panels without the column remain supported but
+are reported as certificate identity not available.
+
 See `docs/WET_LAB_HANDOFF.md`, `docs/DECISION_RULES.md`, and
 `docs/WAVE2_PLAN.md` for the workflow that converts these inputs into
 recalibration decisions.

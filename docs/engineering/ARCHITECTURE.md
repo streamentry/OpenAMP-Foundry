@@ -100,7 +100,11 @@ IDs remain available for audit; failed controls still block recalibration.
 Results whose candidate IDs are absent from the submitted calibration panel are
 retained as orphan provenance but block clean intake because they cannot be
 joined to prior predictions. This prevents a broader result directory from
-silently inflating a panel-specific cohort.
+silently inflating a panel-specific cohort. New panels may additionally carry
+the certificate hash already required on each lab result. When present, intake
+compares hashes for every tested candidate and blocks mismatches or partial
+opted-in coverage. Legacy panels without that optional column are reported as
+certificate identity not available, not silently verified.
 
 ## Package map
 
