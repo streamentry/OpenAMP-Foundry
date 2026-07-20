@@ -58,7 +58,10 @@ Top-level evidence gates are review controls, not scientific verdicts. The
 Phase AA AARG- gate is available through the CLI and Make surface so a normal
 loop can fail closed when RMC, DCR, CFP, or SBW provenance artifacts are
 missing. Presence of those artifacts does not validate their contents or any
-biological claim.
+biological claim. The Phase R SRG- gate is also available through the CLI and
+Make surface; only a fully ready verdict passes, while conditional, incomplete,
+safety-blocked, or malformed records fail closed. Its checked-in example is
+intentionally blocked until qualified evidence exists.
 
 ## Longer-range architecture
 

@@ -293,7 +293,7 @@ Do not change a success definition after seeing results.
 
 Do not hide negative results merely because they weaken the story.
 
-## Current status — Phase AA6 / AC3 (2026-07-17)
+## Current status — Phase AA6 / AC3 / R4 workflow (2026-07-20)
 
 Phase AA AA6 and Phase AC AC3 are complete: the reproducibility and
 disconfirming-evidence aggregates are available through fail-closed CLI and
@@ -304,6 +304,12 @@ The repository remains a dry-lab system.
 External-result intake also fails closed on missing/non-directory paths,
 schema-invalid files, duplicate lab-result IDs, and duplicate panel candidate
 IDs. These are evidence-integrity controls, not assay validation.
+
+The Phase R scientific-review readiness gate is available through
+`scientific-review-readiness-check` and its Make target. Only
+`ready_for_external_review` exits successfully; the checked-in example remains
+blocked because no qualified wet-lab evidence exists. This is a review-control
+workflow, not biological validation or release authorization.
 
 For current milestones, measured evidence, and the next bounded work items,
 use [`docs/research/ROADMAP.md`](research/ROADMAP.md),

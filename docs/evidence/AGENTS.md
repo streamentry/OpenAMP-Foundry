@@ -16,6 +16,9 @@ Gate workflows are structural review controls, never biological proof.
   from per-assay calibration predicates, cohort metrics, and interpretable
   candidate outcome flags; raw fields remain available for audit and they cannot
   support recalibration.
+- The Phase R SRG- workflow exposes scientific-review readiness through the CLI
+  and Make surface; conditional, incomplete, safety-blocked, or malformed
+  records must fail closed.
 
 ## Diagrams (Mermaid)
 

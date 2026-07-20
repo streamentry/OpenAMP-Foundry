@@ -13,6 +13,8 @@ documents remain at stable paths to preserve public links.
 - `getting-started/`, `operations/`, `review/`: contributor workflows.
 - `research/`: current strategy separated from historical records.
 - `PROJECT_INDEX.md`: complete inventory.
+- Current status pages should expose executable review gates and their expected
+  fail-closed behavior, not imply that a gate is biological validation.
 
 ## Diagrams
 
