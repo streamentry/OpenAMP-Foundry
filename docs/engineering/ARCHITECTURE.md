@@ -108,7 +108,10 @@ silently inflating a panel-specific cohort. New panels may additionally carry
 the certificate hash already required on each lab result. When present, intake
 compares hashes for every tested candidate and blocks mismatches or partial
 opted-in coverage. Legacy panels without that optional column are reported as
-certificate identity not available, not silently verified.
+certificate identity not available, not silently verified. New panels may also
+carry a frozen `panel_id` in the panel and result records. Intake blocks
+multiple submitted panel IDs, mismatches, or partial opted-in coverage. Legacy
+panels without that optional field report panel identity not available.
 
 ## Package map
 

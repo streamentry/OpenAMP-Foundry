@@ -59,6 +59,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > failed-control observations remain auditable without appearing to be usable
 > cohort evidence. This is a reporting integrity control, not assay validation
 > or biological proof.
+
+> **Panel-identity note (2026-07-22):** Calibration intake may now verify an
+> optional frozen `panel_id` carried by both the submitted panel and result
+> records. Multiple panel IDs, mismatches, and partial opted-in coverage block
+> clean intake; legacy panels report identity as not available. This prevents
+> cross-panel joins through reused candidate IDs, but does not validate assay
+> quality or establish biological proof.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It

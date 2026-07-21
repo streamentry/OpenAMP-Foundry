@@ -11,6 +11,7 @@ descriptive evidence plumbing, not biological validation.
   invalid-file provenance, and candidate-level summaries. Rollups expose raw
   observations separately from control-passing outcome flags and counts;
   batch-level qualitative summaries follow the same raw-versus-usable split.
+  Calibration intake may additionally verify an optional frozen `panel_id`.
 - `__init__.py`: stable public loader exports.
 
 ## Diagrams (Mermaid)
@@ -21,6 +22,7 @@ flowchart LR
   Validate --> Valid["Validated results"]
   Validate --> Errors["Structured file errors"]
   Validate --> PathError["Missing/non-directory path: fail closed"]
+  Valid --> Panel["Optional panel identity join"]
   Valid --> Controls{"Both controls passed?"}
   Controls --> Usable["Interpretable outcome flags/counts"]
   Controls --> Raw["Raw audit fields + failure IDs"]

@@ -14,6 +14,10 @@ recalibration policy.
   checked against each result's required certificate hash. Mismatches and
   incomplete opted-in coverage block clean intake; legacy panels report the
   identity check as unavailable.
+- Optional `panel_id` values in the panel are checked against each matched
+  result to prevent cross-panel joins. Mismatches, multiple submitted panel
+  IDs, and incomplete opted-in coverage block clean intake; legacy panels
+  report panel identity as unavailable.
 
 ## Diagrams (Mermaid)
 
@@ -25,6 +29,7 @@ flowchart TD
   Intake -->|invalid files| Block["Blocked input report"]
   Intake -->|duplicate identities| IdentityBlock["Blocked input-integrity report"]
   Intake -->|orphan result candidates| OrphanBlock["Blocked join-integrity report"]
+  Intake -->|panel ID mismatch/partial coverage| PanelBlock["Blocked panel-identity report"]
   Intake -->|certificate hash mismatch/partial coverage| CertBlock["Blocked certificate-identity report"]
   Intake -->|clean input| Gate["Recalibration gate"]
   Gate --> Human["Human decision record"]

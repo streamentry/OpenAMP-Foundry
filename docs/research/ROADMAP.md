@@ -70,6 +70,13 @@ explicit labels. This prevents failed-control observations from being read as
 usable cohort evidence; it does not validate assay quality or establish
 biological claims.
 
+On 2026-07-22, calibration intake gained an optional frozen `panel_id` check.
+When a panel opts in, every matched result must carry the same panel ID;
+multiple submitted panel IDs, mismatches, and partial coverage block clean
+intake. Legacy panels explicitly report panel identity as unavailable. This
+prevents results from another panel or batch from being attached to a reused
+candidate ID; it does not validate assay quality or establish biological claims.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

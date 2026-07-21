@@ -303,7 +303,9 @@ The repository remains a dry-lab system.
 
 External-result intake also fails closed on missing/non-directory paths,
 schema-invalid files, duplicate lab-result IDs, and duplicate panel candidate
-IDs. These are evidence-integrity controls, not assay validation.
+IDs. Opted-in panels also fail closed on multiple, mismatched, or partially
+covered frozen `panel_id` values. These are evidence-integrity controls, not
+assay validation.
 
 The Phase R scientific-review readiness gate is available through
 `scientific-review-readiness-check` and its Make target. Only

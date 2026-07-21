@@ -14,7 +14,8 @@ work and preserve the external-truth bottleneck.
   completeness before any recalibration decision and explicit separation of
   raw versus control-passing candidate and batch outcomes. Orphan result
   candidates that are absent from the submitted panel are also retained and
-  block clean intake.
+  block clean intake. Opted-in panels also verify the frozen `panel_id` across
+  matched results; mismatches and partial coverage block clean intake.
 - The next executable review boundary is the Phase R SRG- workflow. Its default
   example is intentionally blocked because qualified wet-lab evidence is not
   present; do not treat the gate as validation.

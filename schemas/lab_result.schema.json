@@ -27,6 +27,10 @@
       "type": "string",
       "description": "ID from the evidence certificate of the tested candidate"
     },
+    "panel_id": {
+      "type": "string",
+      "description": "Identifier of the frozen candidate panel or batch, when supplied"
+    },
     "assay_type": {
       "type": "string",
       "enum": [
