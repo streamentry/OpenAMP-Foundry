@@ -81,6 +81,10 @@ If these docs conflict, safety and claim discipline win.
   hash against an optional panel column; mismatches or partial opted-in coverage
   are structured input-integrity blockers. Legacy panels without that column are
   reported as certificate identity not available, not silently verified.
+- Calibration intake can also verify an optional frozen `panel_id` against each
+  matched result. Multiple panel IDs, mismatches, or partial opted-in coverage
+  are structured input-integrity blockers; legacy panels report panel identity
+  not available, not silently verified.
 - The Phase R scientific-review readiness gate is available through
   `scientific-review-readiness-check` and
   `make scientific-review-readiness-check`; only a

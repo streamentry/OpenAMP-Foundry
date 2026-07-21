@@ -129,7 +129,10 @@ panels may also carry
 `computational_candidate_certificate_hash`; when present, result hashes must
 match for every tested candidate. Mismatches or partial opted-in coverage block
 clean intake. Legacy panels without the optional column are reported as
-certificate identity not available, not silently verified.
+certificate identity not available, not silently verified. New panels may also
+carry an optional frozen `panel_id` in both panel and result records. Multiple
+panel IDs, mismatches, or partial opted-in coverage block clean intake; legacy
+panels report panel identity not available, not silently verified.
 
 - `make bench-easy-baseline`: trivial length/charge baselines.
 - `make bench-charge-matched`: adversarial check that removes charge-density
