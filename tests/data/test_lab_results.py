@@ -154,6 +154,30 @@ class TestSummariseLabResults:
         summary = summarise_lab_results(results)
         assert summary["n_valid_controls"] == 1
 
+    def test_qualitative_counts_separate_raw_and_usable_observations(self):
+        results = [
+            _valid_result(result_id="R1", result_qualitative="active"),
+            _valid_result(
+                result_id="R2",
+                result_qualitative="toxic",
+                positive_control_passed=False,
+            ),
+            _valid_result(result_id="R3", result_qualitative="inactive"),
+        ]
+
+        summary = summarise_lab_results(results)
+
+        assert summary["by_qualitative_result"] == {
+            "active": 1,
+            "inactive": 1,
+            "toxic": 1,
+        }
+        assert summary["by_usable_qualitative_result"] == {
+            "active": 1,
+            "inactive": 1,
+        }
+        assert summary["n_valid_controls"] == 2
+
     def test_disclaimer_present(self):
         results = [_valid_result()]
         summary = summarise_lab_results(results)

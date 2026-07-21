@@ -119,11 +119,13 @@ duplicate panel candidate IDs are also preserved as `input_integrity_issues` and
 block clean intake. Result candidate IDs absent from the submitted panel are
 preserved as orphan-result integrity issues and also block clean intake, because
 they cannot be joined to prior predictions. These controls catch incomplete or
-ambiguous input, not assay-quality or biological-validity problems. Control-failed assay observations
-remain visible for audit but are excluded from per-assay actual predicates,
-cohort metrics, and interpretable per-candidate outcome flags. Raw outcome fields
-and failed-result IDs remain available for audit; failed controls still block
-recalibration. New panels may also carry
+ambiguous input, not assay-quality or biological-validity problems. Control-failed
+assay observations remain visible for audit but are excluded from per-assay
+actual predicates, cohort metrics, and interpretable per-candidate outcome
+flags. Raw outcome fields, failed-result IDs, and raw batch-level qualitative
+counts remain available for audit; usable batch counts are restricted to assays
+with both controls passing. Failed controls still block recalibration. New
+panels may also carry
 `computational_candidate_certificate_hash`; when present, result hashes must
 match for every tested candidate. Mismatches or partial opted-in coverage block
 clean intake. Legacy panels without the optional column are reported as

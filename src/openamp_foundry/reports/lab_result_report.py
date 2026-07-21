@@ -97,7 +97,19 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
 
     lines += [
         "",
-        "## Qualitative Outcome Counts",
+        "## Usable Qualitative Outcome Counts",
+        "",
+        "| Outcome | Count |",
+        "|---|---:|",
+    ]
+    for outcome, count in sorted(s.get("by_usable_qualitative_result", {}).items()):
+        lines.append(f"| {outcome} | {count} |")
+
+    lines += [
+        "",
+        "## Raw Qualitative Observations (Audit Only)",
+        "",
+        "> Includes failed-control assays. These observations are retained for audit and are not interpretable cohort evidence.",
         "",
         "| Outcome | Count |",
         "|---|---:|",

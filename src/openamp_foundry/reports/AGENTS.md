@@ -8,8 +8,9 @@ review artifacts without strengthening scientific claims.
 ## Key Components
 
 - `lab_result_report.py`: result counts, candidate rollups, controls, and input
-  validation blockers. Markdown rollups display control-passing outcomes while
-  JSON retains raw outcome fields for audit.
+  validation blockers. Markdown and JSON distinguish control-passing outcome
+  counts from raw audit observations, including failed-control qualitative
+  results.
 - `recalibration_report.py`: proposal/gate summaries; proposals are not applied.
 
 ## Diagrams (Mermaid)

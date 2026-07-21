@@ -71,6 +71,9 @@ If these docs conflict, safety and claim discipline win.
 - Candidate outcome rollups retain raw failed-control observations and IDs for
   audit, but interpretable outcome flags and numeric counts use only
   control-passing observations; failed controls still block recalibration.
+- Lab-result batch summaries retain raw qualitative counts for audit, but expose
+  a separate `by_usable_qualitative_result` view restricted to control-passing
+  observations; reports label both views explicitly.
 - Calibration intake retains control-failed assay observations for audit, but
   excludes them from per-assay actual predicates and cohort metrics; failed
   controls remain a recalibration-gate blocker.

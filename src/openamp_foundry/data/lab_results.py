@@ -94,18 +94,26 @@ def validate_lab_results_directory(directory: str | Path) -> Path:
 def summarise_lab_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     """Produce a summary of lab results for a candidate batch.
 
-    Returns counts by assay_type, qualitative result, and control status.
+    Returns raw counts by assay type and qualitative result, plus
+    control-passing qualitative counts. Raw observations remain available for
+    audit, but usable counts must not treat failed-control assays as
+    interpretable cohort evidence.
     All findings are raw experimental observations, not validated biological claims.
     """
     n = len(results)
     if n == 0:
         return {
             "n_results": 0,
+            "n_valid_controls": 0,
+            "by_assay_type": {},
+            "by_qualitative_result": {},
+            "by_usable_qualitative_result": {},
             "disclaimer": "No lab results loaded.",
         }
 
     by_type: dict[str, int] = {}
     by_qualitative: dict[str, int] = {}
+    by_usable_qualitative: dict[str, int] = {}
     n_controls_ok = 0
 
     for r in results:
@@ -117,12 +125,14 @@ def summarise_lab_results(results: list[dict[str, Any]]) -> dict[str, Any]:
 
         if r.get("positive_control_passed") and r.get("negative_control_passed"):
             n_controls_ok += 1
+            by_usable_qualitative[qual] = by_usable_qualitative.get(qual, 0) + 1
 
     return {
         "n_results": n,
         "n_valid_controls": n_controls_ok,
         "by_assay_type": by_type,
         "by_qualitative_result": by_qualitative,
+        "by_usable_qualitative_result": by_usable_qualitative,
         "disclaimer": (
             "Lab result summary. Raw experimental observations only. "
             "Not a validated drug efficacy, safety, or clinical claim. "
