@@ -800,10 +800,14 @@ def test_lab_result_report_creates_outputs(tmp_path, capsys):
     assert captured["n_control_failures"] == 1
     report = json.loads(out_json.read_text(encoding="utf-8"))
     assert report["summary"]["n_results"] == 2
+    assert report["summary"]["by_qualitative_result"]["toxic"] == 1
+    assert "toxic" not in report["summary"]["by_usable_qualitative_result"]
     assert report["n_candidates"] == 1
     assert len(report["control_failures"]) == 1
     text = out_md.read_text(encoding="utf-8")
     assert "Wet-Lab Result Report" in text
+    assert "Usable Qualitative Outcome Counts" in text
+    assert "Raw Qualitative Observations (Audit Only)" in text
     assert "CAND-001" in text
     assert "RES-002" in text
 

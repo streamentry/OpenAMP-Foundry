@@ -9,7 +9,8 @@ descriptive evidence plumbing, not biological validation.
 
 - `lab_results.py`: input-path validation, schema validation, structured
   invalid-file provenance, and candidate-level summaries. Rollups expose raw
-  observations separately from control-passing outcome flags and counts.
+  observations separately from control-passing outcome flags and counts;
+  batch-level qualitative summaries follow the same raw-versus-usable split.
 - `__init__.py`: stable public loader exports.
 
 ## Diagrams (Mermaid)
@@ -23,8 +24,8 @@ flowchart LR
   Valid --> Controls{"Both controls passed?"}
   Controls --> Usable["Interpretable outcome flags/counts"]
   Controls --> Raw["Raw audit fields + failure IDs"]
-  Usable --> Summary["Descriptive summaries"]
-  Raw --> Summary
+  Usable --> Summary["Usable descriptive summaries"]
+  Raw --> Audit["Raw audit summaries"]
 ```
 
 ```mermaid

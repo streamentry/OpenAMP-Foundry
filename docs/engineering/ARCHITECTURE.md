@@ -97,6 +97,10 @@ explicit no-results state. Control-failed observations remain in the audit
 report but are excluded from per-assay actual predicates, cohort metrics, and
 interpretable per-candidate outcome flags. Raw outcome fields and failed-result
 IDs remain available for audit; failed controls still block recalibration.
+Batch-level lab-result summaries apply the same boundary: raw qualitative
+counts remain available for audit, while `by_usable_qualitative_result` is
+restricted to observations whose positive and negative controls both passed.
+Human-readable reports label the two views separately.
 Results whose candidate IDs are absent from the submitted calibration panel are
 retained as orphan provenance but block clean intake because they cannot be
 joined to prior predictions. This prevents a broader result directory from

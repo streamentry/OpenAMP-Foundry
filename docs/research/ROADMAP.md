@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-07-20
+## Current state — 2026-07-21
 
 Phase AC is complete as of 2026-07-15. AC1 records one explicit disconfirming
 test as a DTR- artifact. AC2 aggregates those records into an ACDG- gate. AC3
@@ -61,6 +61,14 @@ block clean intake and recalibration, while legacy panels explicitly report
 identity as unavailable. This prevents a result with a reused or relabeled
 candidate ID from being treated as evidence for the wrong frozen artifact; it
 does not validate assay quality or establish biological claims.
+
+On 2026-07-21, the lab-result report completed the adjacent control-quality
+boundary at batch level: raw qualitative observations remain available for
+audit, while `by_usable_qualitative_result` counts only assays whose positive
+and negative controls both passed. Markdown reports display both views with
+explicit labels. This prevents failed-control observations from being read as
+usable cohort evidence; it does not validate assay quality or establish
+biological claims.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

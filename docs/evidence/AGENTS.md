@@ -14,8 +14,9 @@ Gate workflows are structural review controls, never biological proof.
   validation; invalid files must remain visible in reports and gates.
 - Control-failed assay observations remain visible for audit but are excluded
   from per-assay calibration predicates, cohort metrics, and interpretable
-  candidate outcome flags; raw fields remain available for audit and they cannot
-  support recalibration.
+  candidate outcome flags and usable batch-level qualitative counts; raw fields
+  and raw summary counts remain available for audit and they cannot support
+  recalibration.
 - The Phase R SRG- workflow exposes scientific-review readiness through the CLI
   and Make surface; conditional, incomplete, safety-blocked, or malformed
   records must fail closed.

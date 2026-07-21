@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-20 (scientific-review readiness workflow; benchmark values unchanged)
+> **Last updated:** 2026-07-21 (usable lab-result summary boundary; benchmark values unchanged)
 
 > **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -52,11 +52,18 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > result. Calibration intake blocks mismatches and partial opted-in coverage;
 > legacy panels report identity as not available. This is an evidence-join
 > integrity control, not assay validation or biological proof.
+
+> **Batch-summary control-quality note (2026-07-21):** Lab-result summaries now
+> expose raw qualitative counts separately from counts restricted to assays with
+> both controls passing. Reports display both views with explicit labels, so
+> failed-control observations remain auditable without appearing to be usable
+> cohort evidence. This is a reporting integrity control, not assay validation
+> or biological proof.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,336 tests; this artifact does not establish
+> collection succeeds at 12,341 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 ## Changelog
@@ -84,6 +91,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
   positive and negative controls both passed.
 - The recalibration gate remains fail-closed on any control failure.
 - This is an evidence-integrity control, not assay validation or biological proof.
+
+### External-result reporting integrity — separate raw and usable batch summaries
+- Batch-level qualitative counts now include an explicit
+  `by_usable_qualitative_result` view restricted to both-controls-passing
+  observations, while `by_qualitative_result` remains the raw audit view.
+- Markdown reports display both views and label failed-control observations as
+  audit-only. This closes the remaining summary-level ambiguity after
+  candidate-level rollups were separated.
+- This is a reporting integrity control, not assay validation or biological proof.
 
 
 ### External-result intake integrity — reject invalid result paths
