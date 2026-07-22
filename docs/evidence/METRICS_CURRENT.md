@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-21 (usable lab-result summary boundary; benchmark values unchanged)
+> **Last updated:** 2026-07-22 (raw-data provenance visibility; benchmark values unchanged)
 
 > **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -66,6 +66,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > clean intake; legacy panels report identity as not available. This prevents
 > cross-panel joins through reused candidate IDs, but does not validate assay
 > quality or establish biological proof.
+
+> **Raw-data provenance note (2026-07-22):** Lab-result and calibration reports
+> now expose `raw_data_sha256` coverage as `no_results`, `not_available`,
+> `partial_declaration`, or `declared_for_all`. A declared hash is not an
+> independently verified raw-file hash, and missing legacy declarations remain
+> accepted. This is audit-gap visibility, not assay validation or recalibration
+> authorization.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
@@ -107,6 +114,16 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
   audit-only. This closes the remaining summary-level ambiguity after
   candidate-level rollups were separated.
 - This is a reporting integrity control, not assay validation or biological proof.
+
+### External-result reporting integrity — expose raw-data provenance coverage
+- Added `summarise_raw_data_provenance()` and included its result in both lab
+  result and calibration intake reports.
+- Reports distinguish no results, no declared hashes, partial declarations,
+  and declarations for all loaded results.
+- The report wording explicitly says that a declared hash is not independently
+  verified unless the raw file is separately available and checked.
+- This is provenance visibility only; legacy results remain accepted and no
+  recalibration or biological claim policy changed.
 
 
 ### External-result intake integrity — reject invalid result paths

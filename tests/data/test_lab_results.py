@@ -22,6 +22,7 @@ from openamp_foundry.data.lab_results import (
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
+    summarise_raw_data_provenance,
     validate_lab_results_directory,
 )
 
@@ -183,6 +184,39 @@ class TestSummariseLabResults:
         summary = summarise_lab_results(results)
         assert "disclaimer" in summary
         assert len(summary["disclaimer"]) > 20
+
+
+class TestRawDataProvenance:
+    def test_empty_results_have_explicit_status(self):
+        provenance = summarise_raw_data_provenance([])
+        assert provenance["status"] == "no_results"
+        assert provenance["n_with_raw_data_sha256"] == 0
+
+    def test_missing_hashes_are_not_available_not_verified(self):
+        provenance = summarise_raw_data_provenance([_valid_result()])
+        assert provenance["status"] == "not_available"
+        assert provenance["result_ids_without_raw_data_sha256"] == ["RES-001"]
+        assert "not an independently verified" in provenance["disclaimer"]
+
+    def test_partial_hash_coverage_is_visible(self):
+        results = [
+            _valid_result(result_id="R1", raw_data_sha256="a" * 64),
+            _valid_result(result_id="R2", raw_data_sha256=None),
+        ]
+        provenance = summarise_raw_data_provenance(results)
+        assert provenance["status"] == "partial_declaration"
+        assert provenance["n_with_raw_data_sha256"] == 1
+        assert provenance["result_ids_without_raw_data_sha256"] == ["R2"]
+
+    def test_all_hashes_are_declared_but_not_verified(self):
+        results = [
+            _valid_result(result_id="R1", raw_data_sha256="a" * 64),
+            _valid_result(result_id="R2", raw_data_sha256="b" * 64),
+        ]
+        provenance = summarise_raw_data_provenance(results)
+        assert provenance["status"] == "declared_for_all"
+        assert provenance["n_without_raw_data_sha256"] == 0
+        assert "not an independently verified" in provenance["disclaimer"]
 
 
 class TestCandidateResultMap:

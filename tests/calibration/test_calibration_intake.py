@@ -11,6 +11,7 @@ Verifies:
   - Duplicate panel and result identities block clean intake
   - Optional panel IDs prevent cross-panel result joins
   - Optional certificate hashes prevent mismatched result joins
+  - Raw-data hash coverage is explicit and never presented as verified
   - JSON and Markdown output writers are non-empty and validate
   - Synthetic example data exists and validates
 
@@ -117,6 +118,7 @@ class TestLoadPanelCsv:
         assert report["n_lab_results"] == 0
         assert report["n_matched_candidates"] == 0
         assert report["per_candidate_joined"] == []
+        assert report["raw_data_provenance"]["status"] == "no_results"
 
     def test_panel_rows_parsed(self, tmp_path):
         panel = tmp_path / "panel.csv"
@@ -948,6 +950,31 @@ class TestWriters:
         assert "Calibration Intake Report" in text
         assert "insufficient_data" in text or "TP=" in text
         assert "Honest Limitations" in text
+        assert "Raw-data hash coverage" in text
+
+    def test_raw_data_hash_coverage_is_explicit(self, tmp_path):
+        results = tmp_path / "results"
+        results.mkdir()
+        panel = tmp_path / "panel.csv"
+        _write_panel_csv(panel, [])
+        _write_lab_result_file(
+            results,
+            _lab_result(result_id="WITH-HASH", raw_data_sha256="a" * 64),
+        )
+        _write_lab_result_file(
+            results,
+            _lab_result(result_id="WITHOUT-HASH", raw_data_sha256=None),
+        )
+
+        report = build_calibration_intake_report(panel, results)
+
+        assert report["raw_data_provenance"]["status"] == "partial_declaration"
+        assert report["raw_data_provenance"]["result_ids_without_raw_data_sha256"] == [
+            "WITHOUT-HASH"
+        ]
+        assert [item["kind"] for item in report["input_integrity_issues"]] == [
+            "orphan_lab_result_candidate_ids"
+        ]
 
     def test_markdown_writer_survives_missing_prediction_score_key(self, tmp_path):
         report = {

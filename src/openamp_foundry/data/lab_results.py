@@ -141,6 +141,50 @@ def summarise_lab_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def summarise_raw_data_provenance(results: list[dict[str, Any]]) -> dict[str, Any]:
+    """Describe declared raw-assay-file hash coverage without claiming verification.
+
+    ``raw_data_sha256`` is optional because legacy or partner-provided results
+    may not include a separately retrievable raw-data file. A declared hash is
+    useful provenance, but it is not verified unless the referenced file is
+    available and hashed independently of this record.
+    """
+    result_ids_with_hash = sorted(
+        result["result_id"]
+        for result in results
+        if str(result.get("raw_data_sha256") or "").strip()
+    )
+    result_ids_without_hash = sorted(
+        result["result_id"]
+        for result in results
+        if not str(result.get("raw_data_sha256") or "").strip()
+    )
+    n_results = len(results)
+    n_with_hash = len(result_ids_with_hash)
+    if n_results == 0:
+        status = "no_results"
+    elif n_with_hash == 0:
+        status = "not_available"
+    elif n_with_hash < n_results:
+        status = "partial_declaration"
+    else:
+        status = "declared_for_all"
+
+    return {
+        "status": status,
+        "n_results": n_results,
+        "n_with_raw_data_sha256": n_with_hash,
+        "n_without_raw_data_sha256": len(result_ids_without_hash),
+        "result_ids_with_raw_data_sha256": result_ids_with_hash,
+        "result_ids_without_raw_data_sha256": result_ids_without_hash,
+        "disclaimer": (
+            "A declared raw_data_sha256 identifies a claimed raw assay file; "
+            "it is not an independently verified file hash unless the raw file "
+            "is available and checked separately."
+        ),
+    }
+
+
 def candidate_result_map(results: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     """Map candidate_id → list of lab results.
 

@@ -18,6 +18,10 @@ recalibration policy.
   result to prevent cross-panel joins. Mismatches, multiple submitted panel
   IDs, and incomplete opted-in coverage block clean intake; legacy panels
   report panel identity as unavailable.
+- Intake reports also expose raw assay-file hash coverage from the optional
+  `raw_data_sha256` field. The statuses distinguish no results, unavailable
+  declarations, partial declarations, and declarations for all loaded results;
+  a declaration is not an independent hash verification and is non-blocking.
 
 ## Diagrams (Mermaid)
 
@@ -31,6 +35,7 @@ flowchart TD
   Intake -->|orphan result candidates| OrphanBlock["Blocked join-integrity report"]
   Intake -->|panel ID mismatch/partial coverage| PanelBlock["Blocked panel-identity report"]
   Intake -->|certificate hash mismatch/partial coverage| CertBlock["Blocked certificate-identity report"]
+  Intake -->|raw_data_sha256 coverage| Provenance["Explicit non-blocking provenance status"]
   Intake -->|clean input| Gate["Recalibration gate"]
   Gate --> Human["Human decision record"]
 ```

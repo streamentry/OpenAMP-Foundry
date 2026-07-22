@@ -101,6 +101,11 @@ Batch-level lab-result summaries apply the same boundary: raw qualitative
 counts remain available for audit, while `by_usable_qualitative_result` is
 restricted to observations whose positive and negative controls both passed.
 Human-readable reports label the two views separately.
+Lab-result reports also expose whether `raw_data_sha256` is absent, partially
+declared, or declared for every loaded result. This is provenance visibility,
+not independent verification of the raw assay files and not a biological
+validation gate; legacy results remain accepted when the optional field is
+missing.
 Results whose candidate IDs are absent from the submitted calibration panel are
 retained as orphan provenance but block clean intake because they cannot be
 joined to prior predictions. This prevents a broader result directory from
