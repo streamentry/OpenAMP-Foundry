@@ -22,6 +22,8 @@ work and preserve the external-truth bottleneck.
 - The next executable review boundary is the Phase R SRG- workflow. Its default
   example is intentionally blocked because qualified wet-lab evidence is not
   present; do not treat the gate as validation.
+- Phase Z Z5 is complete: its ZAG- gate is executable through CLI and Make, but
+  it only checks artifact assembly and cannot establish benchmark superiority.
 
 ## Diagrams (Mermaid)
 

@@ -53,6 +53,11 @@ If these docs conflict, safety and claim discipline win.
   `phase-aa-reproducibility-gate-check` and
   `make phase-aa-reproducibility-gate-check`; partial or not-established
   verdicts exit nonzero and do not certify a pipeline run.
+- Phase Z exposes the ZAG- per-family accountability aggregate through
+  `phase-z-accountability-gate-check` and
+  `make phase-z-accountability-gate-check`; partial or not-established
+  verdicts exit nonzero and do not establish benchmark superiority or
+  adapter ranking authority.
 - Use `python3 -m pytest --collect-only -q --no-header` to verify the full test
   graph before relying on targeted evidence.
 - The Phase E ERP example and validator retain an explicitly legacy compatibility

@@ -16,6 +16,8 @@ They verify exit codes and serialized output, not biological validity.
 - Scientific-review readiness tests must assert that only
   `ready_for_external_review` returns `0`; incomplete, conditional, safety,
   and malformed inputs return `3`.
+- Phase Z accountability tests must assert that only a complete FBH/BXR/ARG/CBF
+  artifact set returns `0`; missing components return `3`.
 
 ## Diagrams (Mermaid)
 

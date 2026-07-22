@@ -17,6 +17,9 @@ turning artifact presence into scientific validation.
   expose raw and control-passing qualitative counts separately.
 - `ARCHITECTURE.md` records the Phase R SRG- CLI/Make surface; only a fully
   ready verdict passes and the checked-in example remains blocked.
+- `ARCHITECTURE.md` also records the Phase Z ZAG- CLI/Make surface; all four
+  per-family accountability artifacts are required, but presence is not
+  benchmark validation.
 
 ## Diagrams (Mermaid)
 

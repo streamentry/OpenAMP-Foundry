@@ -2,7 +2,7 @@
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
-.PHONY: phase-aa-reproducibility-gate-check scientific-review-readiness-check
+.PHONY: phase-aa-reproducibility-gate-check phase-z-accountability-gate-check scientific-review-readiness-check
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
 RUFF    := $(shell [ -f .venv/bin/ruff ] && echo .venv/bin/ruff || echo ruff)
 
@@ -962,6 +962,10 @@ phase-ac-disconfirming-gate-check:
 phase-aa-reproducibility-gate-check:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-aa-reproducibility-gate-check --entry-json '{"aarg_id":"AARG-001","pipeline_version":"demo","rmc_id":"RMC-001","dcr_id":"DCR-001","cfp_id":"CFP-001","sbw_id":"SBW-001","created_at":"2026-07-16"}' --format text
 	@echo "Phase AA reproducibility gate check complete."
+
+phase-z-accountability-gate-check:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-z-accountability-gate-check --entry-json '{"zag_id":"ZAG-001","pipeline_version":"demo","fbh_id":"FBH-001","bxr_id":"BXR-001","arg_id":"ARG-001","cbf_id":"CBF-001","created_at":"2026-07-23"}' --format text
+	@echo "Phase Z accountability gate check complete."
 
 scientific-review-readiness-check:
 	@set +e; PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli scientific-review-readiness-check --entry-json '{"srg_id":"SRG-DEMO-001","candidate_family_id":"FAMILY-DEMO-001","cfc_id":"CFC-DEMO-001","fnr_id":"FNR-DEMO-001","atr_id":"ATR-DEMO-001","pqg_id":"PQG-DEMO-001","readiness_verdict":"not_ready","safety_flags":["no_flags"],"failed_gates":["No qualified wet-lab result is available"],"review_scope":"internal_only","n_confirmed_hits":0,"n_total_candidates":1,"limitations":"Dry-lab readiness example; not biological proof."}' --format text; status=$$?; test $$status -eq 3

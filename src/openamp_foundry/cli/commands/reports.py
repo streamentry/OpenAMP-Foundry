@@ -1876,6 +1876,35 @@ def _run_scientific_review_readiness_check(args: argparse.Namespace) -> int:
     return 0 if is_ready else 3
 
 
+def _run_phase_z_accountability_gate_check(args: argparse.Namespace) -> int:
+    """Build and report the Phase Z per-family accountability gate."""
+    import dataclasses
+
+    from openamp_foundry.evidence.phase_z_accountability_gate import (
+        build_phase_z_accountability_gate,
+        format_phase_z_accountability_gate,
+    )
+
+    payload = json.loads(args.entry_json)
+    gate = build_phase_z_accountability_gate(
+        zag_id=payload["zag_id"],
+        pipeline_version=payload["pipeline_version"],
+        fbh_id=payload.get("fbh_id", ""),
+        bxr_id=payload.get("bxr_id", ""),
+        arg_id=payload.get("arg_id", ""),
+        cbf_id=payload.get("cbf_id", ""),
+        created_at=payload["created_at"],
+    )
+
+    if args.format == "json":
+        print(json.dumps(dataclasses.asdict(gate), indent=2))
+    else:
+        status = "PASS" if gate.verdict == "accountability_verified" else "FAIL"
+        print(f"[{status}] {format_phase_z_accountability_gate(gate)}")
+
+    return 0 if gate.verdict == "accountability_verified" else 3
+
+
 def _run_pre_registration_check(args: argparse.Namespace) -> int:
     """Validate a pre-registration form passed as JSON."""
     entry_dict = json.loads(args.entry_json)

@@ -62,6 +62,10 @@ biological claim. The Phase R SRG- gate is also available through the CLI and
 Make surface; only a fully ready verdict passes, while conditional, incomplete,
 safety-blocked, or malformed records fail closed. Its checked-in example is
 intentionally blocked until qualified evidence exists.
+The Phase Z ZAG- gate is available through the same surface and fails closed
+when the per-family challenge, explanation, adapter-registry, or cheap-baseline
+artifacts are missing. Presence of those artifacts does not establish
+benchmark superiority or adapter ranking authority.
 
 ## Longer-range architecture
 

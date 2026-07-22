@@ -5,13 +5,20 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-22 (raw-data provenance visibility; benchmark values unchanged)
+> **Last updated:** 2026-07-23 (Phase Z accountability gate workflow; benchmark values unchanged)
 
-> **Current verification note (2026-07-16):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-07-23):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
-> AC AC3 exposes the ACDG- aggregate through the same surface. Both are dry-lab
-> review controls; neither establishes biological validation or benchmark
-> improvement.
+> AC AC3 exposes the ACDG- aggregate and Phase Z Z5 exposes the ZAG- aggregate
+> through the same surface. These are dry-lab review controls; they neither
+> establish biological validation nor prove benchmark improvement.
+
+> **Phase Z accountability note (2026-07-23):** The ZAG- aggregate is now
+> runnable through `phase-z-accountability-gate-check` and
+> `make phase-z-accountability-gate-check`. It fails closed unless FBH-, BXR-,
+> ARG-, and CBF- artifact IDs are present. This checks review-surface
+> completeness only; it does not establish benchmark superiority, adapter
+> quality, biological validity, or release readiness.
 
 > **External-result integrity note (2026-07-16):** Calibration and lab-result
 > reports now retain schema-invalid JSON files as structured input errors. The
@@ -81,6 +88,16 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > biological validation or benchmark improvement.
 
 ## Changelog
+
+### Phase Z Z5 — Per-family accountability gate workflow integration
+- Added `phase-z-accountability-gate-check` CLI command and
+  `make phase-z-accountability-gate-check` demo target.
+- The command rebuilds the ZAG- gate from FBH-, BXR-, ARG-, and CBF- artifact
+  IDs and returns nonzero for partial or not-established verdicts.
+- Added verified and missing-component CLI integration coverage.
+- This is a dry-lab review-control and artifact-assembly check, not evidence of
+  benchmark superiority, adapter quality, biological activity, safety, or
+  release readiness.
 
 ### Phase R R4 — scientific-review readiness workflow integration
 - Added `scientific-review-readiness-check` CLI and Make target for the existing

@@ -18,6 +18,8 @@ under test. Benchmark-specific checks live in `tests/benchmarks/`.
   evidence coverage awaiting further taxonomy work.
 - CLI gate tests must assert both the successful verdict and the fail-closed
   result for an incomplete or unsafe record.
+- Per-family ZAG- CLI tests must keep the complete-versus-incomplete artifact
+  distinction explicit.
 
 ## Diagrams (Mermaid)
 
