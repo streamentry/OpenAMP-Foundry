@@ -77,6 +77,13 @@ intake. Legacy panels explicitly report panel identity as unavailable. This
 prevents results from another panel or batch from being attached to a reused
 candidate ID; it does not validate assay quality or establish biological claims.
 
+On 2026-07-22, lab-result and calibration reports began exposing declared
+`raw_data_sha256` coverage as `no_results`, `not_available`,
+`partial_declaration`, or `declared_for_all`. A declared hash is provenance
+visibility only, not an independently verified raw-file hash, and missing
+legacy declarations remain accepted. This makes an audit gap visible without
+turning metadata into assay validation or a recalibration permission.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

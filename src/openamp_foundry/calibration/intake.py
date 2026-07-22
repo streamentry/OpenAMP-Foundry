@@ -45,6 +45,7 @@ from openamp_foundry.data.lab_results import (
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
+    summarise_raw_data_provenance,
     validate_lab_results_directory,
 )
 
@@ -707,6 +708,7 @@ def build_calibration_intake_report(panel_csv, results_dir):
         "panel_identity": panel_identity,
         "certificate_hash_integrity": certificate_hash_integrity,
         "summary": summarise_lab_results(results),
+        "raw_data_provenance": summarise_raw_data_provenance(results),
         "per_candidate_outcomes": summarise_candidate_outcomes(results),
         "per_candidate_joined": per_candidate,
         "cohort_metrics": cohort_metrics,
@@ -740,6 +742,9 @@ def write_calibration_intake_markdown(report, out_path):
         "status", "not_available"
     )
     panel_status = report.get("panel_identity", {}).get("status", "not_available")
+    raw_data_status = report.get("raw_data_provenance", {}).get(
+        "status", "not_available"
+    )
     lines = [
         "# Calibration Intake Report",
         "",
@@ -755,6 +760,7 @@ def write_calibration_intake_markdown(report, out_path):
         f"- Input integrity issues: **{len(report.get('input_integrity_issues', []))}**",
         f"- Certificate identity check: **{certificate_status}**",
         f"- Panel identity check: **{panel_status}**",
+        f"- Raw-data hash coverage: **{raw_data_status}**",
         f"- Minimum cohort size for aggregate metrics: **{report['min_cohort_size']}**",
         "",
         "## Aggregate Cohort Metrics (gated by minimum sample size)",

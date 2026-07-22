@@ -10,7 +10,8 @@ review artifacts without strengthening scientific claims.
 - `lab_result_report.py`: result counts, candidate rollups, controls, and input
   validation blockers. Markdown and JSON distinguish control-passing outcome
   counts from raw audit observations, including failed-control qualitative
-  results.
+  results. They also show declared raw-data hash coverage without calling it
+  independently verified.
 - `recalibration_report.py`: proposal/gate summaries; proposals are not applied.
 
 ## Diagrams (Mermaid)
@@ -21,6 +22,7 @@ flowchart LR
   Invalid["Invalid-file provenance"] --> Report
   Report --> Usable["Control-passing outcome fields"]
   Report --> Raw["Raw observations + failure IDs"]
+  Report --> Provenance["Declared raw-data hash coverage"]
   Report --> Review["Qualified review"]
 ```
 

@@ -12,6 +12,8 @@ descriptive evidence plumbing, not biological validation.
   observations separately from control-passing outcome flags and counts;
   batch-level qualitative summaries follow the same raw-versus-usable split.
   Calibration intake may additionally verify an optional frozen `panel_id`.
+  Reports expose declared `raw_data_sha256` coverage separately from verified
+  evidence; a declared hash is never presented as independently checked.
 - `__init__.py`: stable public loader exports.
 
 ## Diagrams (Mermaid)
@@ -23,11 +25,13 @@ flowchart LR
   Validate --> Errors["Structured file errors"]
   Validate --> PathError["Missing/non-directory path: fail closed"]
   Valid --> Panel["Optional panel identity join"]
+  Valid --> Provenance["Raw-data hash coverage"]
   Valid --> Controls{"Both controls passed?"}
   Controls --> Usable["Interpretable outcome flags/counts"]
   Controls --> Raw["Raw audit fields + failure IDs"]
   Usable --> Summary["Usable descriptive summaries"]
   Raw --> Audit["Raw audit summaries"]
+  Provenance --> Review["Explicit provenance status"]
 ```
 
 ```mermaid

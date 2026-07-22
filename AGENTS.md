@@ -85,6 +85,11 @@ If these docs conflict, safety and claim discipline win.
   matched result. Multiple panel IDs, mismatches, or partial opted-in coverage
   are structured input-integrity blockers; legacy panels report panel identity
   not available, not silently verified.
+- Lab-result reports expose raw assay-file hash coverage as
+  `no_results`, `not_available`, `partial_declaration`, or
+  `declared_for_all`. A declared `raw_data_sha256` is provenance only, not an
+  independently verified file hash; this status does not change legacy intake
+  acceptance or recalibration policy.
 - The Phase R scientific-review readiness gate is available through
   `scientific-review-readiness-check` and
   `make scientific-review-readiness-check`; only a

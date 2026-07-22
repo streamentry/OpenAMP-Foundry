@@ -18,6 +18,7 @@ from openamp_foundry.data.lab_results import (
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
+    summarise_raw_data_provenance,
 )
 
 
@@ -45,6 +46,7 @@ def build_lab_result_report(results_dir: str | Path) -> dict[str, Any]:
 
     return {
         "summary": summary,
+        "raw_data_provenance": summarise_raw_data_provenance(results),
         "n_invalid_lab_result_files": len(invalid_lab_result_files),
         "invalid_lab_result_files": invalid_lab_result_files,
         "input_validation_status": (
@@ -73,6 +75,9 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
     p = Path(out_path)
     p.parent.mkdir(parents=True, exist_ok=True)
     s = report["summary"]
+    raw_data_status = report.get("raw_data_provenance", {}).get(
+        "status", "not_available"
+    )
 
     lines = [
         "# Wet-Lab Result Report",
@@ -86,6 +91,7 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
         f"- Results with both controls passing: {s.get('n_valid_controls', 0)}",
         f"- Invalid result files: {report.get('n_invalid_lab_result_files', 0)}",
         f"- Duplicate result IDs: {report.get('n_duplicate_lab_result_ids', 0)}",
+        f"- Raw-data hash coverage: {raw_data_status}",
         "",
         "## Assay Type Counts",
         "",

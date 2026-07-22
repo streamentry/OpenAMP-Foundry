@@ -16,6 +16,9 @@ work and preserve the external-truth bottleneck.
   candidates that are absent from the submitted panel are also retained and
   block clean intake. Opted-in panels also verify the frozen `panel_id` across
   matched results; mismatches and partial coverage block clean intake.
+- Lab-result reports now expose raw assay-file hash coverage explicitly. A
+  missing or partial `raw_data_sha256` declaration remains non-blocking for
+  legacy intake, but is never described as independently verified provenance.
 - The next executable review boundary is the Phase R SRG- workflow. Its default
   example is intentionally blocked because qualified wet-lab evidence is not
   present; do not treat the gate as validation.
