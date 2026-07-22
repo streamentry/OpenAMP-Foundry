@@ -1,6 +1,13 @@
 # Roadmap
 
-## Current state — 2026-07-21
+## Current state — 2026-07-23
+
+Phase Z is complete as of 2026-07-23. Z5 exposes the existing FBH-, BXR-,
+ARG-, and CBF- per-family accountability artifacts through a ZAG- aggregate,
+CLI command, and Make target. The command fails closed unless all four artifact
+IDs are present. This is an assembly and review-control check only; it does not
+establish benchmark superiority, adapter quality, biological validity, or
+release readiness.
 
 Phase AC is complete as of 2026-07-15. AC1 records one explicit disconfirming
 test as a DTR- artifact. AC2 aggregates those records into an ACDG- gate. AC3

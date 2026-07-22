@@ -11,6 +11,8 @@ preserve dry-lab claim boundaries and fail closed when a gate is incomplete.
 - `commands/reports.py`: structured evidence and gate handlers.
 - `phase-aa-reproducibility-gate-check`: runs the AARG- presence gate; only
   `reproducibility_verified` returns exit code 0.
+- `phase-z-accountability-gate-check`: runs the ZAG- presence gate; only
+  `accountability_verified` returns exit code 0.
 - `scientific-review-readiness-check`: runs the SRG- readiness gate; only
   `ready_for_external_review` returns exit code 0. The checked-in Make example
   is intentionally blocked until qualified evidence exists.
@@ -21,6 +23,7 @@ preserve dry-lab claim boundaries and fail closed when a gate is incomplete.
 flowchart LR
   JSON["Gate JSON"] --> Parser["CLI parser"] --> Handler["Evidence handler"]
   Handler --> AARG["AARG- gate"] --> Output["Text or JSON + exit status"]
+  Handler --> ZAG["ZAG- gate"] --> Output
   Handler --> SRG["SRG- gate"] --> Output
 ```
 

@@ -293,12 +293,13 @@ Do not change a success definition after seeing results.
 
 Do not hide negative results merely because they weaken the story.
 
-## Current status — Phase AA6 / AC3 / R4 workflow (2026-07-20)
+## Current status — Phase Z5 / AA6 / AC3 / R4 workflow (2026-07-23)
 
-Phase AA AA6 and Phase AC AC3 are complete: the reproducibility and
-disconfirming-evidence aggregates are available through fail-closed CLI and
-make targets. These strengthen auditability only; they do not establish
-biological activity, safety, novelty, wet-lab validation, or release readiness.
+Phase Z Z5, Phase AA AA6, and Phase AC AC3 are complete: the per-family
+accountability, reproducibility, and disconfirming-evidence aggregates are
+available through fail-closed CLI and make targets. These strengthen
+auditability only; they do not establish biological activity, safety, novelty,
+wet-lab validation, or release readiness.
 The repository remains a dry-lab system.
 
 External-result intake also fails closed on missing/non-directory paths,
@@ -306,6 +307,15 @@ schema-invalid files, duplicate lab-result IDs, and duplicate panel candidate
 IDs. Opted-in panels also fail closed on multiple, mismatched, or partially
 covered frozen `panel_id` values. These are evidence-integrity controls, not
 assay validation.
+
+Lab-result reports also expose declared `raw_data_sha256` coverage as
+`no_results`, `not_available`, `partial_declaration`, or `declared_for_all`.
+This is provenance visibility only; declared hashes are not independently
+verified raw-file hashes.
+
+The Phase Z ZAG- command returns success only when FBH-, BXR-, ARG-, and CBF-
+artifact IDs are all present. This is per-family accountability assembly, not
+benchmark superiority or adapter ranking authority.
 
 The Phase R scientific-review readiness gate is available through
 `scientific-review-readiness-check` and its Make target. Only

@@ -268,6 +268,42 @@ def test_scientific_review_readiness_check_fails_closed_without_confirmed_hit():
     ]) == 3
 
 
+def test_phase_z_accountability_gate_check_reports_verified(capsys):
+    ret = main([
+        "phase-z-accountability-gate-check",
+        "--entry-json",
+        json.dumps({
+            "zag_id": "ZAG-CLI-001",
+            "pipeline_version": "v1.0",
+            "fbh_id": "FBH-CLI-001",
+            "bxr_id": "BXR-CLI-001",
+            "arg_id": "ARG-CLI-001",
+            "cbf_id": "CBF-CLI-001",
+            "created_at": "2026-07-23",
+        }),
+        "--format", "json",
+    ])
+    assert ret == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["verdict"] == "accountability_verified"
+    assert result["n_components_present"] == 4
+    assert result["dry_lab_only"] is True
+
+
+def test_phase_z_accountability_gate_check_fails_when_components_are_missing():
+    payload = {
+        "zag_id": "ZAG-CLI-002",
+        "pipeline_version": "v1.0",
+        "fbh_id": "FBH-CLI-002",
+        "bxr_id": "BXR-CLI-002",
+        "created_at": "2026-07-23",
+    }
+    assert main([
+        "phase-z-accountability-gate-check",
+        "--entry-json", json.dumps(payload),
+    ]) == 3
+
+
 def test_scientific_review_readiness_check_fails_closed_on_invalid_json(capsys):
     assert main([
         "scientific-review-readiness-check",

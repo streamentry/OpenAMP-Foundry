@@ -100,6 +100,13 @@ RMC, DCR, CFP, and SBW artifact IDs are all present. This is a structural
 provenance check, not proof that the underlying run is scientifically correct
 or biologically valid.
 
+The Phase Z per-family accountability gate is available through
+`openamp-foundry phase-z-accountability-gate-check --entry-json ...` or
+`make phase-z-accountability-gate-check`. It returns success only when FBH,
+BXR, ARG, and CBF artifact IDs are all present. This checks that the
+per-family benchmark and adapter-accountability surface was assembled; it does
+not prove benchmark superiority, biological validity, or release readiness.
+
 The Phase R scientific-review readiness gate is available as
 `openamp-foundry scientific-review-readiness-check --entry-json ...` or
 `make scientific-review-readiness-check`. It returns success only for

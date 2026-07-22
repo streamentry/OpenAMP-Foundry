@@ -9,6 +9,8 @@ claim boundaries, reproducibility metadata, and explicit negative findings.
 
 - `disconfirming_test_record.py`: one auditable attempt to disprove a claim.
 - `phase_ac_disconfirming_gate.py`: aggregate gate for unresolved follow-up.
+- `phase_z_accountability_gate.py`: aggregate gate for per-family benchmark
+  and adapter accountability artifacts.
 - `external_review_packet.py`: current V4 component-based review packet; its
   legacy Phase E bridge is migration-only.
 
