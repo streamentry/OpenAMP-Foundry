@@ -7,8 +7,8 @@ review decisions structured, auditable, and comparable across reviewers.
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
+from datetime import date
 from typing import List
 
 DRO_PREFIX = "DRO-"
@@ -111,11 +111,19 @@ def validate_domain_review_outcome(
             f"got '{entry.review_domain}'"
         )
 
-    # Rule 6: ISO date
-    if not re.match(r"^\d{4}-\d{2}-\d{2}$", entry.review_date):
+    # Rule 6: ISO calendar date.  Regex-only validation accepts impossible
+    # dates such as 2026-02-30 and weakens the review audit trail.
+    try:
+        parsed_review_date = date.fromisoformat(entry.review_date)
+    except ValueError:
         errors.append(
             f"review_date must be ISO format YYYY-MM-DD, got '{entry.review_date}'"
         )
+    else:
+        if parsed_review_date.isoformat() != entry.review_date:
+            errors.append(
+                f"review_date must be ISO format YYYY-MM-DD, got '{entry.review_date}'"
+            )
 
     # Rule 7: valid outcome verdict
     if entry.outcome_verdict not in VALID_OUTCOME_VERDICTS:
