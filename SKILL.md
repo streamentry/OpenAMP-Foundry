@@ -115,6 +115,13 @@ malformed inputs fail closed. The Make example is intentionally blocked until
 qualified evidence exists. This is a dry-lab documentation control, not
 biological validation or release authorization.
 
+When the frozen pilot-evidence package JSON is available, validate a domain
+review outcome with `domain-review-outcome-check --entry-json ...
+--package-json <pep.json>`. The package-aware path requires a matching
+`pep_sha256`; ID-only validation remains available for legacy records. A
+verified hash proves package identity only, not reviewer authentication,
+scientific correctness, or biological validity.
+
 External-result intake is also fail-closed at the review boundary. Use the
 structured loader/report fields `invalid_lab_result_files` and
 `input_validation_status` to preserve schema-invalid returns; the

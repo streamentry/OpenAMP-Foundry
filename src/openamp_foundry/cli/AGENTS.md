@@ -16,6 +16,9 @@ preserve dry-lab claim boundaries and fail closed when a gate is incomplete.
 - `scientific-review-readiness-check`: runs the SRG- readiness gate; only
   `ready_for_external_review` returns exit code 0. The checked-in Make example
   is intentionally blocked until qualified evidence exists.
+- `domain-review-outcome-check`: validates a DRO- outcome. Supplying
+  `--package-json` enables fail-closed verification that `pep_sha256` matches
+  the exact frozen PEP JSON; without it, legacy ID-only validation remains.
 
 ## Diagrams (Mermaid)
 
@@ -41,4 +44,7 @@ sequenceDiagram
   CLI->>SRG: rebuild typed readiness gate
   SRG-->>CLI: ready, conditional, blocked, or not ready
   CLI-->>User: report and fail-closed status
+  User->>CLI: domain-review-outcome-check --package-json pep.json
+  CLI->>CLI: compare pep_sha256 with stable package hash
+  CLI-->>User: verified identity or fail-closed status
 ```

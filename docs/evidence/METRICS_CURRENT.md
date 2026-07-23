@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-23 (Phase Z accountability gate workflow; benchmark values unchanged)
+> **Last updated:** 2026-07-24 (frozen external-review package identity check; benchmark values unchanged)
 
-> **Current verification note (2026-07-23):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-07-24):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
 > AC AC3 exposes the ACDG- aggregate and Phase Z Z5 exposes the ZAG- aggregate
 > through the same surface. These are dry-lab review controls; they neither
@@ -80,6 +80,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > independently verified raw-file hash, and missing legacy declarations remain
 > accepted. This is audit-gap visibility, not assay validation or recalibration
 > authorization.
+
+> **External-review package identity note (2026-07-24):** A domain-review
+> outcome can now be checked against the exact frozen PilotEvidencePackage JSON
+> with `--package-json`. The command fails closed when `pep_sha256` is missing,
+> malformed, or mismatched. This proves package identity only; it does not
+> does not authenticate reviewers, establish reviewer independence, validate science, or
+> establish biological activity.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It

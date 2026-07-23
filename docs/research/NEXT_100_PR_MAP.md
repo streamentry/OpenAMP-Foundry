@@ -100,7 +100,7 @@ Make qualified external review easier and safer.
 | E6 | Add packet generator CLI (complete). — scripts/generate_review_packet.py: generates skeleton external review packet JSON; make generate-review-packet target; validates against schemas/external_review_packet.schema.json; dry_lab_only_attestation=True enforced. | Reduces manual packaging errors. | C/D |
 | E7 | Add packet validator CLI (complete). — src/openamp_foundry/cli/commands/validate_packet.py: load_packet_from_json() reads ERP- JSON from disk; validate_packet_file() returns {valid, violations, packet_id, error}; _run_validate_packet() prints PASS/FAIL with violations; 45 tests in tests/cli/test_validate_packet.py. | Review readiness becomes testable. | C/D |
 | E8 | Add release-summary generator that strips restricted fields. | Safer public summaries. | D | DONE |
-| E9 | Add domain review outcome schema (complete). | Structured expert verdict on a PEP with controlled taxonomy of domains and outcomes; closes ESC→RVQ→DRO review chain. | B/C |
+| E9 | Add domain review outcome schema (complete). | Structured expert verdict on a PEP with controlled taxonomy of domains and outcomes; closes ESC→RVQ→DRO review chain. The package-aware CLI path can additionally require a matching `pep_sha256` for the frozen PEP JSON; this binds package identity without authenticating the reviewer or proving biology. | B/C |
 | E10 | Add expert-review example with mock/toy candidates only (complete). | ERP- schema: 14 fields, 16 validation rules, mock candidate ID prefix enforcement (MOCK-/TOY-/EXAMPLE-/DEMO-/TEST-), is_example_data=True and dry_lab_only=True enforced; CI-checkable template cannot accidentally leak real candidates. | B/C |
 
 ## Phase F — Negative-result infrastructure

@@ -100,6 +100,11 @@ If these docs conflict, safety and claim discipline win.
   `make scientific-review-readiness-check`; only a
   `ready_for_external_review` verdict exits successfully. This is a dry-lab
   documentation gate, not biological validation or release authorization.
+- Domain-review outcomes remain backward-compatible when validated by ID alone,
+  but `domain-review-outcome-check --package-json <frozen-pep.json>` now fails
+  closed unless the outcome carries a matching `pep_sha256`. This binds a
+  review record to the exact frozen package JSON; it does not authenticate the
+  reviewer or establish scientific correctness.
 
 ## The agent role
 

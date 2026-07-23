@@ -13,6 +13,10 @@ claim boundaries, reproducibility metadata, and explicit negative findings.
   and adapter accountability artifacts.
 - `external_review_packet.py`: current V4 component-based review packet; its
   legacy Phase E bridge is migration-only.
+- `domain_review_outcome.py`: records reviewer outcomes. Use its package-aware
+  validator when the frozen PEP JSON is available; `pep_sha256` binds the
+  outcome to that exact JSON but does not authenticate the reviewer or prove
+  biology.
 
 ## Diagrams (Mermaid)
 
@@ -47,4 +51,15 @@ sequenceDiagram
   Agent->>ACDG: aggregate validated records
   ACDG-->>Reviewer: unresolved actions and verdict
   Reviewer->>ACDG: record explicit resolution
+```
+
+### Frozen review-package identity
+
+```mermaid
+flowchart LR
+  PEP["Frozen PEP JSON"] --> Hash["stable_json_hash"]
+  Outcome["DRO- outcome + pep_sha256"] --> Verify["Package-aware validator"]
+  Hash --> Verify
+  Verify -->|match| Bound["Identity bound"]
+  Verify -->|missing or mismatch| Blocked["Fail closed"]
 ```
