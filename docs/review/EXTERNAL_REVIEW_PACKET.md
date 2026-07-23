@@ -192,6 +192,12 @@ safety_status: not-reviewed | reviewed | staged-release | restricted | rejected
 
 ## Review outcomes
 
+Review outcome records must use real ISO calendar dates, not only the
+`YYYY-MM-DD` shape. This catches malformed metadata such as `2026-02-30` at
+validation time. Date validity does not authenticate the reviewer, establish
+scientific correctness, or upgrade the proof level; those remain human-review
+and evidence questions.
+
 Allowed outcomes:
 
 - approve as written;

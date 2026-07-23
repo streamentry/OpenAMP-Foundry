@@ -223,6 +223,11 @@ class TestReviewDate:
         result = validate_domain_review_outcome(_valid_entry(review_date="2025-06-01"))
         assert result.passed
 
+    def test_impossible_calendar_date_fails(self):
+        result = validate_domain_review_outcome(_valid_entry(review_date="2026-02-30"))
+        assert not result.passed
+        assert any("review_date must be ISO format" in e for e in result.errors)
+
 
 # ── 7. Outcome verdict validation ─────────────────────────────────────────────
 
