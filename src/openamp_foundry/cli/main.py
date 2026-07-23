@@ -2411,6 +2411,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     domain_review_outcome_parser.add_argument("--entry-json", required=True)
     domain_review_outcome_parser.add_argument(
+        "--package-json",
+        help=(
+            "Optional frozen PilotEvidencePackage JSON. When supplied, the "
+            "outcome must carry a matching pep_sha256."
+        ),
+    )
+    domain_review_outcome_parser.add_argument(
         "--format", choices=["text", "json"], default="text"
     )
 

@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
+import sys
 
 import pytest
 
 from openamp_foundry.cli import main
+from openamp_foundry.utils.hashing import stable_json_hash
 
 
 PANEL_CSV_HEADER = (
@@ -21,6 +25,62 @@ def _write_panel(tmp_path, two_rows: bool = True):
     rows_content = (PANEL_CSV_ROW1 + PANEL_CSV_ROW2) if two_rows else PANEL_CSV_ROW1
     panel.write_text(PANEL_CSV_HEADER + rows_content, encoding="utf-8")
     return str(panel)
+
+
+def test_domain_review_outcome_can_verify_frozen_package(tmp_path):
+    package = {
+        "pep_id": "PEP-CLI-001",
+        "pipeline_version": "v0.10.13",
+        "candidate_ids": ["TOY-001"],
+        "dry_lab_only": True,
+    }
+    package_path = tmp_path / "package.json"
+    package_path.write_text(json.dumps(package), encoding="utf-8")
+    entry = {
+        "dro_id": "DRO-CLI-001",
+        "pipeline_version": "v0.10.13",
+        "pep_id": "PEP-CLI-001",
+        "rvq_id": "RVQ-CLI-001",
+        "reviewer_token": "REV-CLI",
+        "review_domain": "antimicrobial_activity",
+        "review_date": "2026-07-10",
+        "outcome_verdict": "approve",
+        "outcome_confidence": "high",
+        "outcome_rationale": "Reviewed the frozen package.",
+        "pep_sha256": stable_json_hash(package),
+    }
+    command = [
+        sys.executable,
+        "-m",
+        "openamp_foundry.cli",
+        "domain-review-outcome-check",
+        "--entry-json",
+        json.dumps(entry),
+        "--package-json",
+        str(package_path),
+        "--format",
+        "json",
+    ]
+    result = subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PYTHONPATH": "src"},
+    )
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["package_hash_status"] == "verified"
+
+    entry["pep_sha256"] = "a" * 64
+    mismatch_command = command.copy()
+    mismatch_command[mismatch_command.index("--entry-json") + 1] = json.dumps(entry)
+    mismatch = subprocess.run(
+        mismatch_command,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PYTHONPATH": "src"},
+    )
+    assert mismatch.returncode == 1
+    assert "does not match" in mismatch.stdout
 
 
 def test_rank_command_success(tmp_path):

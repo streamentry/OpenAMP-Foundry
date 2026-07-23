@@ -58,6 +58,19 @@ def test_current_authorities_expose_the_same_aa_ac_frontier():
     assert "Phase Z5" in project_index
 
 
+def test_external_review_package_identity_boundary_is_documented():
+    roadmap = (ROOT / "docs/research/ROADMAP.md").read_text()
+    metrics = (ROOT / "docs/evidence/METRICS_CURRENT.md").read_text()
+    skill = (ROOT / "SKILL.md").read_text()
+
+    for text in (roadmap, metrics, skill):
+        assert "pep_sha256" in text
+        assert (
+            "does not authenticate" in text
+            or "not reviewer authentication" in text
+        )
+
+
 def test_phase_gate_make_targets_use_the_repository_python_fallback():
     makefile = (ROOT / "Makefile").read_text()
 

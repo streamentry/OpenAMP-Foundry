@@ -8,6 +8,9 @@ codes. They do not authorize release or apply recalibration.
 ## Key Components
 
 - `reports.py`: lab-result and calibration intake command handlers.
+- `reports.py`: also handles `domain-review-outcome-check`; with
+  `--package-json`, it verifies the outcome's frozen PEP hash before returning
+  success.
 - `main.py`: parser and dispatch in the parent directory.
 
 ## Diagrams (Mermaid)

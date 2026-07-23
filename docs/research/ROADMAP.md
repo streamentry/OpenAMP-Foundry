@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-07-23
+## Current state — 2026-07-24
 
 Phase Z is complete as of 2026-07-23. Z5 exposes the existing FBH-, BXR-,
 ARG-, and CBF- per-family accountability artifacts through a ZAG- aggregate,
@@ -90,6 +90,14 @@ On 2026-07-22, lab-result and calibration reports began exposing declared
 visibility only, not an independently verified raw-file hash, and missing
 legacy declarations remain accepted. This makes an audit gap visible without
 turning metadata into assay validation or a recalibration permission.
+
+On 2026-07-24, domain-review outcome validation gained an opt-in frozen-package
+identity check. When `domain-review-outcome-check` receives `--package-json`,
+the outcome must carry a matching `pep_sha256`; missing, malformed, or
+mismatched hashes fail closed. ID-only validation remains available for legacy
+records. This binds a review record to package bytes, but does not authenticate
+the reviewer, establish independence, validate the science, or create
+biological evidence.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

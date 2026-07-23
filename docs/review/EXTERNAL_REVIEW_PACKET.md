@@ -187,8 +187,23 @@ repo_commit: git-sha
 pipeline_version: version
 claim_level: proof-ladder-level
 review_status: draft | sent | reviewed | revised | archived
-safety_status: not-reviewed | reviewed | staged-release | restricted | rejected
+  safety_status: not-reviewed | reviewed | staged-release | restricted | rejected
 ```
+
+When a reviewer outcome is recorded against a frozen PilotEvidencePackage JSON,
+include `pep_sha256`, the SHA-256 of that exact canonical JSON object. Run:
+
+```bash
+PYTHONPATH=src python -m openamp_foundry.cli domain-review-outcome-check \
+  --entry-json '<DRO JSON>' \
+  --package-json path/to/frozen-pep.json
+```
+
+The package-aware command fails closed when the hash is missing, malformed, or
+does not match the supplied package. A verified hash binds the outcome to the
+package bytes only; it does not authenticate the reviewer, establish reviewer
+independence, validate the science, or upgrade the proof level. Legacy outcomes
+without a package file remain ID-validatable but are not package-hash verified.
 
 ## Review outcomes
 

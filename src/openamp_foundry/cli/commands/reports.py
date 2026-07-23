@@ -3308,13 +3308,28 @@ def _run_reviewer_questionnaire_check(args):
 
 def _run_domain_review_outcome_check(args):
     from openamp_foundry.evidence.domain_review_outcome import (
+        validate_domain_review_outcome_against_package_dict,
         validate_domain_review_outcome_dict,
     )
     import json
     import sys
 
-    data = json.loads(args.entry_json)
-    result = validate_domain_review_outcome_dict(data)
+    try:
+        data = json.loads(args.entry_json)
+    except json.JSONDecodeError as exc:
+        print(f"ERROR: invalid --entry-json: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    if args.package_json:
+        try:
+            with Path(args.package_json).open("r", encoding="utf-8") as handle:
+                package = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"ERROR: invalid --package-json: {exc}", file=sys.stderr)
+            sys.exit(1)
+        result = validate_domain_review_outcome_against_package_dict(data, package)
+    else:
+        result = validate_domain_review_outcome_dict(data)
 
     if args.format == "json":
         out = {
@@ -3328,6 +3343,7 @@ def _run_domain_review_outcome_check(args):
             "errors": result.errors,
             "warnings": result.warnings,
             "dry_lab_only": result.dry_lab_only,
+            "package_hash_status": result.package_hash_status,
         }
         print(json.dumps(out, indent=2))
     else:
@@ -3339,6 +3355,7 @@ def _run_domain_review_outcome_check(args):
         print(f"  Domain: {result.review_domain}")
         print(f"  Verdict: {result.outcome_verdict}")
         print(f"  Confidence: {result.outcome_confidence}")
+        print(f"  Package hash: {result.package_hash_status}")
         if result.errors:
             print("  Errors:")
             for e in result.errors:

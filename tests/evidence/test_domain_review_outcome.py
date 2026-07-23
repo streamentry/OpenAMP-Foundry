@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import pytest
-
 from openamp_foundry.evidence.domain_review_outcome import (
     DomainReviewOutcome,
-    DomainReviewOutcomeResult,
     validate_domain_review_outcome,
+    validate_domain_review_outcome_against_package_dict,
     validate_domain_review_outcome_dict,
 )
+from openamp_foundry.utils.hashing import stable_json_hash
 
 
 def _valid_entry(**overrides) -> DomainReviewOutcome:
@@ -28,6 +27,17 @@ def _valid_entry(**overrides) -> DomainReviewOutcome:
     )
     defaults.update(overrides)
     return DomainReviewOutcome(**defaults)
+
+
+def _valid_package(**overrides) -> dict:
+    package = {
+        "pep_id": "PEP-001",
+        "pipeline_version": "v0.10.13",
+        "candidate_ids": ["TOY-001"],
+        "dry_lab_only": True,
+    }
+    package.update(overrides)
+    return package
 
 
 # ── 1. DRO ID validation ──────────────────────────────────────────────────────
@@ -373,8 +383,71 @@ class TestWarnings:
         assert not result.passed
         assert any("outcome_rationale must be at most 400" in e for e in result.errors)
 
+    def test_package_hash_is_optional_for_legacy_validation(self):
+        result = validate_domain_review_outcome(_valid_entry())
+        assert result.passed
+        assert result.package_hash_status == "not_checked"
 
-# ── 10. Dict-based validator ──────────────────────────────────────────────────
+    def test_package_hash_shape_is_validated_when_present(self):
+        result = validate_domain_review_outcome(_valid_entry(pep_sha256="not-a-hash"))
+        assert not result.passed
+        assert any("pep_sha256" in error for error in result.errors)
+
+
+# ── 10. Frozen package identity validation ────────────────────────────────────
+
+class TestFrozenPackageIdentity:
+    def test_matching_package_hash_passes(self):
+        package = _valid_package()
+        result = validate_domain_review_outcome_against_package_dict(
+            {
+                "dro_id": "DRO-001",
+                "pipeline_version": "v0.10.13",
+                "pep_id": "PEP-001",
+                "rvq_id": "RVQ-001",
+                "reviewer_token": "REV-A",
+                "review_domain": "antimicrobial_activity",
+                "review_date": "2026-07-10",
+                "outcome_verdict": "approve",
+                "outcome_confidence": "high",
+                "outcome_rationale": "Reviewed the frozen package.",
+                "pep_sha256": stable_json_hash(package),
+            },
+            package,
+        )
+        assert result.passed
+        assert result.package_hash_status == "verified"
+
+    def test_missing_package_hash_fails_closed_when_package_supplied(self):
+        package = _valid_package()
+        result = validate_domain_review_outcome_against_package_dict(
+            {"pep_id": "PEP-001"}, package
+        )
+        assert not result.passed
+        assert result.package_hash_status == "missing"
+        assert any("required when validating" in error for error in result.errors)
+
+    def test_mismatched_package_hash_fails(self):
+        package = _valid_package()
+        result = validate_domain_review_outcome_against_package_dict(
+            {"pep_id": "PEP-001", "pep_sha256": "a" * 64}, package
+        )
+        assert not result.passed
+        assert result.package_hash_status == "mismatch"
+        assert any("does not match" in error for error in result.errors)
+
+    def test_package_id_mismatch_fails_even_when_hash_matches_package(self):
+        package = _valid_package()
+        result = validate_domain_review_outcome_against_package_dict(
+            {"pep_id": "PEP-OTHER", "pep_sha256": stable_json_hash(package)},
+            package,
+        )
+        assert not result.passed
+        assert result.package_hash_status == "verified"
+        assert any("package pep_id must match" in error for error in result.errors)
+
+
+# ── 11. Dict-based validator ──────────────────────────────────────────────────
 
 class TestDictValidator:
     def test_valid_dict_passes(self):

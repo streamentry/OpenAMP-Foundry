@@ -66,6 +66,10 @@ The Phase Z ZAG- gate is available through the same surface and fails closed
 when the per-family challenge, explanation, adapter-registry, or cheap-baseline
 artifacts are missing. Presence of those artifacts does not establish
 benchmark superiority or adapter ranking authority.
+Domain-review outcomes can also be bound to the exact frozen pilot-evidence
+package JSON through `pep_sha256` and the package-aware CLI path. This closes a
+package-revision ambiguity while preserving ID-only compatibility for legacy
+records; it does not authenticate reviewers or establish scientific validity.
 
 ## Longer-range architecture
 
