@@ -91,6 +91,14 @@ visibility only, not an independently verified raw-file hash, and missing
 legacy declarations remain accepted. This makes an audit gap visible without
 turning metadata into assay validation or a recalibration permission.
 
+On 2026-07-24, the same reports gained an opt-in file-backed verification
+path. A result may carry a relative `raw_data_file`; when `--raw-data-dir` is
+supplied, the loader independently hashes each declared file, rejects paths
+outside that directory, and reports missing or mismatched files. Verification
+failures block clean calibration intake, while legacy declaration-only intake
+remains compatible. This verifies file identity only; it does not validate
+assay contents, reviewer identity, biology, or release readiness.
+
 On 2026-07-24, domain-review outcome validation gained an opt-in frozen-package
 identity check. When `domain-review-outcome-check` receives `--package-json`,
 the outcome must carry a matching `pep_sha256`; missing, malformed, or

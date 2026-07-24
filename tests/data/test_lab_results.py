@@ -9,6 +9,7 @@ Verifies that:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import warnings
 
@@ -24,6 +25,7 @@ from openamp_foundry.data.lab_results import (
     summarise_lab_results,
     summarise_raw_data_provenance,
     validate_lab_results_directory,
+    verify_raw_data_provenance,
 )
 
 
@@ -217,6 +219,45 @@ class TestRawDataProvenance:
         assert provenance["status"] == "declared_for_all"
         assert provenance["n_without_raw_data_sha256"] == 0
         assert "not an independently verified" in provenance["disclaimer"]
+
+    def test_opt_in_verification_matches_independent_file_hash(self, tmp_path):
+        raw_dir = tmp_path / "raw"
+        raw_dir.mkdir()
+        raw_file = raw_dir / "RES-001.csv"
+        raw_file.write_bytes(b"result_id,value\nRES-001,4\n")
+        digest = hashlib.sha256(raw_file.read_bytes()).hexdigest()
+
+        provenance = verify_raw_data_provenance(
+            [_valid_result(raw_data_sha256=digest, raw_data_file="RES-001.csv")],
+            raw_dir,
+        )
+
+        assert provenance["verification_status"] == "verified_for_all"
+        assert provenance["n_verified"] == 1
+        assert provenance["result_ids_verified"] == ["RES-001"]
+        assert provenance["verification_issues"] == []
+
+    @pytest.mark.parametrize(
+        ("raw_data_file", "expected_kind"),
+        [
+            (None, "missing_raw_data_file"),
+            ("missing.csv", "missing_raw_data_file"),
+            ("../outside.csv", "raw_data_file_outside_directory"),
+        ],
+    )
+    def test_opt_in_verification_blocks_unverifiable_declarations(
+        self, tmp_path, raw_data_file, expected_kind
+    ):
+        raw_dir = tmp_path / "raw"
+        raw_dir.mkdir()
+
+        provenance = verify_raw_data_provenance(
+            [_valid_result(raw_data_sha256="a" * 64, raw_data_file=raw_data_file)],
+            raw_dir,
+        )
+
+        assert provenance["verification_status"] == "blocked_on_verification"
+        assert provenance["verification_issues"][0]["kind"] == expected_kind
 
 
 class TestCandidateResultMap:

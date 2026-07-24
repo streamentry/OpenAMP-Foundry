@@ -18,16 +18,19 @@ from openamp_foundry.data.lab_results import (
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
-    summarise_raw_data_provenance,
+    verify_raw_data_provenance,
 )
 
 
-def build_lab_result_report(results_dir: str | Path) -> dict[str, Any]:
+def build_lab_result_report(
+    results_dir: str | Path, raw_data_dir: str | Path | None = None
+) -> dict[str, Any]:
     """Build a machine-readable wet-lab result report from a directory of JSON files."""
     results, invalid_lab_result_files = load_lab_results_dir_with_errors(results_dir)
     summary = summarise_lab_results(results)
     by_candidate = summarise_candidate_outcomes(results)
     duplicate_ids = duplicate_result_ids(results)
+    raw_data_provenance = verify_raw_data_provenance(results, raw_data_dir)
     controls_failed = [
         {
             "result_id": r["result_id"],
@@ -46,7 +49,8 @@ def build_lab_result_report(results_dir: str | Path) -> dict[str, Any]:
 
     return {
         "summary": summary,
-        "raw_data_provenance": summarise_raw_data_provenance(results),
+        "raw_data_provenance": raw_data_provenance,
+        "raw_data_verification_issues": raw_data_provenance["verification_issues"],
         "n_invalid_lab_result_files": len(invalid_lab_result_files),
         "invalid_lab_result_files": invalid_lab_result_files,
         "input_validation_status": (
@@ -54,6 +58,8 @@ def build_lab_result_report(results_dir: str | Path) -> dict[str, Any]:
             if invalid_lab_result_files
             else "blocked_on_duplicate_ids"
             if duplicate_ids
+            else "blocked_on_raw_data_verification"
+            if raw_data_provenance["verification_issues"]
             else "input_validated"
         ),
         "duplicate_lab_result_ids": duplicate_ids,
@@ -92,6 +98,7 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
         f"- Invalid result files: {report.get('n_invalid_lab_result_files', 0)}",
         f"- Duplicate result IDs: {report.get('n_duplicate_lab_result_ids', 0)}",
         f"- Raw-data hash coverage: {raw_data_status}",
+        f"- Raw-data hash verification: {report.get('raw_data_provenance', {}).get('verification_status', 'not_requested')}",
         "",
         "## Assay Type Counts",
         "",
@@ -175,6 +182,22 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
             "",
             "- Duplicate result IDs: " + ", ".join(duplicate_ids),
         ]
+
+    raw_data_issues = report.get("raw_data_verification_issues", [])
+    if raw_data_issues:
+        lines += [
+            "",
+            "## Raw-Data Verification Blockers",
+            "",
+            "> The supplied raw-data directory could not verify every declared hash.",
+            "",
+            "| Kind | Result ID | Message |",
+            "|---|---|---|",
+        ]
+        lines.extend(
+            f"| {item['kind']} | {item['result_id']} | {item['message']} |"
+            for item in raw_data_issues
+        )
 
     lines += [
         "",

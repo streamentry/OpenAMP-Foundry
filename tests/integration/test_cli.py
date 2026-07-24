@@ -1,6 +1,7 @@
 """CLI integration tests."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
@@ -928,6 +929,48 @@ def test_lab_result_report_blocks_invalid_files(tmp_path, capsys):
     assert captured["n_invalid_lab_result_files"] == 1
     report = json.loads(out_json.read_text(encoding="utf-8"))
     assert report["input_validation_status"] == "blocked_on_invalid_results"
+
+
+def test_lab_result_report_verifies_opt_in_raw_data_hashes(tmp_path, capsys):
+    results_dir = tmp_path / "lab_results"
+    results_dir.mkdir()
+    raw_dir = tmp_path / "raw_data"
+    raw_dir.mkdir()
+    raw_file = raw_dir / "RES-001.csv"
+    raw_file.write_text("result_id,value\nRES-001,4\n", encoding="utf-8")
+    result = {
+        "result_id": "RES-001",
+        "candidate_id": "CAND-001",
+        "assay_type": "MIC",
+        "organism_or_cell_line": "E. coli ATCC 25922",
+        "result_value": 4.0,
+        "result_unit": "µg/mL",
+        "result_qualitative": "active",
+        "positive_control_passed": True,
+        "negative_control_passed": True,
+        "assay_date": "2026-07-01",
+        "replicate_count": 3,
+        "performed_by_lab": "University Test Lab",
+        "raw_data_sha256": hashlib.sha256(raw_file.read_bytes()).hexdigest(),
+        "raw_data_file": "RES-001.csv",
+        "computational_candidate_certificate_hash": "abc123def456",
+        "disclaimer": "Experimental result on a computationally nominated candidate; not a drug or clinical claim.",
+    }
+    (results_dir / "res1.json").write_text(json.dumps(result), encoding="utf-8")
+
+    out_json = tmp_path / "report.json"
+    rc = main([
+        "lab-result-report",
+        "--results-dir", str(results_dir),
+        "--raw-data-dir", str(raw_dir),
+        "--out-json", str(out_json),
+    ])
+
+    assert rc == 0
+    summary = json.loads(capsys.readouterr().out)
+    assert summary["raw_data_verification_issues"] == []
+    report = json.loads(out_json.read_text(encoding="utf-8"))
+    assert report["raw_data_provenance"]["verification_status"] == "verified_for_all"
 
 
 @pytest.mark.parametrize("path_kind", ["missing", "file"])

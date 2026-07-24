@@ -95,6 +95,11 @@ If these docs conflict, safety and claim discipline win.
   `declared_for_all`. A declared `raw_data_sha256` is provenance only, not an
   independently verified file hash; this status does not change legacy intake
   acceptance or recalibration policy.
+- Supplying `--raw-data-dir` to `lab-result-report` or `calibration-intake`
+  enables independent SHA-256 verification for records that provide the
+  relative `raw_data_file` field. Missing files, path escape, or mismatches are
+  structured verification blockers; matching bytes do not validate assay
+  contents, reviewer identity, biology, or release readiness.
 - The Phase R scientific-review readiness gate is available through
   `scientific-review-readiness-check` and
   `make scientific-review-readiness-check`; only a

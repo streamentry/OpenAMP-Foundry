@@ -96,6 +96,10 @@
       "type": ["string", "null"],
       "description": "SHA-256 hash of the raw assay data file, if available"
     },
+    "raw_data_file": {
+      "type": ["string", "null"],
+      "description": "Relative path to the raw assay data file under an explicitly supplied raw-data directory, if available"
+    },
     "computational_candidate_certificate_hash": {
       "type": "string",
       "description": "SHA-256 hash of the evidence certificate JSON for this candidate at time of selection"

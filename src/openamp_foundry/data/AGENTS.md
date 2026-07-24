@@ -13,7 +13,9 @@ descriptive evidence plumbing, not biological validation.
   batch-level qualitative summaries follow the same raw-versus-usable split.
   Calibration intake may additionally verify an optional frozen `panel_id`.
   Reports expose declared `raw_data_sha256` coverage separately from verified
-  evidence; a declared hash is never presented as independently checked.
+  evidence; a declared hash is never presented as independently checked unless
+  the caller opts into `verify_raw_data_provenance()` with a raw-data directory
+  and `raw_data_file` references.
 - `__init__.py`: stable public loader exports.
 
 ## Diagrams (Mermaid)
@@ -32,6 +34,10 @@ flowchart LR
   Usable --> Summary["Usable descriptive summaries"]
   Raw --> Audit["Raw audit summaries"]
   Provenance --> Review["Explicit provenance status"]
+  Provenance --> Verify["Optional independent SHA-256 check"]
+  Verify --> VerifyResult{"File identity matches?"}
+  VerifyResult -->|yes| Verified["Verified file identity"]
+  VerifyResult -->|no| VerifyBlock["Verification issue"]
 ```
 
 ```mermaid

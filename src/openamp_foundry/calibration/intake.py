@@ -45,8 +45,8 @@ from openamp_foundry.data.lab_results import (
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
     summarise_lab_results,
-    summarise_raw_data_provenance,
     validate_lab_results_directory,
+    verify_raw_data_provenance,
 )
 
 # Minimum sample size required before any aggregate cohort metric is reported.
@@ -489,7 +489,7 @@ def _per_candidate_rows(panel_rows, per_candidate_actuals):
     return rows
 
 
-def build_calibration_intake_report(panel_csv, results_dir):
+def build_calibration_intake_report(panel_csv, results_dir, raw_data_dir=None):
     """Build a calibration-intake report from a pilot panel CSV + lab results dir.
 
     The report contains:
@@ -531,6 +531,7 @@ def build_calibration_intake_report(panel_csv, results_dir):
         [row.get("candidate_id", "") for row in panel_rows]
     )
     duplicate_lab_result_ids = duplicate_result_ids(results)
+    raw_data_provenance = verify_raw_data_provenance(results, raw_data_dir)
     orphan_lab_result_candidate_ids = orphan_ids
     certificate_hash_integrity = _certificate_hash_integrity(
         panel_rows,
@@ -637,6 +638,22 @@ def build_calibration_intake_report(panel_csv, results_dir):
                 ),
             }
         )
+    if raw_data_provenance["verification_issues"]:
+        input_integrity_issues.append(
+            {
+                "kind": "raw_data_hash_verification",
+                "ids": sorted(
+                    {
+                        item["result_id"]
+                        for item in raw_data_provenance["verification_issues"]
+                    }
+                ),
+                "message": (
+                    "Declared raw assay hashes could not be independently verified; "
+                    "clean calibration intake requires every declared file to match."
+                ),
+            }
+        )
 
     control_failures = [
         {
@@ -696,6 +713,8 @@ def build_calibration_intake_report(panel_csv, results_dir):
             if certificate_hash_integrity["mismatches"]
             else "blocked_on_partial_certificate_hash_coverage"
             if certificate_hash_integrity["unverified_candidate_ids"]
+            else "blocked_on_raw_data_verification"
+            if raw_data_provenance["verification_issues"]
             else "input_validated"
         ),
         "input_integrity_issues": input_integrity_issues,
@@ -708,7 +727,7 @@ def build_calibration_intake_report(panel_csv, results_dir):
         "panel_identity": panel_identity,
         "certificate_hash_integrity": certificate_hash_integrity,
         "summary": summarise_lab_results(results),
-        "raw_data_provenance": summarise_raw_data_provenance(results),
+        "raw_data_provenance": raw_data_provenance,
         "per_candidate_outcomes": summarise_candidate_outcomes(results),
         "per_candidate_joined": per_candidate,
         "cohort_metrics": cohort_metrics,
@@ -761,6 +780,7 @@ def write_calibration_intake_markdown(report, out_path):
         f"- Certificate identity check: **{certificate_status}**",
         f"- Panel identity check: **{panel_status}**",
         f"- Raw-data hash coverage: **{raw_data_status}**",
+        f"- Raw-data hash verification: **{report.get('raw_data_provenance', {}).get('verification_status', 'not_requested')}**",
         f"- Minimum cohort size for aggregate metrics: **{report['min_cohort_size']}**",
         "",
         "## Aggregate Cohort Metrics (gated by minimum sample size)",

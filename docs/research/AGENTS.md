@@ -19,6 +19,10 @@ work and preserve the external-truth bottleneck.
 - Lab-result reports now expose raw assay-file hash coverage explicitly. A
   missing or partial `raw_data_sha256` declaration remains non-blocking for
   legacy intake, but is never described as independently verified provenance.
+- Supplying `--raw-data-dir` enables independent SHA-256 verification for
+  records that provide the relative `raw_data_file` field. Missing files, path
+  escape, and mismatches block clean calibration intake; matching file bytes do
+  not validate assay contents or biology.
 - The next executable review boundary is the Phase R SRG- workflow. Its default
   example is intentionally blocked because qualified wet-lab evidence is not
   present; do not treat the gate as validation.

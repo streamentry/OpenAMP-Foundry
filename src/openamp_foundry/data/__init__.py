@@ -14,6 +14,7 @@ from openamp_foundry.data.lab_results import (
     summarise_candidate_outcomes,
     summarise_lab_results,
     summarise_raw_data_provenance,
+    verify_raw_data_provenance,
 )
 from openamp_foundry.data.loaders import (
     is_valid_sequence,
@@ -34,4 +35,5 @@ __all__ = [
     "summarise_candidate_outcomes",
     "summarise_lab_results",
     "summarise_raw_data_provenance",
+    "verify_raw_data_provenance",
 ]

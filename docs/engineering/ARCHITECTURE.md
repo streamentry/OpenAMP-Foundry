@@ -113,7 +113,10 @@ Lab-result reports also expose whether `raw_data_sha256` is absent, partially
 declared, or declared for every loaded result. This is provenance visibility,
 not independent verification of the raw assay files and not a biological
 validation gate; legacy results remain accepted when the optional field is
-missing.
+missing. An optional `raw_data_file` reference can be verified by supplying
+`--raw-data-dir`; the verifier hashes files independently, rejects path escape,
+and blocks clean calibration intake on missing or mismatched files. This binds
+the declaration to file bytes only and does not validate assay contents.
 Results whose candidate IDs are absent from the submitted calibration panel are
 retained as orphan provenance but block clean intake because they cannot be
 joined to prior predictions. This prevents a broader result directory from

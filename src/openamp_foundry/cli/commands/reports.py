@@ -15,7 +15,9 @@ def _run_lab_result_report(args: argparse.Namespace) -> int:
     )
 
     try:
-        report = build_lab_result_report(args.results_dir)
+        report = build_lab_result_report(
+            args.results_dir, getattr(args, "raw_data_dir", None)
+        )
     except (FileNotFoundError, NotADirectoryError) as exc:
         print(json.dumps({"status": "error", "error": str(exc)}, indent=2))
         return 2
@@ -30,6 +32,7 @@ def _run_lab_result_report(args: argparse.Namespace) -> int:
                     "blocked"
                     if report.get("n_invalid_lab_result_files", 0)
                     or report.get("n_duplicate_lab_result_ids", 0)
+                    or report.get("raw_data_verification_issues", [])
                     else "ok"
                 ),
                 "n_results": report["summary"].get("n_results", 0),
@@ -39,6 +42,9 @@ def _run_lab_result_report(args: argparse.Namespace) -> int:
                 ),
                 "n_duplicate_lab_result_ids": report.get(
                     "n_duplicate_lab_result_ids", 0
+                ),
+                "raw_data_verification_issues": report.get(
+                    "raw_data_verification_issues", []
                 ),
                 "n_control_failures": len(report.get("control_failures", [])),
                 "out_json": args.out_json,
@@ -51,6 +57,7 @@ def _run_lab_result_report(args: argparse.Namespace) -> int:
         3
         if report.get("n_invalid_lab_result_files", 0)
         or report.get("n_duplicate_lab_result_ids", 0)
+        or report.get("raw_data_verification_issues", [])
         else 0
     )
 
@@ -652,7 +659,9 @@ def _run_calibration_intake(args: argparse.Namespace) -> int:
     )
 
     try:
-        report = build_calibration_intake_report(args.panel, args.results_dir)
+        report = build_calibration_intake_report(
+            args.panel, args.results_dir, getattr(args, "raw_data_dir", None)
+        )
     except (FileNotFoundError, NotADirectoryError) as exc:
         print(json.dumps({"status": "error", "error": str(exc)}, indent=2))
         return 2

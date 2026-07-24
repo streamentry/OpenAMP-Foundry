@@ -151,6 +151,10 @@ Lab-result reports also expose raw assay-file hash coverage as `no_results`,
 `not_available`, `partial_declaration`, or `declared_for_all`. A declared
 `raw_data_sha256` is provenance only, not an independently verified file hash;
 this status does not change legacy intake acceptance or recalibration policy.
+When a caller supplies `--raw-data-dir`, records with `raw_data_file` can be
+independently checked against their declared SHA-256. Missing files, path
+escape, and mismatches block clean calibration intake; matching bytes prove
+file identity only, not assay validity or biology.
 
 - `make bench-easy-baseline`: trivial length/charge baselines.
 - `make bench-charge-matched`: adversarial check that removes charge-density
