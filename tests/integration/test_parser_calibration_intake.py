@@ -20,3 +20,4 @@ def test_calibration_intake_parser_defaults_are_stable():
     assert args.results_dir == "results"
     assert args.out_json == "intake.json"
     assert args.out_md is None
+    assert args.raw_data_dir is None

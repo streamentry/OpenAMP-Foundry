@@ -882,6 +882,14 @@ def build_parser() -> argparse.ArgumentParser:
         required=False,
         help="Optional output path for markdown review report.",
     )
+    lab_result_report.add_argument(
+        "--raw-data-dir",
+        required=False,
+        help=(
+            "Optional directory of raw assay files. When supplied, each declared "
+            "raw_data_sha256/raw_data_file pair is independently verified."
+        ),
+    )
 
     calibration_intake = sub.add_parser(
         "calibration-intake",
@@ -912,6 +920,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--out-md",
         required=False,
         help="Optional output path for markdown calibration intake summary.",
+    )
+    calibration_intake.add_argument(
+        "--raw-data-dir",
+        required=False,
+        help=(
+            "Optional directory of raw assay files. Verification failures block "
+            "clean calibration intake."
+        ),
     )
 
     recalibration_gate = sub.add_parser(

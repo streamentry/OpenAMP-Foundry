@@ -23,6 +23,7 @@ Honest limitation:
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import warnings
 from pathlib import Path
@@ -975,6 +976,37 @@ class TestWriters:
         assert [item["kind"] for item in report["input_integrity_issues"]] == [
             "orphan_lab_result_candidate_ids"
         ]
+
+    def test_raw_data_hash_verification_blocks_mismatch(self, tmp_path):
+        results = tmp_path / "results"
+        results.mkdir()
+        raw_data = tmp_path / "raw_data"
+        raw_data.mkdir()
+        raw_file = raw_data / "RES-001.csv"
+        raw_file.write_text("result_id,value\nRES-001,4\n", encoding="utf-8")
+        panel = tmp_path / "panel.csv"
+        _write_panel_csv(
+            panel,
+            [
+                {
+                    "candidate_id": "TEST-CAND-001",
+                    "computational_candidate_certificate_hash": "0" * 64,
+                }
+            ],
+        )
+        _write_lab_result_file(
+            results,
+            _lab_result(
+                raw_data_sha256="a" * 64,
+                raw_data_file=raw_file.name,
+            ),
+        )
+
+        report = build_calibration_intake_report(panel, results, raw_data)
+
+        assert report["input_validation_status"] == "blocked_on_raw_data_verification"
+        assert report["raw_data_provenance"]["verification_status"] == "blocked_on_verification"
+        assert report["input_integrity_issues"][-1]["kind"] == "raw_data_hash_verification"
 
     def test_markdown_writer_survives_missing_prediction_score_key(self, tmp_path):
         report = {

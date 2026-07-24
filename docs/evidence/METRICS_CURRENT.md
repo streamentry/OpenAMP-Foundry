@@ -149,6 +149,18 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 - This is provenance visibility only; legacy results remain accepted and no
   recalibration or biological claim policy changed.
 
+### External-result reporting integrity — opt-in raw-file hash verification
+- Added `verify_raw_data_provenance()` and an optional `raw_data_file` field to
+  bind a declared SHA-256 to independently hashed bytes under a supplied
+  `--raw-data-dir`.
+- Missing files, path escape, and hash mismatch are explicit verification
+  issues. Lab-result reporting returns a blocked status; calibration intake
+  records an input-integrity blocker and remains ineligible for clean
+  recalibration.
+- Without `--raw-data-dir`, legacy declaration-only reporting remains
+  compatible. File identity is not assay validation, reviewer authentication,
+  biological proof, or release authorization.
+
 
 ### External-result intake integrity — reject invalid result paths
 - Lab-result directory loading now fails closed when the input path is missing

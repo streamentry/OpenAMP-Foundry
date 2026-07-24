@@ -22,6 +22,9 @@ recalibration policy.
   `raw_data_sha256` field. The statuses distinguish no results, unavailable
   declarations, partial declarations, and declarations for all loaded results;
   a declaration is not an independent hash verification and is non-blocking.
+  Supplying `--raw-data-dir` enables independent verification for records with
+  `raw_data_file`; missing files, path escape, and mismatches become structured
+  input-integrity blockers.
 
 ## Diagrams (Mermaid)
 
@@ -36,6 +39,7 @@ flowchart TD
   Intake -->|panel ID mismatch/partial coverage| PanelBlock["Blocked panel-identity report"]
   Intake -->|certificate hash mismatch/partial coverage| CertBlock["Blocked certificate-identity report"]
   Intake -->|raw_data_sha256 coverage| Provenance["Explicit non-blocking provenance status"]
+  Intake -->|optional raw-data verification| RawBlock["File identity blocker on mismatch"]
   Intake -->|clean input| Gate["Recalibration gate"]
   Gate --> Human["Human decision record"]
 ```

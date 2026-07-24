@@ -23,6 +23,8 @@ flowchart LR
   Report --> Usable["Control-passing outcome fields"]
   Report --> Raw["Raw observations + failure IDs"]
   Report --> Provenance["Declared raw-data hash coverage"]
+  Report --> Verification["Optional raw-file verification"]
+  Verification -->|mismatch/missing/path escape| Block["Blocked report status"]
   Report --> Review["Qualified review"]
 ```
 
@@ -30,7 +32,7 @@ flowchart LR
 sequenceDiagram
   participant Caller
   participant Builder
-  Caller->>Builder: build report(directory)
+  Caller->>Builder: build report(directory, optional raw-data directory)
   Builder-->>Caller: descriptive report + blockers
   Caller->>Caller: stop on input-validation blocker
 ```

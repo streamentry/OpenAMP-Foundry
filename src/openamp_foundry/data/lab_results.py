@@ -10,6 +10,7 @@ review and independent replication.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -182,6 +183,119 @@ def summarise_raw_data_provenance(results: list[dict[str, Any]]) -> dict[str, An
             "it is not an independently verified file hash unless the raw file "
             "is available and checked separately."
         ),
+    }
+
+
+def verify_raw_data_provenance(
+    results: list[dict[str, Any]], raw_data_dir: str | Path | None = None
+) -> dict[str, Any]:
+    """Verify declared raw-assay hashes when a raw-data directory is supplied.
+
+    Verification is opt-in so legacy and partner-provided result records remain
+    readable. When enabled, every declared hash must point to a relative file
+    inside ``raw_data_dir`` and match the independently computed SHA-256. This
+    function does not interpret assay contents or make a biological claim.
+    """
+    declaration = summarise_raw_data_provenance(results)
+    if raw_data_dir is None:
+        return {
+            **declaration,
+            "verification_status": "not_requested",
+            "raw_data_dir": None,
+            "n_verified": 0,
+            "result_ids_verified": [],
+            "verification_issues": [],
+        }
+
+    root = Path(raw_data_dir)
+    if not root.exists():
+        raise FileNotFoundError(f"raw data directory not found: {root}")
+    if not root.is_dir():
+        raise NotADirectoryError(f"raw data path is not a directory: {root}")
+
+    verified_ids: list[str] = []
+    verification_issues: list[dict[str, str]] = []
+    for result in results:
+        declared_hash = str(result.get("raw_data_sha256") or "").strip().lower()
+        if not declared_hash:
+            continue
+        result_id = str(result.get("result_id", ""))
+        raw_data_file = str(result.get("raw_data_file") or "").strip()
+        if not raw_data_file:
+            verification_issues.append(
+                {
+                    "kind": "missing_raw_data_file",
+                    "result_id": result_id,
+                    "message": "A declared raw_data_sha256 has no raw_data_file reference.",
+                }
+            )
+            continue
+
+        relative_file = Path(raw_data_file)
+        if relative_file.is_absolute():
+            verification_issues.append(
+                {
+                    "kind": "raw_data_file_outside_directory",
+                    "result_id": result_id,
+                    "message": "raw_data_file must be a relative path inside the supplied raw-data directory.",
+                }
+            )
+            continue
+        candidate = (root / relative_file).resolve()
+        try:
+            candidate.relative_to(root.resolve())
+        except ValueError:
+            verification_issues.append(
+                {
+                    "kind": "raw_data_file_outside_directory",
+                    "result_id": result_id,
+                    "message": "raw_data_file must remain inside the supplied raw-data directory.",
+                }
+            )
+            continue
+        if not candidate.is_file():
+            verification_issues.append(
+                {
+                    "kind": "missing_raw_data_file",
+                    "result_id": result_id,
+                    "message": f"Raw assay file not found: {raw_data_file}",
+                }
+            )
+            continue
+
+        digest = hashlib.sha256()
+        with candidate.open("rb") as raw_file:
+            for chunk in iter(lambda: raw_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+        if digest.hexdigest() != declared_hash:
+            verification_issues.append(
+                {
+                    "kind": "raw_data_hash_mismatch",
+                    "result_id": result_id,
+                    "message": f"Computed SHA-256 does not match raw_data_sha256 for {raw_data_file}.",
+                }
+            )
+            continue
+        verified_ids.append(result_id)
+
+    if not results:
+        verification_status = "no_results"
+    elif not declaration["n_with_raw_data_sha256"]:
+        verification_status = "not_declared"
+    elif verification_issues:
+        verification_status = "blocked_on_verification"
+    elif declaration["n_with_raw_data_sha256"] < len(results):
+        verification_status = "verified_for_declared_only"
+    else:
+        verification_status = "verified_for_all"
+
+    return {
+        **declaration,
+        "verification_status": verification_status,
+        "raw_data_dir": str(root),
+        "n_verified": len(verified_ids),
+        "result_ids_verified": sorted(verified_ids),
+        "verification_issues": verification_issues,
     }
 
 
