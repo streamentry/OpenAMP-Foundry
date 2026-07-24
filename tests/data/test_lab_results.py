@@ -106,6 +106,27 @@ class TestLoadLabResult:
         with pytest.raises(Exception):
             load_lab_result(path)
 
+    @pytest.mark.parametrize("assay_date", ["2026-02-30", "2026-02-29"])
+    def test_impossible_assay_date_rejected(self, tmp_path, assay_date):
+        result = _valid_result(assay_date=assay_date)
+        path = tmp_path / "bad_date.json"
+        path.write_text(json.dumps(result))
+        with pytest.raises(ValueError, match="calendar date"):
+            load_lab_result(path)
+
+    def test_noncanonical_assay_date_rejected(self, tmp_path):
+        result = _valid_result(assay_date="20260701")
+        path = tmp_path / "noncanonical_date.json"
+        path.write_text(json.dumps(result))
+        with pytest.raises(ValueError, match="canonical"):
+            load_lab_result(path)
+
+    def test_valid_leap_day_loads(self, tmp_path):
+        result = _valid_result(assay_date="2024-02-29")
+        path = tmp_path / "leap_day.json"
+        path.write_text(json.dumps(result))
+        assert load_lab_result(path)["assay_date"] == "2024-02-29"
+
     def test_null_result_value_allowed(self, tmp_path):
         result = _valid_result(result_value=None, result_qualitative="inconclusive")
         path = tmp_path / "null_val.json"
@@ -363,6 +384,16 @@ class TestLoadLabResultsDir:
         assert [r["result_id"] for r in results] == ["GOOD-001"]
         assert errors[0]["file"] == "bad.json"
         assert errors[0]["error"]
+
+    def test_structured_loader_retains_invalid_calendar_date(self, tmp_path):
+        invalid = _valid_result(result_id="BAD-DATE", assay_date="2026-02-30")
+        (tmp_path / "bad_date.json").write_text(json.dumps(invalid))
+
+        results, errors = load_lab_results_dir_with_errors(tmp_path)
+
+        assert results == []
+        assert errors[0]["file"] == "bad_date.json"
+        assert "calendar date" in errors[0]["error"]
 
     def test_sorted_by_assay_date(self, tmp_path):
         date_map = {0: "2026-07-03", 1: "2026-07-01", 2: "2026-07-02"}

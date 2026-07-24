@@ -100,6 +100,10 @@ If these docs conflict, safety and claim discipline win.
   relative `raw_data_file` field. Missing files, path escape, or mismatches are
   structured verification blockers; matching bytes do not validate assay
   contents, reviewer identity, biology, or release readiness.
+- Lab-result `assay_date` values are checked as real, canonical `YYYY-MM-DD`
+  calendar dates after schema validation. Impossible or non-canonical dates are
+  retained as structured invalid-file errors and cannot enter reports or
+  metrics; this is temporal input integrity, not assay validation.
 - The Phase R scientific-review readiness gate is available through
   `scientific-review-readiness-check` and
   `make scientific-review-readiness-check`; only a

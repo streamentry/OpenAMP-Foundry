@@ -7,15 +7,17 @@ descriptive evidence plumbing, not biological validation.
 
 ## Key Components
 
-- `lab_results.py`: input-path validation, schema validation, structured
-  invalid-file provenance, and candidate-level summaries. Rollups expose raw
+- `lab_results.py`: input-path validation, schema and canonical calendar-date
+  validation, structured invalid-file provenance, and candidate-level summaries.
+  Rollups expose raw
   observations separately from control-passing outcome flags and counts;
   batch-level qualitative summaries follow the same raw-versus-usable split.
   Calibration intake may additionally verify an optional frozen `panel_id`.
   Reports expose declared `raw_data_sha256` coverage separately from verified
   evidence; a declared hash is never presented as independently checked unless
   the caller opts into `verify_raw_data_provenance()` with a raw-data directory
-  and `raw_data_file` references.
+  and `raw_data_file` references. Invalid or non-canonical `assay_date` values
+  remain structured file errors and cannot enter sorted reports or metrics.
 - `__init__.py`: stable public loader exports.
 
 ## Diagrams (Mermaid)

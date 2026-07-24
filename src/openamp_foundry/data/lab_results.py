@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +30,18 @@ def load_lab_result(path: str | Path) -> dict[str, Any]:
     with p.open("r", encoding="utf-8") as f:
         result = json.load(f)
     validate_json_schema(result, LAB_RESULT_SCHEMA)
+    assay_date = result["assay_date"]
+    try:
+        parsed_assay_date = date.fromisoformat(assay_date)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "assay_date must be a valid ISO 8601 calendar date (YYYY-MM-DD)"
+        ) from exc
+    if parsed_assay_date.isoformat() != assay_date:
+        raise ValueError(
+            "assay_date must use the canonical ISO 8601 calendar date form "
+            "(YYYY-MM-DD)"
+        )
     return result
 
 

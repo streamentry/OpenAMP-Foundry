@@ -23,6 +23,9 @@ work and preserve the external-truth bottleneck.
   records that provide the relative `raw_data_file` field. Missing files, path
   escape, and mismatches block clean calibration intake; matching file bytes do
   not validate assay contents or biology.
+- Lab-result loading also rejects impossible or non-canonical `assay_date`
+  values as structured invalid-file errors before they reach reports or
+  calibration metrics.
 - The next executable review boundary is the Phase R SRG- workflow. Its default
   example is intentionally blocked because qualified wet-lab evidence is not
   present; do not treat the gate as validation.

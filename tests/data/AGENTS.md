@@ -2,8 +2,8 @@
 
 ## Overview
 
-Tests protect schema validation, ordering, summaries, and retained invalid-file
-provenance for result ingestion.
+Tests protect schema and canonical calendar-date validation, ordering, summaries,
+and retained invalid-file provenance for result ingestion.
 
 ## Key Components
 

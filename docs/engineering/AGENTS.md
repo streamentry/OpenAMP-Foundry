@@ -20,6 +20,9 @@ turning artifact presence into scientific validation.
 - `ARCHITECTURE.md` also records the Phase Z ZAG- CLI/Make surface; all four
   per-family accountability artifacts are required, but presence is not
   benchmark validation.
+- `ARCHITECTURE.md` records that lab-result `assay_date` values undergo
+  canonical calendar validation before they can enter sorted reports or
+  calibration metrics.
 
 ## Diagrams (Mermaid)
 

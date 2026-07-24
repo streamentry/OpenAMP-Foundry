@@ -22,6 +22,9 @@ Gate workflows are structural review controls, never biological proof.
 - The Phase R SRG- workflow exposes scientific-review readiness through the CLI
   and Make surface; conditional, incomplete, safety-blocked, or malformed
   records must fail closed.
+- Impossible or non-canonical lab-result `assay_date` values remain structured
+  invalid-file evidence and cannot support downstream metrics; this is temporal
+  input integrity, not assay validation.
 
 ## Diagrams (Mermaid)
 

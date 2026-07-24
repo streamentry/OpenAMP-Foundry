@@ -117,6 +117,10 @@ missing. An optional `raw_data_file` reference can be verified by supplying
 `--raw-data-dir`; the verifier hashes files independently, rejects path escape,
 and blocks clean calibration intake on missing or mismatched files. This binds
 the declaration to file bytes only and does not validate assay contents.
+The loader also validates `assay_date` as a real, canonical `YYYY-MM-DD`
+calendar date because the generic JSON Schema helper does not enforce format
+annotations. Invalid dates remain structured file errors and cannot enter
+sorted reports or calibration metrics.
 Results whose candidate IDs are absent from the submitted calibration panel are
 retained as orphan provenance but block clean intake because they cannot be
 joined to prior predictions. This prevents a broader result directory from

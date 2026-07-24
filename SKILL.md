@@ -155,6 +155,10 @@ When a caller supplies `--raw-data-dir`, records with `raw_data_file` can be
 independently checked against their declared SHA-256. Missing files, path
 escape, and mismatches block clean calibration intake; matching bytes prove
 file identity only, not assay validity or biology.
+Lab-result `assay_date` values are additionally checked as real, canonical
+`YYYY-MM-DD` calendar dates because JSON Schema's date format annotation is not
+enforced by the generic validator. Impossible or non-canonical dates are
+retained as structured invalid-file errors and cannot enter reports or metrics.
 
 - `make bench-easy-baseline`: trivial length/charge baselines.
 - `make bench-charge-matched`: adversarial check that removes charge-density

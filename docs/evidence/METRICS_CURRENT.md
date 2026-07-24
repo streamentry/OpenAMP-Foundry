@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-24 (frozen external-review package identity check; benchmark values unchanged)
+> **Last updated:** 2026-07-25 (lab-result assay-date integrity check; benchmark values unchanged)
 
 > **Current verification note (2026-07-24):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -160,6 +160,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 - Without `--raw-data-dir`, legacy declaration-only reporting remains
   compatible. File identity is not assay validation, reviewer authentication,
   biological proof, or release authorization.
+
+### External-result intake integrity — reject impossible assay dates
+- Lab-result loading now validates `assay_date` as a real, canonical
+  `YYYY-MM-DD` calendar date after schema validation.
+- Impossible or non-canonical dates are retained as structured invalid-file
+  errors and cannot enter sorted reports or calibration metrics.
+- This closes a temporal input-integrity gap; it does not validate assay
+  contents, reviewer identity, biological activity, or release readiness.
 
 
 ### External-result intake integrity — reject invalid result paths

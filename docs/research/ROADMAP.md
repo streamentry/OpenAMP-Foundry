@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-07-24
+## Current state — 2026-07-25
 
 Phase Z is complete as of 2026-07-23. Z5 exposes the existing FBH-, BXR-,
 ARG-, and CBF- per-family accountability artifacts through a ZAG- aggregate,
@@ -106,6 +106,13 @@ mismatched hashes fail closed. ID-only validation remains available for legacy
 records. This binds a review record to package bytes, but does not authenticate
 the reviewer, establish independence, validate the science, or create
 biological evidence.
+
+On 2026-07-25, lab-result loading also began checking `assay_date` as a real,
+canonical `YYYY-MM-DD` calendar date. JSON Schema's date format annotation is
+not enforced by the generic validator, so impossible or non-canonical dates
+are now retained as structured invalid-file errors and cannot enter sorted
+reports or calibration metrics. This is temporal input integrity, not assay
+validation or biological evidence.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
