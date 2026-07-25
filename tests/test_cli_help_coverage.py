@@ -15,6 +15,7 @@ COMMANDS = [
     "novelty-check-broad", "validate-policy-version", "select-batch",
     "phase-ac-disconfirming-gate-check",
     "phase-aa-reproducibility-gate-check",
+    "phase-ab-claim-integrity-gate-check",
     "phase-y-accountability-gate-check",
     "phase-z-accountability-gate-check",
     "scientific-review-readiness-check",

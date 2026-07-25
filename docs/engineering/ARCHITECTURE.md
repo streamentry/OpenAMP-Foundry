@@ -70,6 +70,11 @@ The Phase Y YAG- gate is available through the same surface and fails closed
 when the baseline comparison, feature-importance, selection-diversity, or
 pipeline-maturity artifacts are missing. Presence of those artifacts does not
 establish that the pipeline beats cheap baselines or validate biology.
+The Phase AB ABAG- gate is available through the same surface and fails closed
+when claim-strength downgrade, reviewer-decision, evidence-gap, or external-
+handoff artifacts are missing. Presence of those artifacts does not
+authenticate reviewers, validate the science, establish biology, or authorize
+release.
 Domain-review outcomes can also be bound to the exact frozen pilot-evidence
 package JSON through `pep_sha256` and the package-aware CLI path. This closes a
 package-revision ambiguity while preserving ID-only compatibility for legacy

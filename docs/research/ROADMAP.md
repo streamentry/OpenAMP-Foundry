@@ -1,6 +1,13 @@
 # Roadmap
 
-## Current state — 2026-07-25
+## Current state — 2026-07-26
+
+Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
+EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
+command, and Make target. The command fails closed unless all four artifact
+types are present. This is a claim-review and handoff assembly check only; it
+does not authenticate reviewers, validate science, establish biology, or
+authorize release.
 
 Phase Y is complete as of 2026-07-25. Y5 exposes the existing CBR-, FIA-, SDA-,
 and PMC- baseline-accountability artifacts through a YAG- aggregate, CLI
@@ -28,6 +35,13 @@ Only a complete CBR/FIA/SDA/PMC artifact set returns success; partial or
 malformed inputs fail closed. This makes baseline-accountability review
 repeatable, but it does not show that the pipeline beats cheap baselines or
 create biological evidence.
+
+On 2026-07-26, the Phase AB claim-integrity gate became executable through
+`phase-ab-claim-integrity-gate-check` and its Make target. Only a complete
+CSD/RDR/EGN/EHP artifact set returns success; partial or malformed inputs fail
+closed. This makes claim downgrade, reviewer decision, evidence-gap, and
+external handoff assembly repeatable, but it does not authenticate reviewers,
+validate science, establish biology, or authorize release.
 
 On 2026-07-16, Phase AA AA6 made the reproducibility gate runnable through the
 CLI and Make surface. It fails closed unless RMC, DCR, CFP, and SBW artifact

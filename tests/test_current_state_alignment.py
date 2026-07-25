@@ -52,10 +52,11 @@ def test_current_authorities_expose_the_same_aa_ac_frontier():
     assert metrics_date, "METRICS_CURRENT.md must expose a dated verification note"
     assert _current_state_date(roadmap) == metrics_date.group(1)
     assert "Phase AC is complete" in roadmap
+    assert "Phase AB" in roadmap and "AB5" in roadmap
     assert "Phase Y" in roadmap and "Y5" in roadmap
     assert "Phase Z is complete" in roadmap
     assert "Phase AA" in roadmap and "AA6" in roadmap
-    assert "AA6" in metrics and "AC3" in metrics and "Z5" in metrics
+    assert "AA6" in metrics and "AB5" in metrics and "AC3" in metrics and "Z5" in metrics
     assert "Phase AA" in project_index and "AA6" in project_index
     assert "Phase Z5" in project_index
 
@@ -83,6 +84,10 @@ def test_phase_gate_make_targets_use_the_repository_python_fallback():
     assert (
         "PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli "
         "phase-ac-disconfirming-gate-check"
+    ) in makefile
+    assert (
+        "PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli "
+        "phase-ab-claim-integrity-gate-check"
     ) in makefile
     assert (
         "PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli "

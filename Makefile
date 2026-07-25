@@ -2,7 +2,7 @@
 
 PYTHON := $(shell [ -f .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
-.PHONY: phase-aa-reproducibility-gate-check phase-z-accountability-gate-check scientific-review-readiness-check
+.PHONY: phase-aa-reproducibility-gate-check phase-ab-claim-integrity-gate-check phase-z-accountability-gate-check scientific-review-readiness-check
 PYTEST  := $(shell [ -f .venv/bin/pytest ] && echo .venv/bin/pytest || echo pytest)
 RUFF    := $(shell [ -f .venv/bin/ruff ] && echo .venv/bin/ruff || echo ruff)
 
@@ -962,6 +962,10 @@ phase-ac-disconfirming-gate-check:
 phase-aa-reproducibility-gate-check:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-aa-reproducibility-gate-check --entry-json '{"aarg_id":"AARG-001","pipeline_version":"demo","rmc_id":"RMC-001","dcr_id":"DCR-001","cfp_id":"CFP-001","sbw_id":"SBW-001","created_at":"2026-07-16"}' --format text
 	@echo "Phase AA reproducibility gate check complete."
+
+phase-ab-claim-integrity-gate-check:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-ab-claim-integrity-gate-check --entry-json '{"abag_id":"ABAG-001","pipeline_version":"demo","components_present":["CSD","RDR","EGN","EHP"],"limitations":["Dry-lab claim-integrity review control; not scientific validation."],"created_at":"2026-07-26"}' --format text
+	@echo "Phase AB claim-integrity gate check complete."
 
 phase-y-accountability-gate-check:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-y-accountability-gate-check --entry-json '{"yag_id":"YAG-001","pipeline_version":"demo","cbr_artifact_id":"CBR-001","fia_artifact_id":"FIA-001","sda_artifact_id":"SDA-001","pmc_artifact_id":"PMC-001","limitations":["Dry-lab baseline accountability only; not biological validation."],"created_at":"2026-07-25"}' --format text

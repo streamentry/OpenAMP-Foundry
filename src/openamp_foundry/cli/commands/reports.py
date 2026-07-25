@@ -1885,6 +1885,43 @@ def _run_scientific_review_readiness_check(args: argparse.Namespace) -> int:
     return 0 if is_ready else 3
 
 
+def _run_phase_ab_claim_integrity_gate_check(args: argparse.Namespace) -> int:
+    """Build and report the Phase AB claim-integrity gate."""
+    import dataclasses
+
+    from openamp_foundry.evidence.phase_ab_claim_integrity_gate import (
+        build_phase_ab_claim_integrity_gate,
+        format_phase_ab_claim_integrity_gate,
+    )
+
+    try:
+        payload = json.loads(args.entry_json)
+        gate = build_phase_ab_claim_integrity_gate(
+            abag_id=payload["abag_id"],
+            pipeline_version=payload["pipeline_version"],
+            components_present=payload.get("components_present", []),
+            limitations=payload["limitations"],
+            created_at=payload["created_at"],
+        )
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+        error = {"passed": False, "violations": [f"invalid ABAG input: {exc}"]}
+        if args.format == "json":
+            print(json.dumps(error, indent=2))
+        else:
+            print("[FAIL] Phase AB Claim Integrity Gate Check")
+            print(f"  ERROR: {error['violations'][0]}")
+        return 3
+
+    is_verified = gate.verdict == "claim_integrity_verified"
+    if args.format == "json":
+        print(json.dumps({**dataclasses.asdict(gate), "passed": is_verified}, indent=2))
+    else:
+        status = "PASS" if is_verified else "FAIL"
+        print(f"[{status}] {format_phase_ab_claim_integrity_gate(gate)}")
+
+    return 0 if is_verified else 3
+
+
 def _run_phase_y_accountability_gate_check(args: argparse.Namespace) -> int:
     """Build and report the Phase Y baseline accountability gate."""
     import dataclasses

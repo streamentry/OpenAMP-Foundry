@@ -13,6 +13,8 @@ claim boundaries, reproducibility metadata, and explicit negative findings.
   and adapter accountability artifacts.
 - `phase_y_accountability_gate.py`: aggregate gate for cheap-baseline,
   feature-importance, diversity, and maturity accountability artifacts.
+- `phase_ab_claim_integrity_gate.py`: aggregate gate for claim downgrades,
+  reviewer decisions, evidence gaps, and external handoff integrity.
 - `external_review_packet.py`: current V4 component-based review packet; its
   legacy Phase E bridge is migration-only.
 - `domain_review_outcome.py`: records reviewer outcomes. Use its package-aware
@@ -41,6 +43,8 @@ flowchart LR
   Gate -. "does not prove biology" .-> Boundary["Dry-lab boundary"]
   YAG["YAG- baseline accountability"] --> Review
   YAG -. "does not prove baseline superiority" .-> Boundary
+  ABAG["ABAG- claim integrity"] --> Review
+  ABAG -. "does not authenticate reviewers or validate science" .-> Boundary
 ```
 
 ### Sequence Diagram

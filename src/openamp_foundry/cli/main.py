@@ -19,6 +19,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_adapter_check, _run_license_check, _run_artifact_compat_check, _run_adoption_scorecard,
     _run_reviewer_briefing_check, _run_audit_chain_check,
     _run_phase_ac_disconfirming_gate_check, _run_phase_aa_reproducibility_gate_check,
+    _run_phase_ab_claim_integrity_gate_check,
     _run_phase_y_accountability_gate_check,
     _run_phase_z_accountability_gate_check,
     _run_scientific_review_readiness_check,
@@ -2352,6 +2353,23 @@ def build_parser() -> argparse.ArgumentParser:
         "--format", choices=["text", "json"], default="text"
     )
 
+    # ── Claim integrity gate (Phase AB AB5) ─────────────────────────
+    phase_ab_gate_parser = sub.add_parser(
+        "phase-ab-claim-integrity-gate-check",
+        help=(
+            "Build the Phase AB claim-integrity gate. This is a dry-lab "
+            "claim-review control, not scientific validation."
+        ),
+    )
+    phase_ab_gate_parser.add_argument(
+        "--entry-json",
+        required=True,
+        help="JSON object containing gate metadata and Phase AB components",
+    )
+    phase_ab_gate_parser.add_argument(
+        "--format", choices=["text", "json"], default="text"
+    )
+
     # ── Baseline accountability gate (Phase Y Y5) ─────────────────
     phase_y_gate_parser = sub.add_parser(
         "phase-y-accountability-gate-check",
@@ -3012,6 +3030,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "scientific-review-readiness-check":
         return _run_scientific_review_readiness_check(args)
+
+    if args.command == "phase-ab-claim-integrity-gate-check":
+        return _run_phase_ab_claim_integrity_gate_check(args)
 
     if args.command == "phase-y-accountability-gate-check":
         return _run_phase_y_accountability_gate_check(args)

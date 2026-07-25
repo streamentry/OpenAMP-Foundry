@@ -53,6 +53,11 @@ If these docs conflict, safety and claim discipline win.
   `phase-aa-reproducibility-gate-check` and
   `make phase-aa-reproducibility-gate-check`; partial or not-established
   verdicts exit nonzero and do not certify a pipeline run.
+- Phase AB exposes the ABAG- claim-integrity aggregate through
+  `phase-ab-claim-integrity-gate-check` and
+  `make phase-ab-claim-integrity-gate-check`; partial or not-established
+  verdicts exit nonzero and do not authenticate reviewers, validate science,
+  or establish biological evidence.
 - Phase Z exposes the ZAG- per-family accountability aggregate through
   `phase-z-accountability-gate-check` and
   `make phase-z-accountability-gate-check`; partial or not-established

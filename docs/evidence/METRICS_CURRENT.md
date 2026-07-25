@@ -5,14 +5,22 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-25 (lab-result assay-date integrity check; benchmark values unchanged)
+> **Last updated:** 2026-07-26 (Phase AB claim-integrity gate workflow; benchmark values unchanged)
 
-> **Current verification note (2026-07-25):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-07-26):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
-> AC AC3 exposes the ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate,
-> and Phase Z Z5 exposes the ZAG- aggregate through the same surface. These are
-> dry-lab review controls; they neither establish biological validation nor
-> prove benchmark improvement.
+> AB AB5 exposes the ABAG- claim-integrity aggregate, Phase AC AC3 exposes the
+> ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate, and Phase Z Z5
+> exposes the ZAG- aggregate through the same surface. These are dry-lab review
+> controls; they neither authenticate reviewers, establish biological
+> validation, nor prove benchmark improvement.
+
+> **Phase AB claim-integrity note (2026-07-26):** The ABAG- aggregate is now
+> runnable through `phase-ab-claim-integrity-gate-check` and
+> `make phase-ab-claim-integrity-gate-check`. It fails closed unless CSD-,
+> RDR-, EGN-, and EHP- artifact types are present. This checks claim-review and
+> external-handoff assembly only; it does not authenticate reviewers, validate
+> science, establish biology, or authorize release.
 
 > **Phase Z accountability note (2026-07-23):** The ZAG- aggregate is now
 > runnable through `phase-z-accountability-gate-check` and
@@ -103,6 +111,16 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > validity, or external pilot readiness.
 
 ## Changelog
+
+### Phase AB AB5 — Claim-integrity workflow integration
+- Added `phase-ab-claim-integrity-gate-check` CLI command and
+  `make phase-ab-claim-integrity-gate-check` demo target.
+- The command rebuilds the ABAG- gate from CSD-, RDR-, EGN-, and EHP- component
+  types and returns nonzero for partial, malformed, or invalid-JSON inputs.
+- Added verified, missing-component, and invalid-JSON CLI integration coverage.
+- This is a dry-lab claim-review and handoff control, not reviewer
+  authentication, scientific validation, biological evidence, or release
+  authorization.
 
 ### Phase Y Y5 — Baseline accountability workflow integration
 - Added `phase-y-accountability-gate-check` CLI command and

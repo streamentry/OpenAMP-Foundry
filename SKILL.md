@@ -100,6 +100,13 @@ RMC, DCR, CFP, and SBW artifact IDs are all present. This is a structural
 provenance check, not proof that the underlying run is scientifically correct
 or biologically valid.
 
+The Phase AB claim-integrity gate is available through
+`openamp-foundry phase-ab-claim-integrity-gate-check --entry-json ...` or
+`make phase-ab-claim-integrity-gate-check`. It returns success only when CSD,
+RDR, EGN, and EHP components are all present. This checks claim-review and
+external-handoff assembly; it does not authenticate reviewers, validate the
+science, establish biology, or authorize release.
+
 The Phase Z per-family accountability gate is available through
 `openamp-foundry phase-z-accountability-gate-check --entry-json ...` or
 `make phase-z-accountability-gate-check`. It returns success only when FBH,

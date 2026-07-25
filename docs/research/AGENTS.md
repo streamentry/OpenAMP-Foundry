@@ -34,6 +34,9 @@ work and preserve the external-truth bottleneck.
 - Phase Y Y5 is complete: its YAG- gate is executable through CLI and Make, but
   it only checks artifact assembly and cannot establish that the pipeline beats
   cheap baselines.
+- Phase AB AB5 is complete: its ABAG- gate is executable through CLI and Make,
+  but it only checks claim-integrity and handoff artifact assembly; it cannot
+  authenticate reviewers, validate science, or establish biology.
 
 ## Diagrams (Mermaid)
 

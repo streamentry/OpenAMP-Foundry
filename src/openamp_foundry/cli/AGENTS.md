@@ -15,6 +15,8 @@ preserve dry-lab claim boundaries and fail closed when a gate is incomplete.
   `accountability_verified` returns exit code 0.
 - `phase-y-accountability-gate-check`: runs the YAG- baseline-vs-pipeline
   presence gate; only `accountability_verified` returns exit code 0.
+- `phase-ab-claim-integrity-gate-check`: runs the ABAG- claim-integrity and
+  handoff presence gate; only `claim_integrity_verified` returns exit code 0.
 - `scientific-review-readiness-check`: runs the SRG- readiness gate; only
   `ready_for_external_review` returns exit code 0. The checked-in Make example
   is intentionally blocked until qualified evidence exists.
@@ -30,6 +32,7 @@ flowchart LR
   Handler --> AARG["AARG- gate"] --> Output["Text or JSON + exit status"]
   Handler --> ZAG["ZAG- gate"] --> Output
   Handler --> YAG["YAG- gate"] --> Output
+  Handler --> ABAG["ABAG- gate"] --> Output
   Handler --> SRG["SRG- gate"] --> Output
 ```
 

@@ -23,6 +23,9 @@ turning artifact presence into scientific validation.
 - `ARCHITECTURE.md` also records the Phase Y YAG- CLI/Make surface; all four
   baseline-accountability artifacts are required, but presence is not evidence
   that the pipeline beats cheap baselines.
+- `ARCHITECTURE.md` also records the Phase AB ABAG- CLI/Make surface; all four
+  claim-integrity and handoff artifacts are required, but presence does not
+  authenticate reviewers or validate science.
 - `ARCHITECTURE.md` records that lab-result `assay_date` values undergo
   canonical calendar validation before they can enter sorted reports or
   calibration metrics.
