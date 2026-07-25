@@ -21,6 +21,7 @@ RECENT_SHIPPED_ITEMS = (
     "AC1",
     "AC2",
     "AC3",
+    "Y5",
     "Z5",
 )
 
@@ -51,6 +52,7 @@ def test_current_authorities_expose_the_same_aa_ac_frontier():
     assert metrics_date, "METRICS_CURRENT.md must expose a dated verification note"
     assert _current_state_date(roadmap) == metrics_date.group(1)
     assert "Phase AC is complete" in roadmap
+    assert "Phase Y" in roadmap and "Y5" in roadmap
     assert "Phase Z is complete" in roadmap
     assert "Phase AA" in roadmap and "AA6" in roadmap
     assert "AA6" in metrics and "AC3" in metrics and "Z5" in metrics
@@ -89,4 +91,8 @@ def test_phase_gate_make_targets_use_the_repository_python_fallback():
     assert (
         "PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli "
         "phase-z-accountability-gate-check"
+    ) in makefile
+    assert (
+        "PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli "
+        "phase-y-accountability-gate-check"
     ) in makefile

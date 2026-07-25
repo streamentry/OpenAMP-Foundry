@@ -1885,6 +1885,46 @@ def _run_scientific_review_readiness_check(args: argparse.Namespace) -> int:
     return 0 if is_ready else 3
 
 
+def _run_phase_y_accountability_gate_check(args: argparse.Namespace) -> int:
+    """Build and report the Phase Y baseline accountability gate."""
+    import dataclasses
+
+    from openamp_foundry.evidence.phase_y_accountability_gate import (
+        build_phase_y_accountability_gate,
+        format_phase_y_accountability_gate,
+    )
+
+    try:
+        payload = json.loads(args.entry_json)
+        gate = build_phase_y_accountability_gate(
+            yag_id=payload["yag_id"],
+            pipeline_version=payload["pipeline_version"],
+            cbr_artifact_id=payload.get("cbr_artifact_id", ""),
+            fia_artifact_id=payload.get("fia_artifact_id", ""),
+            sda_artifact_id=payload.get("sda_artifact_id", ""),
+            pmc_artifact_id=payload.get("pmc_artifact_id", ""),
+            limitations=payload["limitations"],
+            created_at=payload["created_at"],
+        )
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+        error = {"passed": False, "violations": [f"invalid YAG input: {exc}"]}
+        if args.format == "json":
+            print(json.dumps(error, indent=2))
+        else:
+            print("[FAIL] Phase Y Accountability Gate Check")
+            print(f"  ERROR: {error['violations'][0]}")
+        return 3
+
+    is_verified = gate.yag_verdict == "accountability_verified"
+    if args.format == "json":
+        print(json.dumps({**dataclasses.asdict(gate), "passed": is_verified}, indent=2))
+    else:
+        status = "PASS" if is_verified else "FAIL"
+        print(f"[{status}] {format_phase_y_accountability_gate(gate)}")
+
+    return 0 if is_verified else 3
+
+
 def _run_phase_z_accountability_gate_check(args: argparse.Namespace) -> int:
     """Build and report the Phase Z per-family accountability gate."""
     import dataclasses

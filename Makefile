@@ -963,6 +963,10 @@ phase-aa-reproducibility-gate-check:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-aa-reproducibility-gate-check --entry-json '{"aarg_id":"AARG-001","pipeline_version":"demo","rmc_id":"RMC-001","dcr_id":"DCR-001","cfp_id":"CFP-001","sbw_id":"SBW-001","created_at":"2026-07-16"}' --format text
 	@echo "Phase AA reproducibility gate check complete."
 
+phase-y-accountability-gate-check:
+	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-y-accountability-gate-check --entry-json '{"yag_id":"YAG-001","pipeline_version":"demo","cbr_artifact_id":"CBR-001","fia_artifact_id":"FIA-001","sda_artifact_id":"SDA-001","pmc_artifact_id":"PMC-001","limitations":["Dry-lab baseline accountability only; not biological validation."],"created_at":"2026-07-25"}' --format text
+	@echo "Phase Y accountability gate check complete."
+
 phase-z-accountability-gate-check:
 	PYTHONPATH=src $(PYTHON) -m openamp_foundry.cli phase-z-accountability-gate-check --entry-json '{"zag_id":"ZAG-001","pipeline_version":"demo","fbh_id":"FBH-001","bxr_id":"BXR-001","arg_id":"ARG-001","cbf_id":"CBF-001","created_at":"2026-07-23"}' --format text
 	@echo "Phase Z accountability gate check complete."

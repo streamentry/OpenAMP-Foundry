@@ -18,6 +18,8 @@ They verify exit codes and serialized output, not biological validity.
   and malformed inputs return `3`.
 - Phase Z accountability tests must assert that only a complete FBH/BXR/ARG/CBF
   artifact set returns `0`; missing components return `3`.
+- Phase Y accountability tests must assert that only a complete CBR/FIA/SDA/PMC
+  artifact set returns `0`; missing or malformed inputs return `3`.
 
 ## Diagrams (Mermaid)
 

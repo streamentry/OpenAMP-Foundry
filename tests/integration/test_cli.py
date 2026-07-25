@@ -351,6 +351,56 @@ def test_phase_z_accountability_gate_check_reports_verified(capsys):
     assert result["dry_lab_only"] is True
 
 
+def test_phase_y_accountability_gate_check_reports_verified(capsys):
+    ret = main([
+        "phase-y-accountability-gate-check",
+        "--entry-json",
+        json.dumps({
+            "yag_id": "YAG-CLI-001",
+            "pipeline_version": "v1.0",
+            "cbr_artifact_id": "CBR-CLI-001",
+            "fia_artifact_id": "FIA-CLI-001",
+            "sda_artifact_id": "SDA-CLI-001",
+            "pmc_artifact_id": "PMC-CLI-001",
+            "limitations": ["Dry-lab baseline accountability only."],
+            "created_at": "2026-07-25",
+        }),
+        "--format", "json",
+    ])
+    assert ret == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["yag_verdict"] == "accountability_verified"
+    assert result["n_components_present"] == 4
+    assert result["dry_lab_only"] is True
+    assert result["passed"] is True
+
+
+def test_phase_y_accountability_gate_check_fails_when_components_are_missing():
+    payload = {
+        "yag_id": "YAG-CLI-002",
+        "pipeline_version": "v1.0",
+        "cbr_artifact_id": "CBR-CLI-002",
+        "fia_artifact_id": "FIA-CLI-002",
+        "limitations": ["Incomplete dry-lab accountability record."],
+        "created_at": "2026-07-25",
+    }
+    assert main([
+        "phase-y-accountability-gate-check",
+        "--entry-json", json.dumps(payload),
+    ]) == 3
+
+
+def test_phase_y_accountability_gate_check_fails_closed_on_invalid_json(capsys):
+    assert main([
+        "phase-y-accountability-gate-check",
+        "--entry-json", "{not-json",
+        "--format", "json",
+    ]) == 3
+    result = json.loads(capsys.readouterr().out)
+    assert result["passed"] is False
+    assert "invalid YAG input" in result["violations"][0]
+
+
 def test_phase_z_accountability_gate_check_fails_when_components_are_missing():
     payload = {
         "zag_id": "ZAG-CLI-002",

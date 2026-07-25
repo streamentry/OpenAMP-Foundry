@@ -20,6 +20,8 @@ under test. Benchmark-specific checks live in `tests/benchmarks/`.
   result for an incomplete or unsafe record.
 - Per-family ZAG- CLI tests must keep the complete-versus-incomplete artifact
   distinction explicit.
+- Baseline YAG- CLI tests must keep the complete-versus-incomplete CBR/FIA/SDA/PMC
+  artifact distinction explicit.
 
 ## Diagrams (Mermaid)
 

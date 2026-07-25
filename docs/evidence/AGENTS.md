@@ -12,6 +12,8 @@ Gate workflows are structural review controls, never biological proof.
 - AARG-: checks presence of reproducibility artifacts before certification.
 - ZAG-: checks presence of per-family benchmark and adapter-accountability
   artifacts before that review surface is treated as complete.
+- YAG-: checks presence of baseline-vs-pipeline accountability artifacts before
+  the cheap-baseline review surface is treated as complete.
 - Lab-result intake blockers are evidence-completeness signals, not assay
   validation; invalid files must remain visible in reports and gates.
 - Control-failed assay observations remain visible for audit but are excluded

@@ -7,11 +7,12 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 >
 > **Last updated:** 2026-07-25 (lab-result assay-date integrity check; benchmark values unchanged)
 
-> **Current verification note (2026-07-24):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-07-25):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
-> AC AC3 exposes the ACDG- aggregate and Phase Z Z5 exposes the ZAG- aggregate
-> through the same surface. These are dry-lab review controls; they neither
-> establish biological validation nor prove benchmark improvement.
+> AC AC3 exposes the ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate,
+> and Phase Z Z5 exposes the ZAG- aggregate through the same surface. These are
+> dry-lab review controls; they neither establish biological validation nor
+> prove benchmark improvement.
 
 > **Phase Z accountability note (2026-07-23):** The ZAG- aggregate is now
 > runnable through `phase-z-accountability-gate-check` and
@@ -94,7 +95,23 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > collection succeeds at 12,341 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
+> **Phase Y accountability note (2026-07-25):** The YAG- baseline-vs-pipeline
+> aggregate is now runnable through `phase-y-accountability-gate-check` and
+> `make phase-y-accountability-gate-check`. It fails closed unless CBR-, FIA-,
+> SDA-, and PMC- artifact IDs are present. This checks review-surface
+> completeness only; it does not establish baseline superiority, biological
+> validity, or external pilot readiness.
+
 ## Changelog
+
+### Phase Y Y5 — Baseline accountability workflow integration
+- Added `phase-y-accountability-gate-check` CLI command and
+  `make phase-y-accountability-gate-check` demo target.
+- The command rebuilds the YAG- gate from CBR-, FIA-, SDA-, and PMC- artifact
+  IDs and returns nonzero for partial or malformed inputs.
+- Added complete, incomplete, invalid-JSON, and help coverage.
+- This is a dry-lab review-control and artifact-assembly check, not evidence
+  that the pipeline beats cheap baselines or validates biology.
 
 ### Phase Z Z5 — Per-family accountability gate workflow integration
 - Added `phase-z-accountability-gate-check` CLI command and

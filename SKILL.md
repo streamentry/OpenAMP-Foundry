@@ -107,6 +107,14 @@ BXR, ARG, and CBF artifact IDs are all present. This checks that the
 per-family benchmark and adapter-accountability surface was assembled; it does
 not prove benchmark superiority, biological validity, or release readiness.
 
+The Phase Y baseline-vs-pipeline accountability gate is available through
+`openamp-foundry phase-y-accountability-gate-check --entry-json ...` or
+`make phase-y-accountability-gate-check`. It returns success only when CBR,
+FIA, SDA, and PMC artifact IDs are all present. This checks that the
+cheap-baseline comparison surface was assembled; it does not prove that the
+pipeline beats those baselines, validate biology, or authorize an external
+pilot claim.
+
 The Phase R scientific-review readiness gate is available as
 `openamp-foundry scientific-review-readiness-check --entry-json ...` or
 `make scientific-review-readiness-check`. It returns success only for

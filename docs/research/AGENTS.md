@@ -31,6 +31,9 @@ work and preserve the external-truth bottleneck.
   present; do not treat the gate as validation.
 - Phase Z Z5 is complete: its ZAG- gate is executable through CLI and Make, but
   it only checks artifact assembly and cannot establish benchmark superiority.
+- Phase Y Y5 is complete: its YAG- gate is executable through CLI and Make, but
+  it only checks artifact assembly and cannot establish that the pipeline beats
+  cheap baselines.
 
 ## Diagrams (Mermaid)
 

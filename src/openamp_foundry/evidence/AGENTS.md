@@ -11,6 +11,8 @@ claim boundaries, reproducibility metadata, and explicit negative findings.
 - `phase_ac_disconfirming_gate.py`: aggregate gate for unresolved follow-up.
 - `phase_z_accountability_gate.py`: aggregate gate for per-family benchmark
   and adapter accountability artifacts.
+- `phase_y_accountability_gate.py`: aggregate gate for cheap-baseline,
+  feature-importance, diversity, and maturity accountability artifacts.
 - `external_review_packet.py`: current V4 component-based review packet; its
   legacy Phase E bridge is migration-only.
 - `domain_review_outcome.py`: records reviewer outcomes. Use its package-aware
@@ -37,6 +39,8 @@ flowchart LR
   Record["DisconfirmingTestRecord"] --> Gate["PhaseAcDisconfirmingGate"]
   Gate --> Review["Human claim review"]
   Gate -. "does not prove biology" .-> Boundary["Dry-lab boundary"]
+  YAG["YAG- baseline accountability"] --> Review
+  YAG -. "does not prove baseline superiority" .-> Boundary
 ```
 
 ### Sequence Diagram

@@ -58,6 +58,11 @@ If these docs conflict, safety and claim discipline win.
   `make phase-z-accountability-gate-check`; partial or not-established
   verdicts exit nonzero and do not establish benchmark superiority or
   adapter ranking authority.
+- Phase Y exposes the YAG- baseline-vs-pipeline accountability aggregate
+  through `phase-y-accountability-gate-check` and
+  `make phase-y-accountability-gate-check`; only a complete CBR/FIA/SDA/PMC
+  artifact set returns success. This is a dry-lab comparison-review control,
+  not evidence that the pipeline beats cheap baselines or validates biology.
 - Use `python3 -m pytest --collect-only -q --no-header` to verify the full test
   graph before relying on targeted evidence.
 - The Phase E ERP example and validator retain an explicitly legacy compatibility

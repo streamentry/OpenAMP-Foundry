@@ -293,9 +293,10 @@ Do not change a success definition after seeing results.
 
 Do not hide negative results merely because they weaken the story.
 
-## Current status — Phase Z5 / AA6 / AC3 / R4 workflow (2026-07-23)
+## Current status — Phase Z5 / Y5 / AA6 / AC3 / R4 workflow (2026-07-25)
 
-Phase Z Z5, Phase AA AA6, and Phase AC AC3 are complete: the per-family
+Phase Y Y5, Phase Z Z5, Phase AA AA6, and Phase AC AC3 are complete: the baseline,
+per-family
 accountability, reproducibility, and disconfirming-evidence aggregates are
 available through fail-closed CLI and make targets. These strengthen
 auditability only; they do not establish biological activity, safety, novelty,
@@ -316,6 +317,10 @@ verified raw-file hashes.
 The Phase Z ZAG- command returns success only when FBH-, BXR-, ARG-, and CBF-
 artifact IDs are all present. This is per-family accountability assembly, not
 benchmark superiority or adapter ranking authority.
+
+The Phase Y YAG- command returns success only when CBR-, FIA-, SDA-, and PMC-
+artifact IDs are all present. This is baseline-accountability assembly, not
+evidence that the pipeline beats cheap baselines or biological validation.
 
 The Phase R scientific-review readiness gate is available through
 `scientific-review-readiness-check` and its Make target. Only

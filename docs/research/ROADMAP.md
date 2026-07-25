@@ -2,6 +2,12 @@
 
 ## Current state — 2026-07-25
 
+Phase Y is complete as of 2026-07-25. Y5 exposes the existing CBR-, FIA-, SDA-,
+and PMC- baseline-accountability artifacts through a YAG- aggregate, CLI
+command, and Make target. The command fails closed unless all four artifact
+IDs are present. This is an assembly and review-control check only; it does
+not establish baseline superiority or biological validity.
+
 Phase Z is complete as of 2026-07-23. Z5 exposes the existing FBH-, BXR-,
 ARG-, and CBF- per-family accountability artifacts through a ZAG- aggregate,
 CLI command, and Make target. The command fails closed unless all four artifact
@@ -15,6 +21,13 @@ exposes that gate through a CLI and make target, with nonzero status for
 partial or not-established results so the review control is usable in
 repeatable loops. This is an auditability improvement only. It does not
 validate biology, improve benchmark performance, or authorize release.
+
+On 2026-07-25, the Phase Y baseline-vs-pipeline accountability gate became
+executable through `phase-y-accountability-gate-check` and its Make target.
+Only a complete CBR/FIA/SDA/PMC artifact set returns success; partial or
+malformed inputs fail closed. This makes baseline-accountability review
+repeatable, but it does not show that the pipeline beats cheap baselines or
+create biological evidence.
 
 On 2026-07-16, Phase AA AA6 made the reproducibility gate runnable through the
 CLI and Make surface. It fails closed unless RMC, DCR, CFP, and SBW artifact
