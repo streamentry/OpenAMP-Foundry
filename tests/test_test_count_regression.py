@@ -3,6 +3,7 @@
 import subprocess
 import sys
 import math
+import re
 
 BASELINE = 12125
 
@@ -15,16 +16,14 @@ def test_test_count_regression():
     )
     lines = result.stdout.strip().splitlines()
     count_line = next(
-        (l for l in reversed(lines) if "test" in l and ("selected" in l or "error" in l)),
+        (
+            line
+            for line in reversed(lines)
+            if re.fullmatch(r"\d[\d,]* tests? collected(?: in .*s)?", line.strip())
+        ),
         None,
     )
-    if count_line is None:
-        for l in reversed(lines):
-            if l.strip() and l[0].isdigit():
-                count_line = l
-                break
     assert count_line is not None, f"Could not find test count line. Output:\n{result.stdout}\n"
-    import re
     m = re.search(r"(\d+)", count_line)
     assert m is not None, f"No number in count line: {count_line}"
     actual = int(m.group(1))

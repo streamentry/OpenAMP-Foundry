@@ -1,6 +1,8 @@
 """Keep the live roadmap, index, metrics note, and bounded backlog aligned."""
 
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -32,6 +34,19 @@ def _current_state_date(text: str) -> str:
     return match.group(1)
 
 
+def _collected_test_count() -> int:
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "--collect-only", "-q", "--no-header"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    match = re.search(r"([\d,]+) tests? collected", result.stdout)
+    assert match, f"Could not find collection count in pytest output:\n{result.stdout}"
+    return int(match.group(1).replace(",", ""))
+
+
 def test_recent_shipped_frontier_is_marked_complete_in_bounded_backlog():
     backlog = (ROOT / "docs/research/NEXT_100_PR_MAP.md").read_text()
 
@@ -59,6 +74,13 @@ def test_current_authorities_expose_the_same_aa_ac_frontier():
     assert "AA6" in metrics and "AB5" in metrics and "AC3" in metrics and "Z5" in metrics
     assert "Phase AA" in project_index and "AA6" in project_index
     assert "Phase Z5" in project_index
+
+
+def test_metrics_current_records_the_live_test_collection_count():
+    metrics = (ROOT / "docs/evidence/METRICS_CURRENT.md").read_text()
+    match = re.search(r"collection\s+succeeds at ([\d,]+) tests;", metrics)
+    assert match, "METRICS_CURRENT.md must record the live pytest collection count"
+    assert int(match.group(1).replace(",", "")) == _collected_test_count()
 
 
 def test_external_review_package_identity_boundary_is_documented():

@@ -81,7 +81,7 @@ help:
 	@echo "  make generate-synthetic-lab-results  Generate synthetic lab results for calibration testing"
 	@echo "  make calibration-audit-example  Run calibration pipeline consistency audit on synthetic example"
 	@echo "  make calibration-audit          Run calibration pipeline consistency audit (INTAKE=[path] GATE=[path] ...)"
-	@echo "  make test               Run full test suite (2937 passing tests, >=80% coverage)"
+	@echo "  make test               Run the full test suite (coverage target: >=80%)"
 	@echo "  make coverage           Test suite with per-module coverage report"
 	@echo "  make lint               Ruff lint check on src/ tests/ scripts/"
 	@echo "  make typecheck          mypy type check on src/"

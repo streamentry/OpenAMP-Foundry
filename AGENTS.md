@@ -70,6 +70,10 @@ If these docs conflict, safety and claim discipline win.
   not evidence that the pipeline beats cheap baselines or validates biology.
 - Use `python3 -m pytest --collect-only -q --no-header` to verify the full test
   graph before relying on targeted evidence.
+- The current pytest collection count recorded in
+  `docs/evidence/METRICS_CURRENT.md` is checked by
+  `tests/test_current_state_alignment.py`; intentional test additions or
+  removals must update that source-of-truth note.
 - The Phase E ERP example and validator retain an explicitly legacy compatibility
   bridge; new packet work must use the component-based V4 ERP API.
 - Lab-result directory loading remains warning-compatible for legacy callers, but

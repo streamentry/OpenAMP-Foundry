@@ -22,6 +22,9 @@ under test. Benchmark-specific checks live in `tests/benchmarks/`.
   distinction explicit.
 - Baseline YAG- CLI tests must keep the complete-versus-incomplete CBR/FIA/SDA/PMC
   artifact distinction explicit.
+- `test_current_state_alignment.py` keeps the live pytest collection count in
+  `docs/evidence/METRICS_CURRENT.md` synchronized; update that source-of-truth
+  note when tests are intentionally added or removed.
 
 ## Diagrams (Mermaid)
 
