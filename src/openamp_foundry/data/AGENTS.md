@@ -18,6 +18,9 @@ descriptive evidence plumbing, not biological validation.
   the caller opts into `verify_raw_data_provenance()` with a raw-data directory
   and `raw_data_file` references. Invalid or non-canonical `assay_date` values
   remain structured file errors and cannot enter sorted reports or metrics.
+  Intake reports also classify explicit `SYNTHETIC` labels by result ID. This
+  is provenance visibility, not proof that an unlabeled record is real; the
+  recalibration gate rejects reports containing synthetic-labeled results.
 - `__init__.py`: stable public loader exports.
 
 ## Diagrams (Mermaid)
@@ -40,6 +43,8 @@ flowchart LR
   Verify --> VerifyResult{"File identity matches?"}
   VerifyResult -->|yes| Verified["Verified file identity"]
   VerifyResult -->|no| VerifyBlock["Verification issue"]
+  Valid --> Origin["Synthetic-origin classification"]
+  Origin --> Gate["Recalibration gate: synthetic labels block"]
 ```
 
 ```mermaid

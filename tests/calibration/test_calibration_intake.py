@@ -12,6 +12,7 @@ Verifies:
   - Optional panel IDs prevent cross-panel result joins
   - Optional certificate hashes prevent mismatched result joins
   - Raw-data hash coverage is explicit and never presented as verified
+  - Synthetic result labels are retained and visible to the recalibration gate
   - JSON and Markdown output writers are non-empty and validate
   - Synthetic example data exists and validates
 
@@ -23,7 +24,6 @@ Honest limitation:
 from __future__ import annotations
 
 import csv
-import hashlib
 import json
 import warnings
 from pathlib import Path
@@ -1090,6 +1090,8 @@ class TestExampleData:
             m["insufficient_data"]
             for m in report["cohort_metrics"].values()
         )
+        assert report["data_origin"]["status"] == "synthetic_present"
+        assert report["data_origin"]["n_synthetic_results"] == report["n_lab_results"]
 
     def test_readme_warns_synthetic(self, example_root):
         readme = example_root / "lab_results" / "README.md"

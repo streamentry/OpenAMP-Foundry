@@ -293,7 +293,7 @@ Do not change a success definition after seeing results.
 
 Do not hide negative results merely because they weaken the story.
 
-## Current status — Phase AB5 / Z5 / Y5 / AA6 / AC3 / R4 workflow (2026-07-26)
+## Current status — Phase AB5 / Phase Z5 / Phase Y5 / Phase AA6 / Phase AC3 / Phase R4 workflow (2026-07-26)
 
 Phase AB AB5, Phase Y Y5, Phase Z Z5, Phase AA AA6, and Phase AC AC3 are complete: the claim-integrity, baseline,
 per-family
@@ -313,6 +313,11 @@ Lab-result reports also expose declared `raw_data_sha256` coverage as
 `no_results`, `not_available`, `partial_declaration`, or `declared_for_all`.
 This is provenance visibility only; declared hashes are not independently
 verified raw-file hashes.
+
+Intake reports also classify explicit `SYNTHETIC` labels by result ID. Synthetic
+records remain available for demonstrations and audit, but the recalibration
+gate fails closed when any synthetic-labeled result is present. Unclassified
+records are not asserted to be real wet-lab evidence.
 
 The Phase Z ZAG- command returns success only when FBH-, BXR-, ARG-, and CBF-
 artifact IDs are all present. This is per-family accountability assembly, not

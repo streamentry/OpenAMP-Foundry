@@ -12,6 +12,12 @@ The policy exists because the most dangerous failure mode in a feedback-loop dis
 
 Synthetic lab results must not influence recalibration decisions or raise any candidate's proof_ladder_level. Only qualified wet-lab outcomes may trigger recalibration or elevate evidence levels. See VIRTUAL_ASSAY_SCOPE.md for the full synthetic-data policy.
 
+The intake report classifies explicit `SYNTHETIC` labels by result ID. Those
+records remain available for demonstration and audit, but the recalibration
+gate rejects any report containing them, even if every quantitative minimum
+condition passes. Records without a synthetic label remain unclassified; the
+workflow does not infer that they are real or independently validated.
+
 ## Prime rule
 
 **Lab-result intake may describe what happened. It may not change ranking behavior unless the recalibration gate permits it and a qualified human review records the decision.**

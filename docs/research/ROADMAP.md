@@ -141,6 +141,13 @@ are now retained as structured invalid-file errors and cannot enter sorted
 reports or calibration metrics. This is temporal input integrity, not assay
 validation or biological evidence.
 
+On 2026-07-26, calibration intake began exposing explicit `SYNTHETIC` labels
+by result ID. Synthetic records remain usable for demonstrations and audit, but
+the recalibration gate now fails closed even when cohort, control, join, and
+metric rules pass. Unclassified records are not inferred to be real wet-lab
+evidence. This enforces the existing synthetic-data policy and does not create
+wet-lab evidence.
+
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
 live status page. Select the next bottleneck from

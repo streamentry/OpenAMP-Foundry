@@ -25,6 +25,10 @@ recalibration policy.
   Supplying `--raw-data-dir` enables independent verification for records with
   `raw_data_file`; missing files, path escape, and mismatches become structured
   input-integrity blockers.
+- Intake reports classify explicit `SYNTHETIC` labels by result ID. This keeps
+  demonstration provenance visible while the recalibration gate fails closed
+  whenever any synthetic-labeled result is present; unlabeled records remain
+  `unclassified`, not asserted real.
 
 ## Diagrams (Mermaid)
 
@@ -40,6 +44,7 @@ flowchart TD
   Intake -->|certificate hash mismatch/partial coverage| CertBlock["Blocked certificate-identity report"]
   Intake -->|raw_data_sha256 coverage| Provenance["Explicit non-blocking provenance status"]
   Intake -->|optional raw-data verification| RawBlock["File identity blocker on mismatch"]
+  Intake -->|synthetic labels| SyntheticBlock["Synthetic-origin blocker"]
   Intake -->|clean input| Gate["Recalibration gate"]
   Gate --> Human["Human decision record"]
 ```
@@ -66,3 +71,5 @@ cohort metrics, while still blocking recalibration.
 Lab results whose candidate IDs are absent from the submitted panel are retained
 as orphan provenance but block clean intake because they cannot be joined to a
 prior prediction; they must not silently inflate the result directory's evidence.
+Synthetic-labeled results remain available for demonstrations and audit, but
+they block the recalibration gate even when cohort, control, and join checks pass.

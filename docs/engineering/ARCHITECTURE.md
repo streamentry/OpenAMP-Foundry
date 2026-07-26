@@ -130,6 +130,10 @@ The loader also validates `assay_date` as a real, canonical `YYYY-MM-DD`
 calendar date because the generic JSON Schema helper does not enforce format
 annotations. Invalid dates remain structured file errors and cannot enter
 sorted reports or calibration metrics.
+Intake reports also classify explicit `SYNTHETIC` labels by result ID. These
+records remain available for demonstrations and audit, but the recalibration
+gate fails closed when any synthetic-labeled result is present. Unclassified
+records are not inferred to be real wet-lab evidence.
 Results whose candidate IDs are absent from the submitted calibration panel are
 retained as orphan provenance but block clean intake because they cannot be
 joined to prior predictions. This prevents a broader result directory from

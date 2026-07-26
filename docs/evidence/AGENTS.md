@@ -27,6 +27,9 @@ Gate workflows are structural review controls, never biological proof.
 - Impossible or non-canonical lab-result `assay_date` values remain structured
   invalid-file evidence and cannot support downstream metrics; this is temporal
   input integrity, not assay validation.
+- Intake reports classify explicit `SYNTHETIC` labels by result ID. Synthetic
+  records remain audit-visible but force the recalibration gate to fail closed;
+  unclassified records are not asserted to be real wet-lab evidence.
 
 ## Diagrams (Mermaid)
 

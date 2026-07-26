@@ -808,6 +808,8 @@ def _run_recalibration_gate(args: argparse.Namespace) -> int:
         "n_lab_results": verdict.n_lab_results,
         "n_invalid_lab_result_files": verdict.n_invalid_lab_result_files,
         "n_input_integrity_issues": verdict.n_input_integrity_issues,
+        "n_synthetic_lab_results": verdict.n_synthetic_lab_results,
+        "synthetic_lab_result_ids": list(verdict.synthetic_lab_result_ids),
         "n_matched_candidates": verdict.n_matched_candidates,
         "rule_results": [
             {"rule_id": r.rule_id, "passed": r.passed, "observed": r.observed,
@@ -887,6 +889,12 @@ def _run_recalibration_engine(args: argparse.Namespace) -> int:
         reviewer_artefact_status=(),
         reasons=tuple(gate_data.get("reasons", [])),
         summary=gate_data.get("summary", ""),
+        n_invalid_lab_result_files=gate_data.get("n_invalid_lab_result_files", 0),
+        n_input_integrity_issues=gate_data.get("n_input_integrity_issues", 0),
+        n_synthetic_lab_results=gate_data.get("n_synthetic_lab_results", 0),
+        synthetic_lab_result_ids=tuple(
+            gate_data.get("synthetic_lab_result_ids", [])
+        ),
     )
 
     from openamp_foundry.reports.recalibration_report import (

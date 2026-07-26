@@ -432,6 +432,23 @@ def test_gate_accepts_passing_report():
         assert r.passed, f"rule {r.rule_id} unexpectedly failed: {r.reason}"
 
 
+def test_gate_rejects_synthetic_results_even_when_all_rules_pass():
+    p = load_recalibration_policy(POLICY_PATH)
+    report = _passing_intake_report(3, 3)
+    report["data_origin"] = {
+        "status": "synthetic_present",
+        "n_synthetic_results": 1,
+        "synthetic_result_ids": ["RES-SYN-001"],
+    }
+
+    v = evaluate_recalibration_gate(report, p)
+
+    assert v.may_recalibrate is False
+    assert v.n_synthetic_lab_results == 1
+    assert v.synthetic_lab_result_ids == ("RES-SYN-001",)
+    assert any("SYNTHETIC_RESULTS" in reason for reason in v.reasons)
+
+
 def test_gate_detects_failed_positive_control():
     p = load_recalibration_policy(POLICY_PATH)
     report = _passing_intake_report(3, 3)
@@ -763,6 +780,14 @@ def test_cli_recalibration_gate_smoke():
     assert payload["status"] == "ok"
     assert payload["may_recalibrate"] is False
     assert payload["policy_version"] == 1
+    assert payload["n_synthetic_lab_results"] == 5
+    assert payload["synthetic_lab_result_ids"] == [
+        "RES-SYN-001",
+        "RES-SYN-002",
+        "RES-SYN-003",
+        "RES-SYN-004",
+        "RES-SYN-005",
+    ]
 
 
 def test_cli_recalibration_gate_missing_intake(tmp_path):

@@ -106,6 +106,8 @@ class GateVerdict:
     summary: str
     n_invalid_lab_result_files: int = 0
     n_input_integrity_issues: int = 0
+    n_synthetic_lab_results: int = 0
+    synthetic_lab_result_ids: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serialisable dict representation."""
@@ -120,6 +122,8 @@ class GateVerdict:
             "n_lab_results": self.n_lab_results,
             "n_invalid_lab_result_files": self.n_invalid_lab_result_files,
             "n_input_integrity_issues": self.n_input_integrity_issues,
+            "n_synthetic_lab_results": self.n_synthetic_lab_results,
+            "synthetic_lab_result_ids": list(self.synthetic_lab_result_ids),
             "rule_results": [asdict(r) for r in self.rule_results],
             "prohibited_action_audit": [asdict(a) for a in self.prohibited_action_audit],
             "rate_limit_status": [asdict(s) for s in self.rate_limit_status],
@@ -546,10 +550,27 @@ def evaluate_recalibration_gate(
     n_input_integrity_issues = (
         len(input_integrity_entries) if isinstance(input_integrity_entries, list) else 1
     )
+    data_origin = intake_report.get("data_origin", {}) or {}
+    if not isinstance(data_origin, dict):
+        data_origin = {}
+    synthetic_result_ids_raw = data_origin.get("synthetic_result_ids", [])
+    synthetic_result_ids = tuple(
+        sorted(str(result_id) for result_id in synthetic_result_ids_raw)
+    ) if isinstance(synthetic_result_ids_raw, list) else ("<malformed-origin-record>",)
+    try:
+        declared_synthetic_results = int(
+            data_origin.get("n_synthetic_results", 0) or 0
+        )
+    except (TypeError, ValueError):
+        declared_synthetic_results = 1
+    n_synthetic_lab_results = max(
+        len(synthetic_result_ids), declared_synthetic_results
+    )
     may_recalibrate = (
         len(failed_rules) == 0
         and n_invalid_lab_result_files == 0
         and n_input_integrity_issues == 0
+        and n_synthetic_lab_results == 0
     )
 
     reasons: list[str] = []
@@ -566,6 +587,12 @@ def evaluate_recalibration_gate(
             "INPUT_INTEGRITY: "
             f"{n_input_integrity_issues} input-integrity issue(s) were "
             "detected; recalibration is forbidden until the input set is clean"
+        )
+    if n_synthetic_lab_results:
+        reasons.append(
+            "SYNTHETIC_RESULTS: "
+            f"{n_synthetic_lab_results} synthetic-labeled result(s) were "
+            "detected; synthetic data cannot influence recalibration"
         )
     for s in rate_status:
         if s.status == "exceeded":
@@ -604,6 +631,8 @@ def evaluate_recalibration_gate(
         summary=summary,
         n_invalid_lab_result_files=n_invalid_lab_result_files,
         n_input_integrity_issues=n_input_integrity_issues,
+        n_synthetic_lab_results=n_synthetic_lab_results,
+        synthetic_lab_result_ids=synthetic_result_ids,
     )
 
 
@@ -662,6 +691,7 @@ def write_gate_verdict_markdown(
         f"- Invalid lab result files: {verdict.n_invalid_lab_result_files}"
     )
     lines.append(f"- Input integrity issues: {verdict.n_input_integrity_issues}")
+    lines.append(f"- Synthetic lab results: {verdict.n_synthetic_lab_results}")
     lines.append(f"- Matched candidates: {verdict.n_matched_candidates}")
     lines.append("")
     lines.append("## Minimum conditions")

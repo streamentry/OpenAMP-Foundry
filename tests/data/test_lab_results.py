@@ -22,6 +22,7 @@ from openamp_foundry.data.lab_results import (
     load_lab_results_dir,
     load_lab_results_dir_with_errors,
     summarise_candidate_outcomes,
+    summarise_data_origin,
     summarise_lab_results,
     summarise_raw_data_provenance,
     validate_lab_results_directory,
@@ -221,6 +222,7 @@ class TestRawDataProvenance:
         assert provenance["result_ids_without_raw_data_sha256"] == ["RES-001"]
         assert "not an independently verified" in provenance["disclaimer"]
 
+
     def test_partial_hash_coverage_is_visible(self):
         results = [
             _valid_result(result_id="R1", raw_data_sha256="a" * 64),
@@ -279,6 +281,30 @@ class TestRawDataProvenance:
 
         assert provenance["verification_status"] == "blocked_on_verification"
         assert provenance["verification_issues"][0]["kind"] == expected_kind
+
+
+class TestDataOrigin:
+    def test_empty_results_have_explicit_status(self):
+        origin = summarise_data_origin([])
+        assert origin["status"] == "no_results"
+        assert origin["n_synthetic_results"] == 0
+
+    def test_synthetic_labels_are_retained_by_result_id(self):
+        origin = summarise_data_origin(
+            [
+                _valid_result(result_id="SYN-001", notes="SYNTHETIC TEST DATA"),
+                _valid_result(result_id="REAL-001"),
+            ]
+        )
+        assert origin["status"] == "synthetic_present"
+        assert origin["synthetic_result_ids"] == ["SYN-001"]
+        assert origin["n_unclassified_results"] == 1
+
+    def test_unlabelled_records_are_not_called_real(self):
+        origin = summarise_data_origin([_valid_result()])
+        assert origin["status"] == "unclassified"
+        assert origin["n_synthetic_results"] == 0
+        assert "not independently verified" in origin["disclaimer"]
 
 
 class TestCandidateResultMap:

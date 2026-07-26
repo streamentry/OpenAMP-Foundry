@@ -114,6 +114,10 @@ If these docs conflict, safety and claim discipline win.
   calendar dates after schema validation. Impossible or non-canonical dates are
   retained as structured invalid-file errors and cannot enter reports or
   metrics; this is temporal input integrity, not assay validation.
+- Intake reports classify explicit `SYNTHETIC` labels by result ID. Those
+  records remain usable for demonstrations and audit, but the recalibration
+  gate fails closed when any synthetic-labeled result is present. Unclassified
+  records are not silently asserted to be real wet-lab evidence.
 - The Phase R scientific-review readiness gate is available through
   `scientific-review-readiness-check` and
   `make scientific-review-readiness-check`; only a

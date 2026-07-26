@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-07-26 (Phase AB claim-integrity gate workflow; benchmark values unchanged)
+> **Last updated:** 2026-07-26 (synthetic-result recalibration hard stop; benchmark values unchanged)
 
 > **Current verification note (2026-07-26):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -94,13 +94,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > outcome can now be checked against the exact frozen PilotEvidencePackage JSON
 > with `--package-json`. The command fails closed when `pep_sha256` is missing,
 > malformed, or mismatched. This proves package identity only; it does not
-> does not authenticate reviewers, establish reviewer independence, validate science, or
+> authenticate reviewers, establish reviewer independence, validate science, or
 > establish biological activity.
 >
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,341 tests; this artifact does not establish
+> collection succeeds at 12,384 tests; this artifact does not establish
 > biological validation or benchmark improvement.
 
 > **Phase Y accountability note (2026-07-25):** The YAG- baseline-vs-pipeline
@@ -109,6 +109,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > SDA-, and PMC- artifact IDs are present. This checks review-surface
 > completeness only; it does not establish baseline superiority, biological
 > validity, or external pilot readiness.
+
+> **Synthetic-result recalibration boundary (2026-07-26):** Intake reports now
+> expose explicit `SYNTHETIC` labels by result ID. Such records remain usable
+> for demonstrations and audit, but the recalibration gate fails closed even
+> when cohort, control, join, and metric rules otherwise pass. Unclassified
+> records are not asserted to be real wet-lab evidence. This enforces the
+> existing synthetic-data policy; it does not create wet-lab evidence.
 
 ## Changelog
 

@@ -74,6 +74,25 @@ def test_external_review_package_identity_boundary_is_documented():
         )
 
 
+def test_synthetic_result_recalibration_boundary_is_documented():
+    roadmap = (ROOT / "docs/research/ROADMAP.md").read_text()
+    metrics = (ROOT / "docs/evidence/METRICS_CURRENT.md").read_text()
+    policy = (ROOT / "docs/evidence/CALIBRATION_POLICY.md").read_text()
+    skill = (ROOT / "SKILL.md").read_text()
+
+    for text in (roadmap, metrics, policy, skill):
+        assert "SYNTHETIC" in text
+        assert "recalibration gate" in text
+        assert any(
+            phrase in text
+            for phrase in (
+                "not asserted to be real",
+                "not inferred to be real",
+                "does not infer that they are real",
+            )
+        )
+
+
 def test_phase_gate_make_targets_use_the_repository_python_fallback():
     makefile = (ROOT / "Makefile").read_text()
 

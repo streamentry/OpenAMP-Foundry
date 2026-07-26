@@ -23,6 +23,9 @@ gate behavior, and the synthetic end-to-end calibration loop.
   Legacy panels without that column remain explicitly unverified.
 - Control-failed assay observations remain visible but cannot contribute to
   per-assay cohort metrics; tests must preserve this fail-closed boundary.
+- Explicit `SYNTHETIC` result labels must remain visible in intake provenance
+  and must force the recalibration verdict to false even when all quantitative
+  gate rules pass.
 
 ## Diagrams (Mermaid)
 
@@ -75,6 +78,7 @@ stateDiagram-v2
   IdentityBlocked --> [*]: report written, exit 3, no recalibration
   OrphanBlocked --> [*]: report written, exit 3, no recalibration
   CertificateBlocked --> [*]: report written, exit 3, no recalibration
+  SyntheticBlocked --> [*]: gate verdict false, no recalibration
   InputValidated --> Gate: evaluate policy
   Gate --> [*]: human-reviewed verdict
 ```

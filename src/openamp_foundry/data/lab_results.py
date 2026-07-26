@@ -21,6 +21,54 @@ from openamp_foundry.evidence.schemas import validate_json_schema
 LAB_RESULT_SCHEMA = Path(__file__).parent.parent.parent.parent / "schemas" / "lab_result.schema.json"
 
 
+def _contains_synthetic_label(value: Any) -> bool:
+    """Return whether a result field explicitly labels the record synthetic."""
+    return "synthetic" in str(value or "").casefold()
+
+
+def summarise_data_origin(results: list[dict[str, Any]]) -> dict[str, Any]:
+    """Expose synthetic-result provenance without inferring real validation.
+
+    The lab-result schema predates an explicit origin enum, so this helper uses
+    the repository's required synthetic labels as a conservative audit signal.
+    An unlabeled record is reported as ``unclassified`` rather than silently
+    upgraded to real wet-lab evidence.
+    """
+    synthetic_result_ids = sorted(
+        result["result_id"]
+        for result in results
+        if any(
+            _contains_synthetic_label(result.get(field))
+            for field in (
+                "candidate_id",
+                "organism_or_cell_line",
+                "performed_by_lab",
+                "notes",
+                "disclaimer",
+            )
+        )
+    )
+    if not results:
+        status = "no_results"
+    elif synthetic_result_ids:
+        status = "synthetic_present"
+    else:
+        status = "unclassified"
+
+    return {
+        "status": status,
+        "n_results": len(results),
+        "n_synthetic_results": len(synthetic_result_ids),
+        "synthetic_result_ids": synthetic_result_ids,
+        "n_unclassified_results": len(results) - len(synthetic_result_ids),
+        "disclaimer": (
+            "Synthetic labels are surfaced as audit provenance and block "
+            "recalibration. Unclassified records are not independently "
+            "verified as real wet-lab evidence."
+        ),
+    }
+
+
 def load_lab_result(path: str | Path) -> dict[str, Any]:
     """Load and validate a single lab result JSON file.
 

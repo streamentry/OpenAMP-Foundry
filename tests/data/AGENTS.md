@@ -3,7 +3,8 @@
 ## Overview
 
 Tests protect schema and canonical calendar-date validation, ordering, summaries,
-and retained invalid-file provenance for result ingestion.
+  retained invalid-file provenance, and explicit synthetic-origin summaries for
+  result ingestion.
 
 ## Key Components
 
