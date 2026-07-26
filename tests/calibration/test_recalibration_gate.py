@@ -449,6 +449,17 @@ def test_gate_rejects_synthetic_results_even_when_all_rules_pass():
     assert any("SYNTHETIC_RESULTS" in reason for reason in v.reasons)
 
 
+def test_gate_fails_closed_on_negative_synthetic_count():
+    p = load_recalibration_policy(POLICY_PATH)
+    report = _passing_intake_report(3, 3)
+    report["data_origin"] = {"n_synthetic_results": -1}
+
+    v = evaluate_recalibration_gate(report, p)
+
+    assert v.may_recalibrate is False
+    assert v.n_synthetic_lab_results == 1
+
+
 def test_gate_detects_failed_positive_control():
     p = load_recalibration_policy(POLICY_PATH)
     report = _passing_intake_report(3, 3)

@@ -563,6 +563,8 @@ def evaluate_recalibration_gate(
         )
     except (TypeError, ValueError):
         declared_synthetic_results = 1
+    if declared_synthetic_results < 0:
+        declared_synthetic_results = 1
     n_synthetic_lab_results = max(
         len(synthetic_result_ids), declared_synthetic_results
     )
