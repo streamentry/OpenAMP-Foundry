@@ -14,6 +14,9 @@ under test. Benchmark-specific checks live in `tests/benchmarks/`.
 - `novelty/`: novelty scoring and novelty-pressure tests.
 - `release/`: release artifact and reproducibility tests.
 - `waves/`: wave-program gate and panel-contract tests.
+- `test_pipeline_dry_run_e2e.py`: API-compatible toy smoke test from FASTA export
+  through evidence, release, and changelog artifacts; it must use the current
+  public builders and dataclasses rather than inventing compatibility fields.
 - remaining top-level tests: package, CLI, scoring, selection, calibration, and
   evidence coverage awaiting further taxonomy work.
 - CLI gate tests must assert both the successful verdict and the fail-closed
@@ -35,8 +38,10 @@ flowchart TD
   Change["Code or docs change"] --> TestSel["Select relevant tests"]
   TestSel --> Bench["tests/benchmarks"]
   TestSel --> Domain["other domain tests"]
+  TestSel --> E2E["dry-run API smoke test"]
   Bench --> Verdict["pass/fail evidence"]
   Domain --> Verdict
+  E2E --> Verdict
 ```
 
 - Component Diagram
@@ -47,6 +52,7 @@ flowchart LR
   Tests --> DomainTests["other test modules"]
   BenchmarkTests --> BenchScripts["scripts/benchmarks"]
   DomainTests --> Src["src/openamp_foundry"]
+  E2ETests["dry-run e2e"] --> Src
 ```
 
 - Sequence Diagram

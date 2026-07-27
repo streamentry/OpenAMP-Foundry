@@ -74,6 +74,9 @@ If these docs conflict, safety and claim discipline win.
   `docs/evidence/METRICS_CURRENT.md` is checked by
   `tests/test_current_state_alignment.py`; intentional test additions or
   removals must update that source-of-truth note.
+- The toy end-to-end smoke path in `tests/test_pipeline_dry_run_e2e.py` must
+  consume the current public artifact builders and dataclasses. It is an API
+  compatibility check only and does not create biological evidence.
 - The Phase E ERP example and validator retain an explicitly legacy compatibility
   bridge; new packet work must use the component-based V4 ERP API.
 - Lab-result directory loading remains warning-compatible for legacy callers, but

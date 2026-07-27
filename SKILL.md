@@ -19,6 +19,9 @@ qualified lab evidence.
   honesty checks and regression entrypoints.
 - `src/openamp_foundry/calibration/`: lab-result intake, gate, and proposal-only
   recalibration.
+- `tests/test_pipeline_dry_run_e2e.py`: toy-only end-to-end smoke test that
+  exercises the current public artifact APIs without external calls or lab
+  claims.
 
 ## Diagrams
 
