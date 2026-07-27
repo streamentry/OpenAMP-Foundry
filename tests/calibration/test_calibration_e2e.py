@@ -100,9 +100,17 @@ def _lab_result(
     result_qualitative: str = "active",
     positive_control_passed: bool = True,
     negative_control_passed: bool = True,
-    organism: str = "SYNTHETIC - E. coli ATCC 25922",
+    organism: str | None = None,
+    explicitly_synthetic: bool = False,
     result_id: str | None = None,
 ) -> dict:
+    if organism is None:
+        organism = (
+            "SYNTHETIC - E. coli ATCC 25922"
+            if explicitly_synthetic
+            else "TEST FIXTURE - E. coli ATCC 25922"
+        )
+    provenance_label = "SYNTHETIC" if explicitly_synthetic else "TEST FIXTURE"
     return {
         "result_id": result_id or f"RES-{candidate_id}",
         "candidate_id": candidate_id,
@@ -117,12 +125,12 @@ def _lab_result(
         "negative_control_id": "PBS",
         "assay_date": "2026-07-05",
         "replicate_count": 3,
-        "performed_by_lab": "SYNTHETIC - E2E Test",
+        "performed_by_lab": f"{provenance_label} - E2E Test",
         "raw_data_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "computational_candidate_certificate_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-        "notes": "SYNTHETIC DATA - e2e test",
+        "notes": f"{provenance_label} DATA - e2e test",
         "disclaimer": (
-            "SYNTHETIC TEST. This is not a real experimental result "
+            f"{provenance_label} ONLY. This is not a real experimental result "
             "and does not constitute a drug or clinical claim."
         ),
     }
@@ -1212,14 +1220,13 @@ class TestFullCalibrationLoop:
         assert "may_recalibrate" in gate_data
         assert "reasons" in gate_data or "summary" in gate_data
 
-        # ── Step 4: Compute weight proposal (dry-run) ──────────────────
-        # The engine CLI reads intake + gate verdict and writes a proposal.
-        # Pre-compute engine inputs via Python API since the CLI expects
-        # pre-existing intake + gate files already on disk
+        # ── Step 4: Attempt weight proposal, and require the safety stop ──
+        # Synthetic results may exercise the code path but must never reach
+        # the recalibration engine. The engine must refuse before writing a
+        # proposal, even when the quantitative gate conditions look usable.
         from openamp_foundry.calibration import (
             compute_weight_update,
             load_recalibration_policy,
-            write_weight_update_proposal_json,
         )
 
         policy = load_recalibration_policy(Path(self.POLICY))
@@ -1244,21 +1251,17 @@ class TestFullCalibrationLoop:
             project_root=self.REPO_ROOT,
         )
 
-        proposal = compute_weight_update(
-            intake_report=intake_data,
-            gate_verdict=gate_verdict,
-            current_weights=current_weights,
-            policy_l1_budget=l1_budget,
-        )
+        with pytest.raises(PolicyViolationError, match="SYNTHETIC_RESULTS"):
+            compute_weight_update(
+                intake_report=intake_data,
+                gate_verdict=gate_verdict,
+                current_weights=current_weights,
+                policy_l1_budget=l1_budget,
+            )
         proposal_json = tmp_path / "weight_proposal.json"
-        write_weight_update_proposal_json(proposal, proposal_json)
-        assert proposal_json.exists()
-        prop_data = json.loads(proposal_json.read_text())
-        assert "deltas" in prop_data
-        assert "l1_total" in prop_data
-        assert "l1_budget" in prop_data
-        assert prop_data["l1_within_budget"] is not None
-        assert len(prop_data["deltas"]) > 0
+        assert not proposal_json.exists(), (
+            "A synthetic intake must not produce a recalibration proposal"
+        )
 
         # ── Step 5: Select batch-2 candidates ──────────────────────────
         batch_2_json = tmp_path / "batch_2_manifest.json"
@@ -1290,12 +1293,11 @@ class TestFullCalibrationLoop:
         assert len(manifest["selected"]) <= 5  # at most n requested
         assert "probes_in_top_n" in manifest
 
-        # ── Summary assertion: all 5 artifacts exist ───────────────────
+        # ── Summary assertion: blocked-loop artifacts exist ─────────────
         artifacts = [
             ("synthetic lab results", gen_files[0].parent if gen_files else results_dir),
             ("intake_report.json", intake_json),
             ("gate_verdict.json", gate_json),
-            ("weight_proposal.json", proposal_json),
             ("batch_2_manifest.json", batch_2_json),
         ]
         for label, path in artifacts:

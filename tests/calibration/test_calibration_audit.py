@@ -21,6 +21,9 @@ Honest limitation:
 from __future__ import annotations
 
 import json
+import os
+import subprocess
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -34,8 +37,8 @@ from openamp_foundry.calibration.audit import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = REPO_ROOT / "schemas" / "calibration_audit.schema.json"
-SYNTHETIC_INTAKE = REPO_ROOT / "outputs" / "calibration_intake_example.json"
-SYNTHETIC_GATE = REPO_ROOT / "outputs" / "recalibration_gate_example.json"
+EXAMPLES_PANEL = REPO_ROOT / "examples" / "lab_results_panel.csv"
+EXAMPLES_RESULTS_DIR = REPO_ROOT / "examples" / "lab_results"
 
 
 # ── Fixtures ───────────────────────────────────────────────────────
@@ -101,6 +104,66 @@ def base_report() -> dict:
             "notes": ["test only"],
         },
     }
+
+
+@pytest.fixture
+def generated_synthetic_artifacts(tmp_path):
+    """Generate synthetic CLI artifacts inside the test's temporary directory.
+
+    The repository intentionally does not track generated files under
+    ``outputs/``. Keeping this fixture self-contained prevents the audit tests
+    from depending on a prior Make target invocation.
+    """
+    env = {**os.environ, "PYTHONPATH": str(REPO_ROOT / "src")}
+    intake_path = tmp_path / "calibration_intake_example.json"
+    gate_path = tmp_path / "recalibration_gate_example.json"
+
+    intake_proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "openamp_foundry.cli",
+            "calibration-intake",
+            "--panel",
+            str(EXAMPLES_PANEL),
+            "--results-dir",
+            str(EXAMPLES_RESULTS_DIR),
+            "--out-json",
+            str(intake_path),
+        ],
+        cwd=str(REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=60,
+    )
+    assert intake_proc.returncode == 0, intake_proc.stdout + intake_proc.stderr
+
+    gate_proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "openamp_foundry.cli",
+            "recalibration-gate",
+            "--intake-report",
+            str(intake_path),
+            "--intake-report-date",
+            "2026-07-04",
+            "--project-root",
+            str(REPO_ROOT),
+            "--out-json",
+            str(gate_path),
+        ],
+        cwd=str(REPO_ROOT),
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=60,
+    )
+    assert gate_proc.returncode == 3, gate_proc.stdout + gate_proc.stderr
+    return intake_path, gate_path
 
 
 # ── No-artifact edge cases ────────────────────────────────────────
@@ -371,11 +434,12 @@ def test_markdown_writer_non_empty(tmp_path):
 # ── Full synthetic example ─────────────────────────────────────────
 
 
-def test_synthetic_example_intake_and_gate_consistent():
+def test_synthetic_example_intake_and_gate_consistent(generated_synthetic_artifacts):
     """The synthetic intake and gate examples should be internally consistent."""
-    with open(SYNTHETIC_INTAKE) as f:
+    intake_path, gate_path = generated_synthetic_artifacts
+    with open(intake_path) as f:
         intake = json.load(f)
-    with open(SYNTHETIC_GATE) as f:
+    with open(gate_path) as f:
         gate = json.load(f)
     result = run_calibration_audit(intake_data=intake, gate_data=gate)
     # Count-specific checks should pass
@@ -389,10 +453,11 @@ def test_synthetic_example_intake_and_gate_consistent():
 # ── Known artifact paths ───────────────────────────────────────────
 
 
-def test_synthetic_artifact_paths_exist():
-    """The synthetic example output files should exist on disk."""
-    assert SYNTHETIC_INTAKE.exists(), f"expected intake at {SYNTHETIC_INTAKE}"
-    assert SYNTHETIC_GATE.exists(), f"expected gate at {SYNTHETIC_GATE}"
+def test_synthetic_artifact_paths_exist(generated_synthetic_artifacts):
+    """The synthetic CLI run writes both audit input artifacts."""
+    intake_path, gate_path = generated_synthetic_artifacts
+    assert intake_path.exists(), f"expected intake at {intake_path}"
+    assert gate_path.exists(), f"expected gate at {gate_path}"
 
 
 # ── Engine without gate_passed field ───────────────────────────────

@@ -26,6 +26,10 @@ gate behavior, and the synthetic end-to-end calibration loop.
 - Explicit `SYNTHETIC` result labels must remain visible in intake provenance
   and must force the recalibration verdict to false even when all quantitative
   gate rules pass.
+- Happy-path API fixtures are deliberately test-only but provenance-
+  unclassified, so they can exercise the quantitative gate without pretending
+  that synthetic data is eligible for recalibration. The shipped examples and
+  explicit synthetic-label tests remain the fail-closed boundary.
 
 ## Diagrams (Mermaid)
 

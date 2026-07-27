@@ -27,7 +27,9 @@ make lab-result-intake-example
 
 This runs `openamp-foundry calibration-intake` against the synthetic panel
 `examples/lab_results_panel.csv` and the synthetic lab results in this
-directory. The output is written to `outputs/calibration_intake_example/`.
+directory. The output is written to
+`outputs/calibration_intake_example.json` and
+`outputs/calibration_intake_example.md`.
 
 ## When real lab data exists
 
