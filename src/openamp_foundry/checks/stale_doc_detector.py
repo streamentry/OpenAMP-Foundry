@@ -13,7 +13,7 @@ syntax `[text](url)`). This module finds bare path references in prose.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 _BACKTICK_PATH_RE = re.compile(
@@ -162,7 +162,7 @@ def format_stale_doc_report(report: StaleDocReport) -> str:
         "",
         f"  Docs scanned:          {report.total_docs_scanned}",
         f"  Total references:      {report.total_references_found}",
-        f"  Stale references:      {report.stale_references}",
+        f"  Stale count:           {report.stale_references}",
         "",
     ]
     if report.stale_entries:

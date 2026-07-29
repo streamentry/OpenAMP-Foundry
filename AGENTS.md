@@ -196,6 +196,7 @@ A rule that nothing can catch you breaking is a wish, not a contract. Wherever t
 | Ranking gates are respected | `make gate-check` · `make bench-gate` |
 | Outputs are reproducible | `make cert-quality-check` · `make full-reproducibility-report` |
 | Docs link where they claim | `make doc-links-check` |
+| Bare documentation paths remain current | `src/openamp_foundry/checks/stale_doc_detector.py` and its focused tests |
 | Deprecated benchmarks stay dead | `make bench-deprecation-check` |
 | Code is green and typed | `make ci` (lint + test) · `make coverage` · `make typecheck` |
 | Fast pre-PR bundle | `make agent-check` then `make doctor` |
