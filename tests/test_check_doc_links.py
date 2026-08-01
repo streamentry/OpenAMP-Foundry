@@ -1,5 +1,6 @@
 """Tests for the doc-link checker."""
-import subprocess, sys
+import subprocess
+import sys
 from scripts.check_doc_links import check_links
 
 
@@ -18,6 +19,18 @@ def test_checker_returns_count():
 def test_checker_broken_is_list():
     result = check_links()
     assert isinstance(result["broken"], list)
+
+
+def test_checker_rejects_file_label_pointing_to_directory(tmp_path):
+    docs = tmp_path / "docs"
+    guide = docs / "guide"
+    guide.mkdir(parents=True)
+    (guide / "README.md").write_text("[SAFETY.md](../)\n", encoding="utf-8")
+
+    result = check_links(str(docs))
+
+    assert result["count"] == 1
+    assert result["broken"][0]["reason"] == "file_label_points_to_directory"
 
 
 def test_checker_cli_exit_0():

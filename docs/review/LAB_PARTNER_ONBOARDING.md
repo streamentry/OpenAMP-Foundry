@@ -105,7 +105,7 @@ A panel summary may include:
 - known model blind spots;
 - release status.
 
-Full candidate identities or sequences should be released only according to [`MODEL_RELEASE_POLICY.md`](../), [`RESPONSIBLE_USE.md`](../), and safety review.
+Full candidate identities or sequences should be released only according to [`MODEL_RELEASE_POLICY.md`](../../MODEL_RELEASE_POLICY.md), [`RESPONSIBLE_USE.md`](../../RESPONSIBLE_USE.md), and safety review.
 
 ## Partner evaluation questions
 
@@ -203,9 +203,9 @@ Not allowed without much stronger evidence:
 
 All partner-facing work should follow:
 
-- [`SAFETY.md`](../)
-- [`RESPONSIBLE_USE.md`](../)
-- [`MODEL_RELEASE_POLICY.md`](../)
+- [`SAFETY.md`](../../SAFETY.md)
+- [`RESPONSIBLE_USE.md`](../../RESPONSIBLE_USE.md)
+- [`MODEL_RELEASE_POLICY.md`](../../MODEL_RELEASE_POLICY.md)
 - [`COLLABORATION_PLAYBOOK.md`](COLLABORATION_PLAYBOOK.md)
 - [`EXTERNAL_REVIEW_PACKET.md`](EXTERNAL_REVIEW_PACKET.md)
 

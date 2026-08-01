@@ -15,7 +15,7 @@ A good first run should produce clarity, not confidence.
 Read:
 
 - [`README.md`](../README.md)
-- [`SAFETY.md`](../)
+- [`SAFETY.md`](../../SAFETY.md)
 - [`docs/getting-started/COMMAND_SURFACE.md`](COMMAND_SURFACE.md)
 - [`docs/evidence/PROOF_LADDER.md`](../evidence/PROOF_LADDER.md)
 

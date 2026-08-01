@@ -280,7 +280,7 @@ Do not imply that a reviewer endorsed claims outside their review scope.
 - [`PRE_REGISTERED_PILOT_TEMPLATE.md`](PRE_REGISTERED_PILOT_TEMPLATE.md) — pilot planning template.
 - [`PROOF_LADDER.md`](../evidence/PROOF_LADDER.md) — claim levels.
 - [`BENCHMARK_GOVERNANCE.md`](../evidence/BENCHMARK_GOVERNANCE.md) — benchmark lifecycle.
-- [`MODEL_RELEASE_POLICY.md`](../) — release boundaries.
+- [`MODEL_RELEASE_POLICY.md`](../../MODEL_RELEASE_POLICY.md) — release boundaries.
 
 ## Final standard
 
