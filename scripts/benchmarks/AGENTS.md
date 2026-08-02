@@ -21,7 +21,7 @@ folder, this folder wins and compatibility wrappers should be updated.
 flowchart TD
   Inputs["Toy benchmark inputs"] --> Runner["Benchmark script"]
   Runner --> Metrics["JSON or console metrics"]
-  Metrics --> Docs["docs/METRICS_CURRENT.md"]
+  Metrics --> Docs["docs/evidence/METRICS_CURRENT.md"]
   Metrics --> Gates["CI / reviewer gate"]
 ```
 

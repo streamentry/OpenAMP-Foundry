@@ -33,3 +33,10 @@ def test_loop_prompt_does_not_reintroduce_retired_flat_doc_paths():
 
     for path in retired_paths:
         assert f"`{path}`" not in LOOP_PROMPT.split("These files replace")[0]
+
+
+def test_benchmark_agent_guide_points_to_canonical_metrics_doc():
+    benchmark_agent_guide = (ROOT / "scripts/benchmarks/AGENTS.md").read_text()
+
+    assert 'docs/evidence/METRICS_CURRENT.md' in benchmark_agent_guide
+    assert 'docs/METRICS_CURRENT.md' not in benchmark_agent_guide

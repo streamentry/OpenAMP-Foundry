@@ -100,7 +100,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,387 tests; the live count is enforced by the
+> collection succeeds at 12,388 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
 
