@@ -645,11 +645,11 @@ lab-batch-pack:
 
 generate-review-packet:
 	PYTHONPATH=src $(PYTHON) scripts/generate_review_packet.py \
+		--format v4 \
+		--erp-id ERP-DEMO-$(shell date -u +%Y%m%d) \
+		--batch-id BATCH-DEMO-$(shell date -u +%Y%m%d) \
 		--pipeline-version v0.5.73 \
-		--git-sha $$(git rev-parse HEAD) \
-		--candidate-count 36 \
-		--proof-ladder-level 2 \
-		--out outputs/review_packet_skeleton.json \
+		--out outputs/review_packet_v4.json \
 		--validate
 
 failed-candidate-report:

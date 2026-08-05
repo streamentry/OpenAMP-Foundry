@@ -17,6 +17,9 @@ claim boundaries, reproducibility metadata, and explicit negative findings.
   reviewer decisions, evidence gaps, and external handoff integrity.
 - `external_review_packet.py`: current V4 component-based review packet; its
   legacy Phase E bridge is migration-only.
+- `scripts/generate_review_packet.py --format v4`: canonical JSON generator for
+  that component packet. Its default legacy mode exists only for migration;
+  new workflows must use V4 and treat missing components as draft/incomplete.
 - `domain_review_outcome.py`: records reviewer outcomes. Use its package-aware
   validator when the frozen PEP JSON is available; `pep_sha256` binds the
   outcome to that exact JSON but does not authenticate the reviewer or prove

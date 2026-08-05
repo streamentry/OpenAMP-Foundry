@@ -4,8 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 from openamp_foundry.evidence.schemas import validate_json_schema
 
 _SCRIPTS_DIR = Path(__file__).parent.parent / "scripts"
@@ -20,6 +18,69 @@ def test_script_exists():
 
 
 class TestGenerateReviewPacketCLI:
+    def test_make_target_uses_canonical_v4_contract(self):
+        makefile = Path(__file__).parents[1] / "Makefile"
+        target = makefile.read_text(encoding="utf-8").split("generate-review-packet:", 1)[1]
+        target = target.split("\n\n", 1)[0]
+        assert "--format v4" in target
+        assert "review_packet_v4.json" in target
+        assert "review_packet_skeleton.json" not in target
+
+    def test_v4_generates_honest_draft_when_components_are_missing(self, tmp_path):
+        out = tmp_path / "packet-v4.json"
+        r = subprocess.run(
+            [
+                sys.executable,
+                str(GENERATE_SCRIPT),
+                "--format", "v4",
+                "--erp-id", "ERP-DEMO-001",
+                "--batch-id", "BATCH-DEMO-001",
+                "--pipeline-version", "v0.10.3",
+                "--created-at", "2026-08-05T00:00:00Z",
+                "--out", str(out),
+                "--validate",
+            ],
+            capture_output=True,
+            text=True,
+            env={"PYTHONPATH": "src"},
+        )
+        assert r.returncode == 0, f"stderr: {r.stderr}"
+        packet = json.loads(out.read_text(encoding="utf-8"))
+        assert packet["packet_status"] == "draft"
+        assert packet["n_components_present"] == 0
+        assert packet["missing_component_types"] == ["BRC", "ECI", "FET", "PTR", "SRS"]
+        assert packet["dry_lab_only"] is True
+        assert "V4 component packet is valid" in r.stdout
+
+    def test_v4_becomes_ready_only_when_all_component_references_exist(self, tmp_path):
+        out = tmp_path / "packet-v4-ready.json"
+        r = subprocess.run(
+            [
+                sys.executable,
+                str(GENERATE_SCRIPT),
+                "--format", "v4",
+                "--erp-id", "ERP-001",
+                "--batch-id", "BATCH-001",
+                "--pipeline-version", "v0.10.3",
+                "--brc-artifact-id", "BRC-001",
+                "--eci-artifact-id", "ECI-001",
+                "--fet-artifact-id", "FET-001",
+                "--ptr-artifact-id", "PTR-001",
+                "--srs-artifact-id", "SRS-001",
+                "--created-at", "2026-08-05T00:00:00Z",
+                "--out", str(out),
+                "--validate",
+            ],
+            capture_output=True,
+            text=True,
+            env={"PYTHONPATH": "src"},
+        )
+        assert r.returncode == 0, f"stderr: {r.stderr}"
+        packet = json.loads(out.read_text(encoding="utf-8"))
+        assert packet["packet_status"] == "ready"
+        assert packet["n_components_present"] == 5
+        assert packet["missing_component_types"] == []
+
     def test_generates_skeleton(self, tmp_path):
         out = tmp_path / "packet.json"
         r = subprocess.run(

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI script that generates a skeleton external review packet JSON.
+"""CLI script that generates an external review packet JSON.
 
 Usage:
     python scripts/generate_review_packet.py \\
@@ -10,18 +10,25 @@ Usage:
         --out OUTPUT.json \\
         [--validate]
 
-The output is a valid skeleton (empty candidates list, placeholder benchmark
-and calibration summaries, dry_lab_only_attestation=true) that validates
-against schemas/external_review_packet.schema.json.
+The default ``legacy`` format is retained for migration. New workflows should
+use ``--format v4`` to emit the canonical component-based ERP packet, whose
+status remains draft or incomplete until real artifact references are supplied.
 """
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+
+V4_DEFAULT_LIMITATIONS = [
+    "Computational outputs are hypotheses and review aids. They are not biological proof.",
+    "Component presence records packaging state only; it does not authenticate artifacts, reviewers, or science.",
+]
 
 
 def build_skeleton(
@@ -83,6 +90,78 @@ def build_skeleton(
     }
 
 
+def build_component_packet(
+    *,
+    erp_id: str,
+    batch_id: str,
+    pipeline_version: str,
+    brc_artifact_id: str = "",
+    eci_artifact_id: str = "",
+    fet_artifact_id: str = "",
+    ptr_artifact_id: str = "",
+    srs_artifact_id: str = "",
+    limitations: list[str] | None = None,
+    created_at: str | None = None,
+) -> dict[str, Any]:
+    """Build the canonical V4 component-based external review packet."""
+    from openamp_foundry.evidence.external_review_packet import (
+        build_external_review_packet,
+    )
+
+    packet = build_external_review_packet(
+        erp_id=erp_id,
+        batch_id=batch_id,
+        pipeline_version=pipeline_version,
+        brc_artifact_id=brc_artifact_id,
+        eci_artifact_id=eci_artifact_id,
+        fet_artifact_id=fet_artifact_id,
+        ptr_artifact_id=ptr_artifact_id,
+        srs_artifact_id=srs_artifact_id,
+        limitations=limitations or list(V4_DEFAULT_LIMITATIONS),
+        created_at=created_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    )
+    return {
+        "erp_id": packet.erp_id,
+        "batch_id": packet.batch_id,
+        "pipeline_version": packet.pipeline_version,
+        "components": [asdict(component) for component in packet.components],
+        "n_components_required": packet.n_components_required,
+        "n_components_present": packet.n_components_present,
+        "missing_component_types": packet.missing_component_types,
+        "packet_status": packet.packet_status,
+        "dry_lab_only": packet.dry_lab_only,
+        "limitations": packet.limitations,
+        "created_at": packet.created_at,
+    }
+
+
+def validate_component_packet(packet: dict[str, Any]) -> None:
+    """Validate a serialized V4 packet with the canonical Python contract."""
+    from openamp_foundry.evidence.external_review_packet import (
+        ExternalReviewPacket,
+        PacketComponent,
+        validate_external_review_packet,
+    )
+
+    try:
+        parsed = ExternalReviewPacket(
+            erp_id=packet["erp_id"],
+            batch_id=packet["batch_id"],
+            pipeline_version=packet["pipeline_version"],
+            components=[PacketComponent(**component) for component in packet["components"]],
+            n_components_required=packet["n_components_required"],
+            n_components_present=packet["n_components_present"],
+            missing_component_types=packet["missing_component_types"],
+            packet_status=packet["packet_status"],
+            dry_lab_only=packet["dry_lab_only"],
+            limitations=packet["limitations"],
+            created_at=packet["created_at"],
+        )
+    except (KeyError, TypeError) as exc:
+        raise ValueError(f"Malformed V4 component packet: {exc}") from exc
+    validate_external_review_packet(parsed)
+
+
 def validate_packet(
     packet: dict[str, Any],
     schema_path: Path,
@@ -113,7 +192,13 @@ def validate_packet(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Generate a skeleton external review packet JSON",
+        description="Generate a canonical V4 or legacy external review packet",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["v4", "legacy"],
+        default="legacy",
+        help="Packet contract to emit (default: legacy for compatibility).",
     )
     parser.add_argument(
         "--pipeline-version",
@@ -122,21 +207,38 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--git-sha",
-        required=True,
+        required=False,
         help="Git commit SHA of the pipeline code used",
     )
     parser.add_argument(
         "--candidate-count",
-        required=True,
+        required=False,
         type=int,
         help="Expected number of candidates in the packet",
     )
     parser.add_argument(
         "--proof-ladder-level",
-        required=True,
+        required=False,
         type=int,
         choices=[1, 2, 3, 4, 5, 6, 7, 8],
         help="Highest proof-ladder level (1-8, dry-lab max 2)",
+    )
+    parser.add_argument("--erp-id", help="Canonical V4 packet ID (ERP-...)")
+    parser.add_argument("--batch-id", help="Canonical V4 batch ID")
+    parser.add_argument("--brc-artifact-id", default="", help="BRC- artifact ID")
+    parser.add_argument("--eci-artifact-id", default="", help="ECI- artifact ID")
+    parser.add_argument("--fet-artifact-id", default="", help="FET- artifact ID")
+    parser.add_argument("--ptr-artifact-id", default="", help="PTR- artifact ID")
+    parser.add_argument("--srs-artifact-id", default="", help="SRS- artifact ID")
+    parser.add_argument(
+        "--limitation",
+        action="append",
+        dest="limitations",
+        help="Canonical V4 limitation (repeatable).",
+    )
+    parser.add_argument(
+        "--created-at",
+        help="Canonical V4 creation timestamp; defaults to current UTC time.",
     )
     parser.add_argument(
         "--out",
@@ -147,30 +249,57 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--validate",
         action="store_true",
-        help="Validate the generated skeleton against the E1 schema",
+        help="Validate the generated packet against its selected contract",
     )
     args = parser.parse_args(argv)
 
-    packet = build_skeleton(
-        pipeline_version=args.pipeline_version,
-        git_sha=args.git_sha,
-        candidate_count=args.candidate_count,
-        proof_ladder_level=args.proof_ladder_level,
-    )
+    if args.format == "v4":
+        if not args.erp_id or not args.batch_id:
+            parser.error("--format v4 requires --erp-id and --batch-id")
+        packet = build_component_packet(
+            erp_id=args.erp_id,
+            batch_id=args.batch_id,
+            pipeline_version=args.pipeline_version,
+            brc_artifact_id=args.brc_artifact_id,
+            eci_artifact_id=args.eci_artifact_id,
+            fet_artifact_id=args.fet_artifact_id,
+            ptr_artifact_id=args.ptr_artifact_id,
+            srs_artifact_id=args.srs_artifact_id,
+            limitations=args.limitations,
+            created_at=args.created_at,
+        )
+    else:
+        for argument_name in ("git_sha", "candidate_count", "proof_ladder_level"):
+            if getattr(args, argument_name) is None:
+                parser.error(f"legacy format requires --{argument_name.replace('_', '-')}")
+        packet = build_skeleton(
+            pipeline_version=args.pipeline_version,
+            git_sha=args.git_sha,
+            candidate_count=args.candidate_count,
+            proof_ladder_level=args.proof_ladder_level,
+        )
 
     if args.validate:
-        schema_path = Path(__file__).resolve().parent.parent / "schemas" / "external_review_packet.schema.json"
-        errors = validate_packet(packet, schema_path)
-        if errors:
-            print("VALIDATION FAILED:", file=sys.stderr)
-            for err in errors:
-                print(f"  - {err}", file=sys.stderr)
-            # Still write the output for inspection
+        if args.format == "v4":
+            try:
+                validate_component_packet(packet)
+            except ValueError as exc:
+                print(f"VALIDATION FAILED: {exc}", file=sys.stderr)
+            else:
+                print("Validation passed: V4 component packet is valid.")
         else:
-            print("Validation passed: skeleton is schema-valid.")
+            schema_path = Path(__file__).resolve().parent.parent / "schemas" / "external_review_packet.schema.json"
+            errors = validate_packet(packet, schema_path)
+            if errors:
+                print("VALIDATION FAILED:", file=sys.stderr)
+                for err in errors:
+                    print(f"  - {err}", file=sys.stderr)
+                # Still write the output for inspection
+            else:
+                print("Validation passed: legacy skeleton is schema-valid.")
 
     args.out.write_text(json.dumps(packet, indent=2, ensure_ascii=False))
-    print(f"Wrote skeleton review packet to {args.out}")
+    print(f"Wrote {args.format} review packet to {args.out}")
     return 0
 
 

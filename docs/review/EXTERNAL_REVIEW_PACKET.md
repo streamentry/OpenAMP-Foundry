@@ -187,8 +187,30 @@ repo_commit: git-sha
 pipeline_version: version
 claim_level: proof-ladder-level
 review_status: draft | sent | reviewed | revised | archived
-  safety_status: not-reviewed | reviewed | staged-release | restricted | rejected
+safety_status: not-reviewed | reviewed | staged-release | restricted | rejected
 ```
+
+## Canonical machine-readable packet
+
+The current ERP contract is the V4 component-based packet. Generate it with:
+
+```bash
+PYTHONPATH=src python scripts/generate_review_packet.py \
+  --format v4 \
+  --erp-id ERP-EXAMPLE-001 \
+  --batch-id BATCH-EXAMPLE-001 \
+  --pipeline-version v0.10.3 \
+  --out outputs/review_packet_v4.json \
+  --validate
+```
+
+The packet reports `draft`, `incomplete`, or `ready` from the presence of the
+five required artifact references (BRC, ECI, FET, PTR, and SRS). Presence is
+only packaging evidence: it does not authenticate the referenced artifacts,
+reviewers, science, or biological validation. The checked-in
+`make generate-review-packet` example intentionally emits a draft with no
+artifact references. The legacy placeholder generator remains available only
+with `--format legacy` for migration compatibility.
 
 When a reviewer outcome is recorded against a frozen PilotEvidencePackage JSON,
 include `pep_sha256`, the SHA-256 of that exact canonical JSON object. Run:
