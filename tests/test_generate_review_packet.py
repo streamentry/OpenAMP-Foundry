@@ -144,6 +144,27 @@ class TestGenerateReviewPacketCLI:
         assert r.returncode == 0
         assert "Validation passed" in r.stdout
 
+    def test_legacy_validation_failure_exits_nonzero_and_keeps_output(self, tmp_path):
+        out = tmp_path / "invalid-legacy.json"
+        r = subprocess.run(
+            [
+                sys.executable,
+                str(GENERATE_SCRIPT),
+                "--pipeline-version", "v0.5.73",
+                "--git-sha", "deadbeef",
+                "--candidate-count", "-1",
+                "--proof-ladder-level", "2",
+                "--out", str(out),
+                "--validate",
+            ],
+            capture_output=True,
+            text=True,
+            env={"PYTHONPATH": "src"},
+        )
+        assert r.returncode != 0
+        assert "VALIDATION FAILED" in r.stderr
+        assert out.exists()
+
     def test_skeleton_has_required_fields(self, tmp_path):
         out = tmp_path / "packet.json"
         r = subprocess.run(

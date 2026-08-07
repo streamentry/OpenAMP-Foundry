@@ -203,6 +203,11 @@ def test_validate_rejects_bad_erp_id_prefix():
         _build(erp_id="BAD-001")
 
 
+def test_validate_rejects_artifact_id_with_wrong_component_prefix():
+    with pytest.raises(ValueError, match="BRC artifact_id"):
+        _build(brc_artifact_id="BAD-001")
+
+
 def test_validate_rejects_empty_batch_id():
     with pytest.raises(ValueError):
         _build(batch_id="")

@@ -212,6 +212,14 @@ reviewers, science, or biological validation. The checked-in
 artifact references. The legacy placeholder generator remains available only
 with `--format legacy` for migration compatibility.
 
+Each present reference must use the corresponding artifact prefix (`BRC-`,
+`ECI-`, `FET-`, `PTR-`, or `SRS-`); malformed or cross-typed IDs are rejected.
+
+When `--validate` is supplied, an invalid packet is still written for
+inspection but the command exits nonzero. A zero exit therefore means only
+that the selected packet contract validated; it does not establish review
+readiness or biological evidence.
+
 When a reviewer outcome is recorded against a frozen PilotEvidencePackage JSON,
 include `pep_sha256`, the SHA-256 of that exact canonical JSON object. Run:
 

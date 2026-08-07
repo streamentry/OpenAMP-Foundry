@@ -279,11 +279,13 @@ def main(argv: list[str] | None = None) -> int:
             proof_ladder_level=args.proof_ladder_level,
         )
 
+    validation_failed = False
     if args.validate:
         if args.format == "v4":
             try:
                 validate_component_packet(packet)
             except ValueError as exc:
+                validation_failed = True
                 print(f"VALIDATION FAILED: {exc}", file=sys.stderr)
             else:
                 print("Validation passed: V4 component packet is valid.")
@@ -291,6 +293,7 @@ def main(argv: list[str] | None = None) -> int:
             schema_path = Path(__file__).resolve().parent.parent / "schemas" / "external_review_packet.schema.json"
             errors = validate_packet(packet, schema_path)
             if errors:
+                validation_failed = True
                 print("VALIDATION FAILED:", file=sys.stderr)
                 for err in errors:
                     print(f"  - {err}", file=sys.stderr)
@@ -300,7 +303,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args.out.write_text(json.dumps(packet, indent=2, ensure_ascii=False))
     print(f"Wrote {args.format} review packet to {args.out}")
-    return 0
+    return 1 if validation_failed else 0
 
 
 if __name__ == "__main__":

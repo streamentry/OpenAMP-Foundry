@@ -132,6 +132,22 @@ def validate_external_review_packet(erp: ExternalReviewPacket) -> None:
     for req in REQUIRED_PACKET_COMPONENTS:
         if component_types.count(req) != 1:
             raise ValueError(f"Exactly one component required for {req!r}")
+    if set(component_types) != set(REQUIRED_PACKET_COMPONENTS):
+        raise ValueError(
+            "components must contain exactly the required component types"
+        )
+    for component in erp.components:
+        expected_prefix = f"{component.component_type}-"
+        if component.present and not component.artifact_id.startswith(expected_prefix):
+            raise ValueError(
+                f"{component.component_type} artifact_id must start with "
+                f"{expected_prefix!r}: {component.artifact_id!r}"
+            )
+        if not component.present and component.artifact_id:
+            raise ValueError(
+                f"absent {component.component_type} component must not carry "
+                f"artifact_id {component.artifact_id!r}"
+            )
     if erp.packet_status not in VALID_PACKET_STATUSES:
         raise ValueError(
             f"packet_status {erp.packet_status!r} not in VALID_PACKET_STATUSES"

@@ -100,7 +100,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,391 tests; the live count is enforced by the
+> collection succeeds at 12,393 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
 
@@ -109,6 +109,12 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > artifact references are supplied. The legacy placeholder generator remains
 > available only through `--format legacy`; this changes packaging alignment,
 > not review readiness or biological evidence.
+
+> **Review-packet validation boundary (2026-08-07):** `generate_review_packet.py
+> --validate` now exits nonzero when the selected contract rejects the generated
+> packet, while retaining the invalid JSON for inspection. This prevents a
+> validation failure from looking like a successful handoff; it does not
+> authenticate artifacts, reviewers, science, or biological evidence.
 
 > **Phase Y accountability note (2026-07-25):** The YAG- baseline-vs-pipeline
 > aggregate is now runnable through `phase-y-accountability-gate-check` and
