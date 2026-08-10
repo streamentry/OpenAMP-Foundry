@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 STABILITY_TIERS: dict[str, str] = {
     "stable": "Tier 1 — requires MAJOR bump for breaking changes",
@@ -53,10 +53,10 @@ VERSIONED_ARTIFACTS: list[ArtifactVersionInfo] = [
         artifact_name="external_review_packet",
         version="1.0.0",
         stability_tier="stable",
-        schema_id="https://openamp-foundry.org/schemas/external_review_packet.schema.json",
+        schema_id="https://openamp-foundry.org/schemas/external_review_packet_v4/1.0.0",
         description="External review packet — complete machine-checkable review artifact for lab partners",
         is_breaking_change=False,
-        notes="Has $id URI. Used for external-facing review packets.",
+        notes="Canonical V4 component-based schema. The legacy Phase E schema remains available for migration only.",
     ),
     ArtifactVersionInfo(
         artifact_name="safety_release_decision",

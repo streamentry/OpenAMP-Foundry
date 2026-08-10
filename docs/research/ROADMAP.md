@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-07-26
+## Current state — 2026-08-10
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -147,6 +147,14 @@ the recalibration gate now fails closed even when cohort, control, join, and
 metric rules pass. Unclassified records are not inferred to be real wet-lab
 evidence. This enforces the existing synthetic-data policy and does not create
 wet-lab evidence.
+
+On 2026-08-10, the canonical V4 external-review packet gained a portable JSON
+Schema and version-registry entry. The generator's `--validate` path now checks
+both the Python contract and the V4 schema, including component cardinality,
+typed artifact references, and absent/present consistency. The legacy Phase E
+schema remains migration-only. This closes a packaging and interoperability
+gap; it does not authenticate artifacts or reviewers, validate science, or
+establish biological evidence.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

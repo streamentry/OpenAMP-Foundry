@@ -212,6 +212,12 @@ reviewers, science, or biological validation. The checked-in
 artifact references. The legacy placeholder generator remains available only
 with `--format legacy` for migration compatibility.
 
+The portable schema for this canonical contract is
+`schemas/external_review_packet_v4.schema.json` with schema ID
+`https://openamp-foundry.org/schemas/external_review_packet_v4/1.0.0`. The
+older `schemas/external_review_packet.schema.json` validates the migration-only
+Phase E shape and is not the V4 contract.
+
 Each present reference must use the corresponding artifact prefix (`BRC-`,
 `ECI-`, `FET-`, `PTR-`, or `SRS-`); malformed or cross-typed IDs are rejected.
 

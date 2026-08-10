@@ -29,6 +29,7 @@ V4_DEFAULT_LIMITATIONS = [
     "Computational outputs are hypotheses and review aids. They are not biological proof.",
     "Component presence records packaging state only; it does not authenticate artifacts, reviewers, or science.",
 ]
+V4_SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "external_review_packet_v4.schema.json"
 
 
 def build_skeleton(
@@ -160,6 +161,9 @@ def validate_component_packet(packet: dict[str, Any]) -> None:
     except (KeyError, TypeError) as exc:
         raise ValueError(f"Malformed V4 component packet: {exc}") from exc
     validate_external_review_packet(parsed)
+    schema_errors = validate_packet(packet, V4_SCHEMA_PATH)
+    if schema_errors:
+        raise ValueError(f"V4 JSON Schema validation failed: {schema_errors[0]}")
 
 
 def validate_packet(

@@ -17,6 +17,9 @@ claim boundaries, reproducibility metadata, and explicit negative findings.
   reviewer decisions, evidence gaps, and external handoff integrity.
 - `external_review_packet.py`: current V4 component-based review packet; its
   legacy Phase E bridge is migration-only.
+- `schemas/external_review_packet_v4.schema.json`: portable JSON Schema for the
+  canonical V4 packet. The older `external_review_packet.schema.json` is the
+  legacy Phase E contract and remains only for migration compatibility.
 - `scripts/generate_review_packet.py --format v4`: canonical JSON generator for
   that component packet. Its default legacy mode exists only for migration;
   new workflows must use V4 and treat missing components as draft/incomplete.

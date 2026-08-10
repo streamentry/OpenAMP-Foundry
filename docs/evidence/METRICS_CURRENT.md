@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-08-05 (canonical V4 review-packet generator and regression coverage; benchmark values unchanged)
+> **Last updated:** 2026-08-10 (canonical V4 packet schema and validation alignment; benchmark values unchanged)
 
-> **Current verification note (2026-07-26):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-08-10):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
 > AB AB5 exposes the ABAG- claim-integrity aggregate, Phase AC AC3 exposes the
 > ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate, and Phase Z Z5
@@ -100,7 +100,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,393 tests; the live count is enforced by the
+> collection succeeds at 12,401 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
 
@@ -115,6 +115,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > packet, while retaining the invalid JSON for inspection. This prevents a
 > validation failure from looking like a successful handoff; it does not
 > authenticate artifacts, reviewers, science, or biological evidence.
+
+> **Canonical V4 schema note (2026-08-10):** The V4 component-based ERP now has
+> a portable `schemas/external_review_packet_v4.schema.json` contract, and
+> `--validate` checks both that schema and the Python validator. The schema
+> rejects missing or duplicate component types, cross-typed or prefix-only
+> artifact references, and references marked absent while carrying an ID. The
+> legacy `external_review_packet.schema.json` remains migration-only. This is
+> packaging interoperability evidence, not artifact authentication, reviewer
+> authentication, scientific validation, or biological proof.
 
 > **Phase Y accountability note (2026-07-25):** The YAG- baseline-vs-pipeline
 > aggregate is now runnable through `phase-y-accountability-gate-check` and
