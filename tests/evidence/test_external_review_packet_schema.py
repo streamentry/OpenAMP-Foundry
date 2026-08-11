@@ -10,6 +10,7 @@ _SCHEMA_DIR = Path(__file__).parents[2] / "schemas"
 _EXAMPLES_DIR = Path(__file__).parents[2] / "examples"
 
 EXTERNAL_REVIEW_SCHEMA = _SCHEMA_DIR / "external_review_packet.schema.json"
+EXTERNAL_REVIEW_V4_SCHEMA = _SCHEMA_DIR / "external_review_packet_v4.schema.json"
 
 
 def _valid_packet() -> dict:
@@ -50,6 +51,29 @@ def _valid_packet() -> dict:
         "dry_lab_only_attestation": True,
         "proof_ladder_level": 2,
         "contact": "reviewer@example.com",
+    }
+
+
+def _valid_v4_packet() -> dict:
+    components = [
+        {"component_type": "BRC", "artifact_id": "BRC-001", "present": True},
+        {"component_type": "ECI", "artifact_id": "ECI-001", "present": True},
+        {"component_type": "FET", "artifact_id": "FET-001", "present": True},
+        {"component_type": "PTR", "artifact_id": "PTR-001", "present": True},
+        {"component_type": "SRS", "artifact_id": "SRS-001", "present": True},
+    ]
+    return {
+        "erp_id": "ERP-2026-08-12-001",
+        "batch_id": "BATCH-001",
+        "pipeline_version": "v0.10.3",
+        "components": components,
+        "n_components_required": 5,
+        "n_components_present": 5,
+        "missing_component_types": [],
+        "packet_status": "ready",
+        "dry_lab_only": True,
+        "limitations": ["Component presence does not authenticate artifacts or science."],
+        "created_at": "2026-08-12T00:00:00Z",
     }
 
 
@@ -124,3 +148,27 @@ class TestExternalReviewPacketSchema:
         packet["calibration_summary"]["calibration_assessment"] = "excellent"
         with pytest.raises(jsonschema.ValidationError):
             validate_json_schema(packet, EXTERNAL_REVIEW_SCHEMA)
+
+
+class TestExternalReviewPacketV4Schema:
+    def test_valid_v4_packet_passes(self):
+        validate_json_schema(_valid_v4_packet(), EXTERNAL_REVIEW_V4_SCHEMA)
+
+    def test_component_count_mismatch_fails_portable_schema(self):
+        packet = _valid_v4_packet()
+        packet["n_components_present"] = 0
+        with pytest.raises(jsonschema.ValidationError):
+            validate_json_schema(packet, EXTERNAL_REVIEW_V4_SCHEMA)
+
+    def test_missing_component_list_mismatch_fails_portable_schema(self):
+        packet = _valid_v4_packet()
+        packet["components"][0]["present"] = False
+        packet["components"][0]["artifact_id"] = ""
+        with pytest.raises(jsonschema.ValidationError):
+            validate_json_schema(packet, EXTERNAL_REVIEW_V4_SCHEMA)
+
+    def test_packet_status_mismatch_fails_portable_schema(self):
+        packet = _valid_v4_packet()
+        packet["packet_status"] = "incomplete"
+        with pytest.raises(jsonschema.ValidationError):
+            validate_json_schema(packet, EXTERNAL_REVIEW_V4_SCHEMA)

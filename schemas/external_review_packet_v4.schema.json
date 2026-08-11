@@ -110,6 +110,272 @@
       "minLength": 1
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"n_components_present": {"const": 0}}
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "not": {
+              "contains": {
+                "type": "object",
+                "properties": {"present": {"const": true}},
+                "required": ["present"]
+              }
+            }
+          },
+          "packet_status": {"const": "draft"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"n_components_present": {"const": 1}}
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {"present": {"const": true}},
+              "required": ["present"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          },
+          "packet_status": {"const": "incomplete"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"n_components_present": {"const": 2}}
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {"present": {"const": true}},
+              "required": ["present"]
+            },
+            "minContains": 2,
+            "maxContains": 2
+          },
+          "packet_status": {"const": "incomplete"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"n_components_present": {"const": 3}}
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {"present": {"const": true}},
+              "required": ["present"]
+            },
+            "minContains": 3,
+            "maxContains": 3
+          },
+          "packet_status": {"const": "incomplete"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"n_components_present": {"const": 4}}
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {"present": {"const": true}},
+              "required": ["present"]
+            },
+            "minContains": 4,
+            "maxContains": 4
+          },
+          "packet_status": {"const": "incomplete"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"n_components_present": {"const": 5}}
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {"present": {"const": true}},
+              "required": ["present"]
+            },
+            "minContains": 5,
+            "maxContains": 5
+          },
+          "packet_status": {"const": "ready"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "component_type": {"const": "BRC"},
+                "present": {"const": true}
+              },
+              "required": ["component_type", "present"]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "missing_component_types": {
+            "not": {"contains": {"const": "BRC"}}
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "missing_component_types": {
+            "contains": {"const": "BRC"}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "component_type": {"const": "ECI"},
+                "present": {"const": true}
+              },
+              "required": ["component_type", "present"]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "missing_component_types": {
+            "not": {"contains": {"const": "ECI"}}
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "missing_component_types": {
+            "contains": {"const": "ECI"}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "component_type": {"const": "FET"},
+                "present": {"const": true}
+              },
+              "required": ["component_type", "present"]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "missing_component_types": {
+            "not": {"contains": {"const": "FET"}}
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "missing_component_types": {
+            "contains": {"const": "FET"}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "component_type": {"const": "PTR"},
+                "present": {"const": true}
+              },
+              "required": ["component_type", "present"]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "missing_component_types": {
+            "not": {"contains": {"const": "PTR"}}
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "missing_component_types": {
+            "contains": {"const": "PTR"}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "components": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "component_type": {"const": "SRS"},
+                "present": {"const": true}
+              },
+              "required": ["component_type", "present"]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "missing_component_types": {
+            "not": {"contains": {"const": "SRS"}}
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "missing_component_types": {
+            "contains": {"const": "SRS"}
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "component": {
       "type": "object",

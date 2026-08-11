@@ -220,6 +220,9 @@ Phase E shape and is not the V4 contract.
 
 Each present reference must use the corresponding artifact prefix (`BRC-`,
 `ECI-`, `FET-`, `PTR-`, or `SRS-`); malformed or cross-typed IDs are rejected.
+The portable schema also enforces that component counts, missing-component
+lists, presence flags, and `packet_status` agree; schema-only consumers should
+therefore reject internally contradictory packets too.
 
 When `--validate` is supplied, an invalid packet is still written for
 inspection but the command exits nonzero. A zero exit therefore means only

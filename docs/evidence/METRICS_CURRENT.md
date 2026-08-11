@@ -5,7 +5,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-08-10 (canonical V4 packet schema and validation alignment; benchmark values unchanged)
+> **Last updated:** 2026-08-12 (canonical V4 packet schema consistency hardening; benchmark values unchanged)
 
 > **Current verification note (2026-08-10):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
@@ -100,7 +100,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,401 tests; the live count is enforced by the
+> collection succeeds at 12,405 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
 
@@ -124,6 +124,13 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > legacy `external_review_packet.schema.json` remains migration-only. This is
 > packaging interoperability evidence, not artifact authentication, reviewer
 > authentication, scientific validation, or biological proof.
+
+> **Canonical V4 consistency note (2026-08-12):** The portable ERP schema now
+> rejects contradictions between component presence flags, present counts,
+> missing-component lists, and packet status. This keeps schema-only consumers
+> aligned with the Python validator; it remains packaging integrity evidence,
+> not artifact authentication, reviewer authentication, scientific validation,
+> or biological proof.
 
 > **Phase Y accountability note (2026-07-25):** The YAG- baseline-vs-pipeline
 > aggregate is now runnable through `phase-y-accountability-gate-check` and
