@@ -87,3 +87,39 @@ def test_schema_rejects_unknown_top_level_field():
     packet["reviewer_email"] = "reviewer@example.com"
     with pytest.raises(jsonschema.ValidationError):
         validate_json_schema(packet, SCHEMA)
+
+
+@pytest.mark.parametrize(
+    "created_at",
+    [
+        "2026-08-10",
+        "2026-08-10T00:00:00+00:00",
+        "2026-08-10T00:00:00.000Z",
+        "not-a-timestamp",
+    ],
+)
+def test_schema_rejects_non_canonical_created_at(created_at):
+    packet = _packet()
+    packet["created_at"] = created_at
+    with pytest.raises(jsonschema.ValidationError):
+        validate_json_schema(packet, SCHEMA)
+
+
+def test_schema_rejects_impossible_calendar_timestamp():
+    packet = _packet()
+    packet["created_at"] = "2026-02-30T00:00:00Z"
+    # JSON Schema can enforce the transport shape, but not the calendar date.
+    validate_json_schema(packet, SCHEMA)
+    with pytest.raises(ValueError, match="real calendar date"):
+        build_external_review_packet(
+            erp_id=packet["erp_id"],
+            batch_id=packet["batch_id"],
+            pipeline_version=packet["pipeline_version"],
+            brc_artifact_id="BRC-001",
+            eci_artifact_id="ECI-001",
+            fet_artifact_id="FET-001",
+            ptr_artifact_id="PTR-001",
+            srs_artifact_id="SRS-001",
+            limitations=packet["limitations"],
+            created_at=packet["created_at"],
+        )

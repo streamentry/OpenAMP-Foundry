@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import datetime
 
 REQUIRED_PACKET_COMPONENTS: tuple[str, ...] = (
     "BRC", "ECI", "FET", "PTR", "SRS",
@@ -30,6 +31,7 @@ VALID_CALIBRATION_ASSESSMENTS: frozenset[str] = frozenset({
 DRY_LAB_MAX_PROOF_LADDER_LEVEL = 2
 _SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 _GIT_SHA_RE = re.compile(r"^[a-f0-9]{7,40}$")
+_UTC_TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
 
 @dataclass
@@ -156,8 +158,16 @@ def validate_external_review_packet(erp: ExternalReviewPacket) -> None:
         raise ValueError("dry_lab_only must be True")
     if not erp.limitations:
         raise ValueError("limitations must be non-empty")
-    if not erp.created_at:
-        raise ValueError("created_at must be non-empty")
+    if not isinstance(erp.created_at, str) or not _UTC_TIMESTAMP_RE.fullmatch(erp.created_at):
+        raise ValueError(
+            "created_at must be a canonical UTC timestamp in YYYY-MM-DDTHH:MM:SSZ form"
+        )
+    try:
+        parsed_created_at = datetime.strptime(erp.created_at, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError as exc:
+        raise ValueError("created_at must contain a real calendar date and time") from exc
+    if parsed_created_at.strftime("%Y-%m-%dT%H:%M:%SZ") != erp.created_at:
+        raise ValueError("created_at must use the canonical UTC timestamp form")
     n_req = len(REQUIRED_PACKET_COMPONENTS)
     if erp.n_components_required != n_req:
         raise ValueError(

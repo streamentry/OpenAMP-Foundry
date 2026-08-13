@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-08-10
+## Current state — 2026-08-14
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -155,6 +155,12 @@ typed artifact references, and absent/present consistency. The legacy Phase E
 schema remains migration-only. This closes a packaging and interoperability
 gap; it does not authenticate artifacts or reviewers, validate science, or
 establish biological evidence.
+
+On 2026-08-14, the same V4 packet contract tightened `created_at` to a canonical
+UTC-second timestamp in both the Python validator and portable schema. The
+Python path also rejects impossible calendar dates. This closes a provenance
+shape gap for schema-only consumers; it does not authenticate artifacts or
+reviewers, validate science, or establish biological evidence.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

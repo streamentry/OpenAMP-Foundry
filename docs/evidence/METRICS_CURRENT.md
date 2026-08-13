@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-08-12 (canonical V4 packet schema consistency hardening; benchmark values unchanged)
+> **Last updated:** 2026-08-14 (canonical V4 packet timestamp integrity hardening; benchmark values unchanged)
 
-> **Current verification note (2026-08-10):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-08-14):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
 > AB AB5 exposes the ABAG- claim-integrity aggregate, Phase AC AC3 exposes the
 > ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate, and Phase Z Z5
@@ -100,7 +100,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,405 tests; the live count is enforced by the
+> collection succeeds at 12,413 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
 
@@ -131,6 +131,12 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > aligned with the Python validator; it remains packaging integrity evidence,
 > not artifact authentication, reviewer authentication, scientific validation,
 > or biological proof.
+
+> **Canonical V4 timestamp note (2026-08-14):** The ERP Python validator and
+> portable schema now require `created_at` to use the canonical UTC-second form
+> `YYYY-MM-DDTHH:MM:SSZ`. The Python validator additionally rejects impossible
+> calendar dates. This protects packet provenance shape; it does not authenticate
+> artifact origin, reviewers, science, or biological evidence.
 
 > **Phase Y accountability note (2026-07-25):** The YAG- baseline-vs-pipeline
 > aggregate is now runnable through `phase-y-accountability-gate-check` and

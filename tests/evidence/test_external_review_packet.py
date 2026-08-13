@@ -8,7 +8,6 @@ from openamp_foundry.evidence.external_review_packet import (
     VALID_PACKET_STATUSES,
     build_external_review_packet,
     format_external_review_packet,
-    validate_external_review_packet,
 )
 
 # ---------------------------------------------------------------------------
@@ -27,7 +26,7 @@ def _build(**kwargs):
         ptr_artifact_id="PTR-001",
         srs_artifact_id="SRS-001",
         limitations=["dry-lab only"],
-        created_at="2026-07-10",
+        created_at="2026-07-10T00:00:00Z",
     )
     defaults.update(kwargs)
     return build_external_review_packet(**defaults)
@@ -40,7 +39,7 @@ def _build_partial(**kwargs):
         pipeline_version="v1.0",
         brc_artifact_id="BRC-001",
         limitations=["dry-lab only"],
-        created_at="2026-07-10",
+        created_at="2026-07-10T00:00:00Z",
     )
     defaults.update(kwargs)
     return build_external_review_packet(**defaults)
@@ -190,7 +189,7 @@ def test_build_limitations_stored():
 
 
 def test_build_created_at_stored():
-    assert _build().created_at == "2026-07-10"
+    assert _build().created_at == "2026-07-10T00:00:00Z"
 
 
 # ---------------------------------------------------------------------------
@@ -226,6 +225,15 @@ def test_validate_rejects_empty_limitations():
 def test_validate_rejects_empty_created_at():
     with pytest.raises(ValueError):
         _build(created_at="")
+
+
+@pytest.mark.parametrize(
+    "created_at",
+    ["2026-07-10", "2026-02-30T00:00:00Z", "2026-07-10T00:00:00+00:00"],
+)
+def test_validate_rejects_non_canonical_or_impossible_created_at(created_at):
+    with pytest.raises(ValueError, match="created_at"):
+        _build(created_at=created_at)
 
 
 # ---------------------------------------------------------------------------
