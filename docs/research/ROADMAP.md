@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-08-14
+## Current state — 2026-08-18
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -161,6 +161,13 @@ UTC-second timestamp in both the Python validator and portable schema. The
 Python path also rejects impossible calendar dates. This closes a provenance
 shape gap for schema-only consumers; it does not authenticate artifacts or
 reviewers, validate science, or establish biological evidence.
+
+On 2026-08-18, the V4 Python validator now derives and checks `packet_status`
+from component presence, matching the portable JSON Schema. Direct library
+callers therefore receive the same fail-closed status-consistency boundary as
+CLI-generated packets. This is packaging integrity only; it does not
+authenticate artifacts or reviewers, validate science, or establish biological
+evidence.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

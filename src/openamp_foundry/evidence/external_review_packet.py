@@ -181,6 +181,13 @@ def validate_external_review_packet(erp: ExternalReviewPacket) -> None:
     )
     if erp.missing_component_types != expected_missing:
         raise ValueError("missing_component_types mismatch")
+    expected_status = _compute_status(n_present, n_req)
+    if erp.packet_status != expected_status:
+        raise ValueError(
+            "packet_status mismatch: expected "
+            f"{expected_status!r} for {n_present}/{n_req} present components, "
+            f"got {erp.packet_status!r}"
+        )
 
 
 def _validate_legacy_packet(packet: ExternalReviewPacket) -> PacketValidationResult:

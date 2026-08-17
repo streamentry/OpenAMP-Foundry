@@ -8,6 +8,7 @@ from openamp_foundry.evidence.external_review_packet import (
     VALID_PACKET_STATUSES,
     build_external_review_packet,
     format_external_review_packet,
+    validate_external_review_packet,
 )
 
 # ---------------------------------------------------------------------------
@@ -234,6 +235,33 @@ def test_validate_rejects_empty_created_at():
 def test_validate_rejects_non_canonical_or_impossible_created_at(created_at):
     with pytest.raises(ValueError, match="created_at"):
         _build(created_at=created_at)
+
+
+@pytest.mark.parametrize(
+    ("build_kwargs", "bad_status"),
+    [
+        ({}, "incomplete"),
+        ({"brc_artifact_id": ""}, "ready"),
+        (
+            {
+                "brc_artifact_id": "",
+                "eci_artifact_id": "",
+                "fet_artifact_id": "",
+                "ptr_artifact_id": "",
+                "srs_artifact_id": "",
+            },
+            "incomplete",
+        ),
+    ],
+)
+def test_validate_rejects_packet_status_inconsistent_with_component_presence(
+    build_kwargs, bad_status
+):
+    packet = _build(**build_kwargs)
+    packet.packet_status = bad_status
+
+    with pytest.raises(ValueError, match="packet_status mismatch"):
+        validate_external_review_packet(packet)
 
 
 # ---------------------------------------------------------------------------
