@@ -997,12 +997,57 @@ def test_lab_result_report_creates_outputs(tmp_path, capsys):
     assert "toxic" not in report["summary"]["by_usable_qualitative_result"]
     assert report["n_candidates"] == 1
     assert len(report["control_failures"]) == 1
+    assert report["data_origin"]["status"] == "unclassified"
+    assert report["data_origin"]["n_synthetic_results"] == 0
     text = out_md.read_text(encoding="utf-8")
     assert "Wet-Lab Result Report" in text
     assert "Usable Qualitative Outcome Counts" in text
     assert "Raw Qualitative Observations (Audit Only)" in text
+    assert "Data-origin status: unclassified" in text
     assert "CAND-001" in text
     assert "RES-002" in text
+
+
+def test_lab_result_report_surfaces_synthetic_origin(tmp_path):
+    results_dir = tmp_path / "lab_results"
+    results_dir.mkdir()
+    result = {
+        "result_id": "RES-SYNTHETIC-001",
+        "candidate_id": "SYNTHETIC-CAND-001",
+        "assay_type": "MIC",
+        "organism_or_cell_line": "SYNTHETIC TEST - E. coli",
+        "result_value": 8.0,
+        "result_unit": "µg/mL",
+        "result_qualitative": "active",
+        "positive_control_passed": True,
+        "negative_control_passed": True,
+        "assay_date": "2026-07-01",
+        "replicate_count": 1,
+        "performed_by_lab": "SYNTHETIC TEST - fixture",
+        "raw_data_sha256": None,
+        "computational_candidate_certificate_hash": "abc123def456",
+        "notes": "SYNTHETIC TEST DATA - not a real assay.",
+        "disclaimer": (
+            "SYNTHETIC TEST. This is not a real experimental result on a "
+            "computationally nominated candidate and does not constitute a "
+            "drug or clinical claim."
+        ),
+    }
+    (results_dir / "synthetic.json").write_text(json.dumps(result), encoding="utf-8")
+
+    from openamp_foundry.reports.lab_result_report import (
+        build_lab_result_report,
+        write_lab_result_markdown,
+    )
+
+    report = build_lab_result_report(results_dir)
+    assert report["data_origin"]["status"] == "synthetic_present"
+    assert report["data_origin"]["n_synthetic_results"] == 1
+    assert report["data_origin"]["synthetic_result_ids"] == ["RES-SYNTHETIC-001"]
+
+    out_md = tmp_path / "report.md"
+    write_lab_result_markdown(report, out_md)
+    assert "Data-origin status: synthetic_present" in out_md.read_text(encoding="utf-8")
 
 
 def test_lab_result_report_blocks_invalid_files(tmp_path, capsys):

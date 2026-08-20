@@ -16,6 +16,7 @@ from openamp_foundry.data.lab_results import (
     candidate_result_map,
     duplicate_result_ids,
     load_lab_results_dir_with_errors,
+    summarise_data_origin,
     summarise_candidate_outcomes,
     summarise_lab_results,
     verify_raw_data_provenance,
@@ -28,6 +29,7 @@ def build_lab_result_report(
     """Build a machine-readable wet-lab result report from a directory of JSON files."""
     results, invalid_lab_result_files = load_lab_results_dir_with_errors(results_dir)
     summary = summarise_lab_results(results)
+    data_origin = summarise_data_origin(results)
     by_candidate = summarise_candidate_outcomes(results)
     duplicate_ids = duplicate_result_ids(results)
     raw_data_provenance = verify_raw_data_provenance(results, raw_data_dir)
@@ -49,6 +51,7 @@ def build_lab_result_report(
 
     return {
         "summary": summary,
+        "data_origin": data_origin,
         "raw_data_provenance": raw_data_provenance,
         "raw_data_verification_issues": raw_data_provenance["verification_issues"],
         "n_invalid_lab_result_files": len(invalid_lab_result_files),
@@ -97,6 +100,8 @@ def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> N
         f"- Results with both controls passing: {s.get('n_valid_controls', 0)}",
         f"- Invalid result files: {report.get('n_invalid_lab_result_files', 0)}",
         f"- Duplicate result IDs: {report.get('n_duplicate_lab_result_ids', 0)}",
+        f"- Data-origin status: {report.get('data_origin', {}).get('status', 'unclassified')}",
+        f"- Synthetic results: {report.get('data_origin', {}).get('n_synthetic_results', 0)}",
         f"- Raw-data hash coverage: {raw_data_status}",
         f"- Raw-data hash verification: {report.get('raw_data_provenance', {}).get('verification_status', 'not_requested')}",
         "",

@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-08-18 (canonical V4 packet validator/schema parity; benchmark values unchanged)
+> **Last updated:** 2026-08-21 (standalone lab-result data-origin visibility; benchmark values unchanged)
 
-> **Current verification note (2026-08-18):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-08-21):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
 > AB AB5 exposes the ABAG- claim-integrity aggregate, Phase AC AC3 exposes the
 > ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate, and Phase Z Z5
@@ -100,7 +100,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,416 tests; the live count is enforced by the
+> collection succeeds at 12,417 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
 
@@ -231,6 +231,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
   verified unless the raw file is separately available and checked.
 - This is provenance visibility only; legacy results remain accepted and no
   recalibration or biological claim policy changed.
+
+### External-result reporting integrity — expose data origin in every report
+- Standalone `lab-result-report` JSON and Markdown outputs now include the
+  shared `data_origin` summary used by calibration intake.
+- Synthetic labels are visible by result ID, and unclassified records remain
+  explicitly unclassified rather than being inferred to be real wet-lab evidence.
+- This is audit visibility only; it does not validate assay contents, authenticate
+  the performing lab, establish biological evidence, or authorize recalibration.
 
 ### External-result reporting integrity — opt-in raw-file hash verification
 - Added `verify_raw_data_provenance()` and an optional `raw_data_file` field to
