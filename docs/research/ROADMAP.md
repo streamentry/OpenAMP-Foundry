@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-08-21
+## Current state — 2026-08-22
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -176,6 +176,12 @@ records remain explicitly unclassified rather than being presented as verified
 wet-lab evidence. This closes an intake-audit visibility gap; it does not
 validate assay contents, authenticate a lab, establish biology, or permit
 recalibration.
+
+On 2026-08-22, the standalone `lab-result-report` JSON artifact gained a
+portable schema and build-time validation for its summary, data-origin,
+control-failure, raw-data, and input-blocker fields. This makes the report
+interoperable without treating report structure as assay validation, lab
+authentication, biological evidence, or recalibration authority.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

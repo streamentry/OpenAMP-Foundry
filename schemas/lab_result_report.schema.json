@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openamp-foundry.org/schemas/lab_result_report/1.0.0",
+  "title": "OpenAMP Lab Result Report",
+  "description": "Descriptive, dry-lab-only report of validated lab-result inputs. The report preserves audit fields and does not establish biological validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "summary", "data_origin", "raw_data_provenance",
+    "raw_data_verification_issues", "n_invalid_lab_result_files",
+    "invalid_lab_result_files", "input_validation_status",
+    "duplicate_lab_result_ids", "n_duplicate_lab_result_ids",
+    "by_candidate", "control_failures", "by_lab", "n_candidates",
+    "report_disclaimer"
+  ],
+  "properties": {
+    "summary": {"$ref": "#/$defs/summary"},
+    "data_origin": {"$ref": "#/$defs/dataOrigin"},
+    "raw_data_provenance": {"$ref": "#/$defs/rawDataProvenance"},
+    "raw_data_verification_issues": {
+      "type": "array", "items": {"$ref": "#/$defs/rawDataIssue"}
+    },
+    "n_invalid_lab_result_files": {"type": "integer", "minimum": 0},
+    "invalid_lab_result_files": {
+      "type": "array", "items": {"$ref": "#/$defs/invalidFile"}
+    },
+    "input_validation_status": {
+      "type": "string",
+      "enum": [
+        "input_validated", "blocked_on_invalid_results",
+        "blocked_on_duplicate_ids", "blocked_on_raw_data_verification"
+      ]
+    },
+    "duplicate_lab_result_ids": {"$ref": "#/$defs/uniqueResultIds"},
+    "n_duplicate_lab_result_ids": {"type": "integer", "minimum": 0},
+    "by_candidate": {
+      "type": "array", "items": {"$ref": "#/$defs/candidateRollup"}
+    },
+    "control_failures": {
+      "type": "array", "items": {"$ref": "#/$defs/controlFailure"}
+    },
+    "by_lab": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "n_candidates": {"type": "integer", "minimum": 0},
+    "report_disclaimer": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "countMap": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "resultIds": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "uniqueResultIds": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "qualitativeResults": {
+      "type": "array",
+      "items": {
+        "enum": ["active", "inactive", "partial", "toxic", "inconclusive", "unclassified"]
+      }
+    },
+    "summary": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "by_assay_type", "by_qualitative_result",
+        "by_usable_qualitative_result", "disclaimer", "n_results",
+        "n_valid_controls"
+      ],
+      "properties": {
+        "by_assay_type": {"$ref": "#/$defs/countMap"},
+        "by_qualitative_result": {"$ref": "#/$defs/countMap"},
+        "by_usable_qualitative_result": {"$ref": "#/$defs/countMap"},
+        "disclaimer": {"type": "string", "minLength": 1},
+        "n_results": {"type": "integer", "minimum": 0},
+        "n_valid_controls": {"type": "integer", "minimum": 0}
+      }
+    },
+    "dataOrigin": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "status", "n_results", "n_synthetic_results",
+        "synthetic_result_ids", "n_unclassified_results", "disclaimer"
+      ],
+      "properties": {
+        "status": {"enum": ["no_results", "synthetic_present", "unclassified"]},
+        "n_results": {"type": "integer", "minimum": 0},
+        "n_synthetic_results": {"type": "integer", "minimum": 0},
+        "synthetic_result_ids": {"$ref": "#/$defs/resultIds"},
+        "n_unclassified_results": {"type": "integer", "minimum": 0},
+        "disclaimer": {"type": "string", "minLength": 1}
+      }
+    },
+    "rawDataIssue": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "result_id", "message"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "result_id": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1}
+      }
+    },
+    "rawDataProvenance": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "status", "n_results", "n_with_raw_data_sha256",
+        "n_without_raw_data_sha256", "result_ids_with_raw_data_sha256",
+        "result_ids_without_raw_data_sha256", "disclaimer",
+        "verification_status", "raw_data_dir", "n_verified",
+        "result_ids_verified", "verification_issues"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["no_results", "not_available", "partial_declaration", "declared_for_all"]
+        },
+        "n_results": {"type": "integer", "minimum": 0},
+        "n_with_raw_data_sha256": {"type": "integer", "minimum": 0},
+        "n_without_raw_data_sha256": {"type": "integer", "minimum": 0},
+        "result_ids_with_raw_data_sha256": {"$ref": "#/$defs/resultIds"},
+        "result_ids_without_raw_data_sha256": {"$ref": "#/$defs/resultIds"},
+        "disclaimer": {"type": "string", "minLength": 1},
+        "verification_status": {
+          "enum": [
+            "not_requested", "no_results", "not_declared",
+            "blocked_on_verification", "verified_for_declared_only",
+            "verified_for_all"
+          ]
+        },
+        "raw_data_dir": {"type": ["string", "null"]},
+        "n_verified": {"type": "integer", "minimum": 0},
+        "result_ids_verified": {"$ref": "#/$defs/resultIds"},
+        "verification_issues": {
+          "type": "array", "items": {"$ref": "#/$defs/rawDataIssue"}
+        }
+      }
+    },
+    "invalidFile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["file", "error"],
+      "properties": {
+        "file": {"type": "string", "minLength": 1},
+        "error": {"type": "string", "minLength": 1}
+      }
+    },
+    "candidateRollup": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "candidate_id", "n_results", "n_usable_results", "assay_types",
+        "organisms_or_cells", "qualitative_results", "raw_qualitative_results",
+        "has_any_active", "has_any_toxic", "has_any_inconclusive",
+        "raw_has_any_active", "raw_has_any_toxic", "raw_has_any_inconclusive",
+        "all_controls_passed", "control_fail_result_ids", "max_replicate_count",
+        "first_assay_date", "last_assay_date", "n_numeric_results",
+        "n_raw_numeric_results"
+      ],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1},
+        "n_results": {"type": "integer", "minimum": 1},
+        "n_usable_results": {"type": "integer", "minimum": 0},
+        "assay_types": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "organisms_or_cells": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "qualitative_results": {"$ref": "#/$defs/qualitativeResults"},
+        "raw_qualitative_results": {"$ref": "#/$defs/qualitativeResults"},
+        "has_any_active": {"type": "boolean"},
+        "has_any_toxic": {"type": "boolean"},
+        "has_any_inconclusive": {"type": "boolean"},
+        "raw_has_any_active": {"type": "boolean"},
+        "raw_has_any_toxic": {"type": "boolean"},
+        "raw_has_any_inconclusive": {"type": "boolean"},
+        "all_controls_passed": {"type": "boolean"},
+        "control_fail_result_ids": {"$ref": "#/$defs/resultIds"},
+        "max_replicate_count": {"type": "integer", "minimum": 0},
+        "first_assay_date": {"type": ["string", "null"]},
+        "last_assay_date": {"type": ["string", "null"]},
+        "n_numeric_results": {"type": "integer", "minimum": 0},
+        "n_raw_numeric_results": {"type": "integer", "minimum": 0}
+      }
+    },
+    "controlFailure": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "result_id", "candidate_id", "assay_type",
+        "positive_control_passed", "negative_control_passed"
+      ],
+      "properties": {
+        "result_id": {"type": "string", "minLength": 1},
+        "candidate_id": {"type": "string", "minLength": 1},
+        "assay_type": {"type": "string", "minLength": 1},
+        "positive_control_passed": {"type": "boolean"},
+        "negative_control_passed": {"type": "boolean"}
+      }
+    }
+  }
+}

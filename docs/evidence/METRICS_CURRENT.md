@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-08-21 (standalone lab-result data-origin visibility; benchmark values unchanged)
+> **Last updated:** 2026-08-22 (lab-result report schema validation; benchmark values unchanged)
 
-> **Current verification note (2026-08-21):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-08-22):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
 > AB AB5 exposes the ABAG- claim-integrity aggregate, Phase AC AC3 exposes the
 > ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate, and Phase Z Z5
@@ -100,7 +100,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,417 tests; the live count is enforced by the
+> collection succeeds at 12,423 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
 
@@ -239,6 +239,14 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
   explicitly unclassified rather than being inferred to be real wet-lab evidence.
 - This is audit visibility only; it does not validate assay contents, authenticate
   the performing lab, establish biological evidence, or authorize recalibration.
+
+### External-result reporting integrity — validate the standalone report contract
+- Standalone `lab-result-report` JSON now validates against
+  `schemas/lab_result_report.schema.json` before handoff.
+- The schema covers summary, data-origin, raw-data provenance, control failures,
+  and input blockers. This is report-structure evidence only; it does not
+  validate assay contents, authenticate a lab, establish biology, or authorize
+  recalibration.
 
 ### External-result reporting integrity — opt-in raw-file hash verification
 - Added `verify_raw_data_provenance()` and an optional `raw_data_file` field to

@@ -24,6 +24,7 @@ from openamp_foundry.reports.external_predict import (
 )
 from openamp_foundry.reports.lab_result_report import (
     build_lab_result_report,
+    validate_lab_result_report,
     write_lab_result_json,
     write_lab_result_markdown,
 )
@@ -56,6 +57,7 @@ __all__ = [
     "write_pilot_fasta",
     # lab_result_report
     "build_lab_result_report",
+    "validate_lab_result_report",
     "write_lab_result_json",
     "write_lab_result_markdown",
     # pilot_panel

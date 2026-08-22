@@ -22,6 +22,19 @@ from openamp_foundry.data.lab_results import (
     verify_raw_data_provenance,
 )
 
+LAB_RESULT_REPORT_SCHEMA = (
+    Path(__file__).resolve().parent.parent.parent.parent
+    / "schemas"
+    / "lab_result_report.schema.json"
+)
+
+
+def validate_lab_result_report(report: dict[str, Any]) -> None:
+    """Validate the portable report contract before a report is handed off."""
+    from openamp_foundry.evidence.schemas import validate_json_schema
+
+    validate_json_schema(report, LAB_RESULT_REPORT_SCHEMA)
+
 
 def build_lab_result_report(
     results_dir: str | Path, raw_data_dir: str | Path | None = None
@@ -49,7 +62,7 @@ def build_lab_result_report(
         lab = r.get("performed_by_lab", "unknown")
         by_lab[lab] = by_lab.get(lab, 0) + 1
 
-    return {
+    report = {
         "summary": summary,
         "data_origin": data_origin,
         "raw_data_provenance": raw_data_provenance,
@@ -77,6 +90,8 @@ def build_lab_result_report(
             "Qualified expert review and independent replication remain mandatory."
         ),
     }
+    validate_lab_result_report(report)
+    return report
 
 
 def write_lab_result_markdown(report: dict[str, Any], out_path: str | Path) -> None:

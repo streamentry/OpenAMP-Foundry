@@ -13,6 +13,9 @@ review artifacts without strengthening scientific claims.
   failed-control qualitative results. They also show synthetic/unclassified
   origin and declared raw-data hash coverage without calling either biological
   provenance or a declared hash independently verified.
+  The JSON report validates against `schemas/lab_result_report.schema.json`
+  before handoff; this checks report structure only, not assay contents or
+  biological validity.
 - `recalibration_report.py`: proposal/gate summaries; proposals are not applied.
 
 ## Diagrams (Mermaid)
