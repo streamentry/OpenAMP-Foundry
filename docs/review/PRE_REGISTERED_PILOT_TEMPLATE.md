@@ -189,6 +189,10 @@ Required result context:
 
 Do not publish unsafe operational details.
 
+The machine validator treats `is_locked: true` as a validity requirement. An
+unlocked draft can be useful for internal editing, but it must not pass as a
+valid pre-registration for experiment start.
+
 ## Recalibration decision
 
 After result intake, run the pre-registered recalibration gate.

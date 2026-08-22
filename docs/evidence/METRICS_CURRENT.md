@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-08-22 (lab-result report schema validation; benchmark values unchanged)
+> **Last updated:** 2026-08-23 (pilot pre-registration lock enforcement; benchmark values unchanged)
 
-> **Current verification note (2026-08-22):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-08-23):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
 > AB AB5 exposes the ABAG- claim-integrity aggregate, Phase AC AC3 exposes the
 > ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate, and Phase Z Z5
@@ -100,9 +100,15 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,423 tests; the live count is enforced by the
+> collection succeeds at 12,424 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
+
+> **Pilot pre-registration lock note (2026-08-23):** The PRR- validator now
+> rejects unlocked records as invalid for experiment start. Unlocked drafts can
+> still be edited, but a valid pre-registration must freeze its selection
+> criteria and thresholds first. This is anti-cherry-picking infrastructure,
+> not assay validation or biological evidence.
 
 > **Canonical ERP generator note (2026-08-05):** `make generate-review-packet`
 > now exercises the V4 component-based ERP contract and emits a draft when no

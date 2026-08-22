@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-08-22
+## Current state — 2026-08-23
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -182,6 +182,12 @@ portable schema and build-time validation for its summary, data-origin,
 control-failure, raw-data, and input-blocker fields. This makes the report
 interoperable without treating report structure as assay validation, lab
 authentication, biological evidence, or recalibration authority.
+
+On 2026-08-23, pilot pre-registration validation began failing closed on
+unlocked records. Drafts remain editable, but only a locked PRR- record can
+validate as the pre-experiment contract. This enforces the existing
+pre-registration boundary; it does not validate assay procedures, biological
+claims, or partner readiness.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

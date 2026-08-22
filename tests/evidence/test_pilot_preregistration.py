@@ -37,7 +37,7 @@ def _make_record(**kwargs) -> PilotPreregistration:
         negative_control="pbs_vehicle",
         outcome_metric="minimum_inhibitory_concentration",
         dry_lab_only_declaration=True,
-        is_locked=False,
+        is_locked=True,
     )
     defaults.update(kwargs)
     return PilotPreregistration(**defaults)
@@ -82,7 +82,14 @@ class TestPilotPreregistration:
         assert r.amendment_count == 0
 
     def test_is_locked_default_false(self):
-        r = _make_record()
+        r = PilotPreregistration(
+            record_id="PRR-DEFAULT-001",
+            version="1.0.0",
+            frozen_at="2026-07-10T00:00:00Z",
+            pipeline_version="0.9.0",
+            git_sha="abc1234",
+            primary_hypothesis="draft",
+        )
         assert r.is_locked is False
 
 
@@ -111,6 +118,11 @@ class TestValidatePilotPreregistration:
         result = validate_pilot_preregistration(_make_record())
         assert result.is_valid is True
         assert result.violations == []
+
+    def test_unlocked_record_is_not_valid_for_experiment_start(self):
+        result = validate_pilot_preregistration(_make_record(is_locked=False))
+        assert result.is_valid is False
+        assert any("is_locked" in violation for violation in result.violations)
 
     def test_returns_validation_result(self):
         result = validate_pilot_preregistration(_make_record())

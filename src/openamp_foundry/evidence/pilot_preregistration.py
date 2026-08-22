@@ -158,7 +158,14 @@ def validate_pilot_preregistration(
     if not record.frozen_at.strip():
         violations.append("frozen_at must not be empty")
 
-    # Rule 13: threshold values in [0, 1]
+    # Rule 13: lock required before a record can be valid
+    if not record.is_locked:
+        violations.append(
+            "is_locked must be True — selection criteria and thresholds must be "
+            "frozen before any experiment begins"
+        )
+
+    # Rule 14: threshold values in [0, 1]
     for t in record.score_thresholds:
         if not (0.0 <= t.threshold_value <= 1.0):
             violations.append(
@@ -166,7 +173,7 @@ def validate_pilot_preregistration(
                 f"got {t.threshold_value}"
             )
 
-    # Rule 14: amendment_reasons vocabulary
+    # Rule 15: amendment_reasons vocabulary
     for reason in record.amendment_reasons:
         if reason not in VALID_AMENDMENT_REASONS:
             violations.append(
