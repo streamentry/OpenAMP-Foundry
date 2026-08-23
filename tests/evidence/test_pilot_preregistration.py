@@ -9,6 +9,7 @@ from openamp_foundry.evidence.pilot_preregistration import (
     ScoreThreshold,
     VALID_AMENDMENT_REASONS,
     VALID_OUTCOME_METRICS,
+    compute_pilot_preregistration_sha256,
     format_pilot_preregistration,
     validate_pilot_preregistration,
 )
@@ -40,7 +41,10 @@ def _make_record(**kwargs) -> PilotPreregistration:
         is_locked=True,
     )
     defaults.update(kwargs)
-    return PilotPreregistration(**defaults)
+    record = PilotPreregistration(**defaults)
+    if record.is_locked and not record.freeze_sha256:
+        record.freeze_sha256 = compute_pilot_preregistration_sha256(record)
+    return record
 
 
 # --- ScoreThreshold ---
@@ -123,6 +127,31 @@ class TestValidatePilotPreregistration:
         result = validate_pilot_preregistration(_make_record(is_locked=False))
         assert result.is_valid is False
         assert any("is_locked" in violation for violation in result.violations)
+
+    def test_locked_record_requires_freeze_digest(self):
+        record = _make_record()
+        record.freeze_sha256 = ""
+        result = validate_pilot_preregistration(record)
+        assert result.is_valid is False
+        assert any("freeze_sha256" in violation for violation in result.violations)
+
+    def test_freeze_digest_binds_selection_criteria(self):
+        record = _make_record()
+        record.selection_criteria.append("new criterion after freeze")
+        result = validate_pilot_preregistration(record)
+        assert result.is_valid is False
+        assert any("does not match" in violation for violation in result.violations)
+
+    def test_wrong_freeze_digest_is_rejected(self):
+        record = _make_record(freeze_sha256="0" * 64)
+        result = validate_pilot_preregistration(record)
+        assert result.is_valid is False
+        assert any("does not match" in violation for violation in result.violations)
+
+    def test_freeze_digest_is_deterministic(self):
+        first = _make_record()
+        second = _make_record()
+        assert compute_pilot_preregistration_sha256(first) == compute_pilot_preregistration_sha256(second)
 
     def test_returns_validation_result(self):
         result = validate_pilot_preregistration(_make_record())

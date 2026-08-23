@@ -192,6 +192,9 @@ Do not publish unsafe operational details.
 The machine validator treats `is_locked: true` as a validity requirement. An
 unlocked draft can be useful for internal editing, but it must not pass as a
 valid pre-registration for experiment start.
+For a locked record, also store the deterministic `freeze_sha256` computed
+from the complete PRR content. This binds record integrity, but does not
+authenticate the person who froze or approved it.
 
 ## Recalibration decision
 

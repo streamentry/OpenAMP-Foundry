@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-08-23
+## Current state — 2026-08-24
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -188,6 +188,11 @@ unlocked records. Drafts remain editable, but only a locked PRR- record can
 validate as the pre-experiment contract. This enforces the existing
 pre-registration boundary; it does not validate assay procedures, biological
 claims, or partner readiness.
+
+On 2026-08-24, locked PRR- records also began requiring a deterministic
+freeze SHA-256 over their canonical content. Later edits to selection criteria
+or thresholds therefore fail validation, while the digest remains integrity
+evidence rather than signer authentication or biological evidence.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a
