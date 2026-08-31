@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 
 VALID_OUTCOME_METRICS: frozenset[str] = frozenset({
@@ -115,6 +115,26 @@ def compute_pilot_preregistration_sha256(
     }
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def lock_pilot_preregistration(
+    record: PilotPreregistration,
+) -> PilotPreregistration:
+    """Return a locked copy of an editable draft with its content digest.
+
+    The input record is never mutated. An already locked record is rejected so
+    callers cannot silently re-freeze a record after its original digest was
+    issued; amendments must be represented and reviewed separately.
+    """
+    if record.is_locked:
+        raise ValueError(
+            "cannot lock an already locked pre-registration; record an amendment"
+        )
+    locked = replace(record, is_locked=True, freeze_sha256="")
+    return replace(
+        locked,
+        freeze_sha256=compute_pilot_preregistration_sha256(locked),
+    )
 
 
 def validate_pilot_preregistration(

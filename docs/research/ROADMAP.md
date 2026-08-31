@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-08-24
+## Current state — 2026-09-01
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -193,6 +193,11 @@ On 2026-08-24, locked PRR- records also began requiring a deterministic
 freeze SHA-256 over their canonical content. Later edits to selection criteria
 or thresholds therefore fail validation, while the digest remains integrity
 evidence rather than signer authentication or biological evidence.
+
+On 2026-09-01, the PRR module gained a non-mutating lock helper that creates a
+valid hashed locked copy from an editable draft and rejects re-locking. This
+reduces manual freeze mistakes without authenticating signers or expanding the
+record into assay or biological evidence.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

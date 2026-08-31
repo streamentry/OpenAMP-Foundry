@@ -195,6 +195,9 @@ valid pre-registration for experiment start.
 For a locked record, also store the deterministic `freeze_sha256` computed
 from the complete PRR content. This binds record integrity, but does not
 authenticate the person who froze or approved it.
+Library callers can use `lock_pilot_preregistration()` to obtain a hashed
+locked copy without mutating their editable draft. Calling it on an already
+locked record fails so amendments cannot silently replace the original freeze.
 
 ## Recalibration decision
 

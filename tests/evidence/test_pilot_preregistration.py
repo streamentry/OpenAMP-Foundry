@@ -11,6 +11,7 @@ from openamp_foundry.evidence.pilot_preregistration import (
     VALID_OUTCOME_METRICS,
     compute_pilot_preregistration_sha256,
     format_pilot_preregistration,
+    lock_pilot_preregistration,
     validate_pilot_preregistration,
 )
 
@@ -152,6 +153,25 @@ class TestValidatePilotPreregistration:
         first = _make_record()
         second = _make_record()
         assert compute_pilot_preregistration_sha256(first) == compute_pilot_preregistration_sha256(second)
+
+    def test_lock_helper_returns_valid_hashed_copy(self):
+        draft = _make_record(is_locked=False)
+        locked = lock_pilot_preregistration(draft)
+        result = validate_pilot_preregistration(locked)
+        assert result.is_valid is True
+        assert locked.is_locked is True
+        assert locked.freeze_sha256 == compute_pilot_preregistration_sha256(locked)
+
+    def test_lock_helper_does_not_mutate_draft(self):
+        draft = _make_record(is_locked=False)
+        locked = lock_pilot_preregistration(draft)
+        assert draft.is_locked is False
+        assert draft.freeze_sha256 == ""
+        assert locked is not draft
+
+    def test_lock_helper_rejects_already_locked_record(self):
+        with pytest.raises(ValueError, match="already locked"):
+            lock_pilot_preregistration(_make_record())
 
     def test_returns_validation_result(self):
         result = validate_pilot_preregistration(_make_record())
