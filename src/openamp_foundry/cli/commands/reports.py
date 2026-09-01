@@ -2026,6 +2026,72 @@ def _run_pre_registration_check(args: argparse.Namespace) -> int:
     return 0 if result.passed else 3
 
 
+def _run_pilot_preregistration_check(args: argparse.Namespace) -> int:
+    """Validate the PRR pilot pre-registration contract from JSON."""
+    from openamp_foundry.evidence.pilot_preregistration import (
+        PilotPreregistration,
+        ScoreThreshold,
+        validate_pilot_preregistration,
+    )
+
+    try:
+        entry_dict = json.loads(args.entry_json)
+    except (json.JSONDecodeError, TypeError) as exc:
+        print(json.dumps({"status": "error", "error": f"Invalid JSON: {exc}"}))
+        return 2
+    if not isinstance(entry_dict, dict):
+        print(json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
+        return 2
+
+    try:
+        thresholds = [
+            ScoreThreshold(**threshold)
+            for threshold in entry_dict.get("score_thresholds", [])
+        ]
+        record = PilotPreregistration(
+            record_id=entry_dict.get("record_id", ""),
+            version=entry_dict.get("version", ""),
+            frozen_at=entry_dict.get("frozen_at", ""),
+            pipeline_version=entry_dict.get("pipeline_version", ""),
+            git_sha=entry_dict.get("git_sha", ""),
+            primary_hypothesis=entry_dict.get("primary_hypothesis", ""),
+            selection_criteria=entry_dict.get("selection_criteria", []),
+            score_thresholds=thresholds,
+            n_candidates_planned=entry_dict.get("n_candidates_planned", 0),
+            positive_control=entry_dict.get("positive_control", ""),
+            negative_control=entry_dict.get("negative_control", ""),
+            outcome_metric=entry_dict.get("outcome_metric", ""),
+            dry_lab_only_declaration=entry_dict.get("dry_lab_only_declaration", True),
+            is_locked=entry_dict.get("is_locked", False),
+            amendment_count=entry_dict.get("amendment_count", 0),
+            amendment_reasons=entry_dict.get("amendment_reasons", []),
+            notes=entry_dict.get("notes", ""),
+            freeze_sha256=entry_dict.get("freeze_sha256", ""),
+        )
+    except (TypeError, ValueError) as exc:
+        print(json.dumps({"status": "error", "error": f"Malformed PRR JSON: {exc}"}))
+        return 2
+
+    result = validate_pilot_preregistration(record)
+    if args.format == "json":
+        import dataclasses
+
+        print(json.dumps(dataclasses.asdict(result), indent=2))
+    else:
+        status = "PASS" if result.is_valid else "FAIL"
+        print(
+            f"[{status}] Pilot Pre-Registration: {result.record_id} "
+            f"(locked={record.is_locked})"
+        )
+        for error in result.violations:
+            print(f"  ERROR: {error}")
+        for warning in result.warnings:
+            print(f"  WARN:  {warning}")
+        print(f"  {result.validation_summary}")
+
+    return 0 if result.is_valid else 3
+
+
 def _run_simulation_ci_report(args: argparse.Namespace) -> int:
     """Compute confidence intervals and overlap report for simulation results."""
     import json

@@ -24,6 +24,7 @@ from openamp_foundry.cli.commands.reports import (
     _run_phase_z_accountability_gate_check,
     _run_scientific_review_readiness_check,
     _run_pre_registration_check,
+    _run_pilot_preregistration_check,
     _run_external_sharing_clearance_check,
     _run_rejection_reason_check,
     _run_negative_result_archive_check,
@@ -2412,6 +2413,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     pre_registration_parser.set_defaults(func=_run_pre_registration_check)
 
+    pilot_preregistration_parser = sub.add_parser(
+        "pilot-preregistration-check",
+        help="Validate the locked PRR pilot pre-registration contract",
+    )
+    pilot_preregistration_parser.add_argument("--entry-json", required=True)
+    pilot_preregistration_parser.add_argument(
+        "--format", choices=["text", "json"], default="text"
+    )
+    pilot_preregistration_parser.set_defaults(func=_run_pilot_preregistration_check)
+
     external_sharing_clearance_parser = sub.add_parser(
         "external-sharing-clearance-check",
         help="Validate an ExternalSharingClearance entry (ESC-).",
@@ -3042,6 +3053,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "pre-registration-check":
         return _run_pre_registration_check(args)
+
+    if args.command == "pilot-preregistration-check":
+        return _run_pilot_preregistration_check(args)
 
     if args.command == "external-sharing-clearance-check":
         return _run_external_sharing_clearance_check(args)

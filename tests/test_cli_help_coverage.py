@@ -19,6 +19,7 @@ COMMANDS = [
     "phase-y-accountability-gate-check",
     "phase-z-accountability-gate-check",
     "scientific-review-readiness-check",
+    "pilot-preregistration-check",
 ]
 
 

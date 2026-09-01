@@ -5,9 +5,9 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > **Purpose:** One authoritative table of current pipeline metrics. If any doc disagrees
 > with this file, this file wins. Updated whenever benchmark/benchmark config changes.
 >
-> **Last updated:** 2026-09-01 (pilot pre-registration lock helper; benchmark values unchanged)
+> **Last updated:** 2026-09-02 (pilot pre-registration CLI check; benchmark values unchanged)
 
-> **Current verification note (2026-09-01):** Phase AA AA6 exposes the AARG-
+> **Current verification note (2026-09-02):** Phase AA AA6 exposes the AARG-
 > reproducibility aggregate through a repeatable CLI/make workflow, while Phase
 > AB AB5 exposes the ABAG- claim-integrity aggregate, Phase AC AC3 exposes the
 > ACDG- aggregate, Phase Y Y5 exposes the YAG- aggregate, and Phase Z Z5
@@ -100,7 +100,7 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > Phase AC AC3 exposes the ACDG-
 > aggregate disconfirming-evidence gate as a repeatable CLI/make workflow. It
 > has 18 focused gate tests plus 2 CLI integration tests. Full pytest
-> collection succeeds at 12,431 tests; the live count is enforced by the
+> collection succeeds at 12,435 tests; the live count is enforced by the
 > current-state alignment test. This artifact does not establish
 > biological validation or benchmark improvement.
 
@@ -109,6 +109,12 @@ Machine-readable snapshot: `outputs/metrics_snapshot.json` regenerated with `mak
 > still be edited, but a valid pre-registration must freeze its selection
 > criteria and thresholds first. This is anti-cherry-picking infrastructure,
 > not assay validation or biological evidence.
+
+> **Pilot pre-registration CLI note (2026-09-02):** The PRR validator is now
+> exposed through `pilot-preregistration-check`, including fail-closed locked
+> state and freeze-digest checks. This makes the pre-experiment integrity
+> contract executable in the review loop; it does not authenticate signers,
+> validate assays, or establish biological evidence.
 
 > **Pilot freeze-integrity note (2026-08-24):** Locked PRR- records now require
 > a deterministic SHA-256 over their canonical content. This catches edits to

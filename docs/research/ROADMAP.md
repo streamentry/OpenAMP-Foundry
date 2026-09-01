@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-09-01
+## Current state — 2026-09-02
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -198,6 +198,11 @@ On 2026-09-01, the PRR module gained a non-mutating lock helper that creates a
 valid hashed locked copy from an editable draft and rejects re-locking. This
 reduces manual freeze mistakes without authenticating signers or expanding the
 record into assay or biological evidence.
+
+On 2026-09-02, the PRR contract became reachable through the
+`pilot-preregistration-check` CLI. It now exposes locked-state and digest
+checks in the normal review loop, while remaining an integrity check rather
+than signer authentication, assay validation, or biological evidence.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

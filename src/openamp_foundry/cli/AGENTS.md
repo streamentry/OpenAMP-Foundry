@@ -23,6 +23,10 @@ preserve dry-lab claim boundaries and fail closed when a gate is incomplete.
 - `domain-review-outcome-check`: validates a DRO- outcome. Supplying
   `--package-json` enables fail-closed verification that `pep_sha256` matches
   the exact frozen PEP JSON; without it, legacy ID-only validation remains.
+- `pilot-preregistration-check`: validates the PRR pilot pre-registration
+  contract, including locked-state and freeze-digest checks. This is a
+  pre-experiment integrity check, not signer authentication or biological
+  validation.
 
 ## Diagrams (Mermaid)
 

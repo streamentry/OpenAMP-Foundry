@@ -132,6 +132,15 @@ They do not update model behavior.
 
 They do not create clinical, safety, or broad biological claims.
 
+## Pilot pre-registration check
+
+Use `pilot-preregistration-check --entry-json '<PRR JSON>'` for the
+`PilotPreregistration` contract used to freeze selection criteria before a
+qualified pilot. A valid record must be locked and carry a matching
+`freeze_sha256`; an editable draft is expected to fail this check. The command
+checks record integrity only. It does not authenticate a signer, validate an
+assay, or establish biological evidence.
+
 ## Recalibration workflow
 
 The recalibration gate evaluates whether a structured intake artifact satisfies a pre-registered policy.
