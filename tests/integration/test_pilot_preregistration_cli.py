@@ -72,3 +72,39 @@ def test_invalid_preregistration_json_returns_input_error(capsys):
     assert rc == 2
     result = json.loads(capsys.readouterr().out)
     assert result["status"] == "error"
+
+
+def test_invalid_preregistration_field_type_returns_input_error(capsys):
+    payload = _locked_payload()
+    payload["selection_criteria"] = "not-a-list"
+    rc = main([
+        "pilot-preregistration-check",
+        "--entry-json", json.dumps(payload),
+    ])
+    assert rc == 2
+    result = json.loads(capsys.readouterr().out)
+    assert "selection_criteria must be a list" in result["error"]
+
+
+def test_invalid_preregistration_threshold_type_returns_input_error(capsys):
+    payload = _locked_payload()
+    payload["score_thresholds"][0]["threshold_value"] = "0.75"
+    rc = main([
+        "pilot-preregistration-check",
+        "--entry-json", json.dumps(payload),
+    ])
+    assert rc == 2
+    result = json.loads(capsys.readouterr().out)
+    assert "threshold_value must be numeric" in result["error"]
+
+
+def test_invalid_preregistration_scalar_type_returns_input_error(capsys):
+    payload = _locked_payload()
+    payload["primary_hypothesis"] = 42
+    rc = main([
+        "pilot-preregistration-check",
+        "--entry-json", json.dumps(payload),
+    ])
+    assert rc == 2
+    result = json.loads(capsys.readouterr().out)
+    assert "primary_hypothesis must be a string" in result["error"]

@@ -2043,6 +2043,72 @@ def _run_pilot_preregistration_check(args: argparse.Namespace) -> int:
         print(json.dumps({"status": "error", "error": "--entry-json must be a JSON object"}))
         return 2
 
+    string_fields = (
+        "record_id", "version", "frozen_at", "pipeline_version", "git_sha",
+        "primary_hypothesis", "positive_control", "negative_control",
+        "outcome_metric", "notes", "freeze_sha256",
+    )
+    for field_name in string_fields:
+        if field_name in entry_dict and not isinstance(entry_dict[field_name], str):
+            print(json.dumps({
+                "status": "error",
+                "error": f"Malformed PRR JSON: {field_name} must be a string",
+            }))
+            return 2
+    list_fields = ("selection_criteria", "amendment_reasons", "score_thresholds")
+    for field_name in list_fields:
+        if field_name in entry_dict and not isinstance(entry_dict[field_name], list):
+            print(json.dumps({
+                "status": "error",
+                "error": f"Malformed PRR JSON: {field_name} must be a list",
+            }))
+            return 2
+    for field_name in ("dry_lab_only_declaration", "is_locked"):
+        if field_name in entry_dict and not isinstance(entry_dict[field_name], bool):
+            print(json.dumps({
+                "status": "error",
+                "error": f"Malformed PRR JSON: {field_name} must be a boolean",
+            }))
+            return 2
+    for field_name in ("n_candidates_planned", "amendment_count"):
+        if field_name in entry_dict and (
+            not isinstance(entry_dict[field_name], int)
+            or isinstance(entry_dict[field_name], bool)
+        ):
+            print(json.dumps({
+                "status": "error",
+                "error": f"Malformed PRR JSON: {field_name} must be an integer",
+            }))
+            return 2
+    for threshold in entry_dict.get("score_thresholds", []):
+        if not isinstance(threshold, dict):
+            print(json.dumps({
+                "status": "error",
+                "error": "Malformed PRR JSON: score_thresholds entries must be objects",
+            }))
+            return 2
+        if not isinstance(threshold.get("score_name"), str):
+            print(json.dumps({
+                "status": "error",
+                "error": "Malformed PRR JSON: score_thresholds.score_name must be a string",
+            }))
+            return 2
+        if (
+            not isinstance(threshold.get("threshold_value"), (int, float))
+            or isinstance(threshold.get("threshold_value"), bool)
+        ):
+            print(json.dumps({
+                "status": "error",
+                "error": "Malformed PRR JSON: score_thresholds.threshold_value must be numeric",
+            }))
+            return 2
+        if not isinstance(threshold.get("direction"), str):
+            print(json.dumps({
+                "status": "error",
+                "error": "Malformed PRR JSON: score_thresholds.direction must be a string",
+            }))
+            return 2
+
     try:
         thresholds = [
             ScoreThreshold(**threshold)

@@ -140,6 +140,8 @@ qualified pilot. A valid record must be locked and carry a matching
 `freeze_sha256`; an editable draft is expected to fail this check. The command
 checks record integrity only. It does not authenticate a signer, validate an
 assay, or establish biological evidence.
+Malformed field types are reported as input errors rather than being coerced
+or allowed to crash the command.
 
 ## Recalibration workflow
 
