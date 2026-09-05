@@ -141,7 +141,7 @@ qualified pilot. A valid record must be locked and carry a matching
 checks record integrity only. It does not authenticate a signer, validate an
 assay, or establish biological evidence.
 Malformed field types are reported as input errors rather than being coerced
-or allowed to crash the command.
+or allowed to crash the command, including malformed nested list entries.
 
 ## Recalibration workflow
 

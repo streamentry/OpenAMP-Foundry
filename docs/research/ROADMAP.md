@@ -1,6 +1,6 @@
 # Roadmap
 
-## Current state — 2026-09-05
+## Current state — 2026-09-06
 
 Phase AB is complete as of 2026-07-26. AB5 exposes the existing CSD-, RDR-,
 EGN-, and EHP- claim-integrity artifacts through an ABAG- aggregate, CLI
@@ -207,6 +207,10 @@ than signer authentication, assay validation, or biological evidence.
 On 2026-09-05, the PRR CLI began rejecting malformed field types as structured
 input errors. This prevents permissive coercion or handler crashes at the JSON
 boundary while leaving valid locked and editable records unchanged.
+
+On 2026-09-06, the same boundary began validating nested PRR list entries,
+preventing malformed amendment or selection items from reaching semantic
+validation as unexpected Python types.
 
 This file is the current milestone authority. The older
 [`50_LOOP_PLAN.md`](50_LOOP_PLAN.md) is a historical execution record, not a

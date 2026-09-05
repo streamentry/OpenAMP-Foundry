@@ -108,3 +108,27 @@ def test_invalid_preregistration_scalar_type_returns_input_error(capsys):
     assert rc == 2
     result = json.loads(capsys.readouterr().out)
     assert "primary_hypothesis must be a string" in result["error"]
+
+
+def test_invalid_preregistration_list_item_returns_input_error(capsys):
+    payload = _locked_payload()
+    payload["amendment_reasons"] = [{"reason": "not-a-string"}]
+    rc = main([
+        "pilot-preregistration-check",
+        "--entry-json", json.dumps(payload),
+    ])
+    assert rc == 2
+    result = json.loads(capsys.readouterr().out)
+    assert "amendment_reasons entries must be strings" in result["error"]
+
+
+def test_non_string_selection_criterion_returns_input_error(capsys):
+    payload = _locked_payload()
+    payload["selection_criteria"] = [42]
+    rc = main([
+        "pilot-preregistration-check",
+        "--entry-json", json.dumps(payload),
+    ])
+    assert rc == 2
+    result = json.loads(capsys.readouterr().out)
+    assert "selection_criteria entries must be strings" in result["error"]

@@ -2063,6 +2063,13 @@ def _run_pilot_preregistration_check(args: argparse.Namespace) -> int:
                 "error": f"Malformed PRR JSON: {field_name} must be a list",
             }))
             return 2
+    for field_name in ("selection_criteria", "amendment_reasons"):
+        if any(not isinstance(item, str) for item in entry_dict.get(field_name, [])):
+            print(json.dumps({
+                "status": "error",
+                "error": f"Malformed PRR JSON: {field_name} entries must be strings",
+            }))
+            return 2
     for field_name in ("dry_lab_only_declaration", "is_locked"):
         if field_name in entry_dict and not isinstance(entry_dict[field_name], bool):
             print(json.dumps({
