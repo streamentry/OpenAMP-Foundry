@@ -482,3 +482,9 @@ This is what makes the contract future-proof: every rule here is written to get 
 ## Final sentence
 
 Build trust, not theater.
+
+## Maintaining AI engineering guidance
+
+At the first repository task each month (Asia/Ho_Chi_Minh), follow [the monthly practice review](docs/operations/HUMAN_AGENT_COLLABORATION.md#monthly-ai-engineering-practice-review), starting with claude.dev. Apply evidence-backed improvements to this contract and canonical docs; preserve existing ownership, security, product, and release rules. This runs on agent entry, not a background scheduler.
+
+Before long-task interruption/compaction, record a redacted checkpoint and revalidate actual state on resume using [the resume protocol](docs/operations/HUMAN_AGENT_COLLABORATION.md#resuming-agent-work). Claims of better prompt/skill/workflow outcomes require [independent evaluation](docs/operations/HUMAN_AGENT_COLLABORATION.md#evaluating-guidance-changes); source recommendations and green counts alone are not proof.
